@@ -77,7 +77,14 @@ function normalizeDaySlots(value: unknown, fallback: OrderDaySlot[]): OrderDaySl
     if (!item || typeof item !== "object") continue;
     const row = item as Partial<OrderDaySlot>;
     const day = row.day;
-    if (!Number.isInteger(day) || day < 0 || day > 6) continue;
+    if (
+      typeof day !== "number" ||
+      !Number.isInteger(day) ||
+      day < 0 ||
+      day > 6
+    ) {
+      continue;
+    }
     const start =
       typeof row.startTime === "string" && /^\d{2}:\d{2}$/.test(row.startTime)
         ? row.startTime
