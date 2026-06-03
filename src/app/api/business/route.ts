@@ -1,12 +1,11 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { SLUG_REGEX } from "@/lib/constants";
+import { generateUniqueBusinessSlug } from "@/lib/business";
 import { jsonError, jsonOk } from "@/lib/api";
 
 const createSchema = z.object({
   name: z.string().min(2).max(100),
-  slug: z.string().min(3).max(30).regex(SLUG_REGEX),
   description: z.string().max(500).optional(),
   type: z.enum(["STORE", "APPOINTMENTS"]),
   acceptTerms: z.literal(true),
@@ -19,11 +18,15 @@ export async function POST(req: Request) {
 
   const body = await req.json().catch(() => null);
   const parsed = createSchema.safeParse(body);
-  if (!parsed.success) return jsonError("נתונים לא תקינים");
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    if (issue?.path[0] === "acceptTerms") {
+      return jsonError("יש לאשר את תנאי השימוש ומדיניות הפרטיות");
+    }
+    return jsonError("בדוק את שם העסק וסוג העסק");
+  }
 
-  const slug = parsed.data.slug.toLowerCase();
-  const taken = await prisma.business.findUnique({ where: { slug } });
-  if (taken) return jsonError("הלינק כבר תפוס", 409);
+  const slug = await generateUniqueBusinessSlug(parsed.data.name);
 
   const business = await prisma.business.create({
     data: {

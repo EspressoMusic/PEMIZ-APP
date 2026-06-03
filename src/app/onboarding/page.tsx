@@ -27,7 +27,6 @@ export default function OnboardingPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: fd.get("name"),
-        slug: fd.get("slug"),
         description: fd.get("description") || undefined,
         type,
         acceptTerms: true,
@@ -47,7 +46,7 @@ export default function OnboardingPage() {
     <WebShell>
       <div className="mx-auto max-w-lg px-4 py-10">
         <Panel>
-          <PageTitle subtitle="בחר סוג עסק ולינק ייחודי ללקוחות">
+          <PageTitle subtitle="בחר סוג עסק — קישור ללקוחות ייווצר אוטומטית">
             פתיחת עסק
           </PageTitle>
           {error && (
@@ -57,13 +56,6 @@ export default function OnboardingPage() {
           )}
           <form onSubmit={onSubmit} className="space-y-3">
             <Input name="name" label="שם העסק" required />
-            <Input
-              name="slug"
-              label="לינק ייחודי (אנגלית, מספרים ומקף)"
-              required
-              placeholder="my-cafe"
-              dir="ltr"
-            />
             <Textarea name="description" label="תיאור קצר (אופציונלי)" rows={3} />
 
             <div>

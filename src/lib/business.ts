@@ -1,5 +1,37 @@
+import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { UNAVAILABLE_MESSAGE } from "@/lib/constants";
+import { SLUG_REGEX, UNAVAILABLE_MESSAGE } from "@/lib/constants";
+
+function slugifyBusinessName(name: string): string {
+  const base = name
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 24);
+
+  return base.length >= 3 && SLUG_REGEX.test(base) ? base : "";
+}
+
+export async function generateUniqueBusinessSlug(name: string): Promise<string> {
+  const base = slugifyBusinessName(name) || "store";
+
+  for (let i = 0; i < 50; i++) {
+    const candidate =
+      i === 0 ? base : `${base}-${i + 1}`.slice(0, 30).replace(/-$/, "");
+    if (!SLUG_REGEX.test(candidate)) continue;
+    const taken = await prisma.business.findUnique({
+      where: { slug: candidate },
+    });
+    if (!taken) return candidate;
+  }
+
+  return `store-${randomBytes(4).toString("hex")}`;
+}
 
 export async function getBusinessBySlug(slug: string) {
   return prisma.business.findUnique({
