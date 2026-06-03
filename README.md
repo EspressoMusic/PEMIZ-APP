@@ -1,4 +1,6 @@
-# Linky
+# Linky (PEMIZ-APP)
+
+מאגר קוד: [github.com/EspressoMusic/PEMIZ-APP](https://github.com/EspressoMusic/PEMIZ-APP)
 
 פלטפורמת SaaS לעסקים קטנים: עמוד דיגיטלי, קישור ללקוחות (`/b/your-slug`), הזמנות, תורים ופניות — עם דשבורד לבעל העסק ופאנל מנהל פלטפורמה.
 
