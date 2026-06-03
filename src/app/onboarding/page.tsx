@@ -38,7 +38,7 @@ export default function OnboardingPage() {
       setError(data.error);
       return;
     }
-    router.push("/pending-approval");
+    router.push("/dashboard");
     router.refresh();
   }
 
@@ -46,7 +46,7 @@ export default function OnboardingPage() {
     <WebShell>
       <div className="mx-auto max-w-lg px-4 py-10">
         <Panel>
-          <PageTitle subtitle="בחר סוג עסק — קישור ללקוחות ייווצר אוטומטית">
+          <PageTitle subtitle="בחר סוג עסק — הדשבורד ייפתח מיד לאחר השמירה">
             פתיחת עסק
           </PageTitle>
           {error && (

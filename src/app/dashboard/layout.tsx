@@ -13,8 +13,6 @@ export default async function DashboardLayout({
     if (user.role === "ADMIN") redirect("/master");
     redirect("/onboarding");
   }
-  if (!user.business.isActive) redirect("/pending-approval");
-
   return (
     <div className="bakery-frame-bg min-h-full">
     <div className="mx-auto flex max-w-[1040px] flex-col gap-6 px-4 py-8 md:flex-row md:px-[14px]">

@@ -36,14 +36,12 @@ export async function POST(req: Request) {
       type: parsed.data.type,
       ownerId: user.id,
       termsAcceptedAt: new Date(),
-      isActive: false,
+      isActive: true,
+      approvedAt: new Date(),
     },
   });
 
-  return jsonOk({
-    business,
-    pendingAdminApproval: true,
-  });
+  return jsonOk({ business });
 }
 
 export async function GET() {

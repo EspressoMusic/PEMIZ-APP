@@ -35,10 +35,6 @@ export default function VerifyEmailPage() {
           router.replace("/onboarding");
           return;
         }
-        if (!d.user.business.isActive) {
-          router.replace("/pending-approval");
-          return;
-        }
         if (d.user?.emailVerified) {
           router.replace("/dashboard");
           return;

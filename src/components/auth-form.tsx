@@ -40,8 +40,6 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       router.push("/master");
     } else if (!data.hasBusiness) {
       router.push("/onboarding");
-    } else if (!data.businessActive) {
-      router.push("/pending-approval");
     } else {
       router.push("/dashboard");
     }

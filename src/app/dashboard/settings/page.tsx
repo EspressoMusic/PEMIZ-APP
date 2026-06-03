@@ -17,12 +17,7 @@ export default async function SettingsPage() {
           {user?.email}
         </p>
         <p className="text-[14px]">
-          סטטוס חנות:{" "}
-          {b?.isActive
-            ? "✓ פעילה (אושרה)"
-            : b?.approvedAt
-              ? "מושבתת"
-              : "ממתינה לאישור מנהל"}
+          סטטוס חנות: {b?.isActive ? "✓ פעילה" : "מושבתת"}
         </p>
       </Panel>
       {b && (
