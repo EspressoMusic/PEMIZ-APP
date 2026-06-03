@@ -1,0 +1,72 @@
+import { SignJWT, jwtVerify } from "jose";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import type { Role } from "@/lib/types";
+
+const COOKIE_NAME = "linky_session";
+
+export type SessionPayload = {
+  userId: string;
+  email: string;
+  role: Role;
+};
+
+function getSecret() {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error("SESSION_SECRET must be at least 32 characters");
+  }
+  return new TextEncoder().encode(secret);
+}
+
+export async function createSession(payload: SessionPayload) {
+  const token = await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(getSecret());
+
+  const cookieStore = await cookies();
+  cookieStore.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
+}
+
+export async function destroySession() {
+  const cookieStore = await cookies();
+  cookieStore.delete(COOKIE_NAME);
+}
+
+export async function getSession(): Promise<SessionPayload | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(COOKIE_NAME)?.value;
+  if (!token) return null;
+
+  try {
+    const { payload } = await jwtVerify(token, getSecret());
+    return {
+      userId: payload.userId as string,
+      email: payload.email as string,
+      role: payload.role as Role,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function getCurrentUser() {
+  const session = await getSession();
+  if (!session) return null;
+  return prisma.user.findUnique({
+    where: { id: session.userId },
+    include: { business: true },
+  });
+}
+
+export function generateOtp(): string {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}

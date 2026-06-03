@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/PlusJakartaSans-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src: url("/fonts/Rubik-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src: url("/fonts/Rubik-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src: url("/fonts/Rubik-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bakery-scaffold: #f4f0e8;
+  --bakery-panel-top: #fbf7ef;
+  --bakery-panel-bottom: #f1e5d4;
+  --bakery-card: #f8f4ec;
+  --bakery-square: #e6d4b8;
+  --bakery-ink: #3a2f26;
+  --bakery-muted: #6b5d52;
+  --bakery-primary: #5c4a3e;
+  --bakery-on-primary: #f8f4ec;
+  --bakery-input: #f3efe6;
+  --bakery-border: #c9b89a;
+  --bakery-sale: #b94040;
+  --bakery-error: #c62828;
+  --bakery-success: #43a047;
+  /* Customer app (screenshots) */
+  --customer-bg: #fdf8f4;
+  --customer-nav-bg: #f1e3d3;
+  --customer-nav-active: #dbc9b5;
+  --customer-soft-wrap: #fbf7ef;
+  --background: var(--bakery-scaffold);
+  --foreground: var(--bakery-ink);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Plus Jakarta Sans", "Rubik", system-ui, sans-serif;
+  --color-bakery-scaffold: #f4f0e8;
+  --color-bakery-panel-top: #fbf7ef;
+  --color-bakery-square: #e6d4b8;
+  --color-bakery-ink: #3a2f26;
+  --color-bakery-muted: #6b5d52;
+  --color-bakery-primary: #5c4a3e;
+  --color-bakery-on-primary: #f8f4ec;
+  --color-bakery-input: var(--bakery-input);
+  --color-bakery-border: #c9b89a;
+  --color-customer-bg: #fdf8f4;
+  --color-customer-nav: #f1e3d3;
+  --color-customer-nav-active: #dbc9b5;
+  --color-customer-soft: #fbf7ef;
+  --shadow-bakery-panel: 0 8px 16px rgba(0, 0, 0, 0.22),
+    -2px -3px 8px rgba(255, 255, 255, 0.09);
+  --shadow-bakery-card: 0 3px 10px rgba(0, 0, 0, 0.13);
+  --shadow-bakery-square: 0 5px 10px rgba(0, 0, 0, 0.16);
+  --shadow-bakery-btn: 0 4px 10px rgba(58, 47, 38, 0.28);
+  --bakery-primary-deep: #43362c;
+  --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
+    0 10px 22px rgba(58, 47, 38, 0.32);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(92, 74, 62, 0.55),
+    0 8px 18px rgba(58, 47, 38, 0.22);
+}
+
+body {
+  background: var(--bakery-scaffold);
+  color: var(--bakery-ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.bakery-panel-shadow {
+  box-shadow: var(--shadow-bakery-panel);
+}
+
+.bakery-square-shadow {
+  box-shadow: var(--shadow-bakery-square);
+}
+
+.bakery-field {
+  box-shadow: inset 0 1px 4px rgba(58, 47, 38, 0.06);
+}
+
+.bakery-cta-3d {
+  min-height: 62px;
+  min-width: 220px;
+  padding: 18px 36px;
+  border-radius: 9999px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease,
+    opacity 0.14s ease;
+}
+
+.bakery-cta-3d--primary {
+  border: none;
+  background: linear-gradient(
+    180deg,
+    #6a5648 0%,
+    var(--bakery-primary) 52%,
+    #504236 100%
+  );
+  color: var(--bakery-on-primary);
+  box-shadow: var(--shadow-bakery-btn-3d-primary);
+}
+
+.bakery-cta-3d--primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 0 var(--bakery-primary-deep),
+    0 14px 26px rgba(58, 47, 38, 0.36);
+}
+
+.bakery-cta-3d--primary:active {
+  transform: translateY(5px);
+  box-shadow:
+    0 2px 0 var(--bakery-primary-deep),
+    0 5px 12px rgba(58, 47, 38, 0.26);
+}
+
+.bakery-cta-3d--secondary {
+  border: 2px solid var(--bakery-primary);
+  background: var(--bakery-scaffold);
+  color: var(--bakery-ink);
+  box-shadow: var(--shadow-bakery-btn-3d-secondary);
+}
+
+.bakery-cta-3d--secondary:hover {
+  transform: translateY(-2px);
+  background: var(--bakery-card);
+  box-shadow:
+    0 7px 0 rgba(92, 74, 62, 0.55),
+    0 12px 22px rgba(58, 47, 38, 0.24);
+}
+
+.bakery-cta-3d--secondary:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 rgba(92, 74, 62, 0.45),
+    0 4px 10px rgba(58, 47, 38, 0.18);
+}

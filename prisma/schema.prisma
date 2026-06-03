@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                         String    @id @default(cuid())
+  email                      String    @unique
+  passwordHash               String
+  name                       String
+  phone                      String?
+  phoneVerified              Boolean   @default(false)
+  emailVerified              Boolean   @default(false)
+  emailVerificationToken     String?   @unique
+  emailVerificationExpiresAt DateTime?
+  role                       String    @default("OWNER")
+  createdAt                  DateTime  @default(now())
+  business                   Business?
+  otpCodes                   OtpCode[]
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Business {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  description     String?
+  type            String
+  isActive        Boolean  @default(false)
+  approvedAt      DateTime?
+  ownerId         String   @unique
+  owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  termsAcceptedAt DateTime?
+  createdAt       DateTime @default(now())
+  products        Product[]
+  orders          Order[]
+  slots           AppointmentSlot[]
+  appointments    Appointment[]
+  inquiries       Inquiry[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  businessId  String
+  business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+
+  @@index([businessId])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  businessId    String
+  business      Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  notes         String?
+  status        String      @default("PENDING")
+  createdAt     DateTime    @default(now())
+  items         OrderItem[]
+
+  @@index([businessId])
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product @relation(fields: [productId], references: [id])
+  quantity     Int
+  priceAtOrder Float
+}
+
+model AppointmentSlot {
+  id           String        @id @default(cuid())
+  businessId   String
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  startAt      DateTime
+  endAt        DateTime
+  maxBookings  Int           @default(1)
+  createdAt    DateTime      @default(now())
+  appointments Appointment[]
+
+  @@index([businessId, startAt])
+}
+
+model Appointment {
+  id            String          @id @default(cuid())
+  businessId    String
+  business      Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  slotId        String
+  slot          AppointmentSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  customerName  String
+  customerPhone String
+  notes         String?
+  status        String          @default("PENDING")
+  createdAt     DateTime        @default(now())
+
+  @@index([businessId])
+  @@index([slotId])
+}
+
+model Inquiry {
+  id            String   @id @default(cuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerName  String
+  customerPhone String?
+  customerEmail String?
+  message       String
+  createdAt     DateTime @default(now())
+
+  @@index([businessId])
+}
