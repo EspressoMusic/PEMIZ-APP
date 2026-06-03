@@ -51,7 +51,6 @@ function PrepDetailModal({
   labels: DashboardLabels;
 }) {
   const customers = groupPrepLinesByCustomer(product.orders);
-
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {

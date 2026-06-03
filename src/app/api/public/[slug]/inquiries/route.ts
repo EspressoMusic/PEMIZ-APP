@@ -7,6 +7,7 @@ const schema = z.object({
   customerName: z.string().min(2).max(80),
   customerPhone: z.string().max(20).optional(),
   customerEmail: z.string().email().optional().or(z.literal("")),
+  subject: z.string().min(2).max(120),
   message: z.string().min(5).max(2000),
 });
 
@@ -32,6 +33,7 @@ export async function POST(
       customerName: parsed.data.customerName,
       customerPhone: parsed.data.customerPhone,
       customerEmail: parsed.data.customerEmail || null,
+      subject: parsed.data.subject.trim(),
       message: parsed.data.message,
     },
   });

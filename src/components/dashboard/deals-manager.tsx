@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { playUiPopupSound } from "@/lib/ui-sounds";
 import { Button, Input, Badge, Alert } from "@/components/ui";
 import { Gift, Plus, X, Pencil } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -108,6 +109,12 @@ export function DealsManager() {
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    if (wizardStep === "confirm" && confirmDraft && !editingDealId) {
+      playUiPopupSound();
+    }
+  }, [wizardStep, confirmDraft, editingDealId]);
 
   function resetWizard() {
     setWizardStep(null);

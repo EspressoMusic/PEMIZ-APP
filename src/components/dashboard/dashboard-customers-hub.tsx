@@ -1,7 +1,7 @@
 "use client";
 
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
-import { Megaphone, MessagesSquare } from "lucide-react";
+import { Megaphone, MessageCircle, MessagesSquare } from "lucide-react";
 import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-square";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
@@ -25,6 +25,11 @@ export function DashboardCustomersHub({
             href={`${basePath}/customers/inquiries`}
             icon={MessagesSquare}
             label={labels.customerInquiries}
+          />
+          <DashboardActionSquare
+            href={`${basePath}/customers/chat`}
+            icon={MessageCircle}
+            label={labels.sellerChatTitle}
           />
         </div>
       </div>

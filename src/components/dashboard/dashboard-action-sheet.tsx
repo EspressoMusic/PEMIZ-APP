@@ -20,7 +20,6 @@ export function DashboardActionSheet({
 }) {
   const { labels } = useAppLocale();
   const closeLabel = labels.close;
-
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;

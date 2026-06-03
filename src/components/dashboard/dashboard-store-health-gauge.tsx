@@ -35,7 +35,6 @@ export function DashboardStoreHealthGauge({
   });
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(!previewOnly);
-
   const load = useCallback(async () => {
     if (previewOnly) {
       setHealth(DEV_STORE_HEALTH);

@@ -7,6 +7,7 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 type InquiryRow = {
   id: string;
   customerName: string;
+  subject?: string;
   message: string;
   customerPhone?: string | null;
   sellerReply?: string | null;
@@ -119,6 +120,11 @@ export function DashboardInquiriesManager({
               <p className="text-[12px] font-bold text-bakery-muted">
                 {labels.customerInquiryLabel}
               </p>
+              {q.subject ? (
+                <p className="mt-1 text-[15px] font-extrabold text-bakery-ink">
+                  {q.subject}
+                </p>
+              ) : null}
               <p className="mt-1 whitespace-pre-wrap text-[15px] text-bakery-ink">
                 {q.message}
               </p>

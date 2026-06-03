@@ -3,7 +3,6 @@
 import { useEffect, useMemo } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui";
-
 type Piece = {
   id: number;
   left: number;

@@ -19,6 +19,8 @@ export default async function PublicBusinessPage({
   const unavailable = !isBusinessAcceptingCustomers(business);
 
   return (
+    <div className="bakery-frame-bg h-dvh overflow-hidden">
+      <div className="app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-4">
     <PublicStorefront
       business={{
         slug: business.slug,
@@ -73,5 +75,7 @@ export default async function PublicBusinessPage({
       }}
       unavailable={unavailable}
     />
+      </div>
+    </div>
   );
 }

@@ -41,7 +41,6 @@ export function DashboardInquiryBell({
   const [items, setItems] = useState<InquiryRow[]>([]);
   const [lastSeenAt, setLastSeenAt] = useState("");
   const [open, setOpen] = useState(false);
-
   const load = useCallback(async () => {
     if (previewOnly) {
       setItems(

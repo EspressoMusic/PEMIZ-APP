@@ -63,7 +63,6 @@ export function DashboardCustomerLinkCard({
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
-
   const pathLabel = displayPath(url);
 
   useEffect(() => {

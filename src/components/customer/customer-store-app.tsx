@@ -42,12 +42,25 @@ import {
   DealCard,
   HubEmptyText,
 } from "./customer-ui";
-import { CustomerSellerNotice } from "./customer-seller-notice";
+import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
+import { CustomerCenterModal } from "./customer-center-modal";
+import {
+  CustomerContactModal,
+  type ContactView,
+} from "./customer-contact-modal";
+import {
+  CUSTOMER_MOBILE_STACK,
+  CUSTOMER_PAGE_ROOT,
+  CUSTOMER_SCROLL_MAIN,
+  CUSTOMER_VIEWPORT_HEIGHT,
+} from "./customer-store-frame";
+import { playUiPopupSound } from "@/lib/ui-sounds";
 import { normalizePhone } from "@/lib/phone";
 import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
 
 type MyInquiry = {
   id: string;
+  subject?: string;
   message: string;
   sellerReply: string | null;
   sellerReplyAt: string | null;
@@ -130,10 +143,14 @@ export function CustomerStoreApp({
 }) {
   const isAppointments = business.type === "APPOINTMENTS";
   const [mainTab, setMainTab] = useState<CustomerMainTab>("home");
-  const [settingsInquiriesOpen, setSettingsInquiriesOpen] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [contactView, setContactView] = useState<ContactView>("menu");
   const [cart, setCart] = useState<Record<string, number>>({});
   const [customerName, setCustomerName] = useState("");
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [profileDraftName, setProfileDraftName] = useState("");
+  const [profileDraftPhone, setProfileDraftPhone] = useState("");
+  const [profileSavedFlash, setProfileSavedFlash] = useState(false);
   const [orderPhone, setOrderPhone] = useState("");
   const [faqOpen, setFaqOpen] = useState(false);
   const [displayOpen, setDisplayOpen] = useState(false);
@@ -143,7 +160,8 @@ export function CustomerStoreApp({
   const [orderSuccessOpen, setOrderSuccessOpen] = useState(false);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [orderError, setOrderError] = useState("");
-  const [sellerNoticeOpen, setSellerNoticeOpen] = useState(false);
+  const [sellerNoticeUnread, setSellerNoticeUnread] = useState(false);
+  const [sellerNoticeExpanded, setSellerNoticeExpanded] = useState(false);
   const [sellerNoticeMessage, setSellerNoticeMessage] = useState("");
   const [sellerNoticeSentAt, setSellerNoticeSentAt] = useState<string | null>(
     null
@@ -161,8 +179,18 @@ export function CustomerStoreApp({
   const labels = useMemo(() => getCustomerLabels(locale), [locale]);
 
   useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  useEffect(() => {
     const saved = localStorage.getItem(`linky-customer-${business.slug}`);
     if (saved) setCustomerName(saved);
+    const savedPhone = localStorage.getItem(inquiryPhoneKey(business.slug));
+    if (savedPhone) setOrderPhone(savedPhone);
     const prefs = loadCustomerPreferences(business.slug);
     const hasPrefs =
       typeof window !== "undefined" &&
@@ -171,6 +199,29 @@ export function CustomerStoreApp({
     setTextScale(prefs.textScale);
     setDisplayTheme(hasPrefs ? prefs.theme : ownerTheme);
   }, [business.slug, ownerTheme, ownerLocale]);
+
+  useEffect(() => {
+    if (!profileModalOpen) return;
+    setProfileDraftName(customerName);
+    setProfileDraftPhone(orderPhone);
+    setProfileSavedFlash(false);
+  }, [profileModalOpen, customerName, orderPhone]);
+
+  function saveCustomerProfile() {
+    const name = profileDraftName.trim();
+    if (name.length < 2) return;
+    const phone = profileDraftPhone.trim();
+    setCustomerName(name);
+    setOrderPhone(phone);
+    localStorage.setItem(`linky-customer-${business.slug}`, name);
+    localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+    if (phone) void loadMyInquiries(phone);
+    setProfileSavedFlash(true);
+    window.setTimeout(() => {
+      setProfileModalOpen(false);
+      setProfileSavedFlash(false);
+    }, 700);
+  }
 
   useEffect(() => {
     if (unavailable) return;
@@ -193,11 +244,15 @@ export function CustomerStoreApp({
       }
 
       if (!message?.trim() || !sentAt) return;
-      const seen = localStorage.getItem(broadcastSeenKey(business.slug));
-      if (seen === sentAt) return;
       setSellerNoticeMessage(message);
       setSellerNoticeSentAt(sentAt);
-      setSellerNoticeOpen(true);
+      const seen = localStorage.getItem(broadcastSeenKey(business.slug));
+      const isNew = seen !== sentAt;
+      setSellerNoticeUnread(isNew);
+      if (isNew) {
+        setSellerNoticeExpanded(false);
+        playUiPopupSound();
+      }
     }
 
     checkBroadcast();
@@ -218,6 +273,7 @@ export function CustomerStoreApp({
             normalizePhone(row.customerPhone) === phone
         ).map((row) => ({
           id: row.id,
+          subject: row.subject,
           message: row.message,
           sellerReply: row.sellerReply,
           sellerReplyAt: row.sellerReplyAt,
@@ -252,8 +308,25 @@ export function CustomerStoreApp({
     if (sentAt) {
       localStorage.setItem(broadcastSeenKey(business.slug), sentAt);
     }
-    setSellerNoticeOpen(false);
+    setSellerNoticeUnread(false);
+    setSellerNoticeExpanded(false);
   }
+
+  function toggleSellerNotice() {
+    setSellerNoticeExpanded((open) => {
+      const next = !open;
+      if (next && sellerNoticeUnread) {
+        const sentAt = sellerNoticeSentAt ?? business.storeBroadcastAt;
+        if (sentAt) {
+          localStorage.setItem(broadcastSeenKey(business.slug), sentAt);
+        }
+        setSellerNoticeUnread(false);
+      }
+      return next;
+    });
+  }
+
+  const showSellerNoticeBanner = sellerNoticeMessage.trim().length > 0;
 
   function updatePreferences(
     patch: Partial<{
@@ -337,6 +410,7 @@ export function CustomerStoreApp({
     setCustomerName(name);
     setOrderPhone(phone);
     localStorage.setItem(`linky-customer-${business.slug}`, name);
+    localStorage.setItem(inquiryPhoneKey(business.slug), phone);
     setCart({});
     setPendingDeal(null);
     setOrderCheckoutOpen(false);
@@ -360,6 +434,7 @@ export function CustomerStoreApp({
       body: JSON.stringify({
         customerName: fd.get("customerName"),
         customerPhone: phone,
+        subject: fd.get("subject"),
         message: fd.get("message"),
       }),
     });
@@ -412,7 +487,7 @@ export function CustomerStoreApp({
       return <EmptyStateCard message={labels.noServices} />;
     }
     return (
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2.5">
         {business.products.map((p) => {
           const outOfStock = !isProductInStock(p.stock);
           const maxQty = maxOrderQuantity(p.stock);
@@ -423,6 +498,8 @@ export function CustomerStoreApp({
               description={p.description}
               imageUrl={p.imageUrl}
               locale={locale}
+              storeTheme={displayTheme}
+              infoLabel={labels.productInfo}
               price={p.price}
               salePrice={p.salePrice}
               qty={cart[p.id] ?? 0}
@@ -453,7 +530,7 @@ export function CustomerStoreApp({
       return <EmptyStateCard message={labels.noDeals} />;
     }
     return (
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3">
         {activeDeals.map((d) => (
           <DealCard
             key={d.id}
@@ -471,58 +548,9 @@ export function CustomerStoreApp({
     );
   }
 
-  function renderInquiriesBlock() {
-    return (
-      <div className="space-y-3">
-        {inquirySent && (
-          <p className="text-center text-[14px] font-semibold text-bakery-success">
-            {labels.inquirySent}
-          </p>
-        )}
-        {myInquiries.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-[16px] font-extrabold text-bakery-ink">
-              {labels.yourInquiries}
-            </h2>
-            {myInquiries.map((inq) => (
-              <Panel key={inq.id} className="space-y-2">
-                <p className="whitespace-pre-wrap text-[15px] text-bakery-ink">
-                  {inq.message}
-                </p>
-                {inq.sellerReply ? (
-                  <div className="rounded-[14px] border border-bakery-primary/25 bg-bakery-primary/10 px-3 py-2">
-                    <p className="text-[12px] font-bold text-bakery-primary">
-                      {labels.sellerReplyLabel}
-                    </p>
-                    <p className="mt-1 whitespace-pre-wrap text-[14px] text-bakery-ink">
-                      {inq.sellerReply}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-[13px] font-semibold text-bakery-muted">
-                    {labels.awaitingReply}
-                  </p>
-                )}
-              </Panel>
-            ))}
-          </div>
-        )}
-        <Panel>
-          <form onSubmit={sendInquiry} className="space-y-3">
-            <Input name="customerName" label={labels.name} required />
-            <Input
-              name="customerPhone"
-              label={labels.phone}
-              defaultValue={orderPhone}
-            />
-            <Textarea name="message" label={labels.message} rows={4} required />
-            <Button type="submit" className="w-full min-h-[48px]">
-              {labels.send}
-            </Button>
-          </form>
-        </Panel>
-      </div>
-    );
+  function openContactModal() {
+    setContactView("menu");
+    setContactModalOpen(true);
   }
 
   function renderMainContent() {
@@ -546,7 +574,7 @@ export function CustomerStoreApp({
               availableSlots.length === 0 ? (
                 <EmptyStateCard message={labels.noSlots} />
               ) : (
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4">
                   {availableSlots.map((s) => (
                     <Panel key={s.id}>
                       <p className="font-extrabold text-bakery-ink">
@@ -568,7 +596,9 @@ export function CustomerStoreApp({
                 </div>
               )
             ) : (
-              renderProductGrid()
+              <div className="bakery-float-panel rounded-[24px] p-3">
+                {renderProductGrid()}
+              </div>
             )}
           </div>
         );
@@ -582,7 +612,7 @@ export function CustomerStoreApp({
             {isAppointments ? (
               <EmptyStateCard message={labels.noMyAppts} />
             ) : (
-              <div className="grid gap-6 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4">
                 <OrdersHubPanel title={labels.activeOrders}>
                   {cartLines.length === 0 ? (
                     <HubEmptyText>{labels.cartEmpty}</HubEmptyText>
@@ -637,16 +667,18 @@ export function CustomerStoreApp({
             {isAppointments ? (
               <EmptyStateCard message={labels.noDeals} />
             ) : (
-              renderDealsGrid()
+              <div className="bakery-float-panel rounded-[24px] p-3">
+                {renderDealsGrid()}
+              </div>
             )}
           </div>
         );
 
       case "settings":
         return (
-          <div className="space-y-5 pb-2">
+          <div className="space-y-4 pb-2">
             <PageTitle>{labels.settings}</PageTitle>
-            <div className="space-y-3">
+            <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
               <SettingsMenuRow
                 icon={HelpCircle}
                 title={labels.faq}
@@ -657,9 +689,8 @@ export function CustomerStoreApp({
                 icon={MessagesSquare}
                 title={labels.contactSeller}
                 subtitle={labels.inquiriesSub}
-                onClick={() => setSettingsInquiriesOpen((v) => !v)}
+                onClick={openContactModal}
               />
-              {settingsInquiriesOpen && renderInquiriesBlock()}
               <SettingsMenuRow
                 icon={SlidersHorizontal}
                 title={labels.language}
@@ -676,23 +707,8 @@ export function CustomerStoreApp({
                 icon={UserRound}
                 title={labels.signIn}
                 subtitle={labels.signInSub}
-                onClick={() => setProfileOpen(!profileOpen)}
+                onClick={() => setProfileModalOpen(true)}
               />
-              {profileOpen && (
-                <div className="rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-4 bakery-panel-shadow">
-                  <Input
-                    label={labels.yourName}
-                    value={customerName}
-                    onChange={(e) => {
-                      setCustomerName(e.target.value);
-                      localStorage.setItem(
-                        `linky-customer-${business.slug}`,
-                        e.target.value
-                      );
-                    }}
-                  />
-                </div>
-              )}
             </div>
           </div>
         );
@@ -717,36 +733,42 @@ export function CustomerStoreApp({
     <div
       lang={rootLang}
       dir={rootDir}
-      className={`customer-store-root ${themeClass} ${textScaleClass}`}
+      className={`customer-store-root ${themeClass} ${textScaleClass} flex h-full min-h-0 w-full flex-col overflow-hidden`}
     >
-      <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 pb-[calc(76px+env(safe-area-inset-bottom))] sm:py-6 lg:px-[14px] lg:pb-8 lg:py-8">
-        <div className="flex w-full flex-col gap-4 lg:flex-row lg:gap-8">
-          {!unavailable && (
-            <CustomerStoreTabNav
-              labels={labels}
-              active={mainTab}
-              onSelect={setMainTab}
-              ordersBadge={isAppointments ? undefined : cartItemCount}
-            />
+      <div className={CUSTOMER_VIEWPORT_HEIGHT}>
+        <div className={`${CUSTOMER_MOBILE_STACK} ${CUSTOMER_PAGE_ROOT}`}>
+          {!unavailable && showSellerNoticeBanner && (
+            <div className="shrink-0">
+              <CustomerSellerNoticeBanner
+                message={sellerNoticeMessage}
+                labels={labels}
+                expanded={sellerNoticeExpanded}
+                onToggle={toggleSellerNotice}
+                onDismiss={dismissSellerNotice}
+                unread={sellerNoticeUnread}
+              />
+            </div>
           )}
-          <main className="min-w-0 flex-1">{renderMainContent()}</main>
+          <main className={CUSTOMER_SCROLL_MAIN}>{renderMainContent()}</main>
         </div>
       </div>
 
-      <CustomerSellerNotice
-        open={sellerNoticeOpen}
-        message={sellerNoticeMessage}
-        locale={locale}
-        onClose={dismissSellerNotice}
-      />
+      {!unavailable && (
+        <CustomerStoreTabNav
+          labels={labels}
+          active={mainTab}
+          onSelect={setMainTab}
+          ordersBadge={isAppointments ? undefined : cartItemCount}
+        />
+      )}
 
       <CustomerFaqSheet
         open={faqOpen}
         onClose={() => setFaqOpen(false)}
         items={business.faqItems}
-        storePolicy={business.storePolicy}
         storeTerms={business.storeTerms}
         locale={locale}
+        storeTheme={displayTheme}
       />
 
       <CustomerDisplaySheet
@@ -761,11 +783,69 @@ export function CustomerStoreApp({
       <CustomerLegalSheet
         open={legalOpen}
         onClose={() => setLegalOpen(false)}
-        storeUrl={business.storeUrl}
         locale={locale}
         textScale={textScale}
         onTextScaleChange={(s) => updatePreferences({ textScale: s })}
+        storeTheme={displayTheme}
       />
+
+      <CustomerContactModal
+        open={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+        view={contactView}
+        onViewChange={setContactView}
+        slug={business.slug}
+        locale={locale}
+        storeTheme={displayTheme}
+        labels={labels}
+        customerName={customerName}
+        customerPhone={orderPhone}
+        isDevPreview={business.slug === "demo-store"}
+        myInquiries={myInquiries}
+        inquirySent={inquirySent}
+        onSubmitInquiry={sendInquiry}
+      />
+
+      <CustomerCenterModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        locale={locale}
+        storeTheme={displayTheme}
+        title={labels.signIn}
+      >
+        <div className="space-y-3 px-4 py-4">
+          {profileSavedFlash && (
+            <p className="text-center text-[14px] font-semibold text-bakery-success">
+              {labels.profileSaved}
+            </p>
+          )}
+          <Input
+            label={labels.yourName}
+            value={profileDraftName}
+            autoComplete="name"
+            onChange={(e) => setProfileDraftName(e.target.value)}
+          />
+          <Input
+            label={labels.yourPhone}
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            dir="ltr"
+            className="text-start"
+            value={profileDraftPhone}
+            onChange={(e) => setProfileDraftPhone(e.target.value)}
+          />
+          <Button
+            type="button"
+            variant="primary"
+            className="w-full min-h-[48px] font-extrabold"
+            disabled={profileDraftName.trim().length < 2}
+            onClick={saveCustomerProfile}
+          >
+            {labels.saveMe}
+          </Button>
+        </div>
+      </CustomerCenterModal>
 
       <OrderCheckoutModal
         open={orderCheckoutOpen}

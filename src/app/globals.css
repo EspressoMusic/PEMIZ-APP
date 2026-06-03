@@ -153,7 +153,31 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --cs-page-bg: #faf6f0;
   --cs-nav-bg: #f1e3d3;
   --cs-nav-active: #dbc9b5;
-  --cs-sheet-bg: var(--bakery-cream-sheet);
+  --cs-sheet-bg: #f4ebe0;
+}
+
+/* Center modals (portal on body) — solid cream panel, not transparent */
+.customer-center-modal__panel {
+  background-color: #faf4e6;
+  color: var(--bakery-ink, #3a2f26);
+}
+
+.customer-center-modal__header,
+.customer-center-modal__body {
+  background-color: inherit;
+}
+
+.customer-store-root.customer-theme-calm.customer-center-modal__panel {
+  background: linear-gradient(180deg, #faf4e6 0%, #f4ebe0 100%);
+}
+
+.customer-store-root.customer-theme-light.customer-center-modal__panel {
+  background-color: #fafafa;
+}
+
+.customer-store-root.customer-theme-dark.customer-center-modal__panel {
+  background-color: #1a1f26;
+  border-color: rgba(61, 70, 84, 0.55);
 }
 
 html[data-store-theme="light"] , .customer-store-root.customer-theme-light {
@@ -747,9 +771,274 @@ html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-
   opacity: 0.72;
 }
 
+.customer-seller-notice-title {
+  color: #1f1812;
+}
+
 .customer-seller-notice-icon {
   background: rgba(92, 74, 62, 0.1);
+  color: #3a2f26;
+}
+
+@keyframes seller-notice-megaphone-wiggle {
+  0%,
+  82%,
+  100% {
+    transform: rotate(0deg);
+  }
+  86% {
+    transform: rotate(-14deg);
+  }
+  90% {
+    transform: rotate(12deg);
+  }
+  94% {
+    transform: rotate(-8deg);
+  }
+  98% {
+    transform: rotate(6deg);
+  }
+}
+
+.customer-seller-notice-megaphone {
+  transform-origin: 70% 85%;
+  animation: seller-notice-megaphone-wiggle 3.5s ease-in-out infinite;
+}
+
+/* Customer chat — WhatsApp-like layout, bakery brown/cream palette */
+.customer-center-modal__panel--chat {
+  max-height: min(88dvh, 720px);
+}
+
+.customer-wa-chat {
+  display: flex;
+  min-height: min(400px, 58dvh);
+  flex-direction: column;
+  background: #ebe3d4;
+}
+
+.customer-wa-chat__messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 12px 14px;
+  background-color: #e8dcc8;
+  background-image: radial-gradient(
+      circle at 20% 30%,
+      rgba(250, 244, 230, 0.45) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(230, 212, 184, 0.35) 0%,
+      transparent 40%
+    );
+}
+
+.customer-wa-chat__row {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.customer-wa-chat__row--out {
+  justify-content: flex-end;
+}
+
+.customer-wa-chat__row--in {
+  justify-content: flex-start;
+}
+
+.customer-wa-chat__bubble {
+  max-width: 82%;
+  padding: 8px 10px 6px;
+  box-shadow: 0 1px 1px rgba(58, 47, 38, 0.12);
+}
+
+.customer-wa-chat__bubble--out {
+  background: #5c4a3e;
+  color: #f8f4ec;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.customer-wa-chat__bubble--in {
+  background: #faf4e6;
+  color: #3a2f26;
+  border-radius: 18px 18px 18px 4px;
+}
+
+[dir="rtl"] .customer-wa-chat__bubble--out {
+  border-radius: 18px 18px 18px 4px;
+}
+
+[dir="rtl"] .customer-wa-chat__bubble--in {
+  border-radius: 18px 18px 4px 18px;
+}
+
+.customer-wa-chat__sender {
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 700;
   color: #5c4a3e;
+}
+
+.customer-wa-chat__text {
+  font-size: 15px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.customer-wa-chat__quote {
+  margin-bottom: 6px;
+  border-inline-start: 3px solid rgba(92, 74, 62, 0.45);
+  padding-inline-start: 8px;
+  opacity: 0.92;
+}
+
+.customer-wa-chat__bubble--out .customer-wa-chat__quote {
+  border-inline-start-color: rgba(248, 244, 236, 0.55);
+}
+
+.customer-wa-chat__quote-name {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.customer-wa-chat__quote-body {
+  font-size: 12px;
+  line-height: 1.35;
+  opacity: 0.88;
+}
+
+.customer-wa-chat__meta {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.customer-wa-chat__time {
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.72;
+}
+
+.customer-wa-chat__bubble--out .customer-wa-chat__time {
+  color: #f0e8da;
+}
+
+.customer-wa-chat__bubble--in .customer-wa-chat__time {
+  color: #6b5d52;
+}
+
+.customer-wa-chat__composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  border-top: 1px solid rgba(201, 184, 154, 0.55);
+  background: #f0e8da;
+  padding: 8px 10px max(8px, env(safe-area-inset-bottom));
+}
+
+.customer-wa-chat__input {
+  flex: 1;
+  min-height: 42px;
+  max-height: 120px;
+  resize: none;
+  border-radius: 24px;
+  border: 1px solid rgba(201, 184, 154, 0.65);
+  background: #faf4e6;
+  padding: 10px 16px;
+  font-size: 15px;
+  line-height: 1.35;
+  color: #3a2f26;
+  outline: none;
+}
+
+.customer-wa-chat__input::placeholder {
+  color: #6b5d52;
+}
+
+.customer-wa-chat__input:focus {
+  border-color: rgba(58, 47, 38, 0.45);
+}
+
+.customer-wa-chat__send {
+  display: flex;
+  height: 44px;
+  width: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: #5c4a3e;
+  color: #f8f4ec;
+  box-shadow: 0 2px 8px rgba(58, 47, 38, 0.28);
+  transition: opacity 0.15s;
+}
+
+.customer-wa-chat__send:hover {
+  opacity: 0.92;
+}
+
+.customer-wa-chat__send:disabled {
+  opacity: 0.45;
+}
+
+.customer-wa-chat__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.customer-wa-chat__action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.customer-wa-chat__bubble--out .customer-wa-chat__action-btn {
+  color: #f0e8da;
+}
+
+.customer-wa-chat__bubble--in .customer-wa-chat__action-btn {
+  color: #5c4a3e;
+}
+
+.customer-wa-chat__action-btn--like.is-liked {
+  color: #b94040;
+}
+
+.customer-wa-chat__bubble--out .customer-wa-chat__action-btn--like.is-liked {
+  color: #ffc9c9;
+}
+
+.customer-wa-chat__reply-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid rgba(201, 184, 154, 0.45);
+  background: #faf4e6;
+  padding: 8px 12px;
+}
+
+[dir="rtl"] .customer-seller-notice-megaphone {
+  transform-origin: 30% 85%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .customer-seller-notice-megaphone {
+    animation: none;
+  }
 }
 
 .customer-seller-notice-btn {

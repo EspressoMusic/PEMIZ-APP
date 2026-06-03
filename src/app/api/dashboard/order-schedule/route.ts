@@ -2,42 +2,80 @@ import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-import { normalizeTimeInput } from "@/lib/order-schedule";
+import {
+  defaultDaySlots,
+  normalizeTimeInput,
+  orderScheduleToJson,
+  scheduleFromDaySlots,
+  type OrderDaySlot,
+} from "@/lib/order-schedule";
+
+const daySlotSchema = z.object({
+  day: z.number().int().min(0).max(6),
+  open: z.boolean(),
+  startTime: z.string(),
+  endTime: z.string(),
+});
 
 const schema = z
   .object({
     enabled: z.boolean(),
-    days: z.array(z.number().int().min(0).max(6)),
-    blockedDays: z.array(z.number().int().min(0).max(6)).default([]),
-    startTime: z.string(),
-    endTime: z.string(),
+    daySlots: z.array(daySlotSchema).optional(),
+    days: z.array(z.number().int().min(0).max(6)).optional(),
+    blockedDays: z.array(z.number().int().min(0).max(6)).optional(),
+    startTime: z.string().optional(),
+    endTime: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    const start = normalizeTimeInput(data.startTime);
-    const end = normalizeTimeInput(data.endTime);
-    if (!start) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "שעת התחלה לא תקינה",
-        path: ["startTime"],
-      });
-    }
-    if (!end) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "שעת סיום לא תקינה",
-        path: ["endTime"],
-      });
-    }
-    const openDays = data.days.filter((d) => !data.blockedDays.includes(d));
-    if (data.enabled && openDays.length < 1) {
+    if (!data.enabled) return;
+
+    const slots: OrderDaySlot[] = data.daySlots?.length
+      ? [...data.daySlots].sort((a, b) => a.day - b.day)
+      : defaultDaySlots();
+
+    const open = slots.filter((s) => s.open);
+    if (open.length < 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "יש להשאיר לפחות יום אחד פתוח להזמנות",
-        path: ["days"],
+        path: ["daySlots"],
       });
     }
+
+    for (const slot of open) {
+      if (!normalizeTimeInput(slot.startTime)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "שעת התחלה לא תקינה",
+          path: ["daySlots"],
+        });
+      }
+      if (!normalizeTimeInput(slot.endTime)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "שעת סיום לא תקינה",
+          path: ["daySlots"],
+        });
+      }
+    }
   });
+
+function normalizeSlotsFromBody(data: z.infer<typeof schema>): OrderDaySlot[] {
+  if (data.daySlots?.length) {
+    return [0, 1, 2, 3, 4, 5, 6].map((day) => {
+      const found = data.daySlots!.find((s) => s.day === day);
+      const start = normalizeTimeInput(found?.startTime ?? "") ?? "08:00";
+      const end = normalizeTimeInput(found?.endTime ?? "") ?? "20:00";
+      return {
+        day,
+        open: found?.open ?? false,
+        startTime: start,
+        endTime: end,
+      };
+    });
+  }
+  return defaultDaySlots();
+}
 
 export async function PATCH(req: Request) {
   const user = await getCurrentUser();
@@ -53,25 +91,18 @@ export async function PATCH(req: Request) {
     return jsonError(first ?? "נתונים לא תקינים");
   }
 
-  const startTime = normalizeTimeInput(parsed.data.startTime)!;
-  const endTime = normalizeTimeInput(parsed.data.endTime)!;
-  const uniqueDays = [...new Set(parsed.data.days)].sort((a, b) => a - b);
-  const uniqueBlocked = [...new Set(parsed.data.blockedDays)].sort(
-    (a, b) => a - b
-  );
-  const scheduleJson = JSON.stringify({
-    days: uniqueDays,
-    blockedDays: uniqueBlocked,
-    startTime,
-    endTime,
-  });
+  const daySlots = parsed.data.enabled
+    ? normalizeSlotsFromBody(parsed.data)
+    : defaultDaySlots();
+  const scheduleJson = parsed.data.enabled ? orderScheduleToJson(daySlots) : null;
+  const summary = scheduleFromDaySlots(daySlots);
 
   try {
     await prisma.business.update({
       where: { id: user.business.id },
       data: {
         orderScheduleEnabled: parsed.data.enabled,
-        orderSchedule: parsed.data.enabled ? scheduleJson : null,
+        orderSchedule: scheduleJson,
       },
     });
   } catch (e) {
@@ -84,9 +115,10 @@ export async function PATCH(req: Request) {
 
   return jsonOk({
     enabled: parsed.data.enabled,
-    days: uniqueDays,
-    blockedDays: uniqueBlocked,
-    startTime,
-    endTime,
+    daySlots: summary.daySlots,
+    days: summary.days,
+    blockedDays: summary.blockedDays,
+    startTime: summary.startTime,
+    endTime: summary.endTime,
   });
 }

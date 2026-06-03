@@ -36,6 +36,7 @@ export async function GET(
   return jsonOk({
     inquiries: matched.map((row) => ({
       id: row.id,
+      subject: row.subject,
       message: row.message,
       sellerReply: row.sellerReply,
       sellerReplyAt: row.sellerReplyAt?.toISOString() ?? null,

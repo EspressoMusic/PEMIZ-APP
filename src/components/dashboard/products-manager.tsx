@@ -11,6 +11,8 @@ import {
 } from "@/components/ui";
 import { ProductImageField } from "@/components/product-image-field";
 import { ProductSuccessModal } from "@/components/product-success-modal";
+import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
+import { playProductAddedSound } from "@/lib/ui-sounds";
 import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
 import { formatStockLabel } from "@/lib/product-stock";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -126,6 +128,7 @@ export function ProductsManager() {
     setLimitDiscountOn(false);
     setMoreDetailsOpen(false);
     setSuccessName(name);
+    playProductAddedSound();
     setSuccessOpen(true);
     load();
   }
@@ -301,6 +304,8 @@ export function ProductsManager() {
           </SquareCard>
         ))}
       </div>
+
+      <DashboardConfettiBackground active={successOpen} />
 
       <ProductSuccessModal
         open={successOpen}

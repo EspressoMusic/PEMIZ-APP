@@ -1,74 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { X, Languages, Globe } from "lucide-react";
+import { Languages, Globe } from "lucide-react";
 import type { CustomerDisplayTheme, CustomerLocale } from "@/lib/customer-preferences";
-import { themeSubtitle } from "@/lib/customer-preferences";
 import { STORE_THEMES, storeThemeLabel } from "@/lib/store-themes";
-
-function SheetShell({
-  open,
-  onClose,
-  title,
-  locale,
-  children,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  locale: CustomerLocale;
-  children: React.ReactNode;
-}) {
-  const closeLabel = locale === "he" ? "סגור" : "Close";
-
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
-  }, [open]);
-
-  if (!open) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-[70] flex items-end justify-center lg:items-center lg:p-6"
-      role="dialog"
-      aria-modal="true"
-    >
-      <button
-        type="button"
-        className="absolute inset-0 bg-bakery-ink/25 backdrop-blur-[2px]"
-        onClick={onClose}
-        aria-label={closeLabel}
-      />
-      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-[var(--cs-sheet-bg, var(--bakery-cream-sheet))] shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
-        <div className="shrink-0 px-5 pt-3 lg:pt-5">
-          <div
-            className="mx-auto mb-3 h-1 w-10 rounded-full bg-bakery-ink/20 lg:hidden"
-            aria-hidden
-          />
-          <div className="flex items-center justify-between gap-2">
-            <h1 className="text-[18px] font-extrabold text-bakery-ink">{title}</h1>
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[15px] font-semibold text-bakery-ink"
-            >
-              <X className="h-5 w-5" strokeWidth={2} />
-              {closeLabel}
-            </button>
-          </div>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
+import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
 
 function SelectTile({
   selected,
@@ -89,7 +24,7 @@ function SelectTile({
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99] ${
         selected
-          ? "bg-bakery-primary/12 ring-2 ring-bakery-primary/30"
+          ? "bg-bakery-cream-light ring-2 ring-bakery-primary/35"
           : "bg-bakery-square"
       }`}
     >
@@ -132,12 +67,14 @@ export function CustomerDisplaySheet({
   };
 
   return (
-    <SheetShell
+    <CustomerCenterModal
       open={open}
       onClose={onClose}
       title={t.sheetTitle}
       locale={locale}
+      storeTheme={theme}
     >
+      <div className="px-4 py-4">
       <section>
         <h2 className="mb-3 text-[17px] font-extrabold text-bakery-ink">{t.language}</h2>
         <ul className="space-y-2.5">
@@ -174,7 +111,7 @@ export function CustomerDisplaySheet({
                   onClick={() => onThemeChange(s.id)}
                   className={`flex w-full items-center gap-3 rounded-[16px] border px-3 py-2.5 text-start transition ${
                     active
-                      ? "border-bakery-primary/40 bg-bakery-primary/10 ring-2 ring-bakery-primary/25"
+                      ? "border-bakery-primary/40 bg-bakery-cream-light ring-2 ring-bakery-primary/30"
                       : "border-bakery-border/30 bg-bakery-square"
                   }`}
                 >
@@ -195,10 +132,8 @@ export function CustomerDisplaySheet({
             );
           })}
         </ul>
-        <p className="mt-2 text-center text-[12px] text-bakery-muted">
-          {themeSubtitle(theme, locale)}
-        </p>
       </section>
-    </SheetShell>
+      </div>
+    </CustomerCenterModal>
   );
 }

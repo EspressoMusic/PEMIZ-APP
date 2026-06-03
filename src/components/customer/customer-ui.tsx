@@ -1,11 +1,14 @@
-import type { ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+"use client";
+
+import { Fragment, useState, type ReactNode } from "react";
+import { Info, Plus, type LucideIcon } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import { getEffectivePrice } from "@/lib/product-price";
 import { Button } from "@/components/ui";
+import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
 import type { CustomerLabels } from "./customer-labels";
+import type { StoreThemeId } from "@/lib/store-themes";
 
 /** Matches [CustomerTabBody] — 12px top safe area */
 export function CustomerTabBody({ children }: { children: ReactNode }) {
@@ -124,7 +127,7 @@ export function SettingsMenuRow({
 }: {
   icon: LucideIcon;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   onClick?: () => void;
   href?: string;
 }) {
@@ -137,14 +140,12 @@ export function SettingsMenuRow({
         <p className="text-[18px] font-extrabold leading-tight text-bakery-ink">
           {title}
         </p>
-        <p className="mt-1 text-[14px] font-semibold leading-[1.35] text-bakery-muted">
-          {subtitle}
-        </p>
+        {subtitle ? (
+          <p className="mt-1 text-[14px] font-semibold leading-[1.35] text-bakery-muted">
+            {subtitle}
+          </p>
+        ) : null}
       </div>
-      <ChevronRight
-        className="h-7 w-7 shrink-0 text-bakery-muted rtl:rotate-180"
-        strokeWidth={2}
-      />
     </div>
   );
 
@@ -183,6 +184,37 @@ export function HubEmptyText({ children }: { children: ReactNode }) {
   );
 }
 
+const PRODUCT_GRID_PLACEHOLDER_EMOJI = "🧁";
+
+/** Fills parent box — fixed footprint for grid cards (square image area). */
+function ProductGridImage({
+  imageUrl,
+  className = "",
+}: {
+  imageUrl?: string | null;
+  className?: string;
+}) {
+  return (
+    <div className={`relative overflow-hidden bg-bakery-card ${className}`}>
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <span
+          className="absolute inset-0 flex items-center justify-center text-[2.5rem] leading-none select-none"
+          aria-hidden
+        >
+          {PRODUCT_GRID_PLACEHOLDER_EMOJI}
+        </span>
+      )}
+    </div>
+  );
+}
+
 /** Wide catalog row for desktop storefront */
 function ProductThumb({
   imageUrl,
@@ -203,9 +235,9 @@ function ProductThumb({
   }
   return (
     <div
-      className={`flex items-center justify-center bg-bakery-card text-4xl ${className}`}
+      className={`flex items-center justify-center bg-bakery-card text-[2.5rem] leading-none ${className}`}
     >
-      🧁
+      {PRODUCT_GRID_PLACEHOLDER_EMOJI}
     </div>
   );
 }
@@ -278,6 +310,8 @@ export function ProductGridCard({
   salePrice,
   imageUrl,
   locale,
+  storeTheme,
+  infoLabel,
   qty,
   outOfStock,
   outOfStockLabel,
@@ -291,6 +325,8 @@ export function ProductGridCard({
   salePrice?: number | null;
   imageUrl?: string | null;
   locale: CustomerLocale;
+  storeTheme: StoreThemeId;
+  infoLabel: string;
   qty: number;
   outOfStock?: boolean;
   outOfStockLabel?: string;
@@ -298,6 +334,7 @@ export function ProductGridCard({
   onDec: () => void;
   onInc: () => void;
 }) {
+  const [infoOpen, setInfoOpen] = useState(false);
   const onSale =
     salePrice != null && salePrice > 0 && salePrice < price;
   const display = onSale ? salePrice! : price;
@@ -305,22 +342,35 @@ export function ProductGridCard({
   const atMax = maxQty != null && qty >= maxQty;
 
   return (
+    <>
     <div
-      className={`flex aspect-[0.62] flex-col rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-2 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
+      className={`flex flex-col rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
     >
-      <ProductThumb
-        imageUrl={imageUrl}
-        className="min-h-0 flex-1 rounded-[14px]"
-      />
-      <h3 className="mt-2 truncate text-left text-[17px] font-extrabold text-bakery-ink">
-        {name}
-      </h3>
-      {description && (
-        <p className="line-clamp-2 text-left text-[15px] leading-[1.45] text-bakery-muted">
-          {description}
-        </p>
-      )}
-      <div className="mt-auto flex items-center justify-between pt-2">
+      <div className="aspect-[2/3] w-full shrink-0 overflow-hidden rounded-[14px] bg-bakery-card">
+        <ProductThumb
+          imageUrl={imageUrl}
+          className="h-full w-full object-cover"
+        />
+      </div>
+      <div className="mt-1.5 flex items-center gap-1.5">
+        <h3 className="min-w-0 flex-1 truncate text-start text-[17px] font-extrabold text-bakery-ink">
+          {name}
+        </h3>
+        <button
+          type="button"
+          onClick={() => setInfoOpen(true)}
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/95 text-bakery-primary shadow-[0_1px_4px_rgba(58,47,38,0.12)] transition active:scale-95"
+          aria-label={infoLabel}
+        >
+          <Info className="h-3 w-3" strokeWidth={2.5} />
+        </button>
+      </div>
+      <p
+        className={`line-clamp-2 min-h-[2.75rem] text-start text-[14px] leading-[1.4] text-bakery-muted ${!description ? "opacity-0" : ""}`}
+      >
+        {description || "—"}
+      </p>
+      <div className="mt-1 flex items-center justify-between pt-1">
         <span className="flex flex-col items-start leading-tight">
           {onSale && (
             <span className="text-[13px] font-semibold text-bakery-muted line-through">
@@ -362,6 +412,48 @@ export function ProductGridCard({
         )}
       </div>
     </div>
+
+    <CustomerCenterModal
+      open={infoOpen}
+      onClose={() => setInfoOpen(false)}
+      locale={locale}
+      storeTheme={storeTheme}
+      title={infoLabel}
+      bodyClassName="overflow-hidden"
+      panelClassName="max-h-fit"
+    >
+      <div className="space-y-3 px-4 py-4">
+        <div className="aspect-[4/3] w-full overflow-hidden rounded-[16px] bg-bakery-card">
+          <ProductThumb
+            imageUrl={imageUrl}
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <h3 className="text-center text-[18px] font-extrabold text-bakery-ink">
+          {name}
+        </h3>
+        {description ? (
+          <p className="whitespace-pre-wrap text-center text-[15px] leading-[1.5] text-bakery-ink">
+            {description}
+          </p>
+        ) : (
+          <p className="text-center text-[14px] text-bakery-muted">—</p>
+        )}
+        <div className="flex justify-center gap-2 pt-1">
+          {onSale && (
+            <span className="text-[15px] font-semibold text-bakery-muted line-through">
+              {formatCustomerMoney(price, locale)}
+            </span>
+          )}
+          <span
+            className={`text-[18px] font-extrabold ${onSale ? "text-red-600" : "text-bakery-ink"}`}
+          >
+            {formatCustomerMoney(display, locale)}
+          </span>
+        </div>
+      </div>
+    </CustomerCenterModal>
+    </>
   );
 }
 
@@ -372,6 +464,22 @@ type DealProduct = {
   price: number;
   salePrice?: number | null;
 };
+
+function DealInfoTile({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`box-border w-full rounded-[14px] border-[1.2px] border-bakery-border/45 bg-bakery-card px-4 py-3 text-center shadow-[0_2px_8px_rgba(58,47,38,0.1)] ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
 
 export function DealCard({
   name,
@@ -401,36 +509,64 @@ export function DealCard({
   );
 
   return (
-    <div className="rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-3 shadow-[0_3px_10px_rgba(0,0,0,0.13)]">
-      <p className="text-[17px] font-extrabold text-bakery-ink">{name}</p>
-      <p className="mt-1 text-[13px] font-semibold text-bakery-muted">
-        {labels.dealIncludes}: {products.map((p) => p.name).join(" + ")}
-      </p>
-      <div className="mt-2 flex flex-wrap justify-center gap-2">
-        {products.map((p) => (
-          <ProductThumb
-            key={p.id ?? p.name}
-            imageUrl={p.imageUrl}
-            className="h-14 w-14 shrink-0 rounded-xl"
-          />
-        ))}
+    <div className="flex w-full flex-col gap-2.5 rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-3 shadow-[0_3px_10px_rgba(0,0,0,0.13)]">
+      <DealInfoTile>
+        <p className="text-[17px] font-extrabold leading-snug text-bakery-ink">
+          {name}
+        </p>
+      </DealInfoTile>
+
+      <DealInfoTile>
+        <p className="text-[12px] font-bold text-bakery-muted">
+          {labels.dealIncludes}
+        </p>
+        <p className="mt-1 text-[14px] font-extrabold leading-snug text-bakery-ink">
+          {products.map((p) => p.name).join(" + ")}
+        </p>
+      </DealInfoTile>
+
+      <div className="box-border w-full rounded-[14px] border-[1.2px] border-bakery-border/45 bg-bakery-card p-3 shadow-[0_2px_8px_rgba(58,47,38,0.1)]">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {products.map((p, index) => (
+            <Fragment key={p.id ?? p.name}>
+              {index > 0 && (
+                <span
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/35 bg-bakery-square"
+                  aria-hidden
+                >
+                  <Plus className="h-7 w-7 text-bakery-primary" strokeWidth={2.5} />
+                </span>
+              )}
+              <div className="flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-bakery-border/35 bg-bakery-square p-1.5">
+                <ProductThumb
+                  imageUrl={p.imageUrl}
+                  className="h-full w-full rounded-[10px]"
+                />
+              </div>
+            </Fragment>
+          ))}
+        </div>
       </div>
-      <div className="mt-2 flex items-baseline gap-2">
-        <span className="text-[13px] font-semibold text-bakery-muted line-through">
-          {formatCustomerMoney(originalTotal, locale)}
-        </span>
-        <span className="text-[18px] font-extrabold text-red-600">
-          {formatCustomerMoney(dealPrice, locale)}
-        </span>
-      </div>
-      <p className="mt-1 text-[12px] font-semibold text-bakery-muted">
+
+      <DealInfoTile>
+        <div className="flex flex-wrap items-baseline justify-center gap-2">
+          <span className="text-[14px] font-semibold text-bakery-muted line-through">
+            {formatCustomerMoney(originalTotal, locale)}
+          </span>
+          <span className="text-[20px] font-extrabold text-red-600">
+            {formatCustomerMoney(dealPrice, locale)}
+          </span>
+        </div>
+      </DealInfoTile>
+
+      <p className="py-0.5 text-center text-[13px] font-bold text-bakery-ink">
         {labels.dealValidUntil}: {until}
       </p>
-      <p className="text-[11px] text-bakery-muted">{labels.dealOnce}</p>
+
       <Button
         type="button"
-        variant="square"
-        className="mt-3 w-full min-h-[44px]"
+        variant="primary"
+        className="mt-0.5 w-full min-h-[44px] font-extrabold"
         onClick={onRedeem}
         disabled={redeemDisabled}
       >

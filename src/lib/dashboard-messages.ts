@@ -20,6 +20,9 @@ export type DashboardLabels = {
   customers: string;
   customerMessage: string;
   customerInquiries: string;
+  sellerChatTitle: string;
+  sellerChatHint: string;
+  sellerChatEmpty: string;
   store: string;
   faq: string;
   salesAndProfit: string;
@@ -83,8 +86,7 @@ export type DashboardLabels = {
   toHour: string;
   addProduct: string;
   messageSent: string;
-  dayClosedHint: string;
-  dayOpenHint: string;
+  dayToggleHint: string;
   scheduleNeedOpenDay: string;
   scheduleInvalidHours: string;
   scheduleServerError: string;
@@ -235,6 +237,9 @@ const HE: DashboardLabels = {
   customers: "לקוחות",
   customerMessage: "הודעה ללקוחות",
   customerInquiries: "פניות לקוחות",
+  sellerChatTitle: "צ'אט עם לקוחות",
+  sellerChatHint: "בחר שיחה והגב כשמתאים לך",
+  sellerChatEmpty: "אין הודעות צ'אט מלקוחות עדיין",
   store: "החנות",
   faq: "שאלות ותשובות",
   salesAndProfit: "מכירות ורווחים",
@@ -298,8 +303,7 @@ const HE: DashboardLabels = {
   toHour: "עד שעה",
   addProduct: "הוסף מוצר",
   messageSent: "נשמר — ההגבלה פעילה ללקוחות",
-  dayClosedHint: "יום סגור — לחיצה כפולה לפתיחה",
-  dayOpenHint: "לחיצה כפולה לסגירת היום",
+  dayToggleHint: "לחיצה — פתוח/סגור להזמנות",
   scheduleNeedOpenDay: "יש להשאיר לפחות יום אחד פתוח להזמנות",
   scheduleInvalidHours: "יש למלא שעות תקינות",
   scheduleServerError: "לא הצלחנו להתחבר לשרת. נסה שוב.",
@@ -331,7 +335,7 @@ const HE: DashboardLabels = {
   faqNoQuestionsYet: "עדיין אין שאלות — הלקוחות יראו הודעה ריקה עד שתוסיף/י.",
   scheduleDemoHint:
     "תצוגת דמו — המתג והבחירות עובדים. לשמירה אמיתית התחבר לדשבורד.",
-  schedulePickDaysHint: "בחר ימים ושעות, ואז לחץ שמור",
+  schedulePickDaysHint: "לחיצה = יום פתוח · לחיצה כפולה = אות אדומה (סגור להזמנות)",
   periodThreeDays: "3 ימים",
   faqPolicyTitle: "מדיניות החנות",
   faqAddQuestion: "הוספת שאלה",
@@ -457,6 +461,9 @@ const EN: DashboardLabels = {
   customers: "Customers",
   customerMessage: "Message customers",
   customerInquiries: "Customer inquiries",
+  sellerChatTitle: "Customer chat",
+  sellerChatHint: "Pick a conversation and reply when you can",
+  sellerChatEmpty: "No customer chat messages yet",
   store: "Store",
   faq: "FAQ",
   salesAndProfit: "Sales & profit",
@@ -520,8 +527,7 @@ const EN: DashboardLabels = {
   toHour: "Until",
   addProduct: "Add product",
   messageSent: "Saved — limits apply to customers",
-  dayClosedHint: "Day closed — double-click to open",
-  dayOpenHint: "Double-click to close this day",
+  dayToggleHint: "Tap — open or closed for orders",
   scheduleNeedOpenDay: "Keep at least one day open for orders",
   scheduleInvalidHours: "Enter valid hours",
   scheduleServerError: "Could not reach the server. Try again.",
@@ -554,7 +560,7 @@ const EN: DashboardLabels = {
     "No questions yet — customers will see an empty message until you add some.",
   scheduleDemoHint:
     "Demo preview — toggles work here. Sign in to the live dashboard to save.",
-  schedulePickDaysHint: "Pick days and hours, then tap Save",
+  schedulePickDaysHint: "Tap the day name to close it for orders (row fades)",
   periodThreeDays: "3 days",
   faqPolicyTitle: "Store policy",
   faqAddQuestion: "Add question",

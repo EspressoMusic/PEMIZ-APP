@@ -5,6 +5,7 @@ export const DEV_PREVIEW_INQUIRIES = [
     id: "inq-1",
     customerName: "יעל כהן",
     customerPhone: "050-1234567",
+    subject: "משלוח ביום שישי",
     message: "יש אפשרות למשלוח ביום שישי?",
     sellerReply: null,
     sellerReplyAt: null,
@@ -14,6 +15,7 @@ export const DEV_PREVIEW_INQUIRIES = [
     id: "inq-2",
     customerName: "דני לוי",
     customerPhone: "052-9876543",
+    subject: "מוצרים ללא גלוטן",
     message: "האם יש עוגות ללא גלוטן?",
     sellerReply: "כן! יש לנו עוגת שוקולד וקרואסון ללא גלוטן — כדאי להזמין יום מראש.",
     sellerReplyAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
@@ -106,7 +108,7 @@ export const DEV_STORE_HEALTH = {
 export const DEV_STORE_BUSINESS = {
   slug: "demo-store",
   name: "המאפייה שלי (תצוגה)",
-  description: "תצוגה מקומית לעריכת עיצוב — בלי התחברות",
+  description: null,
   type: "STORE" as const,
   products: [
     {

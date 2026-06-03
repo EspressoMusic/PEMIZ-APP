@@ -31,7 +31,6 @@ export function OrderCheckoutModal({
 }) {
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
-
   useEffect(() => {
     if (open) {
       setName(initialName);

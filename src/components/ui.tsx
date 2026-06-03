@@ -179,12 +179,12 @@ export function PageTitle({
   subtitle?: string;
 }) {
   return (
-    <div className="mb-4 w-full text-center sm:mb-6">
-      <h1 className="text-[20px] font-extrabold text-bakery-ink sm:text-[22px]">
+    <div className="mb-4 w-full text-center">
+      <h1 className="text-[22px] font-extrabold text-bakery-ink">
         {children}
       </h1>
       {subtitle && (
-        <p className="mt-1 text-[13px] leading-[1.45] text-bakery-muted sm:text-[14px]">
+        <p className="mt-1 text-[13px] leading-[1.45] text-bakery-muted">
           {subtitle}
         </p>
       )}

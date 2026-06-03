@@ -70,6 +70,7 @@ model Business {
   slots           AppointmentSlot[]
   appointments    Appointment[]
   inquiries       Inquiry[]
+  chatMessages    StoreChatMessage[]
   faqItems        FaqItem[]
 }
 
@@ -208,10 +209,42 @@ model Inquiry {
   customerName  String
   customerPhone String?
   customerEmail String?
+  subject       String   @default("")
   message       String
   sellerReply   String?
   sellerReplyAt DateTime?
   createdAt     DateTime @default(now())
 
   @@index([businessId])
+}
+
+model StoreChatMessage {
+  id            String   @id @default(cuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  channel       String
+  customerPhone String?
+  customerName  String
+  authorRole    String
+  body          String
+  replyToId     String?
+  replyTo       StoreChatMessage?  @relation("ChatMessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies       StoreChatMessage[] @relation("ChatMessageReplies")
+  likes         StoreChatMessageLike[]
+  createdAt     DateTime @default(now())
+
+  @@index([businessId, channel, createdAt])
+  @@index([businessId, channel, customerPhone])
+  @@index([replyToId])
+}
+
+model StoreChatMessageLike {
+  id            String           @id @default(cuid())
+  messageId     String
+  message       StoreChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  customerPhone String
+  createdAt     DateTime         @default(now())
+
+  @@unique([messageId, customerPhone])
+  @@index([messageId])
 }
