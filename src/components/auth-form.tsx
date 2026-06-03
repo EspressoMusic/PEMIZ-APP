@@ -21,34 +21,48 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       ...(mode === "signup" ? { name: fd.get("name") } : {}),
     };
 
-    const res = await fetch(`/api/auth/${mode}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/auth/${mode}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        role?: string;
+        hasBusiness?: boolean;
+      };
 
-    if (!res.ok) {
-      setError(data.error ?? "שגיאה");
-      return;
-    }
+      if (!res.ok) {
+        setError(
+          data.error ??
+            (res.status >= 500
+              ? "שגיאת שרת — ודא שמסד הנתונים מחובר והפעל מחדש את npm run dev"
+              : "שגיאה")
+        );
+        return;
+      }
 
-    if (mode === "signup") {
-      router.push("/onboarding");
-    } else if (data.role === "ADMIN") {
-      router.push("/master");
-    } else if (!data.hasBusiness) {
-      router.push("/onboarding");
-    } else {
-      router.push("/dashboard");
+      if (mode === "signup") {
+        router.push("/onboarding");
+      } else if (data.role === "ADMIN") {
+        router.push("/master");
+      } else if (!data.hasBusiness) {
+        router.push("/onboarding");
+      } else {
+        router.push("/dashboard");
+      }
+      router.refresh();
+    } catch {
+      setError("לא הצלחנו להתחבר — בדוק חיבור לאינטרנט ונסה שוב");
+    } finally {
+      setLoading(false);
     }
-    router.refresh();
   }
 
   return (
     <WebShell>
-      <div className="mx-auto max-w-md px-4 py-10">
+      <div className="mx-auto w-full max-w-md px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel>
           <PageTitle
             subtitle={

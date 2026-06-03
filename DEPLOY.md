@@ -15,10 +15,21 @@
 
 ### שלב א — חיבור Supabase ל-Vercel (הכי חשוב)
 
-1. פתח: [Vercel → פרויקט linky → Settings → Integrations](https://vercel.com)
-2. חפש **Supabase** → **Connect** / **Add**
-3. בחר את פרויקט **Market** (אותו שבו נוצרו טבלאות Linky)
-4. שמור
+**איפה זה?** לא תמיד תחת Settings. נסה לפי הסדר:
+
+**אפשרות 1 — Storage (הכי נפוץ)**  
+1. [Vercel Dashboard](https://vercel.com) → פרויקט **linky**  
+2. בטאבים **למעלה** (לא בתפריט Settings בצד): **Storage**  
+3. **Connect Database** / **Supabase** → בחר פרויקט **Market**
+
+**אפשרות 2 — Marketplace**  
+1. [vercel.com/marketplace/supabase](https://vercel.com/marketplace/supabase)  
+2. **Add Integration** → בחר את צוות/חשבון Vercel שלך → פרויקט **linky** → Supabase **Market**
+
+**אפשרות 3 — ידני (בלי אינטגרציה)**  
+1. פרויקט **linky** → **Settings** → **Environments** (בצד שמאל, לא Integrations)  
+2. **Add Environment Variable** — הדבק מ-Supabase את `POSTGRES_PRISMA_URL` ו-`POSTGRES_URL_NON_POOLING`  
+   (Supabase → Market → Settings → Database → **Connect**)
 
 אחרי זה Vercel יוסיף לבד:
 

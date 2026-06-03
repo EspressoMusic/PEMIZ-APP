@@ -44,7 +44,7 @@ export default function OnboardingPage() {
 
   return (
     <WebShell>
-      <div className="mx-auto max-w-lg px-4 py-10">
+      <div className="mx-auto w-full max-w-lg px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel>
           <PageTitle subtitle="בחר סוג עסק — הדשבורד ייפתח מיד לאחר השמירה">
             פתיחת עסק

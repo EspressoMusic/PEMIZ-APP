@@ -10,9 +10,9 @@ export function WebShell({
   maxWidth?: string;
 }) {
   return (
-    <div className="bakery-frame-bg min-h-full py-0 md:py-6">
+    <div className="bakery-frame-bg py-0 sm:py-4 md:py-6">
       <div
-        className={`mx-auto w-full ${maxWidth} bg-bakery-scaffold shadow-[var(--shadow-bakery-web)] md:rounded-none`}
+        className={`app-safe-x mx-auto w-full ${maxWidth} bg-bakery-scaffold px-0 sm:px-2 md:px-[14px]`}
       >
         {header}
         {children}

@@ -59,6 +59,15 @@ export async function getBusinessBySlug(slug: string) {
           },
         },
       },
+      faqItems: {
+        where: { isActive: true },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      },
+      storeDeals: {
+        where: { isActive: true, validUntil: { gt: new Date() } },
+        include: { productA: true, productB: true },
+        orderBy: { validUntil: "asc" },
+      },
     },
   });
 }

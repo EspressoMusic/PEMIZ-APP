@@ -8,13 +8,13 @@ export default async function HomePage() {
 
   return (
     <WebShell>
-      <section className="flex min-h-[50vh] flex-col items-center justify-center px-4 py-16 md:px-[14px]">
+      <section className="flex min-h-[min(70dvh,560px)] flex-col items-center justify-center px-4 py-12 sm:min-h-[50vh] sm:py-16">
         {!signupsEnabled && (
           <div className="mb-6 w-full max-w-md">
             <Alert variant="info">ההרשמה לחנויות חדשות סגורה כרגע.</Alert>
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-center gap-5 md:gap-6">
+        <div className="flex w-full max-w-md flex-col items-stretch gap-4 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-5 md:gap-6">
           {signupsEnabled ? (
             <Link href="/signup">
               <Button className="bakery-cta-3d bakery-cta-3d--primary !rounded-full !shadow-none hover:!opacity-100">

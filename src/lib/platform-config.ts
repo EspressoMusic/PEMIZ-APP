@@ -2,12 +2,28 @@ import { prisma } from "@/lib/prisma";
 
 const CONFIG_ID = "default";
 
+const DEFAULT_CONFIG = { id: CONFIG_ID, signupsEnabled: true };
+
+import { isDatabaseConfigured } from "@/lib/db-env";
+
+function hasDatabaseUrl() {
+  return isDatabaseConfigured();
+}
+
 export async function getPlatformConfig() {
-  return prisma.platformConfig.upsert({
-    where: { id: CONFIG_ID },
-    create: { id: CONFIG_ID, signupsEnabled: true },
-    update: {},
-  });
+  if (!hasDatabaseUrl()) {
+    return DEFAULT_CONFIG;
+  }
+  try {
+    return await prisma.platformConfig.upsert({
+      where: { id: CONFIG_ID },
+      create: { id: CONFIG_ID, signupsEnabled: true },
+      update: {},
+    });
+  } catch (err) {
+    console.error("[platform-config] DB unavailable, using defaults", err);
+    return DEFAULT_CONFIG;
+  }
 }
 
 export async function isSignupEnabled() {
@@ -16,6 +32,9 @@ export async function isSignupEnabled() {
 }
 
 export async function setSignupsEnabled(enabled: boolean) {
+  if (!hasDatabaseUrl()) {
+    throw new Error("Database is not configured");
+  }
   return prisma.platformConfig.upsert({
     where: { id: CONFIG_ID },
     create: { id: CONFIG_ID, signupsEnabled: enabled },

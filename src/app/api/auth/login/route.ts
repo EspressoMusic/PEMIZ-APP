@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import type { Role } from "@/lib/types";
 import { jsonError, jsonOk } from "@/lib/api";
+import { databaseConfigHint, isDatabaseConfigured } from "@/lib/db-env";
 
 const schema = z.object({
   email: z.string().email(),
@@ -15,10 +16,19 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
-  const user = await prisma.user.findUnique({
+  if (!isDatabaseConfigured()) {
+    return jsonError(`מסד הנתונים לא מוגדר. ${databaseConfigHint()}`, 503);
+  }
+
+  let user;
+  try {
+    user = await prisma.user.findUnique({
     where: { email: parsed.data.email.toLowerCase() },
-    include: { business: true },
-  });
+      include: { business: true },
+    });
+  } catch {
+    return jsonError("שגיאת חיבור למסד הנתונים", 503);
+  }
   if (!user) return jsonError("אימייל או סיסמה שגויים", 401);
 
   const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);

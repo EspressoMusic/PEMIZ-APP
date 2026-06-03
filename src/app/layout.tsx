@@ -8,6 +8,12 @@ export const metadata: Metadata = {
     "פלטפורמת SaaS לעסקים קטנים: קישור ללקוחות, הזמנות, תורים ופניות בדשבורד פשוט.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,11 +23,11 @@ export default function RootLayout({
     <html
       lang="he"
       dir="rtl"
-      className="h-full antialiased"
+      className="h-full overflow-x-hidden antialiased"
       suppressHydrationWarning
     >
       <body
-        className="min-h-full flex flex-col bg-bakery-scaffold text-bakery-ink"
+        className="flex min-h-dvh flex-col overflow-x-hidden bg-bakery-scaffold text-bakery-ink"
         suppressHydrationWarning
       >
         <main className="flex-1">{children}</main>

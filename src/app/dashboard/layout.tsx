@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { activateLegacyPendingBusiness } from "@/lib/business";
-import { DashboardNav } from "@/components/dashboard-nav";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
 export default async function DashboardLayout({
   children,
@@ -20,13 +20,12 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="bakery-frame-bg min-h-full">
-    <div className="mx-auto flex max-w-[1040px] flex-col gap-6 px-4 py-8 md:flex-row md:px-[14px]">
-      {user.business && (
-        <DashboardNav businessType={user.business.type} />
-      )}
-      <div className="min-w-0 flex-1">{children}</div>
-    </div>
+    <div className="bakery-frame-bg">
+      <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:py-6 lg:px-[14px] lg:py-8">
+        <DashboardShell businessType={user.business.type}>
+          {children}
+        </DashboardShell>
+      </div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ export function Panel({
 }) {
   return (
     <div
-      className={`rounded-[22px] border-[1.2px] border-bakery-border/40 bg-bakery-square p-[18px] shadow-[var(--shadow-bakery-panel)] ${className}`}
+      className={`rounded-[22px] border-[1.2px] border-bakery-border/40 bg-bakery-square p-4 shadow-[var(--shadow-bakery-panel)] sm:p-[18px] ${className}`}
     >
       {children}
     </div>
@@ -25,7 +25,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`bakery-gradient-panel rounded-[22px] border-[1.2px] border-bakery-border/40 p-[18px] shadow-[var(--shadow-bakery-panel)] ${className}`}
+      className={`bakery-gradient-panel rounded-[22px] border-[1.2px] border-bakery-border/40 p-4 shadow-[var(--shadow-bakery-panel)] sm:p-[18px] ${className}`}
     >
       {children}
     </div>
@@ -90,7 +90,7 @@ export function Input({
         <span className="text-[14px] font-bold text-bakery-ink">{label}</span>
       )}
       <input
-        className={`bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-[15px] text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 ${className}`}
+        className={`bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-base text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 sm:text-[15px] ${className}`}
         {...props}
       />
       {error && (
@@ -115,7 +115,7 @@ export function Textarea({
         <span className="text-[14px] font-bold text-bakery-ink">{label}</span>
       )}
       <textarea
-        className={`bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-[15px] text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 ${className}`}
+        className={`bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-base text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 sm:text-[15px] ${className}`}
         {...props}
       />
       {error && (
@@ -177,10 +177,12 @@ export function PageTitle({
   subtitle?: string;
 }) {
   return (
-    <div className="mb-6">
-      <h1 className="text-[22px] font-extrabold text-bakery-ink">{children}</h1>
+    <div className="mb-4 sm:mb-6">
+      <h1 className="text-[20px] font-extrabold text-bakery-ink sm:text-[22px]">
+        {children}
+      </h1>
       {subtitle && (
-        <p className="mt-1 text-[14px] leading-[1.45] text-bakery-muted">
+        <p className="mt-1 text-[13px] leading-[1.45] text-bakery-muted sm:text-[14px]">
           {subtitle}
         </p>
       )}

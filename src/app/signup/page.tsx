@@ -10,7 +10,7 @@ export default async function SignupPage() {
   if (!signupsEnabled) {
     return (
       <WebShell>
-        <div className="mx-auto max-w-md px-4 py-12">
+        <div className="mx-auto w-full max-w-md px-4 py-10 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-12">
           <Panel>
             <PageTitle subtitle="המערכת פתוחה רק למשתמשים קיימים">
               ההרשמה סגורה

@@ -43,11 +43,11 @@ export function DashboardSettingsView({
 
   return (
     <div className="space-y-6">
-      <PageTitle subtitle="פרטי חשבון, קישור ללקוחות ויציאה מהמערכת">
+      <PageTitle>
         הגדרות
       </PageTitle>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <section className="overflow-hidden rounded-[22px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-[#fbf7ef] to-[#f3ebe0] p-[18px] shadow-[var(--shadow-bakery-card)]">
           <div className="mb-5 flex items-center gap-3">
             <div
@@ -106,7 +106,7 @@ export function DashboardSettingsView({
               </div>
             </div>
 
-            <div className="flex items-stretch gap-2 rounded-2xl border-[1.5px] border-bakery-border/40 bg-[#fffbf6] p-1 shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)]">
+            <div className="flex flex-col gap-2 rounded-2xl border-[1.5px] border-bakery-border/40 bg-[#fffbf6] p-1 shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)] sm:flex-row sm:items-stretch">
               <div className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2.5">
                 <Link2 className="h-4 w-4 shrink-0 text-bakery-muted" />
                 <p className="truncate font-mono text-[13px] text-bakery-primary" dir="ltr">
@@ -116,7 +116,7 @@ export function DashboardSettingsView({
               <Button
                 type="button"
                 variant="square"
-                className="shrink-0 gap-1.5 px-3"
+                className="w-full shrink-0 gap-1.5 px-3 sm:w-auto"
                 onClick={copyLink}
               >
                 {copied ? (
@@ -148,14 +148,14 @@ export function DashboardSettingsView({
       </div>
 
       <section className="rounded-[22px] border-[1.2px] border-bakery-border/35 bg-bakery-card/80 px-[18px] py-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div>
             <p className="text-[15px] font-extrabold text-bakery-ink">יציאה מהמערכת</p>
             <p className="text-[13px] text-bakery-muted">סיום העבודה במכשיר זה</p>
           </div>
           <Button
             variant="secondary"
-            className="gap-2 border-bakery-sale/40 text-bakery-sale hover:bg-bakery-sale/8"
+            className="w-full gap-2 border-bakery-sale/40 text-bakery-sale hover:bg-bakery-sale/8 sm:w-auto"
             onClick={async () => {
               await fetch("/api/auth/logout", { method: "POST" });
               window.location.href = "/";

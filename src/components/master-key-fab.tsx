@@ -13,7 +13,7 @@ export function MasterKeyFab() {
   return (
     <Link
       href="/master"
-      className="fixed bottom-5 left-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border-[1.2px] border-bakery-border/50 bg-bakery-square text-bakery-ink shadow-[var(--shadow-bakery-panel)] transition hover:scale-105 hover:bg-bakery-card"
+      className="fixed z-40 flex h-12 w-12 items-center justify-center rounded-full border-[1.2px] border-bakery-border/50 bg-bakery-square text-bakery-ink shadow-[var(--shadow-bakery-panel)] transition hover:scale-105 hover:bg-bakery-card max-sm:bottom-[max(1rem,env(safe-area-inset-bottom))] max-sm:left-[max(1rem,env(safe-area-inset-left))] sm:bottom-5 sm:left-5"
       title="כניסת מפתח"
       aria-label="כניסת מפתח"
     >

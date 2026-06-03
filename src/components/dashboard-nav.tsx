@@ -2,51 +2,73 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, Zap } from "lucide-react";
 
-const links = [
-  { href: "/dashboard", label: "סקירה" },
-  { href: "/dashboard/products", label: "מוצרים" },
-  { href: "/dashboard/orders", label: "הזמנות" },
-  { href: "/dashboard/slots", label: "תורים פנויים" },
-  { href: "/dashboard/appointments", label: "תורים" },
-  { href: "/dashboard/inquiries", label: "פניות" },
-  { href: "/dashboard/settings", label: "הגדרות" },
-];
+const defaultLinks = [
+  { key: "home", segment: "", label: "בית", icon: Home },
+  { key: "actions", segment: "/actions", label: "פעולות", icon: Zap },
+] as const;
 
-export function DashboardNav({ businessType }: { businessType?: string }) {
+export function DashboardNav({
+  businessType: _businessType,
+  basePath = "/dashboard",
+}: {
+  businessType?: string;
+  /** למשל /dev/seller בתצוגה מקומית */
+  basePath?: string;
+}) {
   const pathname = usePathname();
-  const filtered = links.filter((l) => {
-    if (businessType === "STORE") {
-      return !["/dashboard/slots", "/dashboard/appointments"].includes(l.href);
-    }
-    if (businessType === "APPOINTMENTS") {
-      return l.href !== "/dashboard/products" && l.href !== "/dashboard/orders";
-    }
-    return l.href === "/dashboard" || l.href === "/dashboard/settings";
-  });
+  const homeHref = basePath;
+  const actionsHref = `${basePath}/actions`;
+
+  const isHome = pathname === basePath || pathname === `${basePath}/`;
+  const isActions =
+    pathname === actionsHref ||
+    (pathname.startsWith(`${basePath}/`) &&
+      pathname !== basePath &&
+      pathname !== `${basePath}/`);
+
+  const links = defaultLinks.map((l) => ({
+    ...l,
+    href: l.segment ? `${basePath}${l.segment}` : basePath,
+  }));
 
   return (
-    <aside className="w-full shrink-0 md:w-52">
-      <nav className="flex flex-row flex-wrap gap-1 rounded-[22px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-[#fbf7ef] to-[#f5efe6] p-2 shadow-[var(--shadow-bakery-card)] md:flex-col">
-        {filtered.map((l) => {
-          const active =
-            pathname === l.href ||
-            (l.href !== "/dashboard" && pathname.startsWith(l.href));
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/20 bg-[#f5e9e2]"
+      style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
+      aria-label="ניווט מוכר"
+    >
+      <div className="mx-auto flex w-full max-w-lg px-6 pt-2">
+        {links.map((l) => {
+          const active = l.key === "home" ? isHome : isActions;
+          const Icon = l.icon;
           return (
             <Link
-              key={l.href}
+              key={l.key}
               href={l.href}
-              className={`rounded-[14px] px-3 py-2.5 text-[14px] font-bold transition ${
+              aria-current={active ? "page" : undefined}
+              className={`flex flex-1 flex-col items-center rounded-[16px] px-2 py-2 transition ${
                 active
-                  ? "bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.2)]"
-                  : "text-bakery-muted hover:bg-bakery-primary/10 hover:text-bakery-ink"
+                  ? "bg-[#dfc4b0] shadow-[0_2px_8px_rgba(58,47,38,0.12)]"
+                  : "text-bakery-muted"
               }`}
             >
-              {l.label}
+              <Icon
+                className={`h-6 w-6 ${active ? "text-bakery-ink" : "text-bakery-muted"}`}
+                strokeWidth={active ? 2.25 : 1.75}
+              />
+              <span
+                className={`mt-1 text-center text-[11px] font-bold leading-tight ${
+                  active ? "text-bakery-ink" : "text-bakery-muted"
+                }`}
+              >
+                {l.label}
+              </span>
             </Link>
           );
         })}
-      </nav>
-    </aside>
+      </div>
+    </nav>
   );
 }

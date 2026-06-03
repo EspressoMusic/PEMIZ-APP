@@ -2,11 +2,14 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { isValidProductImageUrl } from "@/lib/product-image";
 
 const schema = z.object({
   name: z.string().min(1).max(120),
   description: z.string().max(500).optional(),
   price: z.number().positive(),
+  salePrice: z.number().positive().optional().nullable(),
+  imageUrl: z.string().optional(),
 });
 
 async function requireStoreOwner() {
@@ -33,8 +36,22 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
+  const { imageUrl, price, salePrice, ...rest } = parsed.data;
+  if (imageUrl && !isValidProductImageUrl(imageUrl)) {
+    return jsonError("תמונה לא תקינה");
+  }
+  if (salePrice != null && salePrice >= price) {
+    return jsonError("מחיר מבצע חייב להיות נמוך מהמחיר הרגיל");
+  }
+
   const product = await prisma.product.create({
-    data: { ...parsed.data, businessId: ctx.user.business!.id },
+    data: {
+      ...rest,
+      price,
+      salePrice: salePrice ?? null,
+      imageUrl: imageUrl || null,
+      businessId: ctx.user.business!.id,
+    },
   });
   return jsonOk({ product });
 }

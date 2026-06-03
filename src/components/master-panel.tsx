@@ -164,7 +164,7 @@ export function MasterPanel() {
   if (!authenticated) {
     return (
       <WebShell>
-        <div className="mx-auto max-w-sm px-4 py-16">
+        <div className="mx-auto w-full max-w-sm px-4 py-12 sm:py-16">
           <PageTitle subtitle="גישת מנהל פלטפורמה לכל החנויות">
             כניסת מפתח
           </PageTitle>
@@ -221,8 +221,8 @@ export function MasterPanel() {
 
   return (
     <WebShell>
-      <div className="space-y-4 px-4 py-8 md:px-[14px]">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="space-y-4 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8 md:px-[14px]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
           <PageTitle subtitle="כל החנויות, סטטוסים ופרטי בעלים — השבתה או מחיקה">
             ניהול חנויות (מפתח)
           </PageTitle>
@@ -232,8 +232,8 @@ export function MasterPanel() {
         </div>
 
         <Panel>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <p className="text-[16px] font-extrabold text-bakery-ink">הרשמה חדשה לאתר</p>
               <p className="mt-1 text-[14px] text-bakery-muted">
                 {signupsEnabled
@@ -245,6 +245,7 @@ export function MasterPanel() {
               variant={signupsEnabled ? "danger" : "primary"}
               onClick={toggleSignups}
               disabled={platformLoading}
+              className="w-full sm:w-auto"
             >
               {platformLoading
                 ? "שומר..."
@@ -282,7 +283,7 @@ export function MasterPanel() {
 
         {pendingOwners.map((u) => (
           <Panel key={u.id}>
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-[18px] font-extrabold text-bakery-ink">{u.name}</p>
@@ -298,7 +299,11 @@ export function MasterPanel() {
                   נוצר: {new Date(u.createdAt).toLocaleString("he-IL")}
                 </p>
               </div>
-              <Button variant="danger" onClick={() => removePendingOwner(u.id, u.email)}>
+              <Button
+                variant="danger"
+                className="w-full sm:w-auto"
+                onClick={() => removePendingOwner(u.id, u.email)}
+              >
                 מחק חשבון
               </Button>
             </div>
@@ -309,7 +314,7 @@ export function MasterPanel() {
           const status = storeStatus(b);
           return (
           <Panel key={b.id}>
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 flex-1 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-[18px] font-extrabold text-bakery-ink">{b.name}</p>
@@ -365,14 +370,19 @@ export function MasterPanel() {
                 </Link>
               </div>
 
-              <div className="flex shrink-0 flex-col gap-2">
+              <div className="flex w-full shrink-0 flex-col gap-2 sm:flex-row sm:w-auto lg:flex-col">
                 <Button
                   variant={b.isActive ? "danger" : "primary"}
+                  className="w-full sm:flex-1 lg:w-auto"
                   onClick={() => toggleActive(b.id, b.isActive)}
                 >
                   {approveLabel(b)}
                 </Button>
-                <Button variant="danger" onClick={() => removeStore(b.id, b.name)}>
+                <Button
+                  variant="danger"
+                  className="w-full sm:flex-1 lg:w-auto"
+                  onClick={() => removeStore(b.id, b.name)}
+                >
                   מחק חנות
                 </Button>
               </div>
