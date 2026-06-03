@@ -9,8 +9,8 @@ export default async function SignupPage() {
 
   if (!signupsEnabled) {
     return (
-      <WebShell>
-        <div className="mx-auto w-full max-w-md px-4 py-10 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-12">
+      <WebShell maxWidth="max-w-md" lockViewport>
+        <div className="mx-auto flex w-full min-h-0 flex-1 flex-col justify-center overflow-hidden px-4 py-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Panel>
             <PageTitle subtitle="המערכת פתוחה רק למשתמשים קיימים">
               ההרשמה סגורה
@@ -30,14 +30,19 @@ export default async function SignupPage() {
   }
 
   return (
-    <>
-      <AuthForm mode="signup" />
-      <p className="-mt-4 pb-10 text-center text-[14px] text-bakery-muted">
-        כבר רשום?{" "}
-        <Link href="/login" className="font-bold text-bakery-ink underline-offset-2 hover:underline">
-          התחברות
-        </Link>
-      </p>
-    </>
+    <AuthForm
+      mode="signup"
+      footer={
+        <p className="mt-6 text-center text-[17px] leading-snug text-bakery-muted">
+          כבר רשום?{" "}
+          <Link
+            href="/login"
+            className="text-[19px] font-extrabold text-bakery-primary underline-offset-2 hover:underline"
+          >
+            התחברות
+          </Link>
+        </p>
+      }
+    />
   );
 }

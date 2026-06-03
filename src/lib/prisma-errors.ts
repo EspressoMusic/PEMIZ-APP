@@ -1,0 +1,52 @@
+import { Prisma } from "@prisma/client";
+
+/** הודעות בעברית ברורות לשגיאות Prisma — לא "שגיאת חיבור" גנרית */
+export function prismaErrorResponse(error: unknown): {
+  message: string;
+  status: number;
+} {
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    return {
+      message:
+        "לא הצלחנו להתחבר למסד הנתונים. בדוק ב-Vercel או ב-.env.local את POSTGRES_PRISMA_URL ו-POSTGRES_URL_NON_POOLING.",
+      status: 503,
+    };
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    switch (error.code) {
+      case "P1000":
+      case "P1001":
+      case "P1017":
+        return {
+          message: "מסד הנתונים לא זמין כרגע. נסה שוב בעוד רגע.",
+          status: 503,
+        };
+      case "P2021":
+        return {
+          message:
+            "טבלאות חסרות במסד. הרץ prisma migrate deploy על בסיס הנתונים.",
+          status: 503,
+        };
+      case "P2022":
+        return {
+          message: "מבנה מסד הנתונים לא תואם לקוד. עדכן מיגרציות.",
+          status: 503,
+        };
+      default:
+        break;
+    }
+  }
+
+  if (error instanceof Prisma.PrismaClientRustPanicError) {
+    return {
+      message: "שגיאה פנימית במסד הנתונים. נסה שוב.",
+      status: 503,
+    };
+  }
+
+  return {
+    message: "משהו השתבש בשרת. נסה שוב בעוד רגע.",
+    status: 500,
+  };
+}

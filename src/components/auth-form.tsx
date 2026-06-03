@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input, Alert, Panel, PageTitle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({
+  mode,
+  footer,
+}: {
+  mode: "login" | "signup";
+  footer?: ReactNode;
+}) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,9 +42,13 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       if (!res.ok) {
         setError(
           data.error ??
-            (res.status >= 500
-              ? "שגיאת שרת — ודא שמסד הנתונים מחובר והפעל מחדש את npm run dev"
-              : "שגיאה")
+            (res.status === 401
+              ? mode === "login"
+                ? "לא הצלחנו להתחבר — בדוק אימייל וסיסמה"
+                : "לא הצלחנו ליצור חשבון"
+              : res.status >= 500
+                ? "השרת לא זמין כרגע — נסה שוב בעוד רגע"
+                : "משהו השתבש — נסה שוב")
         );
         return;
       }
@@ -54,7 +64,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       }
       router.refresh();
     } catch {
-      setError("לא הצלחנו להתחבר — בדוק חיבור לאינטרנט ונסה שוב");
+      setError("אין חיבור לשרת — בדוק אינטרנט ונסה שוב");
     } finally {
       setLoading(false);
     }
@@ -111,6 +121,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </p>
           )}
         </Panel>
+        {footer}
       </div>
     </WebShell>
   );
