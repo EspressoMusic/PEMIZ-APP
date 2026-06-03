@@ -1,62 +1,61 @@
-# פריסת Linky — Vercel + Supabase
+# פריסה — Vercel + Supabase (פשוט)
 
-## מה כבר בוצע
+## למה לא הכל אוטומטי?
 
-- Prisma עבר ל-**PostgreSQL** (Supabase)
-- טבלאות Linky נוצרו בפרויקט Supabase **Market** (`qruzhluqmmzlcxksftuh`)
-- הפרויקט מקושר ל-Vercel: **linky** (`shilohdhd1-9039s-projects`)
+| מה | למה אני / אתה |
+|-----|----------------|
+| **סיסמת מסד הנתונים** | Supabase **לא מעבירה** אותה ל-AI — רק לך בדשבורד. בלי זה אי אפשר להתחבר ל-DB. |
+| **חיבור Supabase ב-Vercel** | לחיצה אחת **בחשבון Vercel שלך** — ממלאת אוטומטית `POSTGRES_PRISMA_URL` ו-`POSTGRES_URL_NON_POOLING`. |
 
-## שלב 1 — מחרוזות חיבור מ-Supabase
+**כבר הוגדרו ב-Vercel (אוטומטית):** `SESSION_SECRET`, `MASTER_KEY` (בחלק מהסביבות).
 
-1. [Supabase Dashboard](https://supabase.com/dashboard) → פרויקט **Market**
-2. **Project Settings** → **Database** → **Connect**
-3. העתק:
-   - **Transaction pooler** (פורט **6543**) → `DATABASE_URL`  
-     חובה: `?pgbouncer=true` בסוף
-   - **Direct connection** (פורט **5432**) → `DIRECT_URL`
+---
 
-## שלב 2 — משתני סביבה ב-Vercel
+## מה אתה עושה עכשיו (כ־2 דקות)
 
-[Vercel → linky → Settings → Environment Variables](https://vercel.com)
+### שלב א — חיבור Supabase ל-Vercel (הכי חשוב)
 
-הוסף ל-**Production** ו-**Preview** (ול-Development אם עובדים מקומית):
+1. פתח: [Vercel → פרויקט linky → Settings → Integrations](https://vercel.com)
+2. חפש **Supabase** → **Connect** / **Add**
+3. בחר את פרויקט **Market** (אותו שבו נוצרו טבלאות Linky)
+4. שמור
 
-| משתנה | דוגמה / הערה |
-|--------|----------------|
-| `DATABASE_URL` | מ-Supabase (pooler, 6543) |
-| `DIRECT_URL` | מ-Supabase (direct, 5432) |
-| `SESSION_SECRET` | מחרוזת אקראית **לפחות 32 תווים** |
-| `NEXT_PUBLIC_APP_URL` | `https://linky-xxx.vercel.app` (אחרי פריסה ראשונה) |
-| `MASTER_KEY` | מפתח כניסה ל־`/master` |
-| `ADMIN_EMAIL` | אימייל מנהל (ל-seed) |
+אחרי זה Vercel יוסיף לבד:
 
-אחרי ההוספה מקומית:
+- `POSTGRES_PRISMA_URL` — לריצת האתר  
+- `POSTGRES_URL_NON_POOLING` — לבנייה / מיגרציות  
 
-```bash
-npx vercel env pull .env.local
-```
+(הקוד כבר מוגדר להשתמש בשמות האלה.)
 
-## שלב 3 — מנהל מערכת (פעם אחת)
+### שלב ב — חיבור GitHub (אם עדיין לא)
 
-```bash
-npm run db:seed
-```
+1. Vercel → linky → **Settings → Git**
+2. חבר את `EspressoMusic/PEMIZ-APP`
+3. ענף: `main`
 
-(דורש `DATABASE_URL` + `DIRECT_URL` ב-`.env.local`)
+### שלב ג — פריסה
 
-ברירת מחדל: `admin@linky.local` / `Admin123!`
-
-## שלב 4 — פריסה
+לחץ **Deploy** ב-Vercel, או:
 
 ```bash
 npx vercel --prod
 ```
 
-אחרי הפריסה עדכן `NEXT_PUBLIC_APP_URL` לכתובת הסופית ופרוס שוב.
+### שלב ד — אחרי שיש כתובת לאתר
+
+1. העתק את ה-URL (למשל `https://linky-xxxxx.vercel.app`)
+2. Vercel → Environment Variables → `NEXT_PUBLIC_APP_URL` = אותה כתובת  
+3. **Redeploy** פעם אחת
+
+---
 
 ## פיתוח מקומי
 
-העתק `.env.example` ל-`.env.local` ומלא את הערכים מ-Supabase + Vercel.
+1. העתק `.env.example` → `.env.local`
+2. מ-Supabase (Database → Connect) הדבק ל:
+   - `POSTGRES_PRISMA_URL` (pooler, 6543, עם `?pgbouncer=true`)
+   - `POSTGRES_URL_NON_POOLING` (direct, 5432)
+3. או: `npx vercel env pull .env.local` (אחרי שלב א)
 
 ```bash
 npm install
@@ -65,7 +64,11 @@ npm run db:seed
 npm run dev
 ```
 
-## הערה על Supabase
+מנהל: `admin@linky.local` / `Admin123!`  
+מפתח `/master`: `MASTER_KEY` (ב-Vercel כרגע `11` — שנה בפרודקשן).
 
-באותו פרויקט Supabase קיימות גם טבלאות אחרות (למשל `profiles`, `businesses`).  
-Linky משתמש בטבלאות Prisma נפרדות (`User`, `Business`, …) — אין התנגשות בשמות.
+---
+
+## מאגר קוד
+
+https://github.com/EspressoMusic/PEMIZ-APP
