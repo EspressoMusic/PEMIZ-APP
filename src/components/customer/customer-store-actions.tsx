@@ -50,7 +50,7 @@ function ActionGridCard({
     <button
       type="button"
       onClick={onClick}
-      className="relative flex aspect-square flex-col items-center justify-center gap-2 rounded-[20px] bg-[#e6d7bd] px-2 py-4 text-center shadow-[0_3px_10px_rgba(58,47,38,0.1)] transition active:scale-[0.98]"
+      className="relative flex aspect-square flex-col items-center justify-center gap-2 rounded-[20px] bg-bakery-square px-2 py-4 text-center shadow-[0_3px_10px_rgba(58,47,38,0.1)] transition active:scale-[0.98]"
     >
       {badge != null && badge > 0 && (
         <span className="absolute start-2 top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-bakery-error px-1 text-[10px] font-extrabold text-white">
@@ -80,7 +80,7 @@ function ActionMenuRow({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-[22px] bg-[#e3d3b8] px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.1)] transition active:scale-[0.99]"
+      className="flex w-full items-center gap-3 rounded-[22px] bg-bakery-square px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.1)] transition active:scale-[0.99]"
     >
       <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
         <Icon className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
@@ -135,7 +135,7 @@ export function CustomerStoreActions({
         <h1 className="text-[22px] font-extrabold text-bakery-ink">{labels.storeActions}</h1>
       </div>
 
-      <div className="rounded-[24px] border border-bakery-border/20 bg-[#fffbf6] p-4 shadow-[0_4px_18px_rgba(58,47,38,0.07)]">
+      <div className="rounded-[24px] border border-bakery-border/20 bg-bakery-cream-light p-4 shadow-[0_4px_18px_rgba(58,47,38,0.07)]">
         <div className="grid grid-cols-2 gap-3">
           {isAppointments ? (
             <>

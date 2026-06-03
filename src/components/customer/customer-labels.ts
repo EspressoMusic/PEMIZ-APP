@@ -1,6 +1,7 @@
 import type { CustomerLocale } from "@/lib/customer-preferences";
 
 const EN = {
+  home: "Home",
   settings: "Settings",
   dashboard: "Dashboard",
   storeActions: "Store actions",
@@ -66,6 +67,7 @@ const EN = {
 };
 
 const HE: typeof EN = {
+  home: "בית",
   settings: "הגדרות",
   dashboard: "דאשבורד",
   storeActions: "פעולות בחנות",

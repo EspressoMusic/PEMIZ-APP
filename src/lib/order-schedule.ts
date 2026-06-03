@@ -1,11 +1,14 @@
 export type OrderSchedule = {
   days: number[];
+  /** ימים שסגורים להזמנות (לחיצה כפולה בממשק) */
+  blockedDays: number[];
   startTime: string;
   endTime: string;
 };
 
 const DEFAULT_SCHEDULE: OrderSchedule = {
   days: [0, 1, 2, 3, 4, 5, 6],
+  blockedDays: [],
   startTime: "08:00",
   endTime: "20:00",
 };
@@ -21,7 +24,18 @@ export const ORDER_DAY_LABELS = [
 ] as const;
 
 export function defaultOrderSchedule(): OrderSchedule {
-  return { ...DEFAULT_SCHEDULE, days: [...DEFAULT_SCHEDULE.days] };
+  return {
+    ...DEFAULT_SCHEDULE,
+    days: [...DEFAULT_SCHEDULE.days],
+    blockedDays: [],
+  };
+}
+
+function normalizeDayList(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))].sort(
+    (a, b) => a - b
+  );
 }
 
 /** מנרמל ערך מ־input type=time ל־HH:MM */
@@ -47,9 +61,8 @@ export function parseOrderSchedule(
   }
   try {
     const raw = JSON.parse(json) as Partial<OrderSchedule>;
-    const days = Array.isArray(raw.days)
-      ? raw.days.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6)
-      : defaultOrderSchedule().days;
+    const days = normalizeDayList(raw.days);
+    const blockedDays = normalizeDayList(raw.blockedDays);
     const startTime =
       typeof raw.startTime === "string" && /^\d{2}:\d{2}$/.test(raw.startTime)
         ? raw.startTime
@@ -60,7 +73,8 @@ export function parseOrderSchedule(
         : DEFAULT_SCHEDULE.endTime;
     return {
       enabled: true,
-      days: [...new Set(days)].sort((a, b) => a - b),
+      days: days.length > 0 ? days : defaultOrderSchedule().days,
+      blockedDays,
       startTime,
       endTime,
     };
@@ -108,6 +122,7 @@ export function isWithinOrderSchedule(
   if (!enabled) return true;
   const s = parseOrderSchedule(json, true);
   const { day, minutes } = getJerusalemNow(now);
+  if (s.blockedDays.includes(day)) return false;
   if (!s.days.includes(day)) return false;
 
   const start = timeToMinutes(s.startTime);
@@ -122,11 +137,16 @@ export function formatOrderScheduleSummary(
 ): string {
   if (!enabled) return "הזמנות פתוחות בכל יום ושעה";
   const s = parseOrderSchedule(json, true);
-  const days =
-    s.days.length === 7
+  const openDays = s.days.filter((d) => !s.blockedDays.includes(d));
+  const daysLabel =
+    openDays.length === 7
       ? "כל ימות השבוע"
-      : s.days.map((d) => ORDER_DAY_LABELS[d]).join(", ");
-  return `${days} · ${s.startTime}–${s.endTime}`;
+      : openDays.map((d) => ORDER_DAY_LABELS[d]).join(", ");
+  const blockedLabel =
+    s.blockedDays.length > 0
+      ? ` · סגור: ${s.blockedDays.map((d) => ORDER_DAY_LABELS[d]).join(", ")}`
+      : "";
+  return `${daysLabel} · ${s.startTime}–${s.endTime}${blockedLabel}`;
 }
 
 export const ORDER_SCHEDULE_CLOSED_MESSAGE =

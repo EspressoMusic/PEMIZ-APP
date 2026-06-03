@@ -5,53 +5,133 @@ import {
   Button,
   Input,
   Panel,
-  SquareCard,
   Badge,
-  Alert,
   PageTitle,
 } from "@/components/ui";
+import {
+  DashboardOrdersSection,
+  type DashboardOrderView,
+} from "@/components/dashboard/dashboard-order-card";
+import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { getDashboardLabels, type AppLocale } from "@/lib/app-locale";
+import {
+  DashboardPanelFrame,
+  DASHBOARD_PAGE_ROOT,
+  DASHBOARD_SCROLL_MAIN,
+} from "@/components/dashboard/dashboard-panel-frame";
 export { ProductsManager } from "@/components/dashboard/products-manager";
 
-const ORDER_STATUS_LABEL: Record<string, string> = {
-  PENDING: "ממתין",
-  CONFIRMED: "אושר",
-  COMPLETED: "הושלם",
-  CANCELLED: "בוטל",
-};
+function orderStatusLabel(status: string, locale: AppLocale): string {
+  const labels = getDashboardLabels(locale);
+  const map: Record<string, string> = {
+    PENDING: labels.pending,
+    CONFIRMED: labels.confirmed,
+    COMPLETED: labels.completed,
+    CANCELLED: labels.cancelled,
+  };
+  return map[status] ?? status;
+}
 
-const ORDER_STATUS_ACTIONS: { status: string; label: string }[] = [
-  { status: "CONFIRMED", label: "אשר" },
-  { status: "COMPLETED", label: "סמן כהושלם" },
-  { status: "CANCELLED", label: "בטל" },
-];
+const ACTIVE_ORDER_STATUSES = new Set(["PENDING", "CONFIRMED"]);
 
-export function OrdersManager({ title = "הזמנות" }: { title?: string }) {
-  const [orders, setOrders] = useState<
-    {
-      id: string;
-      customerName: string;
-      customerPhone: string;
-      status: string;
-      createdAt: string;
-      items: {
-        quantity: number;
-        product: { name: string };
-        priceAtOrder: number;
-      }[];
-    }[]
-  >([]);
+function isActiveOrderStatus(status: string) {
+  return ACTIVE_ORDER_STATUSES.has(status);
+}
+
+function mapOrdersFromApi(
+  locale: AppLocale,
+  raw: {
+    id: string;
+    customerName: string;
+    customerPhone: string;
+    status: string;
+    createdAt: string;
+    items: {
+      quantity: number;
+      priceAtOrder: number;
+      product: { name: string; imageUrl: string | null };
+    }[];
+  }[]
+): DashboardOrderView[] {
+  return raw.map((o) => ({
+    id: o.id,
+    customerName: o.customerName,
+    customerPhone: o.customerPhone,
+    status: o.status,
+    statusLabel: orderStatusLabel(o.status, locale),
+    createdAt: o.createdAt,
+    items: o.items.map((it) => ({
+      name: it.product.name,
+      quantity: it.quantity,
+      lineTotal: it.priceAtOrder * it.quantity,
+      imageUrl: it.product.imageUrl,
+    })),
+  }));
+}
+
+function OrdersPanels({
+  orders,
+  onStatusChange,
+}: {
+  orders: DashboardOrderView[];
+  onStatusChange?: (orderId: string, status: string) => void;
+}) {
+  const { labels } = useAppLocale();
+  const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
+  const historyOrders = orders.filter((o) => !isActiveOrderStatus(o.status));
+
+  return (
+    <div className="space-y-5 pb-2">
+      <DashboardOrdersSection
+        title={labels.activeOrders}
+        orders={activeOrders}
+        onStatusChange={onStatusChange}
+        emptyMessage={labels.noActiveOrders}
+      />
+      <DashboardOrdersSection
+        title={labels.orderHistory}
+        orders={historyOrders}
+        emptyMessage={labels.noOrderHistory}
+      />
+    </div>
+  );
+}
+
+export function OrdersManager({
+  framed = true,
+  previewOrders,
+}: {
+  /** מסגרת לבנה כמו דף פעולות */
+  framed?: boolean;
+  previewOrders?: DashboardOrderView[];
+}) {
+  const [orders, setOrders] = useState<DashboardOrderView[]>(previewOrders ?? []);
+  const { locale } = useAppLocale();
 
   async function load() {
+    if (previewOrders) return;
     const res = await fetch("/api/dashboard/orders");
     const data = await res.json();
-    if (res.ok) setOrders(data.orders);
+    if (!res.ok) return;
+    const mapped = mapOrdersFromApi(locale, data.orders ?? []);
+    setOrders(mapped);
   }
 
   useEffect(() => {
-    load();
-  }, []);
+    if (previewOrders) {
+      setOrders(
+        previewOrders.map((o) => ({
+          ...o,
+          statusLabel: orderStatusLabel(o.status, locale),
+        }))
+      );
+      return;
+    }
+    void load();
+  }, [locale, previewOrders]);
 
   async function setStatus(orderId: string, status: string) {
+    if (previewOrders) return;
     await fetch("/api/dashboard/orders", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -60,67 +140,28 @@ export function OrdersManager({ title = "הזמנות" }: { title?: string }) {
     load();
   }
 
+  const panels = (
+    <OrdersPanels
+      orders={orders}
+      onStatusChange={previewOrders ? undefined : setStatus}
+    />
+  );
+
+  if (!framed) {
+    return <div className="space-y-4 text-center">{panels}</div>;
+  }
+
   return (
-    <div className="space-y-4">
-      <PageTitle>{title}</PageTitle>
-      {orders.map((o) => {
-        const total = o.items.reduce(
-          (s, it) => s + it.priceAtOrder * it.quantity,
-          0
-        );
-        const created = new Date(o.createdAt).toLocaleString("he-IL", {
-          dateStyle: "short",
-          timeStyle: "short",
-        });
-        return (
-          <Panel key={o.id}>
-            <div className="flex flex-wrap justify-between gap-2">
-              <div className="text-start">
-                <p className="text-[17px] font-extrabold">{o.customerName}</p>
-                <p className="text-[14px]" dir="ltr">
-                  {o.customerPhone}
-                </p>
-                <p className="mt-1 text-[13px] text-bakery-muted">{created}</p>
-              </div>
-              <Badge>
-                {ORDER_STATUS_LABEL[o.status] ?? o.status}
-              </Badge>
-            </div>
-            <ul className="mt-3 space-y-1 text-[15px] leading-[1.45] text-bakery-muted">
-              {o.items.map((it, i) => (
-                <li key={i}>
-                  {it.product.name} × {it.quantity} —{" "}
-                  {(it.priceAtOrder * it.quantity).toFixed(2)}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 text-[15px] font-extrabold text-bakery-ink">
-              סה״כ: {total.toFixed(2)}
-            </p>
-            {o.status !== "CANCELLED" && o.status !== "COMPLETED" && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {ORDER_STATUS_ACTIONS.map(({ status, label }) => (
-                  <Button
-                    key={status}
-                    variant="secondary"
-                    onClick={() => setStatus(o.id, status)}
-                  >
-                    {label}
-                  </Button>
-                ))}
-              </div>
-            )}
-          </Panel>
-        );
-      })}
-      {orders.length === 0 && (
-        <p className="text-center text-bakery-muted">אין הזמנות עדיין.</p>
-      )}
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <DashboardPanelFrame className="flex min-h-0 flex-1 flex-col overflow-hidden text-center">
+        <div className={DASHBOARD_SCROLL_MAIN}>{panels}</div>
+      </DashboardPanelFrame>
     </div>
   );
 }
 
 export function SlotsManager() {
+  const { labels, formatDateTime } = useAppLocale();
   const [slots, setSlots] = useState<
     {
       id: string;
@@ -166,44 +207,43 @@ export function SlotsManager() {
 
   return (
     <div className="space-y-5">
-      <PageTitle>משבצות תורים</PageTitle>
+      <PageTitle>{labels.limits}</PageTitle>
       <Panel>
         <form onSubmit={add} className="grid gap-3 sm:grid-cols-2">
           <Input
             name="startAt"
-            label="התחלה"
+            label={labels.slotStart}
             type="datetime-local"
             required
             dir="ltr"
           />
           <Input
             name="endAt"
-            label="סיום"
+            label={labels.slotEnd}
             type="datetime-local"
             required
             dir="ltr"
           />
           <Input
             name="maxBookings"
-            label="מקסימום הזמנות"
+            label={labels.maxOrders}
             type="number"
             defaultValue={1}
             min={1}
             dir="ltr"
           />
-          <Button type="submit">הוסף משבצת</Button>
+          <Button type="submit">{labels.addProduct}</Button>
         </form>
       </Panel>
       <ul className="space-y-2">
         {slots.map((s) => (
           <Panel key={s.id} className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-[14px] font-medium" dir="ltr">
-              {new Date(s.startAt).toLocaleString("he-IL")} —{" "}
-              {new Date(s.endAt).toLocaleTimeString("he-IL")} (
+              {formatDateTime(s.startAt)} — {formatDateTime(s.endAt)} (
               {s.appointments.length}/{s.maxBookings})
             </span>
             <Button variant="danger" onClick={() => remove(s.id)}>
-              מחק
+              {labels.delete}
             </Button>
           </Panel>
         ))}
@@ -213,6 +253,7 @@ export function SlotsManager() {
 }
 
 export function AppointmentsManager() {
+  const { labels, formatDateTime } = useAppLocale();
   const [items, setItems] = useState<
     {
       id: string;
@@ -244,7 +285,7 @@ export function AppointmentsManager() {
 
   return (
     <div className="space-y-4">
-      <PageTitle>תורים שנקבעו</PageTitle>
+      <PageTitle>{labels.orders}</PageTitle>
       {items.map((a) => (
         <Panel key={a.id}>
           <p className="text-[17px] font-extrabold">{a.customerName}</p>
@@ -252,7 +293,7 @@ export function AppointmentsManager() {
             {a.customerPhone}
           </p>
           <p className="text-[14px] text-bakery-muted" dir="ltr">
-            {new Date(a.slot.startAt).toLocaleString("he-IL")}
+            {formatDateTime(a.slot.startAt)}
           </p>
           <Badge>{a.status}</Badge>
           <div className="mt-2 flex gap-2">
@@ -260,10 +301,10 @@ export function AppointmentsManager() {
               variant="secondary"
               onClick={() => setStatus(a.id, "CONFIRMED")}
             >
-              אשר
+              {labels.confirmOrder}
             </Button>
             <Button variant="danger" onClick={() => setStatus(a.id, "CANCELLED")}>
-              בטל
+              {labels.cancelOrder}
             </Button>
           </div>
         </Panel>
@@ -275,6 +316,7 @@ export function AppointmentsManager() {
 export { DashboardInquiriesManager as InquiriesManager } from "@/components/dashboard/dashboard-inquiries-manager";
 
 export function LogoutButton() {
+  const { labels } = useAppLocale();
   return (
     <Button
       variant="ghost"
@@ -283,7 +325,7 @@ export function LogoutButton() {
         window.location.href = "/";
       }}
     >
-      התנתקות
+      {labels.logout}
     </Button>
   );
 }

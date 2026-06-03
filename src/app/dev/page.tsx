@@ -29,7 +29,7 @@ export default function DevPreviewPage() {
         </p>
       </div>
 
-      <section className="flex flex-col gap-3 rounded-2xl border border-bakery-border/40 bg-white/60 p-4">
+      <section className="flex flex-col gap-3 rounded-2xl border border-bakery-border/40 bg-bakery-cream-light/60 p-4">
         <h2 className="text-sm font-bold text-bakery-ink">מוכר — עריכת עיצוב (מומלץ)</h2>
         <Link
           href="/dev/seller"
@@ -42,7 +42,7 @@ export default function DevPreviewPage() {
         </p>
       </section>
 
-      <section className="flex flex-col gap-3 rounded-2xl border border-bakery-border/40 bg-white/60 p-4">
+      <section className="flex flex-col gap-3 rounded-2xl border border-bakery-border/40 bg-bakery-cream-light/60 p-4">
         <h2 className="text-sm font-bold text-bakery-ink">לקוח — עריכת עיצוב</h2>
         <Link
           href="/dev/customer"
@@ -64,7 +64,7 @@ export default function DevPreviewPage() {
           value={slug}
           onChange={(e) => saveSlug(e.target.value)}
           placeholder="my-bakery"
-          className="rounded-xl border border-bakery-border/40 bg-white px-4 py-2 text-sm"
+          className="rounded-xl border border-bakery-border/40 bg-bakery-cream-light px-4 py-2 text-sm"
           dir="ltr"
         />
       </section>

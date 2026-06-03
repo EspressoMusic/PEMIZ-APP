@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { last7DayBuckets } from "@/lib/dashboard-stats";
-import { DashboardStatsView } from "@/components/dashboard/dashboard-stats-view";
+import { DashboardOrdersStatsClient } from "@/components/dashboard/dashboard-orders-stats-client";
 
 export default async function DashboardOrdersStatsPage() {
   const user = await getCurrentUser();
@@ -17,20 +16,9 @@ export default async function DashboardOrdersStatsPage() {
     select: { createdAt: true },
   });
 
-  const buckets = last7DayBuckets();
-  const points = buckets.map((b) => ({ label: b.label, value: 0 }));
-
-  for (const order of orders) {
-    const key = order.createdAt.toISOString().slice(0, 10);
-    const idx = buckets.findIndex((b) => b.key === key);
-    if (idx >= 0) points[idx].value += 1;
-  }
-
   return (
-    <DashboardStatsView
-      title="סטטיסטיקת הזמנות"
-      unit=""
-      points={points}
+    <DashboardOrdersStatsClient
+      orderDates={orders.map((o) => o.createdAt.toISOString())}
       backHref="/dashboard/actions"
     />
   );

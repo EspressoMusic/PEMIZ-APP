@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { DashboardStoreBroadcast } from "@/components/dashboard/dashboard-store-broadcast";
-import { DashboardCustomersBackLink } from "@/components/dashboard/dashboard-customers-back-link";
+import { DashboardCustomersBackLink } from "@/components/dashboard/dashboard-back-links";
 
 export default async function DashboardCustomersBroadcastPage() {
   const user = await getCurrentUser();

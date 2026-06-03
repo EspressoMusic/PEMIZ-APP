@@ -1,0 +1,94 @@
+"use client";
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  applyDocumentLocale,
+  formatAppDateTime,
+  formatAppMoney,
+  formatAppNumber,
+  getDashboardLabels,
+  normalizeAppLocale,
+  type AppLocale,
+  type DashboardLabels,
+} from "@/lib/app-locale";
+import {
+  hydrateDashboardLocale,
+  writeDashboardLocaleSession,
+} from "@/lib/dashboard-appearance-session";
+
+type AppLocaleContextValue = {
+  locale: AppLocale;
+  labels: DashboardLabels;
+  setLocale: (locale: AppLocale) => void;
+  formatMoney: (amount: number) => string;
+  formatNumber: (n: number) => string;
+  formatDateTime: (iso: string) => string;
+};
+
+const AppLocaleContext = createContext<AppLocaleContextValue | null>(null);
+
+export function AppLocaleProvider({
+  children,
+  initialLocale = "he",
+}: {
+  children: ReactNode;
+  initialLocale?: string | null;
+}) {
+  const [locale, setLocaleState] = useState<AppLocale>(() => {
+    if (typeof window === "undefined") return normalizeAppLocale(initialLocale);
+    const fromDom = document.documentElement.dataset.locale;
+    if (fromDom === "en" || fromDom === "he") return fromDom;
+    return hydrateDashboardLocale(initialLocale);
+  });
+
+  const setLocale = useCallback((next: AppLocale) => {
+    const normalized = normalizeAppLocale(next);
+    setLocaleState(normalized);
+    applyDocumentLocale(normalized);
+    writeDashboardLocaleSession(normalized);
+  }, []);
+
+  useLayoutEffect(() => {
+    applyDocumentLocale(locale);
+  }, [locale]);
+
+  const value = useMemo(
+    () => ({
+      locale,
+      labels: getDashboardLabels(locale),
+      setLocale,
+      formatMoney: (amount: number) => formatAppMoney(amount, locale),
+      formatNumber: (n: number) => formatAppNumber(n, locale),
+      formatDateTime: (iso: string) => formatAppDateTime(iso, locale),
+    }),
+    [locale, setLocale]
+  );
+
+  return (
+    <AppLocaleContext.Provider value={value}>{children}</AppLocaleContext.Provider>
+  );
+}
+
+export function useAppLocale() {
+  const ctx = useContext(AppLocaleContext);
+  if (!ctx) {
+    const locale: AppLocale = "he";
+    return {
+      locale,
+      labels: getDashboardLabels(locale),
+      setLocale: () => {},
+      formatMoney: (amount: number) => formatAppMoney(amount, locale),
+      formatNumber: (n: number) => formatAppNumber(n, locale),
+      formatDateTime: (iso: string) => formatAppDateTime(iso, locale),
+    };
+  }
+  return ctx;
+}

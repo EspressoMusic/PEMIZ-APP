@@ -25,7 +25,7 @@ function LegalBlock({
 }) {
   return (
     <li key={id}>
-      <div className="overflow-hidden rounded-[22px] bg-[#e3d5ba] shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
+      <div className="overflow-hidden rounded-[22px] bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
         <button
           type="button"
           onClick={onToggle}
@@ -113,7 +113,7 @@ export function CustomerFaqSheet({
         aria-label={closeLabel}
       />
 
-      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-[var(--cs-sheet-bg,#fdf8f1)] shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
+      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-[var(--cs-sheet-bg, var(--bakery-cream-sheet))] shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
         <div className="shrink-0 px-5 pt-3 lg:pt-5">
           <div
             className="mx-auto mb-3 h-1 w-10 rounded-full bg-bakery-ink/20 lg:hidden"
@@ -133,7 +133,7 @@ export function CustomerFaqSheet({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {!hasAny ? (
-            <div className="rounded-[22px] border-[1.2px] border-bakery-border/45 bg-[#e3d5ba] px-4 py-8 text-center shadow-[0_3px_10px_rgba(58,47,38,0.1)]">
+            <div className="rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square px-4 py-8 text-center shadow-[0_3px_10px_rgba(58,47,38,0.1)]">
               <p className="text-[16px] font-bold text-bakery-ink">{emptyTitle}</p>
               <p className="mt-2 text-[14px] text-bakery-muted">{emptySub}</p>
             </div>
@@ -170,7 +170,7 @@ export function CustomerFaqSheet({
                     const expanded = expandedId === item.id;
                     return (
                       <li key={item.id}>
-                        <div className="overflow-hidden rounded-[22px] bg-[#e3d5ba] shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
+                        <div className="overflow-hidden rounded-[22px] bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
                           <button
                             type="button"
                             onClick={() =>

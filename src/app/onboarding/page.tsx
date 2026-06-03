@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Input, Textarea, Alert, Panel, PageTitle } from "@/components/ui";
+import { Button, Input, Textarea, Alert, Panel, PageTitle, Toggle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 
 export default function OnboardingPage() {
@@ -83,14 +83,8 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            <label className="flex items-start gap-2 text-[14px] leading-[1.45]">
-              <input
-                type="checkbox"
-                checked={acceptTerms}
-                onChange={(e) => setAcceptTerms(e.target.checked)}
-                className="mt-1 accent-bakery-primary"
-              />
-              <span className="text-bakery-muted">
+            <div className="flex items-start justify-between gap-3 text-[14px] leading-[1.45]">
+              <span className="min-w-0 flex-1 text-bakery-muted">
                 קראתי ואני מסכים/ה ל
                 <Link href="/terms" className="font-bold text-bakery-ink hover:underline">
                   {" "}
@@ -102,7 +96,12 @@ export default function OnboardingPage() {
                 </Link>
                 .
               </span>
-            </label>
+              <Toggle
+                enabled={acceptTerms}
+                onChange={setAcceptTerms}
+                ariaLabel="אישור תנאי שימוש ומדיניות פרטיות"
+              />
+            </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "יוצר..." : "פתח עסק"}

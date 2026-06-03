@@ -1,7 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button, Input, Textarea, Panel, Alert, PageTitle, Badge } from "@/components/ui";
+import { useEffect, useState, type ReactNode } from "react";
+import { Button, Input, Textarea, Alert, SquareCard } from "@/components/ui";
+import {
+  DashboardHeading,
+  DashboardPanelFrame,
+  DASHBOARD_PAGE_ROOT,
+  DASHBOARD_SCROLL_MAIN,
+} from "@/components/dashboard/dashboard-panel-frame";
+import {
+  FileText,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import type { DashboardLabels } from "@/lib/dashboard-messages";
 
 type FaqRow = {
   id: string;
@@ -10,6 +25,175 @@ type FaqRow = {
   isActive: boolean;
   sortOrder: number;
 };
+
+const faqTileClass =
+  "bakery-float-tile w-full rounded-[20px] transition hover:bg-bakery-cream-hover/80 active:scale-[0.99]";
+
+function EditorModal({
+  open,
+  title,
+  onClose,
+  children,
+  footer,
+  closeLabel,
+  editLabel,
+}: {
+  open: boolean;
+  title?: string;
+  onClose: () => void;
+  children: ReactNode;
+  footer: ReactNode;
+  closeLabel: string;
+  editLabel: string;
+}) {
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[80] flex items-end justify-center p-4 sm:items-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title ?? editLabel}
+      {...(title ? { "aria-labelledby": "faq-editor-title" } : {})}
+    >
+      <button
+        type="button"
+        className="absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
+        onClick={onClose}
+        aria-label={closeLabel}
+      />
+      <div className="relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto rounded-[24px] border border-bakery-border/30 bg-bakery-square p-5 shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
+        <div
+          className={
+            title
+              ? "relative px-10 pt-1"
+              : "flex justify-end"
+          }
+        >
+          {title ? (
+            <h2
+              id="faq-editor-title"
+              className="text-center text-[18px] font-extrabold text-bakery-ink"
+            >
+              {title}
+            </h2>
+          ) : null}
+          <button
+            type="button"
+            onClick={onClose}
+            className={`rounded-full p-1 text-bakery-muted hover:bg-bakery-card/80 ${
+              title ? "absolute end-0 top-0" : ""
+            }`}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className={`space-y-3 ${title ? "mt-4" : "mt-1"}`}>{children}</div>
+        <div className="mt-4 flex flex-wrap gap-2">{footer}</div>
+      </div>
+    </div>
+  );
+}
+
+function LegalExpandRow({
+  title,
+  icon: Icon,
+  onClick,
+}: {
+  title: string;
+  icon: typeof FileText;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${faqTileClass} flex w-full flex-col items-center gap-2 px-3 py-3.5 text-center`}
+    >
+      <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+        <Icon className="h-6 w-6" strokeWidth={1.75} />
+      </span>
+      <span className="block text-[16px] font-extrabold text-bakery-ink">
+        {title}
+      </span>
+    </button>
+  );
+}
+
+function FaqQuestionCard({
+  item,
+  onEdit,
+  onRemove,
+  labels,
+}: {
+  item: FaqRow;
+  onEdit: () => void;
+  onRemove: () => void;
+  labels: DashboardLabels;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SquareCard className="bakery-float-tile w-full rounded-[20px] p-2">
+      <div className="space-y-1.5">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex w-full rounded-[14px] bg-bakery-cream-light px-3 py-2 text-center transition hover:bg-bakery-cream-hover active:scale-[0.99]"
+          aria-expanded={open}
+        >
+          <p className="line-clamp-2 text-[14px] font-extrabold leading-snug text-bakery-ink">
+            {item.question}
+          </p>
+        </button>
+
+        {open && (
+          <div className="space-y-1.5">
+            <div className="rounded-[14px] bg-bakery-cream-sheet px-3 py-2.5 text-center">
+              <p className="text-[11px] font-bold text-bakery-muted">{labels.answer}</p>
+              <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed text-bakery-muted">
+                {item.answer}
+              </p>
+            </div>
+            {!item.isActive && (
+              <p className="text-center text-[11px] font-bold text-bakery-muted">
+                {labels.faqHiddenFromCustomers}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="bakery-icon-tile flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-90 active:scale-[0.98]"
+            aria-label={labels.edit}
+          >
+            <Pencil className="h-4 w-4" strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove();
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-bakery-error/20 bg-bakery-cream-light shadow-sm transition hover:bg-bakery-error/10 active:scale-[0.98]"
+            aria-label={labels.delete}
+          >
+            <Trash2
+              className="h-4 w-4 text-bakery-error/75"
+              strokeWidth={2}
+            />
+          </button>
+        </div>
+      </div>
+    </SquareCard>
+  );
+}
 
 function toPreviewRows(
   items: { id: string; question: string; answer: string }[]
@@ -32,17 +216,24 @@ export function FaqManager({
   initialPolicy?: string;
   initialTerms?: string;
 }) {
+  const { labels } = useAppLocale();
   const [items, setItems] = useState<FaqRow[]>(() =>
     previewOnly && initialItems ? toPreviewRows(initialItems) : []
   );
   const [storePolicy, setStorePolicy] = useState(initialPolicy);
   const [storeTerms, setStoreTerms] = useState(initialTerms);
   const [error, setError] = useState("");
-  const [adding, setAdding] = useState(false);
+  const [legalMessage, setLegalMessage] = useState("");
+
+  const [policyModalOpen, setPolicyModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [adding, setAdding] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const [savingLegal, setSavingLegal] = useState<"policy" | "terms" | null>(null);
-  const [legalMessage, setLegalMessage] = useState("");
+
+  const [policyDraft, setPolicyDraft] = useState(initialPolicy);
 
   async function load() {
     if (previewOnly) return;
@@ -70,6 +261,50 @@ export function FaqManager({
     loadLegal();
   }, [previewOnly]);
 
+  function openPolicyModal() {
+    setPolicyDraft(storePolicy);
+    setPolicyModalOpen(true);
+  }
+
+  async function saveLegal(field: "policy" | "terms", value: string) {
+    setError("");
+    setLegalMessage("");
+    setSavingLegal(field);
+    const trimmed = value.trim();
+    const body =
+      field === "policy"
+        ? { storePolicy: trimmed || null }
+        : { storeTerms: trimmed || null };
+
+    if (previewOnly) {
+      if (field === "policy") setStorePolicy(trimmed);
+      else setStoreTerms(trimmed);
+      setSavingLegal(null);
+      setLegalMessage(labels.saved);
+      setTimeout(() => setLegalMessage(""), 2000);
+      if (field === "policy") setPolicyModalOpen(false);
+      return;
+    }
+
+    const res = await fetch("/api/dashboard/store-legal", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    setSavingLegal(null);
+    if (!res.ok) {
+      const d = await res.json();
+      setError(d.error ?? labels.saveError);
+      return;
+    }
+    const data = await res.json();
+    setStorePolicy(data.storePolicy ?? "");
+    setStoreTerms(data.storeTerms ?? "");
+    setLegalMessage(labels.saved);
+    setTimeout(() => setLegalMessage(""), 2000);
+    if (field === "policy") setPolicyModalOpen(false);
+  }
+
   async function add(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -91,6 +326,7 @@ export function FaqManager({
       ]);
       e.currentTarget.reset();
       setAdding(false);
+      setAddModalOpen(false);
       return;
     }
 
@@ -102,10 +338,11 @@ export function FaqManager({
     const data = await res.json();
     setAdding(false);
     if (!res.ok) {
-      setError(data.error ?? "שגיאה");
+      setError(data.error ?? labels.saveError);
       return;
     }
     e.currentTarget.reset();
+    setAddModalOpen(false);
     load();
   }
 
@@ -136,63 +373,15 @@ export function FaqManager({
     const data = await res.json();
     setSavingEdit(false);
     if (!res.ok) {
-      setError(data.error ?? "שגיאה בשמירה");
+      setError(data.error ?? labels.saveError);
       return;
     }
     setEditingId(null);
     load();
   }
 
-  async function toggleActive(id: string, isActive: boolean) {
-    if (previewOnly) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === id ? { ...item, isActive: !isActive } : item
-        )
-      );
-      return;
-    }
-    await fetch(`/api/dashboard/faq/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !isActive }),
-    });
-    load();
-  }
-
-  async function saveLegal(field: "policy" | "terms") {
-    setError("");
-    setLegalMessage("");
-    setSavingLegal(field);
-    const body =
-      field === "policy"
-        ? { storePolicy: storePolicy.trim() || null }
-        : { storeTerms: storeTerms.trim() || null };
-
-    if (previewOnly) {
-      setSavingLegal(null);
-      setLegalMessage("נשמר (תצוגה)");
-      setTimeout(() => setLegalMessage(""), 2000);
-      return;
-    }
-
-    const res = await fetch("/api/dashboard/store-legal", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    setSavingLegal(null);
-    if (!res.ok) {
-      const d = await res.json();
-      setError(d.error ?? "שגיאה בשמירה");
-      return;
-    }
-    setLegalMessage("נשמר");
-    setTimeout(() => setLegalMessage(""), 2000);
-  }
-
   async function remove(id: string) {
-    if (!confirm("למחוק שאלה זו?")) return;
+    if (!confirm(labels.confirmDeleteFaq)) return;
     if (previewOnly) {
       setItems((prev) => prev.filter((item) => item.id !== id));
       if (editingId === id) setEditingId(null);
@@ -203,179 +392,200 @@ export function FaqManager({
     load();
   }
 
+  const editingItem = editingId
+    ? items.find((item) => item.id === editingId)
+    : null;
+
   return (
-    <div className="space-y-5 pb-2">
-      <PageTitle>שאלות ותשובות</PageTitle>
+    <div className={`${DASHBOARD_PAGE_ROOT} min-h-0 flex-1`}>
+      <DashboardPanelFrame className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden">
+        <div className="shrink-0 space-y-3">
+          <DashboardHeading>{labels.faq}</DashboardHeading>
+          {error && <Alert variant="error">{error}</Alert>}
+          {legalMessage && (
+            <p className="text-center text-[14px] font-semibold text-bakery-success">
+              {legalMessage}
+            </p>
+          )}
+        </div>
 
-      {error && <Alert variant="error">{error}</Alert>}
-      {legalMessage && (
-        <p className="text-center text-[14px] font-semibold text-bakery-success">
-          {legalMessage}
-        </p>
-      )}
+        <div className={`${DASHBOARD_SCROLL_MAIN} space-y-2.5`}>
+          {items.length === 0 ? (
+            <p className="py-2 text-center text-[15px] text-bakery-muted">
+              {labels.faqNoQuestionsYet}
+            </p>
+          ) : (
+            <ul className="space-y-2.5">
+              {items.map((item) => (
+                <li key={item.id}>
+                  <FaqQuestionCard
+                    item={item}
+                    labels={labels}
+                    onEdit={() => {
+                      setError("");
+                      setEditingId(item.id);
+                    }}
+                    onRemove={() => remove(item.id)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-      <div className="bakery-float-panel rounded-[24px] p-4">
-        <h2 className="text-center text-[18px] font-extrabold text-bakery-ink">
-          מדיניות החנות
-        </h2>
-        <div className="mx-auto mt-3 flex w-full max-w-[360px] flex-col gap-3">
-          <Textarea
-            label="מדיניות (ללקוחות)"
-            rows={5}
-            value={storePolicy}
-            onChange={(e) => setStorePolicy(e.target.value)}
-            placeholder="משלוחים, החזרות, אלרגנים, שעות פעילות..."
-          />
+        <div className="shrink-0 space-y-2.5">
+          <SquareCard className="bakery-float-tile w-full rounded-[20px] p-2">
+            <button
+              type="button"
+              onClick={() => {
+                setError("");
+                setAddModalOpen(true);
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-bakery-cream-light px-3 py-3 transition hover:bg-bakery-cream-hover active:scale-[0.99]"
+            >
+              <span className="bakery-icon-tile flex h-9 w-9 items-center justify-center rounded-xl">
+                <Plus className="h-4 w-4" strokeWidth={2.5} />
+              </span>
+              <span className="text-[15px] font-extrabold text-bakery-ink">
+                {labels.addQuestion}
+              </span>
+            </button>
+          </SquareCard>
+
+          <div className="space-y-2.5">
+            <DashboardHeading level={2}>{labels.faqStorePolicy}</DashboardHeading>
+            <LegalExpandRow
+              title={labels.faqStorePolicy}
+              icon={FileText}
+              onClick={openPolicyModal}
+            />
+          </div>
+        </div>
+      </DashboardPanelFrame>
+
+      <EditorModal
+        open={policyModalOpen}
+        title={labels.faqPolicyTitle}
+        closeLabel={labels.close}
+        editLabel={labels.edit}
+        onClose={() => setPolicyModalOpen(false)}
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="primary"
+              className="flex-1 font-extrabold"
+              disabled={savingLegal === "policy"}
+              onClick={() => saveLegal("policy", policyDraft)}
+            >
+              {savingLegal === "policy" ? labels.saving : labels.savePolicy}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setPolicyModalOpen(false)}
+            >
+              {labels.cancel}
+            </Button>
+          </>
+        }
+      >
+        <Textarea
+          rows={10}
+          value={policyDraft}
+          onChange={(e) => setPolicyDraft(e.target.value)}
+          placeholder={labels.policyPlaceholder}
+        />
+      </EditorModal>
+
+      <EditorModal
+        open={addModalOpen}
+        title={labels.faqAddQuestion}
+        closeLabel={labels.close}
+        editLabel={labels.edit}
+        onClose={() => setAddModalOpen(false)}
+        footer={
           <Button
-            type="button"
+            type="submit"
+            form="faq-add-form"
             variant="square"
             className="w-full"
-            disabled={savingLegal === "policy"}
-            onClick={() => saveLegal("policy")}
+            disabled={adding}
           >
-            {savingLegal === "policy" ? "שומר..." : "שמור מדיניות"}
+            {adding ? labels.adding : labels.addQuestion}
           </Button>
-        </div>
-      </div>
-
-      <div className="bakery-float-panel rounded-[24px] p-4">
-        <h2 className="text-center text-[18px] font-extrabold text-bakery-ink">
-          תקנון החנות
-        </h2>
-        <div className="mx-auto mt-3 flex w-full max-w-[360px] flex-col gap-3">
-          <Textarea
-            label="תקנון (ללקוחות)"
-            rows={5}
-            value={storeTerms}
-            onChange={(e) => setStoreTerms(e.target.value)}
-            placeholder="תנאי שימוש, ביטולים, אחריות..."
-          />
-          <Button
-            type="button"
-            variant="square"
-            className="w-full"
-            disabled={savingLegal === "terms"}
-            onClick={() => saveLegal("terms")}
-          >
-            {savingLegal === "terms" ? "שומר..." : "שמור תקנון"}
-          </Button>
-        </div>
-      </div>
-
-      <div className="bakery-float-panel rounded-[24px] p-4">
-        <h2 className="text-center text-[18px] font-extrabold text-bakery-ink">
-          הוספת שאלה
-        </h2>
-        <form
-          onSubmit={add}
-          className="mx-auto mt-4 flex w-full max-w-[360px] flex-col gap-3"
-        >
+        }
+      >
+        <form id="faq-add-form" onSubmit={add} className="space-y-3">
           <Input
             name="question"
-            label="שאלה"
+            label={labels.question}
             required
-            placeholder="לדוגמה: מה שעות הפעילות?"
+            placeholder={labels.questionPlaceholder}
           />
           <Textarea
             name="answer"
-            label="תשובה"
+            label={labels.answer}
             required
-            rows={4}
-            placeholder="לדוגמה: א׳–ה׳ 08:00–20:00"
+            rows={5}
+            placeholder={labels.answerPlaceholder}
           />
-          <Button type="submit" variant="square" className="w-full" disabled={adding}>
-            {adding ? "מוסיף..." : "הוסף שאלה"}
-          </Button>
         </form>
-      </div>
+      </EditorModal>
 
-      {items.length === 0 ? (
-        <p className="text-center text-[15px] text-bakery-muted">
-          עדיין אין שאלות — הלקוחות יראו הודעה ריקה עד שתוסיף/י.
-        </p>
-      ) : (
-        <ul className="space-y-3">
-          {items.map((item) => {
-            const isEditing = editingId === item.id;
-            return (
-              <Panel key={item.id} className="space-y-3">
-                {isEditing ? (
-                  <form
-                    onSubmit={(e) => saveEdit(e, item.id)}
-                    className="space-y-3"
-                  >
-                    <Input
-                      name="question"
-                      label="שאלה"
-                      required
-                      defaultValue={item.question}
-                    />
-                    <Textarea
-                      name="answer"
-                      label="תשובה"
-                      required
-                      rows={4}
-                      defaultValue={item.answer}
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="submit"
-                        variant="square"
-                        disabled={savingEdit}
-                      >
-                        {savingEdit ? "שומר..." : "שמור"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditingId(null);
-                          setError("");
-                        }}
-                      >
-                        ביטול
-                      </Button>
-                    </div>
-                  </form>
-                ) : (
-                  <>
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <p className="text-[17px] font-extrabold text-bakery-ink">
-                        {item.question}
-                      </p>
-                      <Badge tone={item.isActive ? "success" : "default"}>
-                        {item.isActive ? "מוצג ללקוחות" : "מוסתר"}
-                      </Badge>
-                    </div>
-                    <p className="whitespace-pre-wrap text-[14px] leading-[1.45] text-bakery-muted">
-                      {item.answer}
-                    </p>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      <Button
-                        variant="ghost"
-                        onClick={() => {
-                          setError("");
-                          setEditingId(item.id);
-                        }}
-                      >
-                        ערוך
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        onClick={() => toggleActive(item.id, item.isActive)}
-                      >
-                        {item.isActive ? "הסתר" : "הצג"}
-                      </Button>
-                      <Button variant="danger" onClick={() => remove(item.id)}>
-                        מחק
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </Panel>
-            );
-          })}
-        </ul>
+      {editingItem && (
+        <EditorModal
+          open={!!editingId}
+          closeLabel={labels.close}
+          editLabel={labels.edit}
+          onClose={() => {
+            setEditingId(null);
+            setError("");
+          }}
+          footer={
+            <>
+              <Button
+                type="submit"
+                form="faq-edit-form"
+                variant="primary"
+                className="flex-1 font-extrabold"
+                disabled={savingEdit}
+              >
+                {savingEdit ? labels.saving : labels.save}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setEditingId(null);
+                  setError("");
+                }}
+              >
+                {labels.cancel}
+              </Button>
+            </>
+          }
+        >
+          <form
+            id="faq-edit-form"
+            onSubmit={(e) => saveEdit(e, editingItem.id)}
+            className="space-y-3"
+          >
+            <Input
+              name="question"
+              label={labels.question}
+              required
+              defaultValue={editingItem.question}
+            />
+            <Textarea
+              name="answer"
+              label={labels.answer}
+              required
+              rows={5}
+              defaultValue={editingItem.answer}
+            />
+          </form>
+        </EditorModal>
       )}
     </div>
   );

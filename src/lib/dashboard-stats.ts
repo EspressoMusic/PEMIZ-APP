@@ -1,13 +1,16 @@
-/** Last 7 days labels (Hebrew short) + keys for grouping */
-export function last7DayBuckets() {
+import type { AppLocale } from "@/lib/app-locale";
+
+/** Last 7 days labels + keys for grouping */
+export function last7DayBuckets(locale: AppLocale = "he") {
   const buckets: { key: string; label: string }[] = [];
   const now = new Date();
+  const dateLocale = locale === "en" ? "en-US" : "he-IL";
   for (let i = 6; i >= 0; i--) {
     const d = new Date(now);
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - i);
     const key = d.toISOString().slice(0, 10);
-    const label = d.toLocaleDateString("he-IL", { weekday: "short" });
+    const label = d.toLocaleDateString(dateLocale, { weekday: "short" });
     buckets.push({ key, label });
   }
   return buckets;

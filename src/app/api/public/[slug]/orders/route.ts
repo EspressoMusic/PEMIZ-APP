@@ -13,6 +13,21 @@ import {
   OrderStockError,
   reserveStockAndCreateOrder,
 } from "@/lib/product-stock-order";
+import { notifySellerNewOrder } from "@/lib/whatsapp-seller-notify";
+
+function scheduleOrderWhatsAppNotify(
+  business: {
+    id: string;
+    name: string;
+    whatsappNotifyEnabled: boolean;
+    whatsappNotifyPhone: string | null;
+  },
+  orderId: string
+) {
+  void notifySellerNewOrder(business, orderId).catch((e) =>
+    console.error("[WhatsApp] order notify", e)
+  );
+}
 
 const schema = z.object({
   customerName: z.string().min(2).max(80),
@@ -84,7 +99,7 @@ export async function POST(
     if (redeemed) return jsonError("כבר מימשת את הדיל הזה פעם אחת");
 
     const dealProducts = getDealProducts(deal);
-    if (dealProducts.length < 2) return jsonError("דיל לא תקין");
+    if (dealProducts.length < 1) return jsonError("דיל לא תקין");
     if (dealProducts.some((p) => !p.isActive)) {
       return jsonError("מוצר בדיל לא זמין");
     }
@@ -119,6 +134,7 @@ export async function POST(
         });
         return created;
       });
+      scheduleOrderWhatsAppNotify(business, order.id);
       return jsonOk({ orderId: order.id, dealApplied: true });
     } catch (e) {
       if (e instanceof OrderStockError) return jsonError(e.message);
@@ -148,6 +164,7 @@ export async function POST(
         notes: parsed.data.notes,
       })
     );
+    scheduleOrderWhatsAppNotify(business, order.id);
     return jsonOk({ orderId: order.id });
   } catch (e) {
     if (e instanceof OrderStockError) return jsonError(e.message);

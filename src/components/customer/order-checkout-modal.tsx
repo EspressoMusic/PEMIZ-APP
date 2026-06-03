@@ -80,7 +80,7 @@ export function OrderCheckoutModal({
         aria-label={t.close}
       />
 
-      <div className="relative w-full max-w-md rounded-t-[28px] bg-[#fdf8f1] p-5 shadow-[0_-8px_32px_rgba(58,47,38,0.18)] sm:rounded-[28px]">
+      <div className="relative w-full max-w-md rounded-t-[28px] bg-bakery-cream-sheet p-5 shadow-[0_-8px_32px_rgba(58,47,38,0.18)] sm:rounded-[28px]">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-[20px] font-extrabold text-bakery-ink">{t.title}</h2>
           <button

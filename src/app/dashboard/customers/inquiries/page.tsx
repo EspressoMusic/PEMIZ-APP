@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { DashboardInquiriesManager } from "@/components/dashboard/dashboard-inquiries-manager";
-import { DashboardCustomersBackLink } from "@/components/dashboard/dashboard-customers-back-link";
+import { DashboardCustomersBackLink } from "@/components/dashboard/dashboard-back-links";
 
 export default async function DashboardCustomersInquiriesPage() {
   const user = await getCurrentUser();

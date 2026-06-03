@@ -6,7 +6,7 @@ import { getDealProducts } from "@/lib/store-deal";
 
 const schema = z.object({
   name: z.string().min(1).max(120),
-  productIds: z.array(z.string()).min(2),
+  productIds: z.array(z.string()).min(1),
   dealPrice: z.number().positive(),
   validUntil: z.string().datetime(),
 });

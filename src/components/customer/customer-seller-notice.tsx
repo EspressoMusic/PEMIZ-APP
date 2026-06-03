@@ -1,8 +1,18 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import { Bell, X } from "lucide-react";
 import { Button } from "@/components/ui";
 import type { CustomerLocale } from "@/lib/customer-preferences";
+
+type ConfettiPiece = {
+  id: number;
+  left: number;
+  delay: number;
+  duration: number;
+  color: string;
+  size: number;
+};
 
 export function CustomerSellerNotice({
   open,
@@ -15,10 +25,30 @@ export function CustomerSellerNotice({
   locale: CustomerLocale;
   onClose: () => void;
 }) {
-  if (!open || !message.trim()) return null;
-
   const title = locale === "he" ? "הודעה מהמוכר" : "Message from the store";
   const closeLabel = locale === "he" ? "הבנתי" : "Got it";
+
+  const confettiPieces = useMemo<ConfettiPiece[]>(() => {
+    const colors = ["#e6d4b8", "#5c4a3e", "#43a047", "#c9a66b", "#7eb8ff", "#f4f0e8"];
+    return Array.from({ length: 52 }, (_, id) => ({
+      id,
+      left: Math.random() * 100,
+      delay: Math.random() * 0.5,
+      duration: 2 + Math.random() * 1.3,
+      color: colors[id % colors.length]!,
+      size: 5 + Math.floor(Math.random() * 7),
+    }));
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  if (!open || !message.trim()) return null;
 
   return (
     <div
@@ -32,15 +62,36 @@ export function CustomerSellerNotice({
         onClick={onClose}
         aria-label={closeLabel}
       />
-      <div className="relative w-full max-w-md rounded-[24px] border border-bakery-border/30 bg-bakery-square p-5 shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
+
+      <div
+        className="confetti-layer pointer-events-none absolute inset-0 overflow-hidden"
+        aria-hidden
+      >
+        {confettiPieces.map((p) => (
+          <span
+            key={p.id}
+            className="confetti-piece"
+            style={{
+              left: `${p.left}%`,
+              width: p.size,
+              height: p.size * 1.35,
+              backgroundColor: p.color,
+              animationDelay: `${p.delay}s`,
+              animationDuration: `${p.duration}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="customer-seller-notice-panel relative z-10 w-full max-w-md rounded-[24px] border p-5 shadow-[0_12px_40px_rgba(58,47,38,0.18)]">
         <div className="flex items-start justify-between gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-bakery-primary/15 text-bakery-primary">
+          <span className="customer-seller-notice-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
             <Bell className="h-6 w-6" strokeWidth={2} />
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1 text-bakery-muted hover:bg-bakery-card/80"
+            className="rounded-full p-1 text-bakery-muted transition hover:bg-bakery-primary/10"
           >
             <X className="h-5 w-5" />
           </button>
@@ -51,8 +102,8 @@ export function CustomerSellerNotice({
         </p>
         <Button
           type="button"
-          variant="square"
-          className="mt-4 w-full"
+          variant="primary"
+          className="customer-seller-notice-btn mt-4 w-full"
           onClick={onClose}
         >
           {closeLabel}

@@ -1,65 +1,57 @@
 "use client";
 
 import { Users, Store, HelpCircle, TrendingUp } from "lucide-react";
-import { parseStoreTheme } from "@/lib/store-themes";
 import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
+import { DashboardActionsSettingsGroup } from "@/components/dashboard/dashboard-actions-settings-group";
 import { DashboardStoreStylePicker } from "@/components/dashboard/dashboard-store-style-picker";
 import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-square";
+import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardActionsHub({
   businessType,
   basePath = "/dashboard",
-  storeTheme = "calm",
-  storeLocale = "he",
   previewOnly = false,
 }: {
   businessType: string;
   basePath?: string;
-  storeTheme?: string;
-  storeLocale?: string;
   previewOnly?: boolean;
 }) {
-  const theme = parseStoreTheme(storeTheme);
+  const { labels } = useAppLocale();
 
   return (
-    <div className="space-y-5 pb-2 text-center">
-      <div>
-        <h1 className="text-[22px] font-extrabold text-bakery-ink">פעולות</h1>
-      </div>
-
-      <div className="bakery-float-panel rounded-[24px] p-4">
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
-          <DashboardActionSquare
-            href={`${basePath}/customers`}
-            icon={Users}
-            label="לקוחות"
-          />
-          <DashboardActionSquare
-            href={`${basePath}/settings`}
-            icon={Store}
-            label="החנות"
-          />
+    <div className="flex h-full min-h-0 flex-col overflow-hidden py-3 text-center sm:py-4">
+      <div className="flex min-h-0 flex-1 flex-col justify-start gap-3 overflow-y-auto overflow-x-hidden">
+        <div className="bakery-float-panel shrink-0 rounded-[24px] p-3">
+          <div className="grid grid-cols-2 gap-2">
+            <DashboardActionSquare
+              href={`${basePath}/customers`}
+              icon={Users}
+              label={labels.customers}
+            />
+            <DashboardActionSquare
+              href={`${basePath}/settings`}
+              icon={Store}
+              label={labels.store}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="bakery-float-panel rounded-[24px] p-4">
-        <ul className="space-y-3 text-start">
+        <div className="bakery-float-panel min-h-0 rounded-[24px] p-3">
+          <ul className="space-y-2 text-start">
           <DashboardActionRow
             href={`${basePath}/faq`}
             icon={HelpCircle}
-            title="שאלות ותשובות"
+            title={labels.faq}
           />
           <DashboardActionRow
             href={`${basePath}/stats/sales`}
             icon={TrendingUp}
-            title="מכירות ורווחים"
+            title={labels.salesAndProfit}
           />
-          <DashboardStoreStylePicker
-            initialTheme={theme}
-            initialLocale={storeLocale === "en" ? "en" : "he"}
-            previewOnly={previewOnly}
-          />
-        </ul>
+          <DashboardStoreStylePicker previewOnly={previewOnly} />
+          <DashboardActionsSettingsGroup basePath={basePath} />
+          </ul>
+        </div>
       </div>
     </div>
   );

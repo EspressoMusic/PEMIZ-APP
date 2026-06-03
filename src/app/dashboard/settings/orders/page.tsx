@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { OrdersManager } from "@/components/dashboard-client";
-import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-settings-back-link";
+import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
+import { DashboardSellerPageStack } from "@/components/dashboard/dashboard-panel-frame";
 
 export default async function SettingsOrdersPage() {
   const user = await getCurrentUser();
@@ -9,9 +10,9 @@ export default async function SettingsOrdersPage() {
   if (user.business.type !== "STORE") redirect("/dashboard/settings");
 
   return (
-    <div className="space-y-4">
+    <DashboardSellerPageStack>
       <DashboardSettingsBackLink />
-      <OrdersManager title="הזמנות קיימות" />
-    </div>
+      <OrdersManager />
+    </DashboardSellerPageStack>
   );
 }

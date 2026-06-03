@@ -34,25 +34,31 @@
 
 :root {
   --bakery-scaffold: #f4f0e8;
-  --bakery-panel-top: #fbf7ef;
+  /* Light cream surfaces — brighter than tan panels, never pure white */
+  --bakery-cream-light: #faf4e6;
+  --bakery-cream: #f6efe3;
+  --bakery-cream-mid: #f0e8da;
+  --bakery-cream-sheet: #f4ebe0;
+  --bakery-cream-hover: #ebe3d4;
+  --bakery-panel-top: var(--bakery-cream-light);
   --bakery-panel-bottom: #f1e5d4;
-  --bakery-card: #f8f4ec;
+  --bakery-card: #f6efe3;
   --bakery-square: #e6d4b8;
   --bakery-ink: #3a2f26;
   --bakery-muted: #6b5d52;
   --bakery-primary: #5c4a3e;
   --bakery-on-primary: #f8f4ec;
-  --bakery-input: #f3efe6;
+  --bakery-input: #f2ece2;
   --bakery-border: #c9b89a;
   --bakery-sale: #b94040;
   --bakery-error: #c62828;
   --bakery-success: #43a047;
   /* Customer app (screenshots) */
-  --customer-bg: #fdf8f4;
+  --customer-bg: #faf6f0;
   --customer-nav-bg: #f1e3d3;
   --customer-nav-active: #dbc9b5;
-  --customer-soft-wrap: #fbf7ef;
-  --bakery-icon-tile: #fffef9;
+  --customer-soft-wrap: var(--bakery-cream-light);
+  --bakery-icon-tile: var(--bakery-cream-light);
   --background: var(--bakery-scaffold);
   --foreground: var(--bakery-ink);
 }
@@ -62,18 +68,24 @@
   --color-foreground: var(--foreground);
   --font-sans: "Plus Jakarta Sans", "Rubik", system-ui, sans-serif;
   --color-bakery-scaffold: #f4f0e8;
-  --color-bakery-panel-top: #fbf7ef;
-  --color-bakery-square: #e6d4b8;
-  --color-bakery-ink: #3a2f26;
-  --color-bakery-muted: #6b5d52;
-  --color-bakery-primary: #5c4a3e;
-  --color-bakery-on-primary: #f8f4ec;
+  --color-bakery-cream-light: var(--bakery-cream-light);
+  --color-bakery-cream: var(--bakery-cream);
+  --color-bakery-cream-mid: var(--bakery-cream-mid);
+  --color-bakery-cream-sheet: var(--bakery-cream-sheet);
+  --color-bakery-cream-hover: var(--bakery-cream-hover);
+  --color-bakery-card: var(--bakery-card);
+  --color-bakery-panel-top: var(--bakery-cream-light);
+  --color-bakery-square: var(--bakery-square);
+  --color-bakery-ink: var(--bakery-ink);
+  --color-bakery-muted: var(--bakery-muted);
+  --color-bakery-primary: var(--bakery-primary);
+  --color-bakery-on-primary: var(--bakery-on-primary);
   --color-bakery-input: var(--bakery-input);
-  --color-bakery-border: #c9b89a;
-  --color-customer-bg: #fdf8f4;
+  --color-bakery-border: var(--bakery-border);
+  --color-customer-bg: var(--customer-bg);
   --color-customer-nav: #f1e3d3;
   --color-customer-nav-active: #dbc9b5;
-  --color-customer-soft: #fbf7ef;
+  --color-customer-soft: var(--bakery-cream-light);
   --shadow-bakery-panel: 0 8px 16px rgba(0, 0, 0, 0.22),
     -2px -3px 8px rgba(255, 255, 255, 0.09);
   --shadow-bakery-card: 0 3px 10px rgba(0, 0, 0, 0.13);
@@ -99,6 +111,16 @@ body {
   line-height: 1.35;
 }
 
+html[lang="en"] body,
+html[data-locale="en"] body {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+html[lang="he"] body,
+html[data-locale="he"] body {
+  font-family: "Rubik", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
 .bakery-frame-bg {
   min-height: 100dvh;
   background: var(--bakery-scaffold);
@@ -108,7 +130,7 @@ body {
   background: linear-gradient(
     180deg,
     var(--bakery-panel-top) 0%,
-    #f3ebe0 100%
+    var(--bakery-cream-mid) 100%
   );
 }
 
@@ -127,249 +149,239 @@ body {
 }
 
 /* Customer storefront display themes */
-.customer-store-root.customer-theme-calm {
-  --cs-page-bg: #fdf8f4;
+html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
+  --cs-page-bg: #faf6f0;
   --cs-nav-bg: #f1e3d3;
   --cs-nav-active: #dbc9b5;
-  --cs-sheet-bg: #fdf8f1;
+  --cs-sheet-bg: var(--bakery-cream-sheet);
 }
 
-.customer-store-root.customer-theme-light {
+html[data-store-theme="light"] , .customer-store-root.customer-theme-light {
   --cs-page-bg: #ffffff;
-  --cs-nav-bg: #f0f0f0;
-  --cs-nav-active: #e0e0e0;
-  --cs-sheet-bg: #ffffff;
-  --color-bakery-ink: #111111;
-  --color-bakery-muted: #444444;
-  --color-bakery-square: #f5f5f5;
+  --cs-nav-bg: #f5f5f5;
+  --cs-nav-active: #e5e5e5;
+  --cs-sheet-bg: #fafafa;
+  --color-bakery-ink: #0a0a0a;
+  --color-bakery-muted: #525252;
+  --color-bakery-square: #f0f0f0;
   --color-bakery-card: #ffffff;
-  --color-bakery-border: #cccccc;
+  --color-bakery-border: #d4d4d4;
+  --color-bakery-primary: #171717;
+  --color-bakery-input: #fafafa;
   --color-customer-bg: #ffffff;
-  --color-customer-nav: #f0f0f0;
-  --color-customer-nav-active: #e0e0e0;
+  --color-customer-nav: #f5f5f5;
+  --color-customer-nav-active: #e5e5e5;
   --color-customer-soft: #fafafa;
-  --bakery-icon-tile: #ffffff;
+  --bakery-icon-tile: #f5f5f5;
 }
 
-.customer-store-root.customer-theme-dark {
-  --cs-page-bg: #1a2836;
-  --cs-nav-bg: #243447;
-  --cs-nav-active: #2f4560;
-  --cs-sheet-bg: #1e2d3d;
-  --color-bakery-ink: #f5f8fc;
-  --color-bakery-muted: #b8c5d4;
-  --color-bakery-square: #2a3d52;
-  --color-bakery-card: #243447;
-  --color-bakery-border: #3d5470;
-  --color-customer-bg: #1a2836;
-  --color-customer-nav: #243447;
-  --color-customer-nav-active: #2f4560;
-  --color-customer-soft: #243447;
-  --bakery-icon-tile: #f8fafc;
+html[data-store-theme="dark"] {
+  color-scheme: dark;
 }
 
-.customer-store-root.customer-theme-light .bg-customer-bg,
-.customer-store-root.customer-theme-dark .bg-customer-bg {
+html[data-store-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-store-theme="dark"] , .customer-store-root.customer-theme-dark {
+  --cs-page-bg: #0f1114;
+  --cs-nav-bg: #161a20;
+  --cs-nav-active: #252b34;
+  --cs-sheet-bg: #161a20;
+  --color-bakery-ink: #eceff3;
+  --color-bakery-muted: #9ca3af;
+  --color-bakery-square: #2a3038;
+  --color-bakery-card: #1a1f26;
+  --color-bakery-border: #3d4654;
+  --color-bakery-primary: #c9a66b;
+  --color-bakery-on-primary: #141210;
+  --color-bakery-input: #242a33;
+  --color-customer-bg: #0f1114;
+  --color-customer-nav: #161a20;
+  --color-customer-nav-active: #252b34;
+  --color-customer-soft: #1a1f26;
+  --bakery-icon-tile: #2a3038;
+  --bakery-on-primary: #141210;
+  --bakery-primary-deep: #8a7048;
+  --bakery-input: #242a33;
+  --bakery-sale: #f07178;
+  --bakery-error: #f07178;
+  --bakery-success: #5cb88a;
+}
+
+html[data-store-theme="light"] .bg-customer-bg, .customer-store-root.customer-theme-light .bg-customer-bg,
+html[data-store-theme="dark"] .bg-customer-bg , .customer-store-root.customer-theme-dark .bg-customer-bg {
   background-color: var(--cs-page-bg);
 }
 
-.customer-store-root.customer-theme-light .bg-customer-nav,
-.customer-store-root.customer-theme-dark .bg-customer-nav {
+html[data-store-theme="light"] .bg-customer-nav, .customer-store-root.customer-theme-light .bg-customer-nav,
+html[data-store-theme="dark"] .bg-customer-nav , .customer-store-root.customer-theme-dark .bg-customer-nav {
   background-color: var(--cs-nav-bg);
 }
 
+html[data-store-theme="dark"] .bakery-icon-tile,
 .customer-store-root.customer-theme-dark .bakery-icon-tile {
-  color: #1a2836;
+  color: var(--bakery-ink);
 }
 
-.customer-store-root.customer-theme-rose {
-  --cs-page-bg: #fdf5f8;
-  --cs-nav-bg: #f5dce6;
-  --cs-nav-active: #e8b8ca;
-  --cs-sheet-bg: #fdf0f4;
-  --color-bakery-ink: #4a2838;
-  --color-bakery-muted: #7a5568;
-  --color-bakery-square: #f0d8e4;
-  --color-bakery-card: #fff8fa;
-  --color-bakery-border: #ddb8c8;
-  --color-bakery-primary: #9e4a6a;
-  --color-customer-bg: #fdf5f8;
-  --color-customer-nav: #f5dce6;
-  --color-customer-nav-active: #e8b8ca;
-  --color-customer-soft: #faf0f4;
-  --bakery-icon-tile: #fff8fa;
+/* Seller dashboard surfaces use light/dark modes (calm keeps default brown) */
+html[data-store-theme]:not([data-store-theme="calm"]) {
+  --bakery-scaffold: var(--color-customer-bg, var(--cs-page-bg, var(--bakery-scaffold)));
+  --bakery-cream-light: var(--color-customer-soft, var(--bakery-cream-light));
+  --bakery-cream: var(--color-bakery-card, var(--bakery-cream));
+  --bakery-cream-mid: var(--color-bakery-square, var(--bakery-cream-mid));
+  --bakery-cream-sheet: var(--cs-sheet-bg, var(--bakery-cream-sheet));
+  --bakery-cream-hover: var(--color-bakery-square, var(--bakery-cream-hover));
+  --bakery-card: var(--color-bakery-card, var(--bakery-card));
+  --bakery-square: var(--color-bakery-square, var(--bakery-square));
+  --bakery-ink: var(--color-bakery-ink, var(--bakery-ink));
+  --bakery-muted: var(--color-bakery-muted, var(--bakery-muted));
+  --bakery-primary: var(--color-bakery-primary, var(--bakery-primary));
+  --bakery-border: var(--color-bakery-border, var(--bakery-border));
+  --bakery-input: var(--color-bakery-input, var(--bakery-input));
+  --customer-bg: var(--color-customer-bg, var(--customer-bg));
+  --customer-nav-bg: var(--color-customer-nav, var(--customer-nav-bg));
+  --customer-nav-active: var(
+    --color-customer-nav-active,
+    var(--customer-nav-active)
+  );
+  --customer-soft-wrap: var(--color-customer-soft, var(--customer-soft-wrap));
+  --bakery-panel-top: var(--bakery-cream-light);
+  --bakery-panel-bottom: var(--bakery-cream-mid);
+  --bakery-on-primary: var(--color-bakery-on-primary, var(--bakery-on-primary));
+  --background: var(--bakery-scaffold);
+  --foreground: var(--bakery-ink);
 }
 
-.customer-store-root.customer-theme-mint {
-  --cs-page-bg: #f2faf6;
-  --cs-nav-bg: #d4ebe0;
-  --cs-nav-active: #b8dcc8;
-  --cs-sheet-bg: #eef8f2;
-  --color-bakery-ink: #1e3d30;
-  --color-bakery-muted: #4a6b5c;
-  --color-bakery-square: #cce8d8;
-  --color-bakery-card: #f8fffa;
-  --color-bakery-border: #a8d4bc;
-  --color-bakery-primary: #2d6b52;
-  --color-customer-bg: #f2faf6;
-  --color-customer-nav: #d4ebe0;
-  --color-customer-nav-active: #b8dcc8;
-  --color-customer-soft: #eef8f2;
-  --bakery-icon-tile: #f8fffa;
+.customer-store-root.customer-theme-light,
+.customer-store-root.customer-theme-dark {
+  --bakery-scaffold: var(--color-customer-bg, var(--cs-page-bg, var(--bakery-scaffold)));
+  --bakery-cream-light: var(--color-customer-soft, var(--bakery-cream-light));
+  --bakery-cream: var(--color-bakery-card, var(--bakery-cream));
+  --bakery-cream-mid: var(--color-bakery-square, var(--bakery-cream-mid));
+  --bakery-cream-sheet: var(--cs-sheet-bg, var(--bakery-cream-sheet));
+  --bakery-cream-hover: var(--color-bakery-square, var(--bakery-cream-hover));
+  --bakery-card: var(--color-bakery-card, var(--bakery-card));
+  --bakery-square: var(--color-bakery-square, var(--bakery-square));
+  --bakery-ink: var(--color-bakery-ink, var(--bakery-ink));
+  --bakery-muted: var(--color-bakery-muted, var(--bakery-muted));
+  --bakery-primary: var(--color-bakery-primary, var(--bakery-primary));
+  --bakery-border: var(--color-bakery-border, var(--bakery-border));
+  --bakery-input: var(--color-bakery-input, var(--bakery-input));
+  --bakery-on-primary: var(--color-bakery-on-primary, var(--bakery-on-primary));
+  --bakery-panel-top: var(--bakery-cream-light);
+  --bakery-panel-bottom: var(--bakery-cream-mid);
 }
 
-.customer-store-root.customer-theme-ocean {
-  --cs-page-bg: #f0f7fc;
-  --cs-nav-bg: #cce0f0;
-  --cs-nav-active: #a8cce8;
-  --cs-sheet-bg: #e8f2fa;
-  --color-bakery-ink: #1a3348;
-  --color-bakery-muted: #4a6278;
-  --color-bakery-square: #c8dff0;
-  --color-bakery-card: #f8fcff;
-  --color-bakery-border: #a0c4e0;
-  --color-bakery-primary: #2a5f8a;
-  --color-customer-bg: #f0f7fc;
-  --color-customer-nav: #cce0f0;
-  --color-customer-nav-active: #a8cce8;
-  --color-customer-soft: #e8f2fa;
-  --bakery-icon-tile: #f8fcff;
+/* Dark mode — surfaces & controls (tiles stay cream in calm/light only) */
+html[data-store-theme="dark"] .bakery-float-tile,
+.customer-store-root.customer-theme-dark .bakery-float-tile {
+  background: linear-gradient(165deg, #2e343d 0%, #252b34 48%, #1f252d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 0 rgba(0, 0, 0, 0.35),
+    0 8px 20px rgba(0, 0, 0, 0.35);
+  color: var(--bakery-ink);
 }
 
-.customer-store-root.customer-theme-lavender {
-  --cs-page-bg: #f7f4fc;
-  --cs-nav-bg: #e0d4f0;
-  --cs-nav-active: #c8b8e8;
-  --cs-sheet-bg: #f0ebfa;
-  --color-bakery-ink: #342a48;
-  --color-bakery-muted: #5c5070;
-  --color-bakery-square: #ddd0f0;
-  --color-bakery-card: #fcfaff;
-  --color-bakery-border: #c0b0e0;
-  --color-bakery-primary: #5c4890;
-  --color-customer-bg: #f7f4fc;
-  --color-customer-nav: #e0d4f0;
-  --color-customer-nav-active: #c8b8e8;
-  --color-customer-soft: #f0ebfa;
-  --bakery-icon-tile: #fcfaff;
+html[data-store-theme="dark"] .bakery-float-tile:hover,
+.customer-store-root.customer-theme-dark .bakery-float-tile:hover {
+  background: linear-gradient(165deg, #353c47 0%, #2c333d 50%, #252b34 100%);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 4px 0 rgba(0, 0, 0, 0.4),
+    0 12px 24px rgba(0, 0, 0, 0.45);
 }
 
-.customer-store-root.customer-theme-sunset {
-  --cs-page-bg: #fff8f2;
-  --cs-nav-bg: #f5dcc8;
-  --cs-nav-active: #ecc4a8;
-  --cs-sheet-bg: #fff0e6;
-  --color-bakery-ink: #4a3020;
-  --color-bakery-muted: #7a5a48;
-  --color-bakery-square: #f0dcc8;
-  --color-bakery-card: #fffcf8;
-  --color-bakery-border: #e0c0a0;
-  --color-bakery-primary: #b86a38;
-  --color-customer-bg: #fff8f2;
-  --color-customer-nav: #f5dcc8;
-  --color-customer-nav-active: #ecc4a8;
-  --color-customer-soft: #fff0e6;
-  --bakery-icon-tile: #fffcf8;
+html[data-store-theme="dark"] .bakery-float-tile:active,
+.customer-store-root.customer-theme-dark .bakery-float-tile:active {
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.45),
+    0 2px 0 rgba(0, 0, 0, 0.3),
+    0 6px 14px rgba(0, 0, 0, 0.35);
 }
 
-.customer-store-root.customer-theme-forest {
-  --cs-page-bg: #1e2e24;
-  --cs-nav-bg: #2a4034;
-  --cs-nav-active: #385848;
-  --cs-sheet-bg: #243830;
-  --color-bakery-ink: #e8f2ec;
-  --color-bakery-muted: #a8c4b4;
-  --color-bakery-square: #345040;
-  --color-bakery-card: #2a4034;
-  --color-bakery-border: #4a6858;
-  --color-bakery-primary: #88c8a8;
-  --color-customer-bg: #1e2e24;
-  --color-customer-nav: #2a4034;
-  --color-customer-nav-active: #385848;
-  --color-customer-soft: #2a4034;
-  --bakery-icon-tile: #e8f2ec;
+html[data-store-theme="dark"] .bakery-float-tile--active,
+.customer-store-root.customer-theme-dark .bakery-float-tile--active {
+  background: linear-gradient(165deg, #3a424e 0%, #2e343d 100%);
+  border-color: rgba(201, 166, 107, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(201, 166, 107, 0.25),
+    0 8px 18px rgba(0, 0, 0, 0.4);
 }
 
-.customer-store-root.customer-theme-peach {
-  --cs-page-bg: #fff9f4;
-  --cs-nav-bg: #f8e4d4;
-  --cs-nav-active: #f0d0b8;
-  --cs-sheet-bg: #fff5eb;
-  --color-bakery-ink: #4a3428;
-  --color-bakery-muted: #7a6050;
-  --color-bakery-square: #f5e0d0;
-  --color-bakery-card: #fffcfa;
-  --color-bakery-border: #e8c8b0;
-  --color-bakery-primary: #c87848;
-  --color-customer-bg: #fff9f4;
-  --color-customer-nav: #f8e4d4;
-  --color-customer-nav-active: #f0d0b8;
-  --color-customer-soft: #fff5eb;
-  --bakery-icon-tile: #fffcfa;
+html[data-store-theme="dark"] .bakery-float-panel,
+.customer-store-root.customer-theme-dark .bakery-float-panel {
+  background: linear-gradient(180deg, #222831 0%, #1a1f26 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 4px 0 rgba(0, 0, 0, 0.25),
+    0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
-.customer-store-root.customer-theme-berry {
-  --cs-page-bg: #faf4fa;
-  --cs-nav-bg: #ecd8ec;
-  --cs-nav-active: #dcc0dc;
-  --cs-sheet-bg: #f5eaf5;
-  --color-bakery-ink: #402840;
-  --color-bakery-muted: #6a5070;
-  --color-bakery-square: #e8d0e8;
-  --color-bakery-card: #fffbff;
-  --color-bakery-border: #d0b0d0;
-  --color-bakery-primary: #884888;
-  --color-customer-bg: #faf4fa;
-  --color-customer-nav: #ecd8ec;
-  --color-customer-nav-active: #dcc0dc;
-  --color-customer-soft: #f5eaf5;
-  --bakery-icon-tile: #fffbff;
+html[data-store-theme="dark"] .bakery-gradient-panel,
+.customer-store-root.customer-theme-dark .bakery-gradient-panel {
+  background: linear-gradient(180deg, #222831 0%, #1a1f26 100%);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
-.customer-store-root.customer-theme-slate {
-  --cs-page-bg: #f4f6f8;
-  --cs-nav-bg: #dce2e8;
-  --cs-nav-active: #c5cdd6;
-  --cs-sheet-bg: #eef1f4;
-  --color-bakery-ink: #2a3440;
-  --color-bakery-muted: #5a6470;
-  --color-bakery-square: #d8e0e8;
-  --color-bakery-card: #fafbfc;
-  --color-bakery-border: #b8c4d0;
-  --color-bakery-primary: #4a5a6a;
-  --color-customer-bg: #f4f6f8;
-  --color-customer-nav: #dce2e8;
-  --color-customer-nav-active: #c5cdd6;
-  --color-customer-soft: #eef1f4;
-  --bakery-icon-tile: #fafbfc;
+html[data-store-theme="dark"] .bakery-field,
+.customer-store-root.customer-theme-dark .bakery-field {
+  background-color: var(--bakery-input);
+  border-color: var(--bakery-border);
+  color: var(--bakery-ink);
 }
 
-.customer-store-root.customer-theme-rose .bg-customer-bg,
-.customer-store-root.customer-theme-mint .bg-customer-bg,
-.customer-store-root.customer-theme-ocean .bg-customer-bg,
-.customer-store-root.customer-theme-lavender .bg-customer-bg,
-.customer-store-root.customer-theme-sunset .bg-customer-bg,
-.customer-store-root.customer-theme-forest .bg-customer-bg,
-.customer-store-root.customer-theme-peach .bg-customer-bg,
-.customer-store-root.customer-theme-berry .bg-customer-bg,
-.customer-store-root.customer-theme-slate .bg-customer-bg {
-  background-color: var(--cs-page-bg);
+html[data-store-theme="dark"] .bakery-field::placeholder,
+.customer-store-root.customer-theme-dark .bakery-field::placeholder {
+  color: var(--bakery-muted);
+  opacity: 0.85;
 }
 
-.customer-store-root.customer-theme-rose .bg-customer-nav,
-.customer-store-root.customer-theme-mint .bg-customer-nav,
-.customer-store-root.customer-theme-ocean .bg-customer-nav,
-.customer-store-root.customer-theme-lavender .bg-customer-nav,
-.customer-store-root.customer-theme-sunset .bg-customer-nav,
-.customer-store-root.customer-theme-forest .bg-customer-nav,
-.customer-store-root.customer-theme-peach .bg-customer-nav,
-.customer-store-root.customer-theme-berry .bg-customer-nav,
-.customer-store-root.customer-theme-slate .bg-customer-nav {
-  background-color: var(--cs-nav-bg);
+html[data-store-theme="dark"] .bakery-field:focus,
+.customer-store-root.customer-theme-dark .bakery-field:focus {
+  border-color: var(--color-bakery-primary);
 }
 
-.customer-store-root.customer-theme-forest .bakery-icon-tile {
-  color: #1e2e24;
+html[data-store-theme="dark"] .dashboard-bottom-nav,
+.customer-store-root.customer-theme-dark .customer-bottom-nav {
+  background: var(--bakery-card);
+  border-color: var(--bakery-border);
+}
+
+html[data-store-theme="dark"] .dashboard-bottom-nav__link--active,
+.customer-store-root.customer-theme-dark .customer-bottom-nav__link--active {
+  background: var(--bakery-square);
+  color: var(--bakery-ink);
+}
+
+/* Sent message / seller notice — dark bubble, light readable text */
+.bakery-sent-message-preview {
+  background: var(--bakery-primary) !important;
+  color: var(--bakery-on-primary);
+  border-color: color-mix(in srgb, var(--bakery-primary) 55%, transparent);
+}
+
+.bakery-sent-message-preview .bakery-sent-message-preview__muted {
+  color: color-mix(in srgb, var(--bakery-on-primary) 78%, transparent);
+}
+
+html[data-store-theme="dark"] .bakery-sent-message-preview,
+.customer-store-root.customer-theme-dark .bakery-sent-message-preview {
+  background: var(--bakery-square) !important;
+  color: var(--bakery-ink);
+  border-color: var(--bakery-border);
+}
+
+html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-preview__muted,
+.customer-store-root.customer-theme-dark
+  .bakery-sent-message-preview
+  .bakery-sent-message-preview__muted {
+  color: var(--bakery-muted);
 }
 
 .customer-store-root.customer-text-scale-110 {
@@ -476,6 +488,34 @@ body {
   }
 }
 
+@keyframes bell-wiggle {
+  0%,
+  72%,
+  100% {
+    transform: rotate(0deg);
+  }
+  74% {
+    transform: rotate(14deg);
+  }
+  78% {
+    transform: rotate(-12deg);
+  }
+  82% {
+    transform: rotate(9deg);
+  }
+  86% {
+    transform: rotate(-7deg);
+  }
+  90% {
+    transform: rotate(4deg);
+  }
+}
+
+.animate-bell-wiggle {
+  animation: bell-wiggle 2.8s ease-in-out infinite;
+  transform-origin: top center;
+}
+
 /* 3D floating tiles — dashboard actions & home cards */
 .bakery-float-tile {
   background: linear-gradient(165deg, #ebe0cc 0%, #e6d7bd 45%, #dcc9a8 100%);
@@ -487,7 +527,6 @@ body {
     0 10px 22px rgba(58, 47, 38, 0.14);
   transition:
     transform 0.2s ease,
-    background 0.2s ease,
     box-shadow 0.2s ease,
     border-color 0.2s ease;
 }
@@ -512,10 +551,14 @@ body {
 }
 
 .bakery-float-panel {
-  background: linear-gradient(180deg, #fffdf9 0%, #fffbf6 100%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(
+    180deg,
+    var(--bakery-cream-light) 0%,
+    var(--bakery-cream) 100%
+  );
+  border: 1px solid rgba(245, 237, 224, 0.85);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 1px 0 rgba(250, 244, 230, 0.9),
     0 3px 0 rgba(58, 47, 38, 0.04),
     0 12px 28px rgba(58, 47, 38, 0.1);
 }
@@ -529,12 +572,47 @@ body {
     0 8px 18px rgba(58, 47, 38, 0.16);
 }
 
+.dashboard-water-gauge--bar .dashboard-water-gauge__surface {
+  top: -12px;
+  height: 28px;
+}
+
+.dashboard-water-gauge--bar .dashboard-water-gauge__bubble {
+  bottom: 12%;
+  animation-name: dashboard-water-bubble-rise-bar;
+}
+
+@keyframes dashboard-water-bubble-rise-bar {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-42px) scale(1);
+    opacity: 0;
+  }
+}
+
 .dashboard-water-gauge__rim {
   border: 3px solid rgba(58, 47, 38, 0.12);
-  background: linear-gradient(165deg, #fffbf6 0%, #f5efe6 100%);
+  background: linear-gradient(
+    165deg,
+    var(--bakery-cream-light) 0%,
+    var(--bakery-cream-mid) 100%
+  );
   box-shadow:
     0 8px 28px rgba(58, 47, 38, 0.12),
-    inset 0 2px 8px rgba(255, 255, 255, 0.65);
+    inset 0 2px 8px rgba(250, 244, 230, 0.75);
+}
+
+.dashboard-water-gauge--bar .dashboard-water-gauge__rim {
+  border-width: 2px;
+  box-shadow:
+    0 4px 14px rgba(58, 47, 38, 0.1),
+    inset 0 1px 6px rgba(250, 244, 230, 0.75);
 }
 
 .dashboard-water-gauge__body {
@@ -638,6 +716,10 @@ body {
   .dashboard-water-gauge__shimmer {
     animation: none !important;
   }
+
+  .dashboard-water-gauge--bar .dashboard-water-gauge__bubble {
+    animation: none !important;
+  }
 }
 
 .confetti-piece {
@@ -647,6 +729,38 @@ body {
   animation-name: confetti-fall;
   animation-timing-function: ease-in;
   animation-fill-mode: forwards;
+}
+
+/* Seller broadcast alert — always light card, dark CTA (any store theme) */
+.customer-seller-notice-panel {
+  background: linear-gradient(180deg, #faf4e6 0%, #f0e8da 100%);
+  border-color: rgba(201, 184, 154, 0.55);
+  color: #3a2f26;
+}
+
+.customer-seller-notice-panel .text-bakery-ink,
+.customer-seller-notice-panel .text-bakery-muted {
+  color: #3a2f26;
+}
+
+.customer-seller-notice-panel .text-bakery-muted {
+  opacity: 0.72;
+}
+
+.customer-seller-notice-icon {
+  background: rgba(92, 74, 62, 0.1);
+  color: #5c4a3e;
+}
+
+.customer-seller-notice-btn {
+  background: #43362c !important;
+  color: #f8f4ec !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(58, 47, 38, 0.28);
+}
+
+.customer-seller-notice-btn:hover {
+  opacity: 0.92;
 }
 
 .dashboard-mobile-pill-btn {
@@ -677,7 +791,12 @@ body {
 /** Light squircle behind icons on tan menu rows (mobile mockup) */
 .bakery-icon-tile {
   background: var(--bakery-icon-tile);
-  box-shadow: 0 2px 6px rgba(58, 47, 38, 0.07);
+  border: 1px solid rgba(245, 237, 224, 0.9);
+  box-shadow: 0 1px 4px rgba(58, 47, 38, 0.05);
+}
+
+.bakery-icon-tile svg {
+  color: var(--bakery-muted);
 }
 
 .bakery-field {

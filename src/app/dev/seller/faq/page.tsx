@@ -1,34 +1,25 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { FaqManager } from "@/components/faq-manager";
 import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
-import { ChevronLeft } from "lucide-react";
+import { DashboardSellerPageStack } from "@/components/dashboard/dashboard-panel-frame";
 
 export default function DevSellerFaqPage() {
   if (process.env.NODE_ENV === "production") notFound();
 
   return (
-    <div className="bakery-frame-bg min-h-screen">
-      <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 sm:py-6 lg:px-[14px] lg:py-8">
-        <DashboardShell businessType="STORE" basePath="/dev/seller">
-          <div className="space-y-4">
-            <Link
-              href="/dev/seller/actions"
-              className="inline-flex items-center gap-1 text-[14px] font-bold text-bakery-primary"
-            >
-              <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
-              חזרה לפעולות
-            </Link>
-            <FaqManager
-              previewOnly
-              initialItems={DEV_STORE_BUSINESS.faqItems}
-              initialPolicy={DEV_STORE_BUSINESS.storePolicy}
-              initialTerms={DEV_STORE_BUSINESS.storeTerms}
-            />
-          </div>
-        </DashboardShell>
-      </div>
-    </div>
+    <DashboardShell businessType="STORE" basePath="/dev/seller" storeLocale={DEV_STORE_BUSINESS.storeLocale}
+      storeTheme={DEV_STORE_BUSINESS.storeTheme}>
+      <DashboardSellerPageStack>
+        <DashboardActionsBackLink basePath="/dev/seller" />
+        <FaqManager
+          previewOnly
+          initialItems={DEV_STORE_BUSINESS.faqItems}
+          initialPolicy={DEV_STORE_BUSINESS.storePolicy}
+          initialTerms={DEV_STORE_BUSINESS.storeTerms}
+        />
+      </DashboardSellerPageStack>
+    </DashboardShell>
   );
 }

@@ -19,6 +19,51 @@ export type PrepProductSummary = {
   orders: PrepOrderLine[];
 };
 
+/** מקבץ שורות הזמנה לאותו לקוח (לפי טלפון) לתצוגת פירוט */
+export type PrepCustomerGroup = {
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+  totalQuantity: number;
+  notes: string[];
+  orderCount: number;
+};
+
+export function groupPrepLinesByCustomer(
+  lines: PrepOrderLine[]
+): PrepCustomerGroup[] {
+  const map = new Map<string, PrepCustomerGroup>();
+
+  for (const line of lines) {
+    const phoneKey = line.customerPhone.replace(/\D/g, "");
+    const key = phoneKey.length >= 9 ? phoneKey : `${line.customerName}-${line.orderId}`;
+
+    let group = map.get(key);
+    if (!group) {
+      group = {
+        customerName: line.customerName,
+        customerPhone: line.customerPhone,
+        customerEmail: line.customerEmail,
+        totalQuantity: 0,
+        notes: [],
+        orderCount: 0,
+      };
+      map.set(key, group);
+    }
+
+    group.totalQuantity += line.quantity;
+    group.orderCount += 1;
+    if (line.notes && !group.notes.includes(line.notes)) {
+      group.notes.push(line.notes);
+    }
+    if (line.customerEmail && !group.customerEmail) {
+      group.customerEmail = line.customerEmail;
+    }
+  }
+
+  return [...map.values()].sort((a, b) => b.totalQuantity - a.totalQuantity);
+}
+
 const PREP_STATUSES = ["PENDING", "CONFIRMED"] as const;
 
 export async function getPrepSummaryForBusiness(
@@ -72,6 +117,34 @@ export async function getPrepSummaryForBusiness(
 
 export function demoPrepSummary(): PrepProductSummary[] {
   return [
+    {
+      productId: "demo-yummy",
+      name: "יאמי",
+      imageUrl: null,
+      totalQuantity: 10,
+      orders: [
+        {
+          orderId: "o0a",
+          customerName: "דני כהן",
+          customerPhone: "050-1111111",
+          customerEmail: null,
+          notes: null,
+          quantity: 5,
+          status: "PENDING",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          orderId: "o0b",
+          customerName: "שרה לוי",
+          customerPhone: "052-2222222",
+          customerEmail: "sara@example.com",
+          notes: "ללא סוכר",
+          quantity: 5,
+          status: "CONFIRMED",
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    },
     {
       productId: "demo-croissant",
       name: "קרואסון",

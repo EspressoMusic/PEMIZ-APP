@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { publicBusinessUrl } from "@/lib/business";
 import { DashboardSettingsView } from "@/components/dashboard-settings";
-import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-settings-back-link";
+import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
 
 export default async function SettingsAccountPage() {
   const user = await getCurrentUser();

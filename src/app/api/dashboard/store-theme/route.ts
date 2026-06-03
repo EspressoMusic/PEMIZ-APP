@@ -1,8 +1,15 @@
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
+import {
+  DASHBOARD_LOCALE_COOKIE,
+  DASHBOARD_THEME_COOKIE,
+} from "@/lib/dashboard-appearance-boot";
 import { STORE_THEME_IDS } from "@/lib/store-themes";
+
+const APPEARANCE_COOKIE_MAX_AGE = 60 * 60 * 24 * 400;
 
 const schema = z.object({
   storeTheme: z.enum(STORE_THEME_IDS).optional(),
@@ -43,6 +50,22 @@ export async function PATCH(req: Request) {
     },
     select: { storeTheme: true, storeLocale: true },
   });
+
+  const cookieStore = await cookies();
+  if (parsed.data.storeTheme != null) {
+    cookieStore.set(DASHBOARD_THEME_COOKIE, parsed.data.storeTheme, {
+      path: "/",
+      maxAge: APPEARANCE_COOKIE_MAX_AGE,
+      sameSite: "lax",
+    });
+  }
+  if (parsed.data.storeLocale != null) {
+    cookieStore.set(DASHBOARD_LOCALE_COOKIE, parsed.data.storeLocale, {
+      path: "/",
+      maxAge: APPEARANCE_COOKIE_MAX_AGE,
+      sameSite: "lax",
+    });
+  }
 
   return jsonOk({
     storeTheme: updated.storeTheme,

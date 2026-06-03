@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Zap } from "lucide-react";
-
-const defaultLinks = [
-  { key: "home", segment: "", label: "בית", icon: Home },
-  { key: "actions", segment: "/actions", label: "פעולות", icon: Zap },
-] as const;
+import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardNav({
   businessType: _businessType,
@@ -18,7 +14,17 @@ export function DashboardNav({
   basePath?: string;
 }) {
   const pathname = usePathname();
+  const { labels } = useAppLocale();
   const homeHref = basePath;
+  const defaultLinks = [
+    { key: "home" as const, segment: "", label: labels.navHome, icon: Home },
+    {
+      key: "actions" as const,
+      segment: "/actions",
+      label: labels.navActions,
+      icon: Zap,
+    },
+  ];
   const actionsHref = `${basePath}/actions`;
 
   const isHome = pathname === basePath || pathname === `${basePath}/`;
@@ -35,9 +41,9 @@ export function DashboardNav({
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/20 bg-[#f5e9e2]"
+      className="dashboard-bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/25 bg-bakery-card"
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
-      aria-label="ניווט מוכר"
+      aria-label={labels.navSeller}
     >
       <div className="mx-auto flex w-full max-w-lg px-6 pt-2">
         {links.map((l) => {
@@ -50,7 +56,7 @@ export function DashboardNav({
               aria-current={active ? "page" : undefined}
               className={`flex flex-1 flex-col items-center rounded-[16px] px-2 py-2 transition ${
                 active
-                  ? "bg-[#dfc4b0] shadow-[0_2px_8px_rgba(58,47,38,0.12)]"
+                  ? "dashboard-bottom-nav__link--active bg-bakery-square text-bakery-ink shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
                   : "text-bakery-muted"
               }`}
             >

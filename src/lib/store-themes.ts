@@ -1,7 +1,9 @@
-export const STORE_THEME_IDS = [
-  "calm",
-  "light",
-  "dark",
+export const STORE_THEME_IDS = ["calm", "light", "dark"] as const;
+
+export type StoreThemeId = (typeof STORE_THEME_IDS)[number];
+
+/** Legacy colorful themes — mapped to relaxed brown on read */
+const LEGACY_THEME_IDS = [
   "rose",
   "mint",
   "ocean",
@@ -13,34 +15,62 @@ export const STORE_THEME_IDS = [
   "slate",
 ] as const;
 
-export type StoreThemeId = (typeof STORE_THEME_IDS)[number];
-
 export type StoreThemeMeta = {
   id: StoreThemeId;
   label: string;
+  labelEn: string;
   preview: string;
+  descriptionHe: string;
+  descriptionEn: string;
 };
 
 export const STORE_THEMES: StoreThemeMeta[] = [
-  { id: "calm", label: "קרם", preview: "from-[#f5efe6] to-[#e6d7bd]" },
-  { id: "light", label: "בהיר", preview: "from-[#ffffff] to-[#f0f0f0]" },
-  { id: "dark", label: "כהה", preview: "from-[#3d4f5f] to-[#2a3844]" },
-  { id: "rose", label: "ורוד", preview: "from-[#fce8ef] to-[#e8b4c8]" },
-  { id: "mint", label: "מנטה", preview: "from-[#e8f7f0] to-[#b8e0ce]" },
-  { id: "ocean", label: "ים", preview: "from-[#e6f2fa] to-[#a8cce8]" },
-  { id: "lavender", label: "סגול", preview: "from-[#f0ebfa] to-[#c9b8e8]" },
-  { id: "sunset", label: "שקיעה", preview: "from-[#fff0e6] to-[#f0c4a0]" },
-  { id: "forest", label: "יער", preview: "from-[#e8f0e8] to-[#a8c4a8]" },
-  { id: "peach", label: "אפרסק", preview: "from-[#fff5eb] to-[#f5d4b8]" },
-  { id: "berry", label: "פטל", preview: "from-[#f5e8f5] to-[#d4a8d4]" },
-  { id: "slate", label: "אפור", preview: "from-[#eef1f4] to-[#c5cdd6]" },
+  {
+    id: "calm",
+    label: "רגוע",
+    labelEn: "Relaxed",
+    preview: "from-[#f5efe6] to-[#c9b89a]",
+    descriptionHe: "חום קרם — הסגנון הקלאסי",
+    descriptionEn: "Warm cream & brown",
+  },
+  {
+    id: "light",
+    label: "בהיר",
+    labelEn: "Light",
+    preview: "from-[#ffffff] to-[#e5e5e5]",
+    descriptionHe: "שחור ולבן",
+    descriptionEn: "Black & white",
+  },
+  {
+    id: "dark",
+    label: "כהה",
+    labelEn: "Dark",
+    preview: "from-[#3a3a3a] to-[#0f0f0f]",
+    descriptionHe: "ממשק כהה עם טקסט בהיר וברור",
+    descriptionEn: "Dark UI with clear light text",
+  },
 ];
 
 export function parseStoreTheme(value?: string | null): StoreThemeId {
-  if (value && STORE_THEME_IDS.includes(value as StoreThemeId)) {
-    return value as StoreThemeId;
+  if (value === "light" || value === "dark" || value === "calm") {
+    return value;
+  }
+  if (
+    value &&
+    (LEGACY_THEME_IDS as readonly string[]).includes(value)
+  ) {
+    return "calm";
   }
   return "calm";
+}
+
+export function storeThemeLabel(
+  theme: StoreThemeId,
+  locale: "he" | "en" = "he"
+): string {
+  const meta = STORE_THEMES.find((t) => t.id === theme);
+  if (!meta) return theme;
+  return locale === "he" ? meta.label : meta.labelEn;
 }
 
 export function customerThemeClass(theme: StoreThemeId): string {
@@ -48,5 +78,5 @@ export function customerThemeClass(theme: StoreThemeId): string {
 }
 
 export function isDarkStoreTheme(theme: StoreThemeId): boolean {
-  return theme === "dark" || theme === "forest";
+  return theme === "dark";
 }

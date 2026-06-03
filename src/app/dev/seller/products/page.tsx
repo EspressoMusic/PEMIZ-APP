@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
+import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { ProductsManager } from "@/components/dashboard/products-manager";
-import { ChevronLeft } from "lucide-react";
 
 export default function DevSellerProductsPage() {
   if (process.env.NODE_ENV === "production") notFound();
@@ -10,15 +10,10 @@ export default function DevSellerProductsPage() {
   return (
     <div className="bakery-frame-bg min-h-screen">
       <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 sm:py-6 lg:px-[14px] lg:py-8">
-        <DashboardShell businessType="STORE" basePath="/dev/seller">
+        <DashboardShell businessType="STORE" basePath="/dev/seller" storeLocale={DEV_STORE_BUSINESS.storeLocale}
+      storeTheme={DEV_STORE_BUSINESS.storeTheme}>
           <div className="space-y-4">
-            <Link
-              href="/dev/seller/actions"
-              className="inline-flex items-center gap-1 text-[14px] font-bold text-bakery-primary"
-            >
-              <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
-              חזרה לפעולות
-            </Link>
+            <DashboardActionsBackLink basePath="/dev/seller" />
             <ProductsManager />
           </div>
         </DashboardShell>

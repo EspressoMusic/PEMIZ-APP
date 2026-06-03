@@ -48,7 +48,7 @@ function MenuTile({
   );
 
   const className =
-    "flex w-full items-center gap-3 rounded-[22px] bg-[#e6d7c3] px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99]";
+    "flex w-full items-center gap-3 rounded-[22px] bg-bakery-square px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99]";
 
   if (href) {
     return (
@@ -170,7 +170,7 @@ export function CustomerLegalSheet({
         aria-label={t.close}
       />
 
-      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-[#fdf8f1] shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
+      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-bakery-cream-sheet shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
         <div className="shrink-0 px-5 pt-3 lg:pt-5">
           <div
             className="mx-auto mb-3 h-1 w-10 rounded-full bg-bakery-ink/20 lg:hidden"
@@ -203,7 +203,7 @@ export function CustomerLegalSheet({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {view === "main" ? (
             <>
-              <div className="mb-6 flex items-stretch gap-2 rounded-[22px] border-2 border-bakery-border/35 bg-[#fffef9] p-1.5 shadow-[inset_0_1px_4px_rgba(58,47,38,0.05)]">
+              <div className="mb-6 flex items-stretch gap-2 rounded-[22px] border-2 border-bakery-border/35 bg-bakery-cream-light p-1.5 shadow-[inset_0_1px_4px_rgba(58,47,38,0.05)]">
                 <p
                   className="min-w-0 flex-1 truncate px-3 py-2.5 font-mono text-[13px] text-bakery-primary"
                   dir="ltr"
@@ -213,7 +213,7 @@ export function CustomerLegalSheet({
                 <button
                   type="button"
                   onClick={copyUrl}
-                  className="flex shrink-0 items-center gap-1 rounded-[16px] bg-[#e6d7c3] px-3 py-2 text-[13px] font-bold text-bakery-ink"
+                  className="flex shrink-0 items-center gap-1 rounded-[16px] bg-bakery-square px-3 py-2 text-[13px] font-bold text-bakery-ink"
                 >
                   {copied ? (
                     <>
@@ -260,7 +260,7 @@ export function CustomerLegalSheet({
                     />
                   </li>
                   <li>
-                    <div className="rounded-[22px] bg-[#e6d7c3] px-3 py-3.5 shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
+                    <div className="rounded-[22px] bg-bakery-square px-3 py-3.5 shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
                       <div className="flex items-center gap-3">
                         <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
                           <Gavel className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
@@ -292,7 +292,7 @@ export function CustomerLegalSheet({
                     <button
                       type="button"
                       onClick={() => onTextScaleChange(s.id)}
-                      className={`w-full rounded-[22px] bg-[#e6d7c3] px-4 py-3.5 text-[16px] font-extrabold text-bakery-ink shadow-[0_3px_10px_rgba(58,47,38,0.1)] ${
+                      className={`w-full rounded-[22px] bg-bakery-square px-4 py-3.5 text-[16px] font-extrabold text-bakery-ink shadow-[0_3px_10px_rgba(58,47,38,0.1)] ${
                         textScale === s.id
                           ? "border-2 border-bakery-ink"
                           : "border-2 border-transparent"

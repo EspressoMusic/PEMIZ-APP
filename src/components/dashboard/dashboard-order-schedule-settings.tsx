@@ -1,43 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Clock } from "lucide-react";
-import { Button, Alert } from "@/components/ui";
+import { useMemo, useRef, useState } from "react";
+import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
+import { Button, Alert, Toggle } from "@/components/ui";
 import {
-  ORDER_DAY_LABELS,
   defaultOrderSchedule,
   formatOrderScheduleSummary,
   normalizeTimeInput,
   parseOrderSchedule,
 } from "@/lib/order-schedule";
-
-function OrderLimitToggle({
-  enabled,
-  onChange,
-}: {
-  enabled: boolean;
-  onChange: (next: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={enabled}
-      aria-label="הגבל מתי לקוחות יכולים להזמין"
-      onClick={() => onChange(!enabled)}
-      className={`relative h-8 w-14 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${
-        enabled ? "bg-bakery-primary" : "bg-bakery-border/45"
-      }`}
-      dir="ltr"
-    >
-      <span
-        className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-[0_2px_6px_rgba(58,47,38,0.2)] transition-transform duration-200 ${
-          enabled ? "translate-x-6" : "translate-x-0"
-        }`}
-      />
-    </button>
-  );
-}
+import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { getOrderDayLabels } from "@/lib/app-locale";
 
 export function DashboardOrderScheduleSettings({
   initialEnabled,
@@ -55,11 +28,15 @@ export function DashboardOrderScheduleSettings({
 
   const [enabled, setEnabled] = useState(initial.enabled);
   const [days, setDays] = useState<number[]>(initial.days);
+  const [blockedDays, setBlockedDays] = useState<number[]>(initial.blockedDays);
   const [startTime, setStartTime] = useState(initial.startTime);
   const [endTime, setEndTime] = useState(initial.endTime);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const { labels, locale } = useAppLocale();
+  const orderDayLabels = getOrderDayLabels(locale);
+  const dayClickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function handleToggle(next: boolean) {
     setError("");
@@ -70,9 +47,36 @@ export function DashboardOrderScheduleSettings({
   }
 
   function toggleDay(day: number) {
+    if (blockedDays.includes(day)) return;
     setDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort()
     );
+  }
+
+  function toggleBlockedDay(day: number) {
+    setBlockedDays((prev) => {
+      if (prev.includes(day)) {
+        return prev.filter((d) => d !== day);
+      }
+      setDays((d) => d.filter((x) => x !== day));
+      return [...prev, day].sort((a, b) => a - b);
+    });
+  }
+
+  function handleDayClick(day: number) {
+    if (dayClickTimerRef.current) clearTimeout(dayClickTimerRef.current);
+    dayClickTimerRef.current = setTimeout(() => {
+      dayClickTimerRef.current = null;
+      toggleDay(day);
+    }, 220);
+  }
+
+  function handleDayDoubleClick(day: number) {
+    if (dayClickTimerRef.current) {
+      clearTimeout(dayClickTimerRef.current);
+      dayClickTimerRef.current = null;
+    }
+    toggleBlockedDay(day);
   }
 
   async function save() {
@@ -80,20 +84,21 @@ export function DashboardOrderScheduleSettings({
     setMessage("");
 
     if (previewOnly) {
-      setMessage("נשמר בתצוגה — בדשבורד האמיתי לחץ שמור לאחר ההתחברות");
+      setMessage(labels.previewSavedHint);
       setTimeout(() => setMessage(""), 3500);
       return;
     }
 
-    if (enabled && days.length === 0) {
-      setError("יש לבחור לפחות יום אחד");
+    const openDays = days.filter((d) => !blockedDays.includes(d));
+    if (enabled && openDays.length === 0) {
+      setError(labels.scheduleNeedOpenDay);
       return;
     }
 
     const normStart = normalizeTimeInput(startTime);
     const normEnd = normalizeTimeInput(endTime);
     if (enabled && (!normStart || !normEnd)) {
-      setError("יש למלא שעות תקינות");
+      setError(labels.scheduleInvalidHours);
       return;
     }
 
@@ -105,19 +110,20 @@ export function DashboardOrderScheduleSettings({
         body: JSON.stringify({
           enabled,
           days: enabled ? days : defaultOrderSchedule().days,
+          blockedDays: enabled ? blockedDays : [],
           startTime: normStart ?? startTime,
           endTime: normEnd ?? endTime,
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError((data as { error?: string }).error ?? "שגיאה בשמירה");
+        setError((data as { error?: string }).error ?? labels.saveError);
         return;
       }
-      setMessage("נשמר — ההגבלה פעילה ללקוחות");
+      setMessage(labels.messageSent);
       setTimeout(() => setMessage(""), 3000);
     } catch {
-      setError("לא הצלחנו להתחבר לשרת. נסה שוב.");
+      setError(labels.scheduleServerError);
     } finally {
       setSaving(false);
     }
@@ -125,7 +131,9 @@ export function DashboardOrderScheduleSettings({
 
   const summary = formatOrderScheduleSummary(
     enabled,
-    enabled ? JSON.stringify({ days, startTime, endTime }) : null
+    enabled
+      ? JSON.stringify({ days, blockedDays, startTime, endTime })
+      : null
   );
 
   return (
@@ -133,27 +141,25 @@ export function DashboardOrderScheduleSettings({
       <div className="mx-auto flex w-full max-w-[360px] flex-col items-center gap-4">
         {previewOnly && (
           <Alert variant="info">
-            תצוגת דמו — המתג והבחירות עובדים. לשמירה אמיתית התחבר לדשבורד.
+            {labels.scheduleDemoHint}
           </Alert>
         )}
 
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-bakery-primary/12 text-bakery-primary">
-          <Clock className="h-[20px] w-[20px]" strokeWidth={2.25} />
-        </span>
-        <div>
-          <p className="text-[18px] font-extrabold text-bakery-ink">
-            שעות וימי הזמנה
-          </p>
-          <p className="mt-1 text-[13px] font-semibold text-bakery-muted">
-            {summary}
-          </p>
-        </div>
+        <DashboardHelpText>
+          <p className="text-[13px] font-semibold text-bakery-muted">{summary}</p>
+        </DashboardHelpText>
 
         <div className="flex w-full items-center justify-center gap-3">
-          <span className="text-[14px] font-bold text-bakery-ink">
-            הגבל מתי לקוחות יכולים להזמין
-          </span>
-          <OrderLimitToggle enabled={enabled} onChange={handleToggle} />
+          <DashboardHelpText>
+            <span className="text-[14px] font-bold text-bakery-ink">
+              {labels.enableOrderLimit}
+            </span>
+          </DashboardHelpText>
+          <Toggle
+            enabled={enabled}
+            onChange={handleToggle}
+            ariaLabel={labels.enableOrderLimit}
+          />
         </div>
 
         {enabled && (
@@ -161,34 +167,47 @@ export function DashboardOrderScheduleSettings({
             <div className="space-y-4">
               <div>
                 <p className="mb-2 text-[14px] font-extrabold text-bakery-ink">
-                  איזה ימים
+                  {labels.whichDays}
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  {ORDER_DAY_LABELS.map((label, day) => (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() => toggleDay(day)}
-                      className={`min-w-[2.5rem] rounded-full px-3 py-1.5 text-[13px] font-bold transition ${
-                        days.includes(day)
-                          ? "bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
-                          : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                  {orderDayLabels.map((label, day) => {
+                    const blocked = blockedDays.includes(day);
+                    const open = days.includes(day) && !blocked;
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => handleDayClick(day)}
+                        onDoubleClick={(e) => {
+                          e.preventDefault();
+                          handleDayDoubleClick(day);
+                        }}
+                        title={
+                          blocked ? labels.dayClosedHint : labels.dayOpenHint
+                        }
+                        className={`min-w-[2.5rem] rounded-full px-3 py-1.5 text-[13px] font-bold transition ${
+                          blocked
+                            ? "bg-bakery-error text-white ring-2 ring-bakery-error/40"
+                            : open
+                              ? "bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
+                              : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               <div>
                 <p className="mb-2 text-[14px] font-extrabold text-bakery-ink">
-                  איזה שעות
+                  {labels.whichHours}
                 </p>
                 <div className="grid w-full grid-cols-2 gap-3">
                   <label className="block space-y-1.5 text-center">
                     <span className="text-[14px] font-bold text-bakery-ink">
-                      משעה
+                      {labels.fromHour}
                     </span>
                     <input
                       type="time"
@@ -200,7 +219,7 @@ export function DashboardOrderScheduleSettings({
                   </label>
                   <label className="block space-y-1.5 text-center">
                     <span className="text-[14px] font-bold text-bakery-ink">
-                      עד שעה
+                      {labels.toHour}
                     </span>
                     <input
                       type="time"
@@ -217,9 +236,11 @@ export function DashboardOrderScheduleSettings({
         )}
 
         {enabled && !previewOnly && (
-          <p className="text-[12px] font-semibold text-bakery-muted">
-            בחר ימים ושעות, ואז לחץ שמור
-          </p>
+          <DashboardHelpText>
+            <p className="text-[12px] font-semibold text-bakery-muted">
+              {labels.schedulePickDaysHint}
+            </p>
+          </DashboardHelpText>
         )}
 
         {error && <Alert variant="error">{error}</Alert>}
@@ -232,7 +253,7 @@ export function DashboardOrderScheduleSettings({
           disabled={saving}
           onClick={save}
         >
-          {saving ? "שומר..." : "שמור הגדרות הזמנה"}
+          {saving ? labels.saving : labels.saveOrderSettings}
         </Button>
       </div>
     </div>

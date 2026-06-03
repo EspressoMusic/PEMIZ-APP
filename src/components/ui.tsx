@@ -1,5 +1,7 @@
 import { type ReactNode, type ButtonHTMLAttributes, type InputHTMLAttributes } from "react";
 
+export { Toggle } from "@/components/ui-toggle";
+
 export function Panel({
   children,
   className = "",
@@ -177,7 +179,7 @@ export function PageTitle({
   subtitle?: string;
 }) {
   return (
-    <div className="mb-4 sm:mb-6">
+    <div className="mb-4 w-full text-center sm:mb-6">
       <h1 className="text-[20px] font-extrabold text-bakery-ink sm:text-[22px]">
         {children}
       </h1>

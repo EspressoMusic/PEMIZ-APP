@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { PageTitle } from "@/components/ui";
-import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-settings-back-link";
+import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
 
 export default async function SettingsLimitsPage() {
@@ -14,7 +13,6 @@ export default async function SettingsLimitsPage() {
   return (
     <div className="space-y-5 pb-2 text-center">
       <DashboardSettingsBackLink />
-      <PageTitle>הגבלות הזמנה</PageTitle>
       <DashboardOrderScheduleSettings
         initialEnabled={b.orderScheduleEnabled ?? false}
         initialScheduleJson={b.orderSchedule ?? null}

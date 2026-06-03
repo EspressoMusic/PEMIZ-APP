@@ -20,9 +20,13 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="bakery-frame-bg">
-      <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:py-6 lg:px-[14px] lg:py-8">
-        <DashboardShell businessType={user.business.type}>
+    <div className="bakery-frame-bg h-dvh overflow-hidden">
+      <div className="app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-4 lg:px-[14px]">
+        <DashboardShell
+          businessType={user.business.type}
+          storeLocale={user.business.storeLocale}
+          storeTheme={user.business.storeTheme}
+        >
           {children}
         </DashboardShell>
       </div>

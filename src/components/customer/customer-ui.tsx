@@ -100,7 +100,7 @@ function ActionSquare({
     <button
       type="button"
       onClick={onClick}
-      className="flex aspect-[1.02] flex-col items-center justify-center gap-2 rounded-[20px] border-[1.2px] border-bakery-border/45 bg-[#e5d5c0] p-3 bakery-square-shadow transition active:scale-[0.98]"
+      className="flex aspect-[1.02] flex-col items-center justify-center gap-2 rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-3 bakery-square-shadow transition active:scale-[0.98]"
     >
       <Icon className="h-[30px] w-[30px] text-bakery-ink" strokeWidth={1.5} />
       <span

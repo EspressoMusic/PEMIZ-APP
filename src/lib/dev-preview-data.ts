@@ -26,20 +26,82 @@ export const DEV_PREVIEW_ORDERS = [
     id: "ord-1",
     customerName: "יעל כהן",
     customerPhone: "050-1234567",
+    status: "PENDING",
     statusLabel: "ממתין",
+    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     items: [
-      { name: "עוגת שוקולד", quantity: 1, lineTotal: 99 },
-      { name: "קרואסון", quantity: 2, lineTotal: 36 },
+      {
+        name: "עוגת שוקולד",
+        quantity: 1,
+        lineTotal: 99,
+        imageUrl: null as string | null,
+      },
+      {
+        name: "קרואסון",
+        quantity: 2,
+        lineTotal: 36,
+        imageUrl: null as string | null,
+      },
     ],
   },
   {
     id: "ord-2",
     customerName: "דני לוי",
     customerPhone: "052-9876543",
+    status: "CONFIRMED",
     statusLabel: "אושר",
-    items: [{ name: "עוגת שוקולד", quantity: 2, lineTotal: 198 }],
+    createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
+    items: [
+      {
+        name: "עוגת שוקולד",
+        quantity: 2,
+        lineTotal: 198,
+        imageUrl: null as string | null,
+      },
+    ],
+  },
+  {
+    id: "ord-3",
+    customerName: "מיכל אברהם",
+    customerPhone: "054-1112233",
+    status: "COMPLETED",
+    statusLabel: "הושלם",
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    items: [
+      {
+        name: "קרואסון",
+        quantity: 3,
+        lineTotal: 54,
+        imageUrl: null as string | null,
+      },
+    ],
   },
 ];
+
+export const DEV_STORE_OWNER_NAME = "יעל";
+
+/** מדד מצב חנות לתצוגת dev — 80% עם שתי סיבות */
+export const DEV_STORE_HEALTH = {
+  percent: 80,
+  deductions: [
+    {
+      id: "demo-inquiry",
+      kind: "unanswered_inquiry" as const,
+      label: "פנייה ללא מענה",
+      detail:
+        "דני לוי: האם יש עוגות ללא גלוטן? — עדיין לא נשלחה תשובה",
+      penaltyPercent: 10,
+      href: "/dev/seller/customers/inquiries",
+    },
+    {
+      id: "demo-review",
+      kind: "bad_review" as const,
+      label: "ביקורת שלילית",
+      detail: "לקוח דירג 2 כוכבים: «המשלוח התעכב יותר מדי»",
+      penaltyPercent: 10,
+    },
+  ],
+};
 
 export const DEV_STORE_BUSINESS = {
   slug: "demo-store",
@@ -98,11 +160,22 @@ export const DEV_STORE_BUSINESS = {
     maxBookings: number;
     appointments: unknown[];
   }[],
-  faqItems: [] as { id: string; question: string; answer: string }[],
+  faqItems: [
+    {
+      id: "faq-1",
+      question: "כמה זמן לוקח משלוח?",
+      answer: "45–90 דקות לפי אזור ועומס.",
+    },
+    {
+      id: "faq-2",
+      question: "האם יש מוצרים ללא גלוטן?",
+      answer: "כן — עוגת שוקולד וקרואסון. מומלץ להזמין יום מראש.",
+    },
+  ],
   storeUrl: "http://localhost:3000/dev/customer",
   storeBroadcast: "מבצע השבוע: 10% הנחה על כל המוצרים עד יום שישי!",
   storeBroadcastAt: new Date().toISOString(),
-  storeTheme: "ocean",
+  storeTheme: "calm",
   storeLocale: "he" as const,
   storePolicy:
     "משלוחים בתוך העיר בימים א׳–ה׳. הזמנה עד 18:00 למחרת בבוקר.",

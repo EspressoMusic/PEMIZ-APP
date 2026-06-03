@@ -41,7 +41,7 @@ export function CustomerStoreDashboard({
         )}
       </div>
 
-      <div className="rounded-[22px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-[#fbf7ef] to-[#f5efe6] p-5 shadow-[var(--shadow-bakery-card)]">
+      <div className="rounded-[22px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-sheet p-5 shadow-[var(--shadow-bakery-card)]">
         <p className="text-center text-[14px] font-bold text-bakery-muted">
           {labels.dashboardCartHint}
         </p>

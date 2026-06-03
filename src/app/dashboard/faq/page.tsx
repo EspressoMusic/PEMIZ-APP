@@ -1,5 +1,15 @@
 import { FaqManager } from "@/components/faq-manager";
+import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
+import {
+  DASHBOARD_PAGE_ROOT,
+  DashboardSellerPageStack,
+} from "@/components/dashboard/dashboard-panel-frame";
 
 export default function DashboardFaqPage() {
-  return <FaqManager />;
+  return (
+    <DashboardSellerPageStack className={DASHBOARD_PAGE_ROOT}>
+      <DashboardActionsBackLink />
+      <FaqManager />
+    </DashboardSellerPageStack>
+  );
 }

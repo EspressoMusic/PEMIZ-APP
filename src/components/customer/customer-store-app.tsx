@@ -2,14 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Settings,
-  Receipt,
   HelpCircle,
   SlidersHorizontal,
   ShieldPlus,
   UserRound,
-  Calendar,
-  CalendarCheck,
+  MessagesSquare,
 } from "lucide-react";
 import { Button, Input, Textarea, PageTitle, Panel } from "@/components/ui";
 import {
@@ -21,12 +18,10 @@ import {
   type CustomerTextScale,
 } from "@/lib/customer-preferences";
 import { getCustomerLabels } from "./customer-labels";
-import { CustomerStoreHubNav } from "./customer-store-hub-nav";
-import { CustomerStoreDashboard } from "./customer-store-dashboard";
 import {
-  CustomerStoreActions,
-  type CustomerActionTab,
-} from "./customer-store-actions";
+  CustomerStoreTabNav,
+  type CustomerMainTab,
+} from "./customer-store-tab-nav";
 import { CustomerFaqSheet } from "./customer-faq-sheet";
 import { CustomerDisplaySheet } from "./customer-display-sheet";
 import { CustomerLegalSheet } from "./customer-legal-sheet";
@@ -110,11 +105,6 @@ type FaqItem = {
   answer: string;
 };
 
-const TAB_MENU = 0;
-const TAB_ORDERS = 1;
-const TAB_INQUIRIES = 2;
-const TAB_SETTINGS = 3;
-
 export function CustomerStoreApp({
   business,
   unavailable,
@@ -139,8 +129,8 @@ export function CustomerStoreApp({
   unavailable: boolean;
 }) {
   const isAppointments = business.type === "APPOINTMENTS";
-  const [hub, setHub] = useState<"dashboard" | "actions">("dashboard");
-  const [actionTab, setActionTab] = useState<CustomerActionTab | null>(null);
+  const [mainTab, setMainTab] = useState<CustomerMainTab>("home");
+  const [settingsInquiriesOpen, setSettingsInquiriesOpen] = useState(false);
   const [cart, setCart] = useState<Record<string, number>>({});
   const [customerName, setCustomerName] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
@@ -283,11 +273,6 @@ export function CustomerStoreApp({
     saveCustomerPreferences(business.slug, next);
   }
 
-  const openAction = useCallback((tab: CustomerActionTab) => {
-    setHub("actions");
-    setActionTab(tab);
-  }, []);
-
   const cartLines = useMemo(
     () =>
       business.products
@@ -413,131 +398,190 @@ export function CustomerStoreApp({
 
   const cartItemCount = cartLines.reduce((n, l) => n + l.qty, 0);
 
-  function renderActionPage() {
-    const tab =
-      actionTab === "menu"
-        ? isAppointments
-          ? 2
-          : TAB_MENU
-        : actionTab === "orders"
-          ? TAB_ORDERS
-          : actionTab === "inquiries"
-            ? TAB_INQUIRIES
-            : actionTab === "settings"
-              ? TAB_SETTINGS
-              : actionTab === "myAppointments"
-                ? 1
-                : -1;
-
+  function renderStoreHeader() {
+    if (!business.description?.trim()) return null;
     return (
-      <>
-          {tab === TAB_SETTINGS && (
-            <div className="space-y-5">
-              <PageTitle>{labels.settings}</PageTitle>
-              <div className="space-y-3">
-                <SettingsMenuRow
-                  icon={HelpCircle}
-                  title={labels.faq}
-                  subtitle={labels.faqSub}
-                  onClick={() => setFaqOpen(true)}
-                />
+      <p className="text-[14px] leading-snug text-bakery-muted">
+        {business.description}
+      </p>
+    );
+  }
 
-                <SettingsMenuRow
-                  icon={SlidersHorizontal}
-                  title={labels.language}
-                  subtitle={localeThemeSummary(locale, displayTheme)}
-                  onClick={() => setDisplayOpen(true)}
-                />
+  function renderProductGrid() {
+    if (business.products.length === 0) {
+      return <EmptyStateCard message={labels.noServices} />;
+    }
+    return (
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+        {business.products.map((p) => {
+          const outOfStock = !isProductInStock(p.stock);
+          const maxQty = maxOrderQuantity(p.stock);
+          return (
+            <ProductGridCard
+              key={p.id}
+              name={p.name}
+              description={p.description}
+              imageUrl={p.imageUrl}
+              locale={locale}
+              price={p.price}
+              salePrice={p.salePrice}
+              qty={cart[p.id] ?? 0}
+              outOfStock={outOfStock}
+              outOfStockLabel={labels.outOfStock}
+              maxQty={maxQty}
+              onDec={() =>
+                setCart((c) => ({
+                  ...c,
+                  [p.id]: Math.max(0, (c[p.id] ?? 0) - 1),
+                }))
+              }
+              onInc={() =>
+                setCart((c) => ({
+                  ...c,
+                  [p.id]: Math.min(maxQty, (c[p.id] ?? 0) + 1),
+                }))
+              }
+            />
+          );
+        })}
+      </div>
+    );
+  }
 
-                <SettingsMenuRow
-                  icon={ShieldPlus}
-                  title={labels.legal}
-                  subtitle={labels.legalSub}
-                  onClick={() => setLegalOpen(true)}
-                />
+  function renderDealsGrid() {
+    if (activeDeals.length === 0) {
+      return <EmptyStateCard message={labels.noDeals} />;
+    }
+    return (
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {activeDeals.map((d) => (
+          <DealCard
+            key={d.id}
+            name={d.name}
+            dealPrice={d.dealPrice}
+            validUntil={d.validUntil}
+            products={d.products}
+            locale={locale}
+            labels={labels}
+            redeemDisabled={!dealHasStock(d)}
+            onRedeem={() => startDealCheckout(d)}
+          />
+        ))}
+      </div>
+    );
+  }
 
-                <SettingsMenuRow
-                  icon={UserRound}
-                  title={labels.signIn}
-                  subtitle={labels.signInSub}
-                  onClick={() => setProfileOpen(!profileOpen)}
-                />
-
-                {profileOpen && (
-                  <div className="rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-4 bakery-panel-shadow">
-                    <Input
-                      label={labels.yourName}
-                      value={customerName}
-                      onChange={(e) => {
-                        setCustomerName(e.target.value);
-                        localStorage.setItem(
-                          `linky-customer-${business.slug}`,
-                          e.target.value
-                        );
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {tab === TAB_INQUIRIES && (
-            <div className="space-y-5">
-              <PageTitle>{labels.inquiries}</PageTitle>
-              {inquirySent && (
-                <p className="text-center text-[14px] font-semibold text-bakery-success">
-                  {labels.inquirySent}
+  function renderInquiriesBlock() {
+    return (
+      <div className="space-y-3">
+        {inquirySent && (
+          <p className="text-center text-[14px] font-semibold text-bakery-success">
+            {labels.inquirySent}
+          </p>
+        )}
+        {myInquiries.length > 0 && (
+          <div className="space-y-3">
+            <h2 className="text-[16px] font-extrabold text-bakery-ink">
+              {labels.yourInquiries}
+            </h2>
+            {myInquiries.map((inq) => (
+              <Panel key={inq.id} className="space-y-2">
+                <p className="whitespace-pre-wrap text-[15px] text-bakery-ink">
+                  {inq.message}
                 </p>
-              )}
-              {myInquiries.length > 0 && (
-                <div className="space-y-3">
-                  <h2 className="text-[16px] font-extrabold text-bakery-ink">
-                    {labels.yourInquiries}
-                  </h2>
-                  {myInquiries.map((inq) => (
-                    <Panel key={inq.id} className="space-y-2">
-                      <p className="whitespace-pre-wrap text-[15px] text-bakery-ink">
-                        {inq.message}
+                {inq.sellerReply ? (
+                  <div className="rounded-[14px] border border-bakery-primary/25 bg-bakery-primary/10 px-3 py-2">
+                    <p className="text-[12px] font-bold text-bakery-primary">
+                      {labels.sellerReplyLabel}
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap text-[14px] text-bakery-ink">
+                      {inq.sellerReply}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-[13px] font-semibold text-bakery-muted">
+                    {labels.awaitingReply}
+                  </p>
+                )}
+              </Panel>
+            ))}
+          </div>
+        )}
+        <Panel>
+          <form onSubmit={sendInquiry} className="space-y-3">
+            <Input name="customerName" label={labels.name} required />
+            <Input
+              name="customerPhone"
+              label={labels.phone}
+              defaultValue={orderPhone}
+            />
+            <Textarea name="message" label={labels.message} rows={4} required />
+            <Button type="submit" className="w-full min-h-[48px]">
+              {labels.send}
+            </Button>
+          </form>
+        </Panel>
+      </div>
+    );
+  }
+
+  function renderMainContent() {
+    if (unavailable) {
+      return (
+        <div className="pt-2">
+          <EmptyStateCard message={labels.unavailable} />
+        </div>
+      );
+    }
+
+    switch (mainTab) {
+      case "home":
+        return (
+          <div className="space-y-5 pb-2">
+            {renderStoreHeader()}
+            <PageTitle>
+              {isAppointments ? labels.appointments : labels.menu}
+            </PageTitle>
+            {isAppointments ? (
+              availableSlots.length === 0 ? (
+                <EmptyStateCard message={labels.noSlots} />
+              ) : (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                  {availableSlots.map((s) => (
+                    <Panel key={s.id}>
+                      <p className="font-extrabold text-bakery-ink">
+                        {new Date(s.startAt).toLocaleString("en-GB")}
                       </p>
-                      {inq.sellerReply ? (
-                        <div className="rounded-[14px] border border-bakery-primary/25 bg-bakery-primary/10 px-3 py-2">
-                          <p className="text-[12px] font-bold text-bakery-primary">
-                            {labels.sellerReplyLabel}
-                          </p>
-                          <p className="mt-1 whitespace-pre-wrap text-[14px] text-bakery-ink">
-                            {inq.sellerReply}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-[13px] font-semibold text-bakery-muted">
-                          {labels.awaitingReply}
-                        </p>
-                      )}
+                      <form
+                        onSubmit={(e) => bookSlot(e, s.id)}
+                        className="mt-3 space-y-2"
+                      >
+                        <Input name="customerName" label={labels.name} required />
+                        <Input name="customerPhone" label={labels.phone} required />
+                        <Textarea name="notes" label={labels.notes} rows={2} />
+                        <Button type="submit" variant="square" className="w-full">
+                          {labels.book}
+                        </Button>
+                      </form>
                     </Panel>
                   ))}
                 </div>
-              )}
-              <Panel>
-                <form onSubmit={sendInquiry} className="space-y-3">
-                  <Input name="customerName" label={labels.name} required />
-                  <Input
-                    name="customerPhone"
-                    label={labels.phone}
-                    defaultValue={orderPhone}
-                  />
-                  <Textarea name="message" label={labels.message} rows={4} required />
-                  <Button type="submit" className="w-full min-h-[48px]">
-                    {labels.send}
-                  </Button>
-                </form>
-              </Panel>
-            </div>
-          )}
+              )
+            ) : (
+              renderProductGrid()
+            )}
+          </div>
+        );
 
-          {!isAppointments && tab === TAB_ORDERS && (
-            <div className="space-y-5">
-              <PageTitle>{labels.orders}</PageTitle>
+      case "orders":
+        return (
+          <div className="space-y-5 pb-2">
+            <PageTitle>
+              {isAppointments ? labels.myAppointments : labels.orders}
+            </PageTitle>
+            {isAppointments ? (
+              <EmptyStateCard message={labels.noMyAppts} />
+            ) : (
               <div className="grid gap-6 lg:grid-cols-2">
                 <OrdersHubPanel title={labels.activeOrders}>
                   {cartLines.length === 0 ? (
@@ -578,165 +622,84 @@ export function CustomerStoreApp({
                     </>
                   )}
                 </OrdersHubPanel>
-
                 <OrdersHubPanel title={labels.orderHistory}>
                   <HubEmptyText>{labels.noPastOrders}</HubEmptyText>
                 </OrdersHubPanel>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        );
 
-          {((!isAppointments && tab === TAB_MENU) ||
-            (isAppointments && tab === 2)) && (
-            <div className="space-y-5">
-              <PageTitle>
-                {isAppointments ? labels.appointments : labels.menu}
-              </PageTitle>
-              {!isAppointments ? (
-                business.products.length === 0 && activeDeals.length === 0 ? (
-                  <EmptyStateCard message={labels.noServices} />
-                ) : (
-                  <div className="space-y-6">
-                    {activeDeals.length > 0 && (
-                      <section>
-                        <h2 className="mb-3 text-[18px] font-extrabold text-bakery-ink">
-                          {labels.deals}
-                        </h2>
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                          {activeDeals.map((d) => (
-                            <DealCard
-                              key={d.id}
-                              name={d.name}
-                              dealPrice={d.dealPrice}
-                              validUntil={d.validUntil}
-                              products={d.products}
-                              locale={locale}
-                              labels={labels}
-                              redeemDisabled={!dealHasStock(d)}
-                              onRedeem={() => startDealCheckout(d)}
-                            />
-                          ))}
-                        </div>
-                      </section>
-                    )}
-                    {business.products.length > 0 && (
-                      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
-                        {business.products.map((p) => {
-                          const outOfStock = !isProductInStock(p.stock);
-                          const maxQty = maxOrderQuantity(p.stock);
-                          return (
-                            <ProductGridCard
-                              key={p.id}
-                              name={p.name}
-                              description={p.description}
-                              imageUrl={p.imageUrl}
-                              locale={locale}
-                              price={p.price}
-                              salePrice={p.salePrice}
-                              qty={cart[p.id] ?? 0}
-                              outOfStock={outOfStock}
-                              outOfStockLabel={labels.outOfStock}
-                              maxQty={maxQty}
-                              onDec={() =>
-                                setCart((c) => ({
-                                  ...c,
-                                  [p.id]: Math.max(0, (c[p.id] ?? 0) - 1),
-                                }))
-                              }
-                              onInc={() =>
-                                setCart((c) => ({
-                                  ...c,
-                                  [p.id]: Math.min(
-                                    maxQty,
-                                    (c[p.id] ?? 0) + 1
-                                  ),
-                                }))
-                              }
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )
-              ) : availableSlots.length === 0 ? (
-                <EmptyStateCard message={labels.noSlots} />
-              ) : (
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                  {availableSlots.map((s) => (
-                    <Panel key={s.id}>
-                      <p className="font-extrabold text-bakery-ink">
-                        {new Date(s.startAt).toLocaleString("en-GB")}
-                      </p>
-                      <form
-                        onSubmit={(e) => bookSlot(e, s.id)}
-                        className="mt-3 space-y-2"
-                      >
-                        <Input name="customerName" label={labels.name} required />
-                        <Input name="customerPhone" label={labels.phone} required />
-                        <Textarea name="notes" label={labels.notes} rows={2} />
-                        <Button type="submit" variant="square" className="w-full">
-                          {labels.book}
-                        </Button>
-                      </form>
-                    </Panel>
-                  ))}
+      case "deals":
+        return (
+          <div className="space-y-5 pb-2">
+            <PageTitle>{labels.deals}</PageTitle>
+            {isAppointments ? (
+              <EmptyStateCard message={labels.noDeals} />
+            ) : (
+              renderDealsGrid()
+            )}
+          </div>
+        );
+
+      case "settings":
+        return (
+          <div className="space-y-5 pb-2">
+            <PageTitle>{labels.settings}</PageTitle>
+            <div className="space-y-3">
+              <SettingsMenuRow
+                icon={HelpCircle}
+                title={labels.faq}
+                subtitle={labels.faqSub}
+                onClick={() => setFaqOpen(true)}
+              />
+              <SettingsMenuRow
+                icon={MessagesSquare}
+                title={labels.contactSeller}
+                subtitle={labels.inquiriesSub}
+                onClick={() => setSettingsInquiriesOpen((v) => !v)}
+              />
+              {settingsInquiriesOpen && renderInquiriesBlock()}
+              <SettingsMenuRow
+                icon={SlidersHorizontal}
+                title={labels.language}
+                subtitle={localeThemeSummary(locale, displayTheme)}
+                onClick={() => setDisplayOpen(true)}
+              />
+              <SettingsMenuRow
+                icon={ShieldPlus}
+                title={labels.legal}
+                subtitle={labels.legalSub}
+                onClick={() => setLegalOpen(true)}
+              />
+              <SettingsMenuRow
+                icon={UserRound}
+                title={labels.signIn}
+                subtitle={labels.signInSub}
+                onClick={() => setProfileOpen(!profileOpen)}
+              />
+              {profileOpen && (
+                <div className="rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-4 bakery-panel-shadow">
+                  <Input
+                    label={labels.yourName}
+                    value={customerName}
+                    onChange={(e) => {
+                      setCustomerName(e.target.value);
+                      localStorage.setItem(
+                        `linky-customer-${business.slug}`,
+                        e.target.value
+                      );
+                    }}
+                  />
                 </div>
               )}
             </div>
-          )}
+          </div>
+        );
 
-          {isAppointments && tab === 1 && (
-            <div className="space-y-5">
-              <PageTitle>{labels.myAppointments}</PageTitle>
-              <EmptyStateCard message={labels.noMyAppts} />
-            </div>
-          )}
-      </>
-    );
-  }
-
-  function renderHubMain() {
-    if (unavailable) {
-      return (
-        <div className="pt-2">
-          <EmptyStateCard message={labels.unavailable} />
-        </div>
-      );
+      default:
+        return null;
     }
-
-    if (hub === "dashboard") {
-      return (
-        <CustomerStoreDashboard
-          businessName={business.name}
-          description={business.description}
-          labels={labels}
-          locale={locale}
-          cartItemCount={cartItemCount}
-          cartTotal={cartTotal}
-          isAppointments={isAppointments}
-          onShop={() => openAction("menu")}
-          onOrders={() => openAction("orders")}
-          onInquiries={() => openAction("inquiries")}
-        />
-      );
-    }
-
-    return (
-      <CustomerStoreActions
-        labels={labels}
-        isAppointments={isAppointments}
-        pageTab={actionTab}
-        cartCount={cartItemCount}
-        onOpenTab={setActionTab}
-        onBack={() => setActionTab(null)}
-        onFaq={() => setFaqOpen(true)}
-        onDisplay={() => setDisplayOpen(true)}
-        onLegal={() => setLegalOpen(true)}
-      >
-        {actionTab ? renderActionPage() : null}
-      </CustomerStoreActions>
-    );
   }
 
   const rootLang = locale === "he" ? "he" : "en";
@@ -759,21 +722,14 @@ export function CustomerStoreApp({
       <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 pb-[calc(76px+env(safe-area-inset-bottom))] sm:py-6 lg:px-[14px] lg:pb-8 lg:py-8">
         <div className="flex w-full flex-col gap-4 lg:flex-row lg:gap-8">
           {!unavailable && (
-            <CustomerStoreHubNav
-              dashboardLabel={labels.dashboard}
-              actionsLabel={labels.storeActions}
-              hubActive={hub}
-              onDashboard={() => {
-                setHub("dashboard");
-                setActionTab(null);
-              }}
-              onActions={() => {
-                setHub("actions");
-                setActionTab(null);
-              }}
+            <CustomerStoreTabNav
+              labels={labels}
+              active={mainTab}
+              onSelect={setMainTab}
+              ordersBadge={isAppointments ? undefined : cartItemCount}
             />
           )}
-          <main className="min-w-0 flex-1">{renderHubMain()}</main>
+          <main className="min-w-0 flex-1">{renderMainContent()}</main>
         </div>
       </div>
 

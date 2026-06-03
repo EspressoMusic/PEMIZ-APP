@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button, Textarea, Panel, Alert, PageTitle } from "@/components/ui";
+import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 type InquiryRow = {
   id: string;
@@ -20,6 +21,7 @@ export function DashboardInquiriesManager({
   previewOnly?: boolean;
   initialItems?: InquiryRow[];
 }) {
+  const { labels, formatDateTime } = useAppLocale();
   const [items, setItems] = useState<InquiryRow[]>(
     previewOnly ? initialItems : []
   );
@@ -42,7 +44,7 @@ export function DashboardInquiriesManager({
     setError("");
     const text = (replyDrafts[id] ?? "").trim();
     if (!text) {
-      setError("יש לכתוב תשובה");
+      setError(labels.replyRequired);
       return;
     }
 
@@ -69,7 +71,7 @@ export function DashboardInquiriesManager({
     });
     const data = await res.json();
     if (!res.ok) {
-      setError(data.error ?? "שגיאה בשליחה");
+      setError(data.error ?? labels.networkError);
       return;
     }
     setReplyingId(null);
@@ -80,17 +82,26 @@ export function DashboardInquiriesManager({
 
   return (
     <div className="space-y-4 pb-2">
-      <PageTitle>פניות לקוחות</PageTitle>
+      <PageTitle>{labels.customerInquiries}</PageTitle>
       <p className="text-center text-[14px] text-bakery-muted">
         {pendingCount > 0
-          ? `${pendingCount} פניות ממתינות לתשובה`
-          : "כל הפניות נענו"}
+          ? `${pendingCount} ${labels.inquiriesPending}`
+          : labels.inquiriesAllAnswered}
       </p>
 
       {error && <Alert variant="error">{error}</Alert>}
 
       {items.map((q) => {
         const isReplying = replyingId === q.id;
+
+        function startReplying() {
+          setReplyingId(q.id);
+          setReplyDrafts((d) => ({
+            ...d,
+            [q.id]: d[q.id] ?? q.sellerReply ?? "",
+          }));
+        }
+
         return (
           <Panel key={q.id} className="space-y-3">
             <div>
@@ -101,34 +112,42 @@ export function DashboardInquiriesManager({
                 </p>
               )}
               <p className="mt-1 text-[12px] text-bakery-muted">
-                {new Date(q.createdAt).toLocaleString("he-IL")}
+                {formatDateTime(q.createdAt)}
               </p>
             </div>
-            <div className="rounded-[16px] bg-bakery-card/80 px-3 py-2.5">
-              <p className="text-[12px] font-bold text-bakery-muted">פניית הלקוח</p>
+            <div className="rounded-[16px] border border-bakery-border/15 bg-bakery-cream-light px-3 py-2.5">
+              <p className="text-[12px] font-bold text-bakery-muted">
+                {labels.customerInquiryLabel}
+              </p>
               <p className="mt-1 whitespace-pre-wrap text-[15px] text-bakery-ink">
                 {q.message}
               </p>
             </div>
 
             {q.sellerReply && !isReplying && (
-              <div className="rounded-[16px] border border-bakery-primary/20 bg-bakery-primary/8 px-3 py-2.5">
-                <p className="text-[12px] font-bold text-bakery-primary">התשובה שלך</p>
+              <button
+                type="button"
+                onClick={startReplying}
+                className="w-full rounded-[16px] border border-bakery-primary/20 bg-bakery-primary/8 px-3 py-2.5 text-start transition hover:bg-bakery-primary/12 active:scale-[0.99]"
+              >
+                <p className="text-[12px] font-bold text-bakery-primary">
+                  {labels.yourReply}
+                </p>
                 <p className="mt-1 whitespace-pre-wrap text-[15px] text-bakery-ink">
                   {q.sellerReply}
                 </p>
                 {q.sellerReplyAt && (
                   <p className="mt-1 text-[11px] text-bakery-muted">
-                    {new Date(q.sellerReplyAt).toLocaleString("he-IL")}
+                    {formatDateTime(q.sellerReplyAt)}
                   </p>
                 )}
-              </div>
+              </button>
             )}
 
             {isReplying ? (
               <div className="space-y-2">
                 <Textarea
-                  label="תשובה ללקוח"
+                  label={labels.replyToCustomer}
                   rows={3}
                   value={replyDrafts[q.id] ?? q.sellerReply ?? ""}
                   onChange={(e) =>
@@ -138,41 +157,39 @@ export function DashboardInquiriesManager({
                 <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
-                    variant="square"
+                    variant="primary"
+                    className="font-extrabold"
                     onClick={() => sendReply(q.id)}
                   >
-                    שלח תשובה
+                    {labels.sendReply}
                   </Button>
                   <Button
                     type="button"
                     variant="ghost"
                     onClick={() => setReplyingId(null)}
                   >
-                    ביטול
+                    {labels.cancel}
                   </Button>
                 </div>
               </div>
             ) : (
-              <Button
-                type="button"
-                variant={q.sellerReply ? "ghost" : "square"}
-                onClick={() => {
-                  setReplyingId(q.id);
-                  setReplyDrafts((d) => ({
-                    ...d,
-                    [q.id]: d[q.id] ?? q.sellerReply ?? "",
-                  }));
-                }}
-              >
-                {q.sellerReply ? "ערוך תשובה" : "ענה ללקוח"}
-              </Button>
+              !q.sellerReply && (
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="w-full font-extrabold"
+                  onClick={startReplying}
+                >
+                  {labels.answerCustomer}
+                </Button>
+              )
             )}
           </Panel>
         );
       })}
 
       {items.length === 0 && (
-        <p className="text-center text-bakery-muted">אין פניות מלקוחות עדיין.</p>
+        <p className="text-center text-bakery-muted">{labels.noInquiriesYet}</p>
       )}
     </div>
   );

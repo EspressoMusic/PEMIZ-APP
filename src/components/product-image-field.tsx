@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
+import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { readProductImageFile } from "@/lib/product-image";
 
 export function ProductImageField({
@@ -13,16 +14,17 @@ export function ProductImageField({
   onChange: (dataUrl: string | null) => void;
   onError: (msg: string) => void;
 }) {
+  const { labels, locale } = useAppLocale();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
   async function handleFile(file: File | null) {
     if (!file) return;
     try {
-      const dataUrl = await readProductImageFile(file);
+      const dataUrl = await readProductImageFile(file, locale);
       onChange(dataUrl);
     } catch (e) {
-      onError(e instanceof Error ? e.message : "שגיאה בתמונה");
+      onError(e instanceof Error ? e.message : labels.productImageReadError);
     }
   }
 
@@ -33,7 +35,7 @@ export function ProductImageField({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={preview}
-            alt="תצוגה מקדימה"
+            alt={labels.productImagePreviewAlt}
             className="aspect-[4/3] w-full object-cover"
           />
           <button
@@ -43,7 +45,7 @@ export function ProductImageField({
               if (inputRef.current) inputRef.current.value = "";
             }}
             className="absolute left-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-bakery-ink/70 text-white"
-            aria-label="הסר תמונה"
+            aria-label={labels.productImageRemove}
           >
             <X className="h-5 w-5" />
           </button>
@@ -69,8 +71,12 @@ export function ProductImageField({
           }`}
         >
           <ImagePlus className="h-8 w-8 text-bakery-muted" strokeWidth={1.5} />
-          <span className="text-[14px] font-bold text-bakery-ink">העלאת תמונה</span>
-          <span className="text-[12px] text-bakery-muted">לחץ או גרור לכאן</span>
+          <span className="text-[14px] font-bold text-bakery-ink">
+            {labels.productImageUpload}
+          </span>
+          <span className="text-[12px] text-bakery-muted">
+            {labels.productImageDropHint}
+          </span>
         </button>
       )}
 

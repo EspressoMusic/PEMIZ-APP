@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { X, Languages, Globe } from "lucide-react";
 import type { CustomerDisplayTheme, CustomerLocale } from "@/lib/customer-preferences";
 import { themeSubtitle } from "@/lib/customer-preferences";
-import { STORE_THEMES } from "@/lib/store-themes";
+import { STORE_THEMES, storeThemeLabel } from "@/lib/store-themes";
 
 function SheetShell({
   open,
@@ -44,7 +44,7 @@ function SheetShell({
         onClick={onClose}
         aria-label={closeLabel}
       />
-      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-[var(--cs-sheet-bg,#fdf8f1)] shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
+      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-[var(--cs-sheet-bg, var(--bakery-cream-sheet))] shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
         <div className="shrink-0 px-5 pt-3 lg:pt-5">
           <div
             className="mx-auto mb-3 h-1 w-10 rounded-full bg-bakery-ink/20 lg:hidden"
@@ -127,7 +127,7 @@ export function CustomerDisplaySheet({
     sheetTitle: locale === "he" ? "שפה ומצב תצוגה" : "Language & display",
     language: locale === "he" ? "שפה" : "Language",
     display: locale === "he" ? "צבע וסגנון" : "Color & style",
-    hebrew: "עברית",
+    hebrew: locale === "he" ? "עברית" : "Hebrew",
     english: "English",
   };
 
@@ -162,29 +162,39 @@ export function CustomerDisplaySheet({
 
       <section className="mt-7">
         <h2 className="mb-3 text-[17px] font-extrabold text-bakery-ink">{t.display}</h2>
-        <div className="grid grid-cols-3 gap-2">
+        <ul className="space-y-2">
           {STORE_THEMES.map((s) => {
             const active = theme === s.id;
+            const title = storeThemeLabel(s.id, locale);
+            const subtitle = locale === "he" ? s.descriptionHe : s.descriptionEn;
             return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => onThemeChange(s.id)}
-                className={`flex flex-col items-center gap-1.5 rounded-[16px] border px-1.5 py-2.5 transition ${
-                  active
-                    ? "border-bakery-primary/40 bg-bakery-primary/10 ring-2 ring-bakery-primary/25"
-                    : "border-bakery-border/30 bg-bakery-square"
-                }`}
-              >
-                <span
-                  className={`h-9 w-full rounded-[8px] bg-gradient-to-b ${s.preview}`}
-                  aria-hidden
-                />
-                <span className="text-[11px] font-extrabold text-bakery-ink">{s.label}</span>
-              </button>
+              <li key={s.id}>
+                <button
+                  type="button"
+                  onClick={() => onThemeChange(s.id)}
+                  className={`flex w-full items-center gap-3 rounded-[16px] border px-3 py-2.5 text-start transition ${
+                    active
+                      ? "border-bakery-primary/40 bg-bakery-primary/10 ring-2 ring-bakery-primary/25"
+                      : "border-bakery-border/30 bg-bakery-square"
+                  }`}
+                >
+                  <span
+                    className={`h-10 w-14 shrink-0 rounded-[10px] bg-gradient-to-b ${s.preview}`}
+                    aria-hidden
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[14px] font-extrabold text-bakery-ink">
+                      {title}
+                    </span>
+                    <span className="block text-[12px] font-semibold text-bakery-muted">
+                      {subtitle}
+                    </span>
+                  </span>
+                </button>
+              </li>
             );
           })}
-        </div>
+        </ul>
         <p className="mt-2 text-center text-[12px] text-bakery-muted">
           {themeSubtitle(theme, locale)}
         </p>

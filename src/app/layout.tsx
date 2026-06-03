@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { MasterKeyFab } from "@/components/master-key-fab";
+import {
+  DASHBOARD_APPEARANCE_BOOT_SCRIPT,
+  parseLocaleCookie,
+  parseThemeCookie,
+} from "@/lib/dashboard-appearance-boot";
 
 export const metadata: Metadata = {
   title: "Linky — עמוד דיגיטלי לעסק שלך",
@@ -14,18 +20,35 @@ export const viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const theme = parseThemeCookie(
+    cookieStore.get("linky-dashboard-theme")?.value
+  );
+  const locale = parseLocaleCookie(
+    cookieStore.get("linky-dashboard-locale")?.value
+  );
+
   return (
     <html
-      lang="he"
-      dir="rtl"
+      lang={locale ?? "he"}
+      dir={locale === "en" ? "ltr" : "rtl"}
       className="h-full overflow-x-hidden antialiased"
+      data-store-theme={theme ?? undefined}
+      data-locale={locale ?? undefined}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: DASHBOARD_APPEARANCE_BOOT_SCRIPT,
+          }}
+        />
+      </head>
       <body
         className="flex min-h-dvh flex-col overflow-x-hidden bg-bakery-scaffold text-bakery-ink"
         suppressHydrationWarning

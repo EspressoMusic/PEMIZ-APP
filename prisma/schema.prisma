@@ -56,6 +56,8 @@ model Business {
   storeBroadcastAt       DateTime?
   orderScheduleEnabled   Boolean  @default(false)
   orderSchedule          String?
+  whatsappNotifyEnabled  Boolean  @default(false)
+  whatsappNotifyPhone    String?
   isActive               Boolean  @default(false)
   approvedAt      DateTime?
   ownerId         String   @unique

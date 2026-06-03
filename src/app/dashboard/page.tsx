@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { publicBusinessUrl } from "@/lib/business";
 import { Alert } from "@/components/ui";
 import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
@@ -11,16 +10,8 @@ export default async function DashboardPage() {
   if (!user?.business) redirect("/onboarding");
 
   const b = user.business;
-  const [orders, appointments, inquiries, prepProducts] = await Promise.all([
-    prisma.order.count({ where: { businessId: b.id, status: "PENDING" } }),
-    prisma.appointment.count({
-      where: { businessId: b.id, status: "PENDING" },
-    }),
-    prisma.inquiry.count({ where: { businessId: b.id } }),
-    b.type === "STORE"
-      ? getPrepSummaryForBusiness(b.id)
-      : Promise.resolve([]),
-  ]);
+  const prepProducts =
+    b.type === "STORE" ? await getPrepSummaryForBusiness(b.id) : [];
 
   return (
     <>
@@ -33,14 +24,10 @@ export default async function DashboardPage() {
         </div>
       )}
       <DashboardHomeView
-        businessName={b.name}
+        ownerName={user.name}
+        businessSlug={b.slug}
         customerLink={publicBusinessUrl(b.slug)}
         previewHref={`/b/${b.slug}`}
-        pendingOrders={orders}
-        pendingAppointments={appointments}
-        inquiries={inquiries}
-        showOrders={b.type === "STORE"}
-        showAppointments={b.type === "APPOINTMENTS"}
         showPrepSummary={b.type === "STORE"}
         prepProducts={prepProducts}
       />

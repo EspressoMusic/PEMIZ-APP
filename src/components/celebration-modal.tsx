@@ -83,7 +83,7 @@ export function CelebrationModal({
         ))}
       </div>
 
-      <div className="relative w-full max-w-sm animate-[product-pop_0.45s_ease-out] rounded-[28px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-[#fbf7ef] to-[#f3ebe0] p-8 text-center shadow-[var(--shadow-bakery-panel)]">
+      <div className="relative w-full max-w-sm animate-[product-pop_0.45s_ease-out] rounded-[28px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-8 text-center shadow-[var(--shadow-bakery-panel)]">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-bakery-success/15 text-bakery-success">
           <Check className="h-9 w-9" strokeWidth={2.5} />
         </div>

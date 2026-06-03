@@ -1,180 +1,88 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
-import { SquareCard } from "@/components/ui";
-import { DashboardHomeGauge } from "@/components/dashboard/dashboard-home-gauge";
+"use client";
+
+import { DashboardStoreHealthGauge } from "@/components/dashboard/dashboard-store-health-gauge";
 import { DashboardPrepSummary } from "@/components/dashboard/dashboard-prep-summary";
+import { DashboardInquiryBell } from "@/components/dashboard/dashboard-inquiry-bell";
+import { DashboardCustomerLinkCard } from "@/components/dashboard/dashboard-customer-link-card";
+import { DashboardHomeOrdersLink } from "@/components/dashboard/dashboard-home-orders-link";
+import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import type { PrepProductSummary } from "@/lib/dashboard-prep-summary";
 
 const center = "text-center";
 const homeStack = "mx-auto w-full max-w-[360px]";
 
-function HomePageTitle({ children }: { children: ReactNode }) {
-  return (
-    <div className={`mb-4 sm:mb-6 ${center}`}>
-      <h1 className="text-[20px] font-extrabold text-bakery-ink sm:text-[22px]">
-        {children}
-      </h1>
-    </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  action,
-}: {
-  label: string;
-  value: ReactNode;
-  action?: ReactNode;
-}) {
-  return (
-    <SquareCard className="bakery-float-tile flex h-full min-h-[112px] w-full flex-col items-center justify-center gap-2 rounded-[20px] p-4 text-center">
-      <p className="w-full text-[14px] text-bakery-muted">{label}</p>
-      <div className="w-full text-[28px] font-extrabold leading-none text-bakery-ink">
-        {value}
-      </div>
-      {action && <div className="w-full">{action}</div>}
-    </SquareCard>
-  );
-}
-
 export function DashboardHomeView({
-  businessName,
+  ownerName,
   customerLink,
   previewHref,
-  previewLabel = "תצוגה מקדימה →",
-  pendingOrders,
-  pendingAppointments,
-  inquiries,
-  showOrders,
-  showAppointments,
-  ordersHref = "/dashboard/settings/orders",
-  appointmentsHref = "/dashboard/appointments",
-  inquiriesHref = "/dashboard/customers/inquiries",
   prepProducts,
   showPrepSummary,
+  prepRefreshFromApi = true,
+  businessSlug,
+  inquiriesHref = "/dashboard/customers/inquiries",
+  ordersHref = "/dashboard/settings/orders",
+  inquiryBellPreview = false,
+  storeHealthPreview = false,
 }: {
-  businessName: string;
+  ownerName: string;
   customerLink: string;
-  previewHref: string;
-  previewLabel?: string;
-  pendingOrders?: number;
-  pendingAppointments?: number;
-  inquiries: number;
-  showOrders: boolean;
-  showAppointments: boolean;
-  ordersHref?: string;
-  appointmentsHref?: string;
-  inquiriesHref?: string;
+  previewHref?: string;
   prepProducts?: PrepProductSummary[];
   showPrepSummary?: boolean;
+  prepRefreshFromApi?: boolean;
+  businessSlug: string;
+  inquiriesHref?: string;
+  ordersHref?: string;
+  inquiryBellPreview?: boolean;
+  storeHealthPreview?: boolean;
 }) {
-  const statItems = [
-    showOrders && {
-      key: "orders",
-      label: "הזמנות ממתינות",
-      value: pendingOrders ?? 0,
-      action: (
-        <Link
-          href={ordersHref}
-          className="text-[14px] font-bold text-bakery-primary"
-        >
-          ניהול הזמנות
-        </Link>
-      ),
-    },
-    showAppointments && {
-      key: "appointments",
-      label: "תורים ממתינים",
-      value: pendingAppointments ?? 0,
-      action: (
-        <Link
-          href={appointmentsHref}
-          className="text-[14px] font-bold text-bakery-primary"
-        >
-          ניהול תורים
-        </Link>
-      ),
-    },
-    {
-      key: "inquiries",
-      label: "פניות",
-      value: inquiries,
-      action: (
-        <Link
-          href={inquiriesHref}
-          className="text-[14px] font-bold text-bakery-primary"
-        >
-          צפייה בפניות
-        </Link>
-      ),
-    },
-  ].filter(Boolean) as {
-    key: string;
-    label: string;
-    value: number;
-    action: ReactNode;
-  }[];
+  const { labels } = useAppLocale();
 
   return (
-    <div className={`flex min-h-[min(72dvh,560px)] flex-col items-center gap-4 sm:gap-5 ${center}`}>
-      <div className={homeStack}>
-        <HomePageTitle>{businessName}</HomePageTitle>
-      </div>
-
-      <DashboardHomeGauge percent={100} />
-
-      {showPrepSummary && prepProducts && (
-        <div className={homeStack}>
-          <DashboardPrepSummary initialProducts={prepProducts} />
+    <div
+      className={`flex h-full min-h-0 w-full flex-col overflow-hidden py-3 sm:py-4 ${center}`}
+    >
+      <div className={`${homeStack} shrink-0 space-y-2.5`}>
+        {ownerName.trim() ? (
+          <h1 className="truncate px-0.5 text-[17px] font-extrabold leading-tight text-bakery-ink sm:text-[18px]">
+            {labels.hello}, {ownerName.trim()}!
+          </h1>
+        ) : null}
+        <div className="flex items-center gap-3">
+          <DashboardStoreHealthGauge
+            businessSlug={businessSlug}
+            inquiriesHref={inquiriesHref}
+            previewOnly={storeHealthPreview || inquiryBellPreview}
+          />
+          <DashboardInquiryBell
+            businessSlug={businessSlug}
+            inquiriesHref={inquiriesHref}
+            previewOnly={inquiryBellPreview}
+          />
         </div>
-      )}
-
-      <div className={`${homeStack} grid grid-cols-2 gap-3`}>
-        {statItems.map((item, index) => (
-          <div
-            key={item.key}
-            className={
-              statItems.length % 2 === 1 && index === statItems.length - 1
-                ? "col-span-2 flex justify-center"
-                : "min-w-0"
-            }
-          >
-            <div
-              className={
-                statItems.length % 2 === 1 && index === statItems.length - 1
-                  ? "w-[calc(50%-0.375rem)]"
-                  : "w-full"
-              }
-            >
-              <StatCard
-                label={item.label}
-                value={item.value}
-                action={item.action}
-              />
-            </div>
-          </div>
-        ))}
       </div>
 
-      <div className={`${homeStack} mt-auto pt-2`}>
-        <SquareCard
-          className={`bakery-float-tile w-full rounded-[22px] px-4 py-3.5 ${center}`}
-        >
-          <h2 className="text-[16px] font-bold text-bakery-ink">קישור ללקוחות</h2>
-          <p
-            className="mx-auto mt-1.5 break-all font-mono text-[13px] text-bakery-primary"
-            dir="ltr"
-          >
-            {customerLink}
-          </p>
-          <Link
-            href={previewHref}
-            className="mt-2 inline-block rounded-full border border-bakery-border/35 bg-bakery-card/80 px-3 py-1 text-[11px] font-bold text-bakery-primary underline-offset-2 transition hover:bg-bakery-primary/10 hover:underline sm:text-[12px]"
-          >
-            {previewLabel}
-          </Link>
-        </SquareCard>
+      <div
+        className={`${homeStack} mt-2 flex min-h-0 flex-1 flex-col overflow-hidden space-y-1.5 sm:mt-3`}
+      >
+        {showPrepSummary && prepProducts ? (
+          <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+            <DashboardPrepSummary
+              initialProducts={prepProducts}
+              loadFromApi={prepRefreshFromApi}
+              fillHeight
+            />
+          </div>
+        ) : (
+          <div className="min-h-0 flex-1" aria-hidden />
+        )}
+        <div className="shrink-0 space-y-1.5">
+          <DashboardHomeOrdersLink href={ordersHref} />
+          <DashboardCustomerLinkCard
+            url={customerLink}
+            previewHref={previewHref}
+          />
+        </div>
       </div>
     </div>
   );

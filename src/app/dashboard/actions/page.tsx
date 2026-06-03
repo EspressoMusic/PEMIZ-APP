@@ -6,11 +6,5 @@ export default async function DashboardActionsPage() {
   const user = await getCurrentUser();
   if (!user?.business) redirect("/onboarding");
 
-  return (
-    <DashboardActionsHub
-      businessType={user.business.type}
-      storeTheme={user.business.storeTheme}
-      storeLocale={user.business.storeLocale}
-    />
-  );
+  return <DashboardActionsHub businessType={user.business.type} />;
 }

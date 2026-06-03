@@ -8,6 +8,7 @@ const schema = z
   .object({
     enabled: z.boolean(),
     days: z.array(z.number().int().min(0).max(6)),
+    blockedDays: z.array(z.number().int().min(0).max(6)).default([]),
     startTime: z.string(),
     endTime: z.string(),
   })
@@ -28,10 +29,11 @@ const schema = z
         path: ["endTime"],
       });
     }
-    if (data.enabled && data.days.length < 1) {
+    const openDays = data.days.filter((d) => !data.blockedDays.includes(d));
+    if (data.enabled && openDays.length < 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "יש לבחור לפחות יום אחד",
+        message: "יש להשאיר לפחות יום אחד פתוח להזמנות",
         path: ["days"],
       });
     }
@@ -54,8 +56,12 @@ export async function PATCH(req: Request) {
   const startTime = normalizeTimeInput(parsed.data.startTime)!;
   const endTime = normalizeTimeInput(parsed.data.endTime)!;
   const uniqueDays = [...new Set(parsed.data.days)].sort((a, b) => a - b);
+  const uniqueBlocked = [...new Set(parsed.data.blockedDays)].sort(
+    (a, b) => a - b
+  );
   const scheduleJson = JSON.stringify({
     days: uniqueDays,
+    blockedDays: uniqueBlocked,
     startTime,
     endTime,
   });
@@ -79,6 +85,7 @@ export async function PATCH(req: Request) {
   return jsonOk({
     enabled: parsed.data.enabled,
     days: uniqueDays,
+    blockedDays: uniqueBlocked,
     startTime,
     endTime,
   });

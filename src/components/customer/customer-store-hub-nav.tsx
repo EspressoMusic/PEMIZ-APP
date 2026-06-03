@@ -20,7 +20,7 @@ export function CustomerStoreHubNav({
     <>
       {/* Desktop / tablet: sidebar (matches seller nav card) */}
       <aside className="sticky top-0 z-30 hidden w-52 shrink-0 lg:block">
-        <nav className="flex flex-col gap-1 rounded-[22px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-[#fbf7ef] to-[#f5efe6] p-2 shadow-[var(--shadow-bakery-card)]">
+        <nav className="flex flex-col gap-1 rounded-[22px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-sheet p-2 shadow-[var(--shadow-bakery-card)]">
           <HubButton
             active={hubActive === "dashboard"}
             label={dashboardLabel}
@@ -38,7 +38,7 @@ export function CustomerStoreHubNav({
 
       {/* Mobile: bottom bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/20 bg-[#f5e9e2] lg:hidden"
+        className="customer-bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/25 bg-bakery-card lg:hidden"
         style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
         aria-label={actionsLabel}
       >
@@ -107,7 +107,7 @@ function HubBarButton({
       aria-current={active ? "page" : undefined}
       className={`flex flex-1 flex-col items-center rounded-[16px] px-2 py-2 transition ${
         active
-          ? "bg-[#dfc4b0] shadow-[0_2px_8px_rgba(58,47,38,0.12)]"
+          ? "customer-bottom-nav__link--active bg-bakery-square text-bakery-ink shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
           : "text-bakery-muted"
       }`}
     >

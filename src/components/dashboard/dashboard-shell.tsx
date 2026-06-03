@@ -1,21 +1,27 @@
 import type { ReactNode } from "react";
-import { DashboardNav } from "@/components/dashboard-nav";
+import { DashboardShellClient } from "@/components/dashboard/dashboard-shell-client";
 
 export function DashboardShell({
   children,
   businessType,
   basePath = "/dashboard",
+  storeLocale = "he",
+  storeTheme = "calm",
 }: {
   children: ReactNode;
   businessType: string;
   basePath?: string;
+  storeLocale?: string | null;
+  storeTheme?: string | null;
 }) {
   return (
-    <div className="w-full">
-      <div className="min-w-0 pb-[calc(76px+env(safe-area-inset-bottom))]">
-        {children}
-      </div>
-      <DashboardNav businessType={businessType} basePath={basePath} />
-    </div>
+    <DashboardShellClient
+      businessType={businessType}
+      basePath={basePath}
+      storeLocale={storeLocale}
+      storeTheme={storeTheme}
+    >
+      {children}
+    </DashboardShellClient>
   );
 }

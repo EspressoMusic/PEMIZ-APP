@@ -1,5 +1,5 @@
 import type { StoreThemeId } from "@/lib/store-themes";
-import { parseStoreTheme, STORE_THEMES } from "@/lib/store-themes";
+import { parseStoreTheme, storeThemeLabel } from "@/lib/store-themes";
 
 export type CustomerLocale = "en" | "he";
 export type CustomerDisplayTheme = StoreThemeId;
@@ -48,8 +48,8 @@ export function saveCustomerPreferences(
 }
 
 export function themeSubtitle(theme: CustomerDisplayTheme, locale: CustomerLocale) {
-  const label = STORE_THEMES.find((t) => t.id === theme)?.label ?? theme;
-  return locale === "he" ? `ערכת צבע ${label}` : `${label} color theme`;
+  const label = storeThemeLabel(theme, locale);
+  return locale === "he" ? `מצב ${label}` : `${label} mode`;
 }
 
 export function localeThemeSummary(
@@ -57,10 +57,9 @@ export function localeThemeSummary(
   theme: CustomerDisplayTheme
 ) {
   const localeLabel = locale === "he" ? "עברית" : "English";
-  const meta = STORE_THEMES.find((t) => t.id === theme);
   const themeLabel =
     locale === "he"
-      ? `צבע ${meta?.label ?? theme}`
-      : `${meta?.label ?? theme} theme`;
+      ? `מצב ${storeThemeLabel(theme, "he")}`
+      : `${storeThemeLabel(theme, "en")} mode`;
   return `${localeLabel} · ${themeLabel}`;
 }
