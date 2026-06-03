@@ -1,37 +1,22 @@
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { publicBusinessUrl } from "@/lib/business";
-import { Panel, PageTitle } from "@/components/ui";
-import { LogoutButton } from "@/components/dashboard-client";
+import { DashboardSettingsView } from "@/components/dashboard-settings";
 
 export default async function SettingsPage() {
   const user = await getCurrentUser();
-  const b = user?.business;
+  if (!user) redirect("/login");
+
+  const b = user.business;
 
   return (
-    <div className="space-y-5">
-      <PageTitle>הגדרות</PageTitle>
-      <Panel>
-        <p className="text-[14px] text-bakery-muted">חשבון</p>
-        <p className="text-[17px] font-extrabold">{user?.name}</p>
-        <p dir="ltr" className="text-[14px] text-bakery-muted">
-          {user?.email}
-        </p>
-        <p className="text-[14px]">
-          סטטוס חנות: {b?.isActive ? "✓ פעילה" : "מושבתת"}
-        </p>
-      </Panel>
-      {b && (
-        <Panel>
-          <p className="text-[14px] text-bakery-muted">קישור עסק</p>
-          <p
-            className="break-all font-mono text-[14px] text-bakery-primary"
-            dir="ltr"
-          >
-            {publicBusinessUrl(b.slug)}
-          </p>
-        </Panel>
-      )}
-      <LogoutButton />
-    </div>
+    <DashboardSettingsView
+      ownerName={user.name}
+      email={user.email}
+      businessName={b?.name}
+      isActive={b?.isActive ?? false}
+      storeUrl={b ? publicBusinessUrl(b.slug) : undefined}
+      previewSlug={b?.slug}
+    />
   );
 }

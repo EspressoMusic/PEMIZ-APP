@@ -27,7 +27,7 @@ export function DashboardNav({ businessType }: { businessType?: string }) {
 
   return (
     <aside className="w-full shrink-0 md:w-52">
-      <nav className="flex flex-row flex-wrap gap-1 rounded-[22px] border-[1.2px] border-bakery-border/40 bg-bakery-card p-2 md:flex-col">
+      <nav className="flex flex-row flex-wrap gap-1 rounded-[22px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-[#fbf7ef] to-[#f5efe6] p-2 shadow-[var(--shadow-bakery-card)] md:flex-col">
         {filtered.map((l) => {
           const active =
             pathname === l.href ||
@@ -38,8 +38,8 @@ export function DashboardNav({ businessType }: { businessType?: string }) {
               href={l.href}
               className={`rounded-[14px] px-3 py-2.5 text-[14px] font-bold transition ${
                 active
-                  ? "bg-bakery-primary/14 text-bakery-ink"
-                  : "text-bakery-muted hover:bg-bakery-primary/8"
+                  ? "bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.2)]"
+                  : "text-bakery-muted hover:bg-bakery-primary/10 hover:text-bakery-ink"
               }`}
             >
               {l.label}
