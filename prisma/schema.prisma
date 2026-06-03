@@ -9,6 +9,12 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+model PlatformConfig {
+  id             String   @id @default("default")
+  signupsEnabled Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+}
+
 model User {
   id                         String    @id @default(cuid())
   email                      String    @unique

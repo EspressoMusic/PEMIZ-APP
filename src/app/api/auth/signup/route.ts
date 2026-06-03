@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import type { Role } from "@/lib/types";
+import { isSignupEnabled } from "@/lib/platform-config";
 import { jsonError, jsonOk } from "@/lib/api";
 
 const schema = z.object({
@@ -12,6 +13,10 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  if (!(await isSignupEnabled())) {
+    return jsonError("ההרשמה סגורה כרגע. נסו שוב מאוחר יותר.", 403);
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");

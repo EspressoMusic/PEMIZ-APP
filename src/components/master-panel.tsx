@@ -47,6 +47,8 @@ export function MasterPanel() {
   const [error, setError] = useState("");
   const [businesses, setBusinesses] = useState<BusinessRow[]>([]);
   const [pendingOwners, setPendingOwners] = useState<PendingOwner[]>([]);
+  const [signupsEnabled, setSignupsEnabled] = useState(true);
+  const [platformLoading, setPlatformLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function checkAuth() {
@@ -68,12 +70,32 @@ export function MasterPanel() {
   }
 
   async function loadBusinesses() {
-    const res = await fetch("/api/admin/businesses");
-    const data = await res.json();
-    if (res.ok) {
+    const [bizRes, platformRes] = await Promise.all([
+      fetch("/api/admin/businesses"),
+      fetch("/api/admin/platform"),
+    ]);
+    const data = await bizRes.json();
+    if (bizRes.ok) {
       setBusinesses(data.businesses);
       setPendingOwners(data.pendingOwners ?? []);
-    } else if (res.status === 403) setAuthenticated(false);
+    } else if (bizRes.status === 403) setAuthenticated(false);
+
+    if (platformRes.ok) {
+      const platform = await platformRes.json();
+      setSignupsEnabled(platform.signupsEnabled !== false);
+    }
+  }
+
+  async function toggleSignups() {
+    setPlatformLoading(true);
+    const res = await fetch("/api/admin/platform", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ signupsEnabled: !signupsEnabled }),
+    });
+    const data = await res.json();
+    setPlatformLoading(false);
+    if (res.ok) setSignupsEnabled(data.signupsEnabled);
   }
 
   async function removePendingOwner(id: string, email: string) {
@@ -208,6 +230,30 @@ export function MasterPanel() {
             יציאה
           </Button>
         </div>
+
+        <Panel>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-[16px] font-extrabold text-bakery-ink">הרשמה חדשה לאתר</p>
+              <p className="mt-1 text-[14px] text-bakery-muted">
+                {signupsEnabled
+                  ? "משתמשים יכולים להירשם ולפתוח חנות"
+                  : "ההרשמה סגורה — רק התחברות לחשבונות קיימים"}
+              </p>
+            </div>
+            <Button
+              variant={signupsEnabled ? "danger" : "primary"}
+              onClick={toggleSignups}
+              disabled={platformLoading}
+            >
+              {platformLoading
+                ? "שומר..."
+                : signupsEnabled
+                  ? "השעה הרשמה"
+                  : "פתח הרשמה"}
+            </Button>
+          </div>
+        </Panel>
 
         <Panel>
           <p className="text-[15px] text-bakery-ink">

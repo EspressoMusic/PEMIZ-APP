@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.platformConfig.upsert({
+    where: { id: "default" },
+    create: { id: "default", signupsEnabled: true },
+    update: {},
+  });
+
   const adminEmail = (process.env.ADMIN_EMAIL ?? "admin@linky.local").toLowerCase();
   const passwordHash = await bcrypt.hash("Admin123!", 12);
 

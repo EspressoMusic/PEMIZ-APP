@@ -1,7 +1,34 @@
 import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
+import { Alert, Panel, PageTitle } from "@/components/ui";
+import { WebShell } from "@/components/web-shell";
+import { isSignupEnabled } from "@/lib/platform-config";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  const signupsEnabled = await isSignupEnabled();
+
+  if (!signupsEnabled) {
+    return (
+      <WebShell>
+        <div className="mx-auto max-w-md px-4 py-12">
+          <Panel>
+            <PageTitle subtitle="המערכת פתוחה רק למשתמשים קיימים">
+              ההרשמה סגורה
+            </PageTitle>
+            <Alert variant="info">
+              לא ניתן לפתוח חנות חדשה כרגע. אם יש לך כבר חשבון — התחבר/י.
+            </Alert>
+            <Link href="/login" className="mt-6 block text-center">
+              <span className="text-[15px] font-bold text-bakery-primary hover:underline">
+                מעבר להתחברות
+              </span>
+            </Link>
+          </Panel>
+        </div>
+      </WebShell>
+    );
+  }
+
   return (
     <>
       <AuthForm mode="signup" />
