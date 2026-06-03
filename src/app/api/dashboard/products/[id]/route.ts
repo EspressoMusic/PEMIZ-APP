@@ -11,6 +11,7 @@ const patchSchema = z.object({
   salePrice: z.number().positive().nullable().optional(),
   isActive: z.boolean().optional(),
   imageUrl: z.string().nullable().optional(),
+  stock: z.number().int().min(0).nullable().optional(),
 });
 
 export async function PATCH(

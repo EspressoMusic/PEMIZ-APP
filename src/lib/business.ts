@@ -65,7 +65,11 @@ export async function getBusinessBySlug(slug: string) {
       },
       storeDeals: {
         where: { isActive: true, validUntil: { gt: new Date() } },
-        include: { productA: true, productB: true },
+        include: {
+          items: { include: { product: true }, orderBy: { sortOrder: "asc" } },
+          productA: true,
+          productB: true,
+        },
         orderBy: { validUntil: "asc" },
       },
     },

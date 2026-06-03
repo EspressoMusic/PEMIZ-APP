@@ -39,7 +39,6 @@ export default async function DashboardPage() {
         pendingOrders={orders}
         pendingAppointments={appointments}
         inquiries={inquiries}
-        isActive={b.isActive}
         showOrders={b.type === "STORE"}
         showAppointments={b.type === "APPOINTMENTS"}
         showPrepSummary={b.type === "STORE"}

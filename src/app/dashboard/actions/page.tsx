@@ -10,6 +10,7 @@ export default async function DashboardActionsPage() {
     <DashboardActionsHub
       businessType={user.business.type}
       storeTheme={user.business.storeTheme}
+      storeLocale={user.business.storeLocale}
     />
   );
 }

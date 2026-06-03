@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { PageTitle } from "@/components/ui";
+import { DashboardCustomersHub } from "@/components/dashboard/dashboard-customers-hub";
 import { ChevronLeft } from "lucide-react";
 
 export default function DevSellerCustomersPage() {
@@ -12,7 +12,6 @@ export default function DevSellerCustomersPage() {
       <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 sm:py-6 lg:px-[14px] lg:py-8">
         <DashboardShell businessType="STORE" basePath="/dev/seller">
           <div className="space-y-4">
-            <PageTitle>לקוחות</PageTitle>
             <Link
               href="/dev/seller/actions"
               className="inline-flex items-center gap-1 text-[14px] font-bold text-bakery-primary"
@@ -20,6 +19,7 @@ export default function DevSellerCustomersPage() {
               <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
               חזרה לפעולות
             </Link>
+            <DashboardCustomersHub basePath="/dev/seller" />
           </div>
         </DashboardShell>
       </div>

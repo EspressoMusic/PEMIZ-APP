@@ -1,5 +1,5 @@
-import { InquiriesManager } from "@/components/dashboard-client";
+import { redirect } from "next/navigation";
 
 export default function InquiriesPage() {
-  return <InquiriesManager />;
+  redirect("/dashboard/customers/inquiries");
 }

@@ -2,11 +2,11 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { getDealProducts } from "@/lib/store-deal";
 
 const schema = z.object({
   name: z.string().min(1).max(120),
-  productAId: z.string(),
-  productBId: z.string(),
+  productIds: z.array(z.string()).min(2),
   dealPrice: z.number().positive(),
   validUntil: z.string().datetime(),
 });
@@ -14,8 +14,22 @@ const schema = z.object({
 async function requireStoreOwner() {
   const user = await getCurrentUser();
   if (!user?.business) return { error: jsonError("אין עסק", 404) };
-  if (user.business.type !== "STORE") return { error: jsonError("עסק לא במצב חנות", 400) };
+  if (user.business.type !== "STORE") return jsonError("עסק לא במצב חנות", 400);
   return { user };
+}
+
+const dealInclude = {
+  items: { include: { product: true }, orderBy: { sortOrder: "asc" as const } },
+  productA: true,
+  productB: true,
+  _count: { select: { redemptions: true } },
+};
+
+function serializeDeal(
+  deal: Parameters<typeof getDealProducts>[0] & Record<string, unknown>
+) {
+  const products = getDealProducts(deal);
+  return { ...deal, products };
 }
 
 export async function GET() {
@@ -24,14 +38,10 @@ export async function GET() {
 
   const deals = await prisma.storeDeal.findMany({
     where: { businessId: ctx.user.business!.id },
-    include: {
-      productA: true,
-      productB: true,
-      _count: { select: { redemptions: true } },
-    },
+    include: dealInclude,
     orderBy: { createdAt: "desc" },
   });
-  return jsonOk({ deals });
+  return jsonOk({ deals: deals.map((d) => serializeDeal(d)) });
 }
 
 export async function POST(req: Request) {
@@ -41,28 +51,36 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
-  if (parsed.data.productAId === parsed.data.productBId) {
-    return jsonError("בחר שני מוצרים שונים");
+  const uniqueIds = [...new Set(parsed.data.productIds)];
+  if (uniqueIds.length !== parsed.data.productIds.length) {
+    return jsonError("אותו מוצר לא יכול להופיע פעמיים בדיל");
   }
 
   const products = await prisma.product.findMany({
     where: {
       businessId: ctx.user.business!.id,
-      id: { in: [parsed.data.productAId, parsed.data.productBId] },
+      id: { in: uniqueIds },
+      isActive: true,
     },
   });
-  if (products.length !== 2) return jsonError("מוצר לא תקין");
+  if (products.length !== uniqueIds.length) {
+    return jsonError("מוצר לא תקין או לא פעיל");
+  }
 
   const deal = await prisma.storeDeal.create({
     data: {
       businessId: ctx.user.business!.id,
       name: parsed.data.name,
-      productAId: parsed.data.productAId,
-      productBId: parsed.data.productBId,
       dealPrice: parsed.data.dealPrice,
       validUntil: new Date(parsed.data.validUntil),
+      items: {
+        create: uniqueIds.map((productId, sortOrder) => ({
+          productId,
+          sortOrder,
+        })),
+      },
     },
-    include: { productA: true, productB: true },
+    include: dealInclude,
   });
-  return jsonOk({ deal });
+  return jsonOk({ deal: serializeDeal(deal) });
 }

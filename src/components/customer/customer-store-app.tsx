@@ -34,6 +34,11 @@ import { OrderCheckoutModal } from "./order-checkout-modal";
 import { CelebrationModal } from "@/components/celebration-modal";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import { getEffectivePrice } from "@/lib/product-price";
+import { customerThemeClass, parseStoreTheme } from "@/lib/store-themes";
+import {
+  isProductInStock,
+  maxOrderQuantity,
+} from "@/lib/product-stock";
 import {
   EmptyStateCard,
   OrdersHubPanel,
@@ -42,6 +47,25 @@ import {
   DealCard,
   HubEmptyText,
 } from "./customer-ui";
+import { CustomerSellerNotice } from "./customer-seller-notice";
+import { normalizePhone } from "@/lib/phone";
+import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
+
+type MyInquiry = {
+  id: string;
+  message: string;
+  sellerReply: string | null;
+  sellerReplyAt: string | null;
+  createdAt: string;
+};
+
+function broadcastSeenKey(slug: string) {
+  return `linky-broadcast-seen-${slug}`;
+}
+
+function inquiryPhoneKey(slug: string) {
+  return `linky-inquiry-phone-${slug}`;
+}
 
 type Product = {
   id: string;
@@ -50,6 +74,7 @@ type Product = {
   imageUrl: string | null;
   price: number;
   salePrice?: number | null;
+  stock?: number | null;
 };
 
 type StoreDeal = {
@@ -57,21 +82,19 @@ type StoreDeal = {
   name: string;
   dealPrice: number;
   validUntil: string;
-  productA: {
+  products: {
     id: string;
     name: string;
     imageUrl: string | null;
     price: number;
     salePrice?: number | null;
-  };
-  productB: {
-    id: string;
-    name: string;
-    imageUrl: string | null;
-    price: number;
-    salePrice?: number | null;
-  };
+    stock?: number | null;
+  }[];
 };
+
+function dealHasStock(deal: StoreDeal): boolean {
+  return deal.products.every((p) => isProductInStock(p.stock));
+}
 
 type Slot = {
   id: string;
@@ -107,6 +130,11 @@ export function CustomerStoreApp({
     faqItems: FaqItem[];
     storeUrl: string;
     storeTheme?: string;
+    storeLocale?: string;
+    storePolicy?: string | null;
+    storeTerms?: string | null;
+    storeBroadcast?: string | null;
+    storeBroadcastAt?: string | null;
   };
   unavailable: boolean;
 }) {
@@ -125,11 +153,17 @@ export function CustomerStoreApp({
   const [orderSuccessOpen, setOrderSuccessOpen] = useState(false);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [orderError, setOrderError] = useState("");
+  const [sellerNoticeOpen, setSellerNoticeOpen] = useState(false);
+  const [sellerNoticeMessage, setSellerNoticeMessage] = useState("");
+  const [sellerNoticeSentAt, setSellerNoticeSentAt] = useState<string | null>(
+    null
+  );
+  const [myInquiries, setMyInquiries] = useState<MyInquiry[]>([]);
+  const [inquirySent, setInquirySent] = useState(false);
   const [locale, setLocale] = useState<CustomerLocale>("en");
-  const ownerTheme: CustomerDisplayTheme =
-    business.storeTheme === "light" || business.storeTheme === "dark"
-      ? business.storeTheme
-      : "calm";
+  const ownerTheme = parseStoreTheme(business.storeTheme);
+  const ownerLocale: CustomerLocale =
+    business.storeLocale === "en" ? "en" : "he";
   const [displayTheme, setDisplayTheme] =
     useState<CustomerDisplayTheme>(ownerTheme);
   const [textScale, setTextScale] = useState<CustomerTextScale>("100");
@@ -140,13 +174,96 @@ export function CustomerStoreApp({
     const saved = localStorage.getItem(`linky-customer-${business.slug}`);
     if (saved) setCustomerName(saved);
     const prefs = loadCustomerPreferences(business.slug);
-    setLocale(prefs.locale);
-    setTextScale(prefs.textScale);
     const hasPrefs =
       typeof window !== "undefined" &&
       !!localStorage.getItem(`linky-customer-prefs-${business.slug}`);
+    setLocale(hasPrefs ? prefs.locale : ownerLocale);
+    setTextScale(prefs.textScale);
     setDisplayTheme(hasPrefs ? prefs.theme : ownerTheme);
-  }, [business.slug, ownerTheme]);
+  }, [business.slug, ownerTheme, ownerLocale]);
+
+  useEffect(() => {
+    if (unavailable) return;
+
+    async function checkBroadcast() {
+      let message: string | null = business.storeBroadcast ?? null;
+      let sentAt: string | null = business.storeBroadcastAt ?? null;
+
+      if (!message?.trim()) {
+        try {
+          const res = await fetch(`/api/public/${business.slug}/broadcast`);
+          const data = await res.json();
+          if (res.ok && data.message) {
+            message = data.message;
+            sentAt = data.sentAt ?? null;
+          }
+        } catch {
+          return;
+        }
+      }
+
+      if (!message?.trim() || !sentAt) return;
+      const seen = localStorage.getItem(broadcastSeenKey(business.slug));
+      if (seen === sentAt) return;
+      setSellerNoticeMessage(message);
+      setSellerNoticeSentAt(sentAt);
+      setSellerNoticeOpen(true);
+    }
+
+    checkBroadcast();
+  }, [business.slug, business.storeBroadcast, business.storeBroadcastAt, unavailable]);
+
+  const loadMyInquiries = useCallback(
+    async (phoneRaw: string) => {
+      const phone = normalizePhone(phoneRaw);
+      if (phone.length < 9) {
+        setMyInquiries([]);
+        return;
+      }
+
+      if (business.slug === "demo-store") {
+        const matched = DEV_PREVIEW_INQUIRIES.filter(
+          (row) =>
+            row.customerPhone &&
+            normalizePhone(row.customerPhone) === phone
+        ).map((row) => ({
+          id: row.id,
+          message: row.message,
+          sellerReply: row.sellerReply,
+          sellerReplyAt: row.sellerReplyAt,
+          createdAt: row.createdAt,
+        }));
+        setMyInquiries(matched);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `/api/public/${business.slug}/inquiry-updates?phone=${encodeURIComponent(phoneRaw)}`
+        );
+        const data = await res.json();
+        if (res.ok) setMyInquiries(data.inquiries ?? []);
+      } catch {
+        setMyInquiries([]);
+      }
+    },
+    [business.slug]
+  );
+
+  useEffect(() => {
+    if (unavailable) return;
+    const stored = localStorage.getItem(inquiryPhoneKey(business.slug));
+    const phone = orderPhone || stored || "";
+    if (phone) loadMyInquiries(phone);
+  }, [orderPhone, business.slug, unavailable, loadMyInquiries]);
+
+  function dismissSellerNotice() {
+    const sentAt = sellerNoticeSentAt ?? business.storeBroadcastAt;
+    if (sentAt) {
+      localStorage.setItem(broadcastSeenKey(business.slug), sentAt);
+    }
+    setSellerNoticeOpen(false);
+  }
 
   function updatePreferences(
     patch: Partial<{
@@ -242,6 +359,7 @@ export function CustomerStoreApp({
   }
 
   function startDealCheckout(deal: StoreDeal) {
+    if (!dealHasStock(deal)) return;
     setOrderError("");
     setPendingDeal(deal);
     setOrderCheckoutOpen(true);
@@ -250,15 +368,25 @@ export function CustomerStoreApp({
   async function sendInquiry(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    await fetch(`/api/public/${business.slug}/inquiries`, {
+    const phone = String(fd.get("customerPhone") ?? "").trim();
+    const res = await fetch(`/api/public/${business.slug}/inquiries`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         customerName: fd.get("customerName"),
-        customerPhone: fd.get("customerPhone"),
+        customerPhone: phone,
         message: fd.get("message"),
       }),
     });
+    if (res.ok) {
+      if (phone) {
+        localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+        setOrderPhone(phone);
+        await loadMyInquiries(phone);
+      }
+      setInquirySent(true);
+      setTimeout(() => setInquirySent(false), 3000);
+    }
     e.currentTarget.reset();
   }
 
@@ -357,10 +485,47 @@ export function CustomerStoreApp({
           {tab === TAB_INQUIRIES && (
             <div className="space-y-5">
               <PageTitle>{labels.inquiries}</PageTitle>
+              {inquirySent && (
+                <p className="text-center text-[14px] font-semibold text-bakery-success">
+                  {labels.inquirySent}
+                </p>
+              )}
+              {myInquiries.length > 0 && (
+                <div className="space-y-3">
+                  <h2 className="text-[16px] font-extrabold text-bakery-ink">
+                    {labels.yourInquiries}
+                  </h2>
+                  {myInquiries.map((inq) => (
+                    <Panel key={inq.id} className="space-y-2">
+                      <p className="whitespace-pre-wrap text-[15px] text-bakery-ink">
+                        {inq.message}
+                      </p>
+                      {inq.sellerReply ? (
+                        <div className="rounded-[14px] border border-bakery-primary/25 bg-bakery-primary/10 px-3 py-2">
+                          <p className="text-[12px] font-bold text-bakery-primary">
+                            {labels.sellerReplyLabel}
+                          </p>
+                          <p className="mt-1 whitespace-pre-wrap text-[14px] text-bakery-ink">
+                            {inq.sellerReply}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-[13px] font-semibold text-bakery-muted">
+                          {labels.awaitingReply}
+                        </p>
+                      )}
+                    </Panel>
+                  ))}
+                </div>
+              )}
               <Panel>
                 <form onSubmit={sendInquiry} className="space-y-3">
                   <Input name="customerName" label={labels.name} required />
-                  <Input name="customerPhone" label={labels.phone} />
+                  <Input
+                    name="customerPhone"
+                    label={labels.phone}
+                    defaultValue={orderPhone}
+                  />
                   <Textarea name="message" label={labels.message} rows={4} required />
                   <Button type="submit" className="w-full min-h-[48px]">
                     {labels.send}
@@ -444,10 +609,10 @@ export function CustomerStoreApp({
                               name={d.name}
                               dealPrice={d.dealPrice}
                               validUntil={d.validUntil}
-                              productA={d.productA}
-                              productB={d.productB}
+                              products={d.products}
                               locale={locale}
                               labels={labels}
+                              redeemDisabled={!dealHasStock(d)}
                               onRedeem={() => startDealCheckout(d)}
                             />
                           ))}
@@ -456,30 +621,40 @@ export function CustomerStoreApp({
                     )}
                     {business.products.length > 0 && (
                       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
-                        {business.products.map((p) => (
-                          <ProductGridCard
-                            key={p.id}
-                            name={p.name}
-                            description={p.description}
-                            imageUrl={p.imageUrl}
-                            locale={locale}
-                            price={p.price}
-                            salePrice={p.salePrice}
-                            qty={cart[p.id] ?? 0}
-                            onDec={() =>
-                              setCart((c) => ({
-                                ...c,
-                                [p.id]: Math.max(0, (c[p.id] ?? 0) - 1),
-                              }))
-                            }
-                            onInc={() =>
-                              setCart((c) => ({
-                                ...c,
-                                [p.id]: Math.min(20, (c[p.id] ?? 0) + 1),
-                              }))
-                            }
-                          />
-                        ))}
+                        {business.products.map((p) => {
+                          const outOfStock = !isProductInStock(p.stock);
+                          const maxQty = maxOrderQuantity(p.stock);
+                          return (
+                            <ProductGridCard
+                              key={p.id}
+                              name={p.name}
+                              description={p.description}
+                              imageUrl={p.imageUrl}
+                              locale={locale}
+                              price={p.price}
+                              salePrice={p.salePrice}
+                              qty={cart[p.id] ?? 0}
+                              outOfStock={outOfStock}
+                              outOfStockLabel={labels.outOfStock}
+                              maxQty={maxQty}
+                              onDec={() =>
+                                setCart((c) => ({
+                                  ...c,
+                                  [p.id]: Math.max(0, (c[p.id] ?? 0) - 1),
+                                }))
+                              }
+                              onInc={() =>
+                                setCart((c) => ({
+                                  ...c,
+                                  [p.id]: Math.min(
+                                    maxQty,
+                                    (c[p.id] ?? 0) + 1
+                                  ),
+                                }))
+                              }
+                            />
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -566,12 +741,7 @@ export function CustomerStoreApp({
 
   const rootLang = locale === "he" ? "he" : "en";
   const rootDir = locale === "he" ? "rtl" : "ltr";
-  const themeClass =
-    displayTheme === "light"
-      ? "customer-theme-light"
-      : displayTheme === "dark"
-        ? "customer-theme-dark"
-        : "customer-theme-calm";
+  const themeClass = customerThemeClass(displayTheme);
 
   const textScaleClass =
     textScale === "125"
@@ -607,10 +777,19 @@ export function CustomerStoreApp({
         </div>
       </div>
 
+      <CustomerSellerNotice
+        open={sellerNoticeOpen}
+        message={sellerNoticeMessage}
+        locale={locale}
+        onClose={dismissSellerNotice}
+      />
+
       <CustomerFaqSheet
         open={faqOpen}
         onClose={() => setFaqOpen(false)}
         items={business.faqItems}
+        storePolicy={business.storePolicy}
+        storeTerms={business.storeTerms}
         locale={locale}
       />
 

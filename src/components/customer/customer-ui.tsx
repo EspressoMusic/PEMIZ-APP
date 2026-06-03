@@ -279,6 +279,9 @@ export function ProductGridCard({
   imageUrl,
   locale,
   qty,
+  outOfStock,
+  outOfStockLabel,
+  maxQty,
   onDec,
   onInc,
 }: {
@@ -289,6 +292,9 @@ export function ProductGridCard({
   imageUrl?: string | null;
   locale: CustomerLocale;
   qty: number;
+  outOfStock?: boolean;
+  outOfStockLabel?: string;
+  maxQty?: number;
   onDec: () => void;
   onInc: () => void;
 }) {
@@ -296,8 +302,12 @@ export function ProductGridCard({
     salePrice != null && salePrice > 0 && salePrice < price;
   const display = onSale ? salePrice! : price;
 
+  const atMax = maxQty != null && qty >= maxQty;
+
   return (
-    <div className="flex aspect-[0.62] flex-col rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-2 shadow-[0_3px_10px_rgba(0,0,0,0.13)]">
+    <div
+      className={`flex aspect-[0.62] flex-col rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-2 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
+    >
       <ProductThumb
         imageUrl={imageUrl}
         className="min-h-0 flex-1 rounded-[14px]"
@@ -323,31 +333,40 @@ export function ProductGridCard({
             {formatCustomerMoney(display, locale)}
           </span>
         </span>
-        <div className="flex items-center rounded-2xl border border-bakery-border/40 bg-bakery-card/95">
-          <button
-            type="button"
-            className="flex h-[26px] w-[26px] items-center justify-center text-[15px] font-extrabold text-bakery-ink"
-            onClick={onDec}
-          >
-            −
-          </button>
-          <span className="min-w-[20px] text-center text-[16px] font-extrabold text-bakery-ink">
-            {qty}
+        {outOfStock ? (
+          <span className="text-[13px] font-bold text-bakery-muted">
+            {outOfStockLabel}
           </span>
-          <button
-            type="button"
-            className="flex h-[26px] w-[26px] items-center justify-center text-[15px] font-extrabold text-bakery-ink"
-            onClick={onInc}
-          >
-            +
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center rounded-2xl border border-bakery-border/40 bg-bakery-card/95">
+            <button
+              type="button"
+              className="flex h-[26px] w-[26px] items-center justify-center text-[15px] font-extrabold text-bakery-ink disabled:opacity-40"
+              onClick={onDec}
+              disabled={qty <= 0}
+            >
+              −
+            </button>
+            <span className="min-w-[20px] text-center text-[16px] font-extrabold text-bakery-ink">
+              {qty}
+            </span>
+            <button
+              type="button"
+              className="flex h-[26px] w-[26px] items-center justify-center text-[15px] font-extrabold text-bakery-ink disabled:opacity-40"
+              onClick={onInc}
+              disabled={atMax}
+            >
+              +
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 type DealProduct = {
+  id?: string;
   name: string;
   imageUrl?: string | null;
   price: number;
@@ -358,23 +377,25 @@ export function DealCard({
   name,
   dealPrice,
   validUntil,
-  productA,
-  productB,
+  products,
   locale,
   labels,
   onRedeem,
+  redeemDisabled,
 }: {
   name: string;
   dealPrice: number;
   validUntil: string;
-  productA: DealProduct;
-  productB: DealProduct;
+  products: DealProduct[];
   locale: CustomerLocale;
   labels: CustomerLabels;
   onRedeem: () => void;
+  redeemDisabled?: boolean;
 }) {
-  const originalTotal =
-    getEffectivePrice(productA) + getEffectivePrice(productB);
+  const originalTotal = products.reduce(
+    (s, p) => s + getEffectivePrice(p),
+    0
+  );
   const until = new Date(validUntil).toLocaleDateString(
     locale === "he" ? "he-IL" : "en-GB"
   );
@@ -383,17 +404,16 @@ export function DealCard({
     <div className="rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-3 shadow-[0_3px_10px_rgba(0,0,0,0.13)]">
       <p className="text-[17px] font-extrabold text-bakery-ink">{name}</p>
       <p className="mt-1 text-[13px] font-semibold text-bakery-muted">
-        {labels.dealIncludes}: {productA.name} + {productB.name}
+        {labels.dealIncludes}: {products.map((p) => p.name).join(" + ")}
       </p>
-      <div className="mt-2 flex gap-2">
-        <ProductThumb
-          imageUrl={productA.imageUrl}
-          className="h-14 w-14 shrink-0 rounded-xl"
-        />
-        <ProductThumb
-          imageUrl={productB.imageUrl}
-          className="h-14 w-14 shrink-0 rounded-xl"
-        />
+      <div className="mt-2 flex flex-wrap justify-center gap-2">
+        {products.map((p) => (
+          <ProductThumb
+            key={p.id ?? p.name}
+            imageUrl={p.imageUrl}
+            className="h-14 w-14 shrink-0 rounded-xl"
+          />
+        ))}
       </div>
       <div className="mt-2 flex items-baseline gap-2">
         <span className="text-[13px] font-semibold text-bakery-muted line-through">
@@ -412,8 +432,9 @@ export function DealCard({
         variant="square"
         className="mt-3 w-full min-h-[44px]"
         onClick={onRedeem}
+        disabled={redeemDisabled}
       >
-        {labels.redeemDeal}
+        {redeemDisabled ? labels.outOfStock : labels.redeemDeal}
       </Button>
     </div>
   );

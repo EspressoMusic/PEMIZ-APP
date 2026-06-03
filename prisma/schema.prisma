@@ -48,8 +48,15 @@ model Business {
   name            String
   description     String?
   type            String
-  storeTheme      String   @default("calm")
-  isActive        Boolean  @default(false)
+  storeTheme             String   @default("calm")
+  storeLocale            String   @default("he")
+  storePolicy            String?
+  storeTerms             String?
+  storeBroadcast         String?
+  storeBroadcastAt       DateTime?
+  orderScheduleEnabled   Boolean  @default(false)
+  orderSchedule          String?
+  isActive               Boolean  @default(false)
   approvedAt      DateTime?
   ownerId         String   @unique
   owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -86,11 +93,13 @@ model Product {
   imageUrl    String?
   price       Float
   salePrice   Float?
+  stock       Int?
   isActive    Boolean     @default(true)
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
-  dealsAsA    StoreDeal[] @relation("DealProductA")
-  dealsAsB    StoreDeal[] @relation("DealProductB")
+  dealsAsA    StoreDeal[]       @relation("DealProductA")
+  dealsAsB    StoreDeal[]       @relation("DealProductB")
+  dealItems   StoreDealItem[]   @relation("DealLineProducts")
 
   @@index([businessId])
 }
@@ -100,17 +109,30 @@ model StoreDeal {
   businessId  String
   business    Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
   name        String
-  productAId  String
-  productBId  String
-  productA    Product           @relation("DealProductA", fields: [productAId], references: [id])
-  productB    Product           @relation("DealProductB", fields: [productBId], references: [id])
+  productAId  String?
+  productBId  String?
+  productA    Product?          @relation("DealProductA", fields: [productAId], references: [id])
+  productB    Product?          @relation("DealProductB", fields: [productBId], references: [id])
   dealPrice   Float
   validUntil  DateTime
   isActive    Boolean           @default(true)
   createdAt   DateTime          @default(now())
   redemptions DealRedemption[]
+  items       StoreDealItem[]
 
   @@index([businessId])
+}
+
+model StoreDealItem {
+  id        String    @id @default(cuid())
+  dealId    String
+  deal      StoreDeal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product   @relation("DealLineProducts", fields: [productId], references: [id])
+  sortOrder Int       @default(0)
+
+  @@unique([dealId, productId])
+  @@index([dealId])
 }
 
 model DealRedemption {
@@ -185,6 +207,8 @@ model Inquiry {
   customerPhone String?
   customerEmail String?
   message       String
+  sellerReply   String?
+  sellerReplyAt DateTime?
   createdAt     DateTime @default(now())
 
   @@index([businessId])

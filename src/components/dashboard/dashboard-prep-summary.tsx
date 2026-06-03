@@ -135,44 +135,44 @@ export function DashboardPrepSummary({
   const grandTotal = products.reduce((s, p) => s + p.totalQuantity, 0);
 
   return (
-    <div className="mx-auto w-full max-w-[320px] text-center">
-      <h2 className="mb-3 text-[17px] font-extrabold text-bakery-ink">להכנה עכשיו</h2>
-
-      {products.length === 0 ? (
-        <div className="flex aspect-square flex-col items-center justify-center rounded-[22px] border border-bakery-border/30 bg-[#fffbf6] p-6 shadow-[0_4px_18px_rgba(58,47,38,0.07)]">
-          <Package className="h-12 w-12 text-bakery-muted" strokeWidth={1.25} />
-          <p className="mt-3 text-[14px] font-semibold text-bakery-muted">
-            אין הזמנות להכנה
-          </p>
-        </div>
-      ) : (
-        <>
-          <p className="mb-3 text-[28px] font-extrabold leading-none text-bakery-primary">
-            {grandTotal}
-            <span className="ms-1 text-[14px] font-bold text-bakery-ink">
-              יחידות
-            </span>
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            {products.map((p) => (
-              <button
-                key={p.productId}
-                type="button"
-                onClick={() => setSelected(p)}
-                className="bakery-float-tile flex aspect-square flex-col items-center justify-center gap-2 rounded-[20px] border-2 border-transparent p-3"
-              >
-                <ProductThumb name={p.name} imageUrl={p.imageUrl} />
-                <span className="line-clamp-2 text-[12px] font-extrabold leading-tight text-bakery-ink sm:text-[13px]">
-                  {p.name}
-                </span>
-                <span className="text-[22px] font-extrabold leading-none text-bakery-primary">
-                  ×{p.totalQuantity}
-                </span>
-              </button>
-            ))}
+    <div className="w-full text-center">
+      <div className="bakery-float-panel rounded-[24px] px-4 py-4 sm:px-5 sm:py-5">
+        {products.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8">
+            <Package className="h-12 w-12 text-bakery-muted" strokeWidth={1.25} />
+            <p className="mt-3 text-[14px] font-semibold text-bakery-muted">
+              אין הזמנות להכנה
+            </p>
           </div>
-        </>
-      )}
+        ) : (
+          <>
+            <p className="text-[28px] font-extrabold leading-none text-bakery-primary">
+              {grandTotal}
+              <span className="ms-1 text-[14px] font-bold text-bakery-ink">
+                יחידות
+              </span>
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {products.map((p) => (
+                <button
+                  key={p.productId}
+                  type="button"
+                  onClick={() => setSelected(p)}
+                  className="bakery-float-tile flex aspect-square flex-col items-center justify-center gap-2 rounded-[20px] p-3 transition active:scale-[0.98]"
+                >
+                  <ProductThumb name={p.name} imageUrl={p.imageUrl} />
+                  <span className="line-clamp-2 text-[12px] font-extrabold leading-tight text-bakery-ink sm:text-[13px]">
+                    {p.name}
+                  </span>
+                  <span className="text-[22px] font-extrabold leading-none text-bakery-primary">
+                    ×{p.totalQuantity}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
 
       {selected && (
         <PrepDetailModal product={selected} onClose={() => setSelected(null)} />

@@ -182,6 +182,196 @@ body {
   color: #1a2836;
 }
 
+.customer-store-root.customer-theme-rose {
+  --cs-page-bg: #fdf5f8;
+  --cs-nav-bg: #f5dce6;
+  --cs-nav-active: #e8b8ca;
+  --cs-sheet-bg: #fdf0f4;
+  --color-bakery-ink: #4a2838;
+  --color-bakery-muted: #7a5568;
+  --color-bakery-square: #f0d8e4;
+  --color-bakery-card: #fff8fa;
+  --color-bakery-border: #ddb8c8;
+  --color-bakery-primary: #9e4a6a;
+  --color-customer-bg: #fdf5f8;
+  --color-customer-nav: #f5dce6;
+  --color-customer-nav-active: #e8b8ca;
+  --color-customer-soft: #faf0f4;
+  --bakery-icon-tile: #fff8fa;
+}
+
+.customer-store-root.customer-theme-mint {
+  --cs-page-bg: #f2faf6;
+  --cs-nav-bg: #d4ebe0;
+  --cs-nav-active: #b8dcc8;
+  --cs-sheet-bg: #eef8f2;
+  --color-bakery-ink: #1e3d30;
+  --color-bakery-muted: #4a6b5c;
+  --color-bakery-square: #cce8d8;
+  --color-bakery-card: #f8fffa;
+  --color-bakery-border: #a8d4bc;
+  --color-bakery-primary: #2d6b52;
+  --color-customer-bg: #f2faf6;
+  --color-customer-nav: #d4ebe0;
+  --color-customer-nav-active: #b8dcc8;
+  --color-customer-soft: #eef8f2;
+  --bakery-icon-tile: #f8fffa;
+}
+
+.customer-store-root.customer-theme-ocean {
+  --cs-page-bg: #f0f7fc;
+  --cs-nav-bg: #cce0f0;
+  --cs-nav-active: #a8cce8;
+  --cs-sheet-bg: #e8f2fa;
+  --color-bakery-ink: #1a3348;
+  --color-bakery-muted: #4a6278;
+  --color-bakery-square: #c8dff0;
+  --color-bakery-card: #f8fcff;
+  --color-bakery-border: #a0c4e0;
+  --color-bakery-primary: #2a5f8a;
+  --color-customer-bg: #f0f7fc;
+  --color-customer-nav: #cce0f0;
+  --color-customer-nav-active: #a8cce8;
+  --color-customer-soft: #e8f2fa;
+  --bakery-icon-tile: #f8fcff;
+}
+
+.customer-store-root.customer-theme-lavender {
+  --cs-page-bg: #f7f4fc;
+  --cs-nav-bg: #e0d4f0;
+  --cs-nav-active: #c8b8e8;
+  --cs-sheet-bg: #f0ebfa;
+  --color-bakery-ink: #342a48;
+  --color-bakery-muted: #5c5070;
+  --color-bakery-square: #ddd0f0;
+  --color-bakery-card: #fcfaff;
+  --color-bakery-border: #c0b0e0;
+  --color-bakery-primary: #5c4890;
+  --color-customer-bg: #f7f4fc;
+  --color-customer-nav: #e0d4f0;
+  --color-customer-nav-active: #c8b8e8;
+  --color-customer-soft: #f0ebfa;
+  --bakery-icon-tile: #fcfaff;
+}
+
+.customer-store-root.customer-theme-sunset {
+  --cs-page-bg: #fff8f2;
+  --cs-nav-bg: #f5dcc8;
+  --cs-nav-active: #ecc4a8;
+  --cs-sheet-bg: #fff0e6;
+  --color-bakery-ink: #4a3020;
+  --color-bakery-muted: #7a5a48;
+  --color-bakery-square: #f0dcc8;
+  --color-bakery-card: #fffcf8;
+  --color-bakery-border: #e0c0a0;
+  --color-bakery-primary: #b86a38;
+  --color-customer-bg: #fff8f2;
+  --color-customer-nav: #f5dcc8;
+  --color-customer-nav-active: #ecc4a8;
+  --color-customer-soft: #fff0e6;
+  --bakery-icon-tile: #fffcf8;
+}
+
+.customer-store-root.customer-theme-forest {
+  --cs-page-bg: #1e2e24;
+  --cs-nav-bg: #2a4034;
+  --cs-nav-active: #385848;
+  --cs-sheet-bg: #243830;
+  --color-bakery-ink: #e8f2ec;
+  --color-bakery-muted: #a8c4b4;
+  --color-bakery-square: #345040;
+  --color-bakery-card: #2a4034;
+  --color-bakery-border: #4a6858;
+  --color-bakery-primary: #88c8a8;
+  --color-customer-bg: #1e2e24;
+  --color-customer-nav: #2a4034;
+  --color-customer-nav-active: #385848;
+  --color-customer-soft: #2a4034;
+  --bakery-icon-tile: #e8f2ec;
+}
+
+.customer-store-root.customer-theme-peach {
+  --cs-page-bg: #fff9f4;
+  --cs-nav-bg: #f8e4d4;
+  --cs-nav-active: #f0d0b8;
+  --cs-sheet-bg: #fff5eb;
+  --color-bakery-ink: #4a3428;
+  --color-bakery-muted: #7a6050;
+  --color-bakery-square: #f5e0d0;
+  --color-bakery-card: #fffcfa;
+  --color-bakery-border: #e8c8b0;
+  --color-bakery-primary: #c87848;
+  --color-customer-bg: #fff9f4;
+  --color-customer-nav: #f8e4d4;
+  --color-customer-nav-active: #f0d0b8;
+  --color-customer-soft: #fff5eb;
+  --bakery-icon-tile: #fffcfa;
+}
+
+.customer-store-root.customer-theme-berry {
+  --cs-page-bg: #faf4fa;
+  --cs-nav-bg: #ecd8ec;
+  --cs-nav-active: #dcc0dc;
+  --cs-sheet-bg: #f5eaf5;
+  --color-bakery-ink: #402840;
+  --color-bakery-muted: #6a5070;
+  --color-bakery-square: #e8d0e8;
+  --color-bakery-card: #fffbff;
+  --color-bakery-border: #d0b0d0;
+  --color-bakery-primary: #884888;
+  --color-customer-bg: #faf4fa;
+  --color-customer-nav: #ecd8ec;
+  --color-customer-nav-active: #dcc0dc;
+  --color-customer-soft: #f5eaf5;
+  --bakery-icon-tile: #fffbff;
+}
+
+.customer-store-root.customer-theme-slate {
+  --cs-page-bg: #f4f6f8;
+  --cs-nav-bg: #dce2e8;
+  --cs-nav-active: #c5cdd6;
+  --cs-sheet-bg: #eef1f4;
+  --color-bakery-ink: #2a3440;
+  --color-bakery-muted: #5a6470;
+  --color-bakery-square: #d8e0e8;
+  --color-bakery-card: #fafbfc;
+  --color-bakery-border: #b8c4d0;
+  --color-bakery-primary: #4a5a6a;
+  --color-customer-bg: #f4f6f8;
+  --color-customer-nav: #dce2e8;
+  --color-customer-nav-active: #c5cdd6;
+  --color-customer-soft: #eef1f4;
+  --bakery-icon-tile: #fafbfc;
+}
+
+.customer-store-root.customer-theme-rose .bg-customer-bg,
+.customer-store-root.customer-theme-mint .bg-customer-bg,
+.customer-store-root.customer-theme-ocean .bg-customer-bg,
+.customer-store-root.customer-theme-lavender .bg-customer-bg,
+.customer-store-root.customer-theme-sunset .bg-customer-bg,
+.customer-store-root.customer-theme-forest .bg-customer-bg,
+.customer-store-root.customer-theme-peach .bg-customer-bg,
+.customer-store-root.customer-theme-berry .bg-customer-bg,
+.customer-store-root.customer-theme-slate .bg-customer-bg {
+  background-color: var(--cs-page-bg);
+}
+
+.customer-store-root.customer-theme-rose .bg-customer-nav,
+.customer-store-root.customer-theme-mint .bg-customer-nav,
+.customer-store-root.customer-theme-ocean .bg-customer-nav,
+.customer-store-root.customer-theme-lavender .bg-customer-nav,
+.customer-store-root.customer-theme-sunset .bg-customer-nav,
+.customer-store-root.customer-theme-forest .bg-customer-nav,
+.customer-store-root.customer-theme-peach .bg-customer-nav,
+.customer-store-root.customer-theme-berry .bg-customer-nav,
+.customer-store-root.customer-theme-slate .bg-customer-nav {
+  background-color: var(--cs-nav-bg);
+}
+
+.customer-store-root.customer-theme-forest .bakery-icon-tile {
+  color: #1e2e24;
+}
+
 .customer-store-root.customer-text-scale-110 {
   font-size: 106.25%;
 }

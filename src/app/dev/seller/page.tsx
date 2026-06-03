@@ -17,7 +17,6 @@ export default function DevSellerPreviewPage() {
             previewLabel="תצוגת לקוח →"
             pendingOrders={3}
             inquiries={1}
-            isActive
             showOrders
             showAppointments={false}
             showPrepSummary

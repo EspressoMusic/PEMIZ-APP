@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
-import { Languages, Globe, Leaf, Sun, Moon, X, type LucideIcon } from "lucide-react";
+import { useEffect } from "react";
+import { X, Languages, Globe } from "lucide-react";
 import type { CustomerDisplayTheme, CustomerLocale } from "@/lib/customer-preferences";
 import { themeSubtitle } from "@/lib/customer-preferences";
+import { STORE_THEMES } from "@/lib/store-themes";
 
 function SheetShell({
   open,
@@ -18,6 +19,8 @@ function SheetShell({
   locale: CustomerLocale;
   children: React.ReactNode;
 }) {
+  const closeLabel = locale === "he" ? "סגור" : "Close";
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -29,14 +32,11 @@ function SheetShell({
 
   if (!open) return null;
 
-  const closeLabel = locale === "he" ? "סגור" : "Close";
-
   return (
     <div
       className="fixed inset-0 z-[70] flex items-end justify-center lg:items-center lg:p-6"
       role="dialog"
       aria-modal="true"
-      aria-label={title}
     >
       <button
         type="button"
@@ -44,17 +44,18 @@ function SheetShell({
         onClick={onClose}
         aria-label={closeLabel}
       />
-      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-[#fdf8f1] shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
+      <div className="relative flex max-h-[min(88dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-[var(--cs-sheet-bg,#fdf8f1)] shadow-[0_-8px_32px_rgba(58,47,38,0.18)] lg:max-h-[80vh] lg:rounded-[28px]">
         <div className="shrink-0 px-5 pt-3 lg:pt-5">
           <div
             className="mx-auto mb-3 h-1 w-10 rounded-full bg-bakery-ink/20 lg:hidden"
             aria-hidden
           />
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="text-[18px] font-extrabold text-bakery-ink">{title}</h1>
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[15px] font-semibold text-bakery-ink transition hover:bg-bakery-card/80"
+              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[15px] font-semibold text-bakery-ink"
             >
               <X className="h-5 w-5" strokeWidth={2} />
               {closeLabel}
@@ -78,7 +79,7 @@ function SelectTile({
 }: {
   selected: boolean;
   onClick: () => void;
-  icon: LucideIcon;
+  icon: typeof Languages;
   title: string;
   subtitle?: string;
 }) {
@@ -86,16 +87,15 @@ function SelectTile({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-[22px] bg-[#e6d7c3] px-4 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.1)] transition ${
+      className={`flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99] ${
         selected
-          ? "border-2 border-bakery-ink"
-          : "border-2 border-transparent"
-      } ${subtitle ? "items-start" : ""}`}
+          ? "bg-bakery-primary/12 ring-2 ring-bakery-primary/30"
+          : "bg-bakery-square"
+      }`}
     >
-      <Icon
-        className={`shrink-0 text-bakery-ink ${subtitle ? "mt-0.5 h-6 w-6" : "h-6 w-6"}`}
-        strokeWidth={1.75}
-      />
+      <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+        <Icon className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
+      </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[16px] font-extrabold text-bakery-ink">{title}</span>
         {subtitle && (
@@ -126,12 +126,9 @@ export function CustomerDisplaySheet({
   const t = {
     sheetTitle: locale === "he" ? "שפה ומצב תצוגה" : "Language & display",
     language: locale === "he" ? "שפה" : "Language",
-    display: locale === "he" ? "מצב תצוגה" : "Display mode",
+    display: locale === "he" ? "צבע וסגנון" : "Color & style",
     hebrew: "עברית",
     english: "English",
-    calm: locale === "he" ? "מצב רגוע" : "Calm mode",
-    light: locale === "he" ? "מצב בהיר" : "Light mode",
-    dark: locale === "he" ? "מצב כהה" : "Dark mode",
   };
 
   return (
@@ -165,35 +162,32 @@ export function CustomerDisplaySheet({
 
       <section className="mt-7">
         <h2 className="mb-3 text-[17px] font-extrabold text-bakery-ink">{t.display}</h2>
-        <ul className="space-y-2.5">
-          <li>
-            <SelectTile
-              selected={theme === "calm"}
-              onClick={() => onThemeChange("calm")}
-              icon={Leaf}
-              title={t.calm}
-              subtitle={themeSubtitle("calm", locale)}
-            />
-          </li>
-          <li>
-            <SelectTile
-              selected={theme === "light"}
-              onClick={() => onThemeChange("light")}
-              icon={Sun}
-              title={t.light}
-              subtitle={themeSubtitle("light", locale)}
-            />
-          </li>
-          <li>
-            <SelectTile
-              selected={theme === "dark"}
-              onClick={() => onThemeChange("dark")}
-              icon={Moon}
-              title={t.dark}
-              subtitle={themeSubtitle("dark", locale)}
-            />
-          </li>
-        </ul>
+        <div className="grid grid-cols-3 gap-2">
+          {STORE_THEMES.map((s) => {
+            const active = theme === s.id;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => onThemeChange(s.id)}
+                className={`flex flex-col items-center gap-1.5 rounded-[16px] border px-1.5 py-2.5 transition ${
+                  active
+                    ? "border-bakery-primary/40 bg-bakery-primary/10 ring-2 ring-bakery-primary/25"
+                    : "border-bakery-border/30 bg-bakery-square"
+                }`}
+              >
+                <span
+                  className={`h-9 w-full rounded-[8px] bg-gradient-to-b ${s.preview}`}
+                  aria-hidden
+                />
+                <span className="text-[11px] font-extrabold text-bakery-ink">{s.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-center text-[12px] text-bakery-muted">
+          {themeSubtitle(theme, locale)}
+        </p>
       </section>
     </SheetShell>
   );

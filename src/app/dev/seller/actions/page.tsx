@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
+import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
 
 export default function DevSellerActionsPreviewPage() {
   if (process.env.NODE_ENV === "production") notFound();
@@ -12,7 +13,8 @@ export default function DevSellerActionsPreviewPage() {
           <DashboardActionsHub
             businessType="STORE"
             basePath="/dev/seller"
-            storeTheme="calm"
+            storeTheme={DEV_STORE_BUSINESS.storeTheme}
+            storeLocale={DEV_STORE_BUSINESS.storeLocale}
             previewOnly
           />
         </DashboardShell>

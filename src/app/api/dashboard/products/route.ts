@@ -10,6 +10,7 @@ const schema = z.object({
   price: z.number().positive(),
   salePrice: z.number().positive().optional().nullable(),
   imageUrl: z.string().optional(),
+  stock: z.number().int().min(0).optional().nullable(),
 });
 
 async function requireStoreOwner() {
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
-  const { imageUrl, price, salePrice, ...rest } = parsed.data;
+  const { imageUrl, price, salePrice, stock, ...rest } = parsed.data;
   if (imageUrl && !isValidProductImageUrl(imageUrl)) {
     return jsonError("תמונה לא תקינה");
   }
@@ -49,6 +50,7 @@ export async function POST(req: Request) {
       ...rest,
       price,
       salePrice: salePrice ?? null,
+      stock: stock ?? null,
       imageUrl: imageUrl || null,
       businessId: ctx.user.business!.id,
     },

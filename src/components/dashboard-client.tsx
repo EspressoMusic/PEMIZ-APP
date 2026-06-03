@@ -12,7 +12,20 @@ import {
 } from "@/components/ui";
 export { ProductsManager } from "@/components/dashboard/products-manager";
 
-export function OrdersManager() {
+const ORDER_STATUS_LABEL: Record<string, string> = {
+  PENDING: "ממתין",
+  CONFIRMED: "אושר",
+  COMPLETED: "הושלם",
+  CANCELLED: "בוטל",
+};
+
+const ORDER_STATUS_ACTIONS: { status: string; label: string }[] = [
+  { status: "CONFIRMED", label: "אשר" },
+  { status: "COMPLETED", label: "סמן כהושלם" },
+  { status: "CANCELLED", label: "בטל" },
+];
+
+export function OrdersManager({ title = "הזמנות" }: { title?: string }) {
   const [orders, setOrders] = useState<
     {
       id: string;
@@ -49,41 +62,59 @@ export function OrdersManager() {
 
   return (
     <div className="space-y-4">
-      <PageTitle>הזמנות</PageTitle>
-      {orders.map((o) => (
-        <Panel key={o.id}>
-          <div className="flex flex-wrap justify-between gap-2">
-            <div>
-              <p className="text-[17px] font-extrabold">{o.customerName}</p>
-              <p className="text-[14px]" dir="ltr">
-                {o.customerPhone}
-              </p>
+      <PageTitle>{title}</PageTitle>
+      {orders.map((o) => {
+        const total = o.items.reduce(
+          (s, it) => s + it.priceAtOrder * it.quantity,
+          0
+        );
+        const created = new Date(o.createdAt).toLocaleString("he-IL", {
+          dateStyle: "short",
+          timeStyle: "short",
+        });
+        return (
+          <Panel key={o.id}>
+            <div className="flex flex-wrap justify-between gap-2">
+              <div className="text-start">
+                <p className="text-[17px] font-extrabold">{o.customerName}</p>
+                <p className="text-[14px]" dir="ltr">
+                  {o.customerPhone}
+                </p>
+                <p className="mt-1 text-[13px] text-bakery-muted">{created}</p>
+              </div>
+              <Badge>
+                {ORDER_STATUS_LABEL[o.status] ?? o.status}
+              </Badge>
             </div>
-            <Badge>{o.status}</Badge>
-          </div>
-          <ul className="mt-3 text-[15px] leading-[1.45] text-bakery-muted">
-            {o.items.map((it, i) => (
-              <li key={i}>
-                {it.product.name} × {it.quantity} — ₪
-                {(it.priceAtOrder * it.quantity).toFixed(2)}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {["CONFIRMED", "COMPLETED", "CANCELLED"].map((s) => (
-              <Button
-                key={s}
-                variant="secondary"
-                onClick={() => setStatus(o.id, s)}
-              >
-                {s}
-              </Button>
-            ))}
-          </div>
-        </Panel>
-      ))}
+            <ul className="mt-3 space-y-1 text-[15px] leading-[1.45] text-bakery-muted">
+              {o.items.map((it, i) => (
+                <li key={i}>
+                  {it.product.name} × {it.quantity} —{" "}
+                  {(it.priceAtOrder * it.quantity).toFixed(2)}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-[15px] font-extrabold text-bakery-ink">
+              סה״כ: {total.toFixed(2)}
+            </p>
+            {o.status !== "CANCELLED" && o.status !== "COMPLETED" && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {ORDER_STATUS_ACTIONS.map(({ status, label }) => (
+                  <Button
+                    key={status}
+                    variant="secondary"
+                    onClick={() => setStatus(o.id, status)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </Panel>
+        );
+      })}
       {orders.length === 0 && (
-        <p className="text-bakery-muted">אין הזמנות עדיין.</p>
+        <p className="text-center text-bakery-muted">אין הזמנות עדיין.</p>
       )}
     </div>
   );
@@ -241,46 +272,7 @@ export function AppointmentsManager() {
   );
 }
 
-export function InquiriesManager() {
-  const [items, setItems] = useState<
-    {
-      id: string;
-      customerName: string;
-      message: string;
-      customerPhone?: string | null;
-      createdAt: string;
-    }[]
-  >([]);
-
-  useEffect(() => {
-    fetch("/api/dashboard/inquiries")
-      .then((r) => r.json())
-      .then((d) => setItems(d.inquiries ?? []));
-  }, []);
-
-  return (
-    <div className="space-y-4">
-      <PageTitle>פניות מלקוחות</PageTitle>
-      {items.map((q) => (
-        <Panel key={q.id}>
-          <p className="text-[17px] font-extrabold">{q.customerName}</p>
-          {q.customerPhone && (
-            <p className="text-[14px]" dir="ltr">
-              {q.customerPhone}
-            </p>
-          )}
-          <p className="mt-2 whitespace-pre-wrap text-[15px] leading-[1.45] text-bakery-ink">
-            {q.message}
-          </p>
-          <p className="mt-2 text-[12px] text-bakery-muted">
-            {new Date(q.createdAt).toLocaleString("he-IL")}
-          </p>
-        </Panel>
-      ))}
-      {items.length === 0 && <p className="text-bakery-muted">אין פניות.</p>}
-    </div>
-  );
-}
+export { DashboardInquiriesManager as InquiriesManager } from "@/components/dashboard/dashboard-inquiries-manager";
 
 export function LogoutButton() {
   return (

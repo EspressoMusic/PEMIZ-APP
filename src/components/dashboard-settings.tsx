@@ -21,6 +21,7 @@ type Props = {
   isActive: boolean;
   storeUrl?: string;
   previewSlug?: string;
+  previewOnly?: boolean;
 };
 
 export function DashboardSettingsView({
@@ -30,6 +31,7 @@ export function DashboardSettingsView({
   isActive,
   storeUrl,
   previewSlug,
+  previewOnly = false,
 }: Props) {
   const [copied, setCopied] = useState(false);
   const initial = ownerName.trim().charAt(0) || "?";

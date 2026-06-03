@@ -56,6 +56,13 @@ const EN = {
   notes: "Notes",
   total: "Total",
   unavailable: "This business is currently unavailable.",
+  outOfStock: "Out of stock",
+  sellerNoticeTitle: "Message from the store",
+  sellerNoticeGotIt: "Got it",
+  yourInquiries: "Your messages",
+  sellerReplyLabel: "Store reply",
+  awaitingReply: "Waiting for reply",
+  inquirySent: "Your message was sent",
 };
 
 const HE: typeof EN = {
@@ -114,6 +121,13 @@ const HE: typeof EN = {
   notes: "הערות",
   total: 'סה"כ',
   unavailable: "העסק אינו זמין כרגע.",
+  outOfStock: "אזל מהמלאי",
+  sellerNoticeTitle: "הודעה מהמוכר",
+  sellerNoticeGotIt: "הבנתי",
+  yourInquiries: "הפניות שלי",
+  sellerReplyLabel: "תשובת החנות",
+  awaitingReply: "ממתין לתשובה",
+  inquirySent: "הפנייה נשלחה",
 };
 
 export function getCustomerLabels(locale: CustomerLocale) {

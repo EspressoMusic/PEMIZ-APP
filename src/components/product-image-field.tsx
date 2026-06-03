@@ -27,12 +27,9 @@ export function ProductImageField({
   }
 
   return (
-    <div className="sm:col-span-2">
-      <span className="text-[14px] font-bold text-bakery-ink">תמונת מוצר</span>
-      <p className="mt-0.5 text-[12px] text-bakery-muted">אופציונלי · JPG, PNG, WebP עד 2MB</p>
-
+    <div className="w-full text-center">
       {preview ? (
-        <div className="relative mt-2 overflow-hidden rounded-2xl border-[1.5px] border-bakery-border/40 bg-bakery-card">
+        <div className="relative overflow-hidden rounded-2xl border-[1.5px] border-bakery-border/40 bg-bakery-card">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={preview}
@@ -65,7 +62,7 @@ export function ProductImageField({
             setDragOver(false);
             void handleFile(e.dataTransfer.files[0] ?? null);
           }}
-          className={`mt-2 flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 transition ${
+          className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 transition ${
             dragOver
               ? "border-bakery-primary bg-bakery-primary/8"
               : "border-bakery-border/50 bg-bakery-input/80 hover:border-bakery-primary/50"

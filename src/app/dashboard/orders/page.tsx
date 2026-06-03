@@ -1,5 +1,5 @@
-import { OrdersManager } from "@/components/dashboard-client";
+import { redirect } from "next/navigation";
 
 export default function OrdersPage() {
-  return <OrdersManager />;
+  redirect("/dashboard/settings/orders");
 }

@@ -26,7 +26,11 @@ export async function PATCH(
   const deal = await prisma.storeDeal.update({
     where: { id },
     data: parsed.data,
-    include: { productA: true, productB: true },
+    include: {
+      items: { include: { product: true }, orderBy: { sortOrder: "asc" } },
+      productA: true,
+      productB: true,
+    },
   });
   return jsonOk({ deal });
 }
