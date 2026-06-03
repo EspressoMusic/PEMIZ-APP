@@ -12,7 +12,7 @@ export function DashboardStoreSettingsHub({
   return (
     <div className="space-y-5 pb-2 text-center">
       <div>
-        <h1 className="text-[22px] font-extrabold text-bakery-ink">הגדרות החנות</h1>
+        <h1 className="text-[22px] font-extrabold text-bakery-ink">החנות</h1>
       </div>
 
       <div className="bakery-float-panel rounded-[24px] p-4">

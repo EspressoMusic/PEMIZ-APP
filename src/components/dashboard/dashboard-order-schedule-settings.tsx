@@ -2,13 +2,42 @@
 
 import { useMemo, useState } from "react";
 import { Clock } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Button, Alert } from "@/components/ui";
 import {
   ORDER_DAY_LABELS,
   defaultOrderSchedule,
   formatOrderScheduleSummary,
+  normalizeTimeInput,
   parseOrderSchedule,
 } from "@/lib/order-schedule";
+
+function OrderLimitToggle({
+  enabled,
+  onChange,
+}: {
+  enabled: boolean;
+  onChange: (next: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={enabled}
+      aria-label="הגבל מתי לקוחות יכולים להזמין"
+      onClick={() => onChange(!enabled)}
+      className={`relative h-8 w-14 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${
+        enabled ? "bg-bakery-primary" : "bg-bakery-border/45"
+      }`}
+      dir="ltr"
+    >
+      <span
+        className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-[0_2px_6px_rgba(58,47,38,0.2)] transition-transform duration-200 ${
+          enabled ? "translate-x-6" : "translate-x-0"
+        }`}
+      />
+    </button>
+  );
+}
 
 export function DashboardOrderScheduleSettings({
   initialEnabled,
@@ -32,6 +61,14 @@ export function DashboardOrderScheduleSettings({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  function handleToggle(next: boolean) {
+    setError("");
+    setEnabled(next);
+    if (next && days.length === 0) {
+      setDays(defaultOrderSchedule().days);
+    }
+  }
+
   function toggleDay(day: number) {
     setDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort()
@@ -39,132 +76,165 @@ export function DashboardOrderScheduleSettings({
   }
 
   async function save() {
-    if (previewOnly) return;
+    setError("");
+    setMessage("");
+
+    if (previewOnly) {
+      setMessage("נשמר בתצוגה — בדשבורד האמיתי לחץ שמור לאחר ההתחברות");
+      setTimeout(() => setMessage(""), 3500);
+      return;
+    }
+
     if (enabled && days.length === 0) {
       setError("יש לבחור לפחות יום אחד");
       return;
     }
-    setError("");
-    setSaving(true);
-    const res = await fetch("/api/dashboard/order-schedule", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        enabled,
-        days: enabled ? days : defaultOrderSchedule().days,
-        startTime,
-        endTime,
-      }),
-    });
-    setSaving(false);
-    if (!res.ok) {
-      const d = await res.json().catch(() => ({}));
-      setError((d as { error?: string }).error ?? "שגיאה בשמירה");
+
+    const normStart = normalizeTimeInput(startTime);
+    const normEnd = normalizeTimeInput(endTime);
+    if (enabled && (!normStart || !normEnd)) {
+      setError("יש למלא שעות תקינות");
       return;
     }
-    setMessage("נשמר");
-    setTimeout(() => setMessage(""), 2500);
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/dashboard/order-schedule", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enabled,
+          days: enabled ? days : defaultOrderSchedule().days,
+          startTime: normStart ?? startTime,
+          endTime: normEnd ?? endTime,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError((data as { error?: string }).error ?? "שגיאה בשמירה");
+        return;
+      }
+      setMessage("נשמר — ההגבלה פעילה ללקוחות");
+      setTimeout(() => setMessage(""), 3000);
+    } catch {
+      setError("לא הצלחנו להתחבר לשרת. נסה שוב.");
+    } finally {
+      setSaving(false);
+    }
   }
 
+  const summary = formatOrderScheduleSummary(
+    enabled,
+    enabled ? JSON.stringify({ days, startTime, endTime }) : null
+  );
+
   return (
-    <section className="overflow-hidden rounded-[22px] border-[1.2px] border-bakery-border/40 bg-bakery-square p-[18px] shadow-[var(--shadow-bakery-panel)]">
-      <div className="mb-4 flex items-center gap-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-bakery-primary/12 text-bakery-primary">
-          <Clock className="h-[18px] w-[18px]" strokeWidth={2.25} />
+    <div className="bakery-float-panel rounded-[24px] p-4 text-center">
+      <div className="mx-auto flex w-full max-w-[360px] flex-col items-center gap-4">
+        {previewOnly && (
+          <Alert variant="info">
+            תצוגת דמו — המתג והבחירות עובדים. לשמירה אמיתית התחבר לדשבורד.
+          </Alert>
+        )}
+
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-bakery-primary/12 text-bakery-primary">
+          <Clock className="h-[20px] w-[20px]" strokeWidth={2.25} />
         </span>
-        <div className="min-w-0 flex-1 text-start">
-          <p className="text-[15px] font-extrabold text-bakery-ink">
+        <div>
+          <p className="text-[18px] font-extrabold text-bakery-ink">
             שעות וימי הזמנה
           </p>
-          <p className="text-[13px] text-bakery-muted">
-            {formatOrderScheduleSummary(enabled, enabled ? JSON.stringify({ days, startTime, endTime }) : null)}
+          <p className="mt-1 text-[13px] font-semibold text-bakery-muted">
+            {summary}
           </p>
         </div>
-      </div>
 
-      <label className="flex cursor-pointer items-center justify-end gap-2 text-[14px] font-bold text-bakery-ink">
-        <span>הגבל מתי לקוחות יכולים להזמין</span>
-        <input
-          type="checkbox"
-          checked={enabled}
-          onChange={(e) => setEnabled(e.target.checked)}
-          className="h-4 w-4 shrink-0"
-          disabled={previewOnly}
-        />
-      </label>
+        <div className="flex w-full items-center justify-center gap-3">
+          <span className="text-[14px] font-bold text-bakery-ink">
+            הגבל מתי לקוחות יכולים להזמין
+          </span>
+          <OrderLimitToggle enabled={enabled} onChange={handleToggle} />
+        </div>
 
-      {enabled && (
-        <div className="mt-4 space-y-4">
-          <div>
-            <p className="mb-2 text-end text-[13px] font-bold text-bakery-muted">
-              ימים פעילים
-            </p>
-            <div className="flex flex-wrap justify-end gap-2">
-              {ORDER_DAY_LABELS.map((label, day) => (
-                <button
-                  key={day}
-                  type="button"
-                  disabled={previewOnly}
-                  onClick={() => toggleDay(day)}
-                  className={`min-w-[2.5rem] rounded-full px-3 py-1.5 text-[13px] font-bold transition ${
-                    days.includes(day)
-                      ? "bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
-                      : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+        {enabled && (
+          <div className="w-full overflow-hidden rounded-[20px] border border-bakery-border/35 bg-bakery-card/70 p-4 shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)]">
+            <div className="space-y-4">
+              <div>
+                <p className="mb-2 text-[14px] font-extrabold text-bakery-ink">
+                  איזה ימים
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {ORDER_DAY_LABELS.map((label, day) => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => toggleDay(day)}
+                      className={`min-w-[2.5rem] rounded-full px-3 py-1.5 text-[13px] font-bold transition ${
+                        days.includes(day)
+                          ? "bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
+                          : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-[14px] font-extrabold text-bakery-ink">
+                  איזה שעות
+                </p>
+                <div className="grid w-full grid-cols-2 gap-3">
+                  <label className="block space-y-1.5 text-center">
+                    <span className="text-[14px] font-bold text-bakery-ink">
+                      משעה
+                    </span>
+                    <input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-3 py-2.5 text-bakery-ink"
+                      dir="ltr"
+                    />
+                  </label>
+                  <label className="block space-y-1.5 text-center">
+                    <span className="text-[14px] font-bold text-bakery-ink">
+                      עד שעה
+                    </span>
+                    <input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-3 py-2.5 text-bakery-ink"
+                      dir="ltr"
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
+        )}
 
-          <div className="grid grid-cols-2 gap-3">
-            <label className="block space-y-1.5 text-end">
-              <span className="text-[14px] font-bold text-bakery-ink">משעה</span>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                disabled={previewOnly}
-                className="bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-3 py-2.5 text-bakery-ink"
-                dir="ltr"
-              />
-            </label>
-            <label className="block space-y-1.5 text-end">
-              <span className="text-[14px] font-bold text-bakery-ink">עד שעה</span>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                disabled={previewOnly}
-                className="bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-3 py-2.5 text-bakery-ink"
-                dir="ltr"
-              />
-            </label>
-          </div>
-        </div>
-      )}
+        {enabled && !previewOnly && (
+          <p className="text-[12px] font-semibold text-bakery-muted">
+            בחר ימים ושעות, ואז לחץ שמור
+          </p>
+        )}
 
-      {error && (
-        <p className="mt-3 text-end text-[13px] font-semibold text-bakery-error">{error}</p>
-      )}
-      {message && (
-        <p className="mt-3 text-end text-[13px] font-semibold text-bakery-success">
-          {message}
-        </p>
-      )}
+        {error && <Alert variant="error">{error}</Alert>}
+        {message && <Alert variant="success">{message}</Alert>}
 
-      {!previewOnly && (
         <Button
           type="button"
           variant="square"
-          className="mt-4 w-full sm:w-auto sm:ms-auto sm:me-0 sm:block"
+          className="w-full"
           disabled={saving}
           onClick={save}
         >
           {saving ? "שומר..." : "שמור הגדרות הזמנה"}
         </Button>
-      )}
-    </section>
+      </div>
+    </div>
   );
 }

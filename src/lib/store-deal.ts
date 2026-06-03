@@ -6,6 +6,7 @@ export type DealProductRow = {
   imageUrl: string | null;
   price: number;
   salePrice?: number | null;
+  stock?: number | null;
   isActive: boolean;
 };
 

@@ -12,7 +12,7 @@ export default async function SettingsLimitsPage() {
   const b = user.business;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5 pb-2 text-center">
       <DashboardSettingsBackLink />
       <PageTitle>הגבלות הזמנה</PageTitle>
       <DashboardOrderScheduleSettings

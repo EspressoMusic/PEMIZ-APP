@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireStoreOwner } from "@/lib/dashboard-auth";
 import { getDealProducts } from "@/lib/store-deal";
 
 const schema = z.object({
@@ -10,13 +10,6 @@ const schema = z.object({
   dealPrice: z.number().positive(),
   validUntil: z.string().datetime(),
 });
-
-async function requireStoreOwner() {
-  const user = await getCurrentUser();
-  if (!user?.business) return { error: jsonError("אין עסק", 404) };
-  if (user.business.type !== "STORE") return jsonError("עסק לא במצב חנות", 400);
-  return { user };
-}
 
 const dealInclude = {
   items: { include: { product: true }, orderBy: { sortOrder: "asc" as const } },
@@ -34,10 +27,10 @@ function serializeDeal(
 
 export async function GET() {
   const ctx = await requireStoreOwner();
-  if ("error" in ctx) return ctx.error;
+  if (!ctx.ok) return ctx.response;
 
   const deals = await prisma.storeDeal.findMany({
-    where: { businessId: ctx.user.business!.id },
+    where: { businessId: ctx.user.business.id },
     include: dealInclude,
     orderBy: { createdAt: "desc" },
   });
@@ -46,7 +39,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const ctx = await requireStoreOwner();
-  if ("error" in ctx) return ctx.error;
+  if (!ctx.ok) return ctx.response;
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
@@ -58,7 +51,7 @@ export async function POST(req: Request) {
 
   const products = await prisma.product.findMany({
     where: {
-      businessId: ctx.user.business!.id,
+      businessId: ctx.user.business.id,
       id: { in: uniqueIds },
       isActive: true,
     },
@@ -69,7 +62,7 @@ export async function POST(req: Request) {
 
   const deal = await prisma.storeDeal.create({
     data: {
-      businessId: ctx.user.business!.id,
+      businessId: ctx.user.business.id,
       name: parsed.data.name,
       dealPrice: parsed.data.dealPrice,
       validUntil: new Date(parsed.data.validUntil),

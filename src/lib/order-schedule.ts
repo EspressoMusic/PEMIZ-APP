@@ -24,6 +24,17 @@ export function defaultOrderSchedule(): OrderSchedule {
   return { ...DEFAULT_SCHEDULE, days: [...DEFAULT_SCHEDULE.days] };
 }
 
+/** מנרמל ערך מ־input type=time ל־HH:MM */
+export function normalizeTimeInput(value: string): string | null {
+  const trimmed = value.trim();
+  const match = trimmed.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return null;
+  const h = Number(match[1]);
+  const m = Number(match[2]);
+  if (h < 0 || h > 23 || m < 0 || m > 59) return null;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
 export function parseOrderSchedule(
   json: string | null | undefined,
   enabled: boolean

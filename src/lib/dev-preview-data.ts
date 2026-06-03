@@ -98,9 +98,7 @@ export const DEV_STORE_BUSINESS = {
     maxBookings: number;
     appointments: unknown[];
   }[],
-  faqItems: [
-    { id: "1", question: "שעות פתיחה?", answer: "א׳–ה׳ 8:00–20:00" },
-  ],
+  faqItems: [] as { id: string; question: string; answer: string }[],
   storeUrl: "http://localhost:3000/dev/customer",
   storeBroadcast: "מבצע השבוע: 10% הנחה על כל המוצרים עד יום שישי!",
   storeBroadcastAt: new Date().toISOString(),

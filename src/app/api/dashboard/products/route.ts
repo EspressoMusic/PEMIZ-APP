@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireStoreOwner } from "@/lib/dashboard-auth";
 import { isValidProductImageUrl } from "@/lib/product-image";
 
 const schema = z.object({
@@ -13,18 +13,11 @@ const schema = z.object({
   stock: z.number().int().min(0).optional().nullable(),
 });
 
-async function requireStoreOwner() {
-  const user = await getCurrentUser();
-  if (!user?.business) return { error: jsonError("אין עסק", 404) };
-  if (user.business.type !== "STORE") return { error: jsonError("עסק לא במצב חנות", 400) };
-  return { user };
-}
-
 export async function GET() {
   const ctx = await requireStoreOwner();
-  if ("error" in ctx) return ctx.error;
+  if (!ctx.ok) return ctx.response;
   const products = await prisma.product.findMany({
-    where: { businessId: ctx.user.business!.id },
+    where: { businessId: ctx.user.business.id },
     orderBy: { createdAt: "desc" },
   });
   return jsonOk({ products });
@@ -32,7 +25,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const ctx = await requireStoreOwner();
-  if ("error" in ctx) return ctx.error;
+  if (!ctx.ok) return ctx.response;
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
@@ -52,7 +45,7 @@ export async function POST(req: Request) {
       salePrice: salePrice ?? null,
       stock: stock ?? null,
       imageUrl: imageUrl || null,
-      businessId: ctx.user.business!.id,
+      businessId: ctx.user.business.id,
     },
   });
   return jsonOk({ product });
