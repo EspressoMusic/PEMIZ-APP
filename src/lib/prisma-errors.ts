@@ -22,17 +22,26 @@ export function prismaErrorResponse(error: unknown): {
           message: "מסד הנתונים לא זמין כרגע. נסה שוב בעוד רגע.",
           status: 503,
         };
-      case "P2021":
+      case "P2021": {
+        const table = (error.meta?.table as string | undefined) ?? "";
         return {
-          message:
-            "טבלאות חסרות במסד. הרץ prisma migrate deploy על בסיס הנתונים.",
+          message: table
+            ? `חסרה טבלה במסד (${table}). הרץ: npm run db:migrate`
+            : "טבלאות חסרות במסד. הרץ: npm run db:migrate",
           status: 503,
         };
-      case "P2022":
+      }
+      case "P2022": {
+        const column = (error.meta?.column as string | undefined) ?? "";
+        const table = (error.meta?.table as string | undefined) ?? "";
+        const detail = [table, column].filter(Boolean).join(" · ");
         return {
-          message: "מבנה מסד הנתונים לא תואם לקוד. עדכן מיגרציות.",
+          message: detail
+            ? `חסרה עמודה במסד (${detail}). הרץ: npm run db:migrate`
+            : "מבנה מסד הנתונים לא תואם לקוד. הרץ: npm run db:migrate",
           status: 503,
         };
+      }
       default:
         break;
     }
