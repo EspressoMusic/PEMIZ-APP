@@ -30,8 +30,8 @@ export default async function DashboardPage() {
 
       {!b.isActive && (
         <Alert variant="error">
-          העסק מושבת. לקוחות רואים: &quot;This business is currently
-          unavailable.&quot;
+          העסק מושבת על ידי מנהל המערכת. לקוחות רואים: &quot;This business is
+          currently unavailable.&quot; פנה/י למנהל או הפעל/י מ־/master.
         </Alert>
       )}
 

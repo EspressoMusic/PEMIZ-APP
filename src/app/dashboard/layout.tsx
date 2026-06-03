@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { activateLegacyPendingBusiness } from "@/lib/business";
 import { DashboardNav } from "@/components/dashboard-nav";
 
 export default async function DashboardLayout({
@@ -13,6 +14,11 @@ export default async function DashboardLayout({
     if (user.role === "ADMIN") redirect("/master");
     redirect("/onboarding");
   }
+
+  if (await activateLegacyPendingBusiness(user.business.id)) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="bakery-frame-bg min-h-full">
     <div className="mx-auto flex max-w-[1040px] flex-col gap-6 px-4 py-8 md:flex-row md:px-[14px]">

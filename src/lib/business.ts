@@ -17,6 +17,18 @@ function slugifyBusinessName(name: string): string {
   return base.length >= 3 && SLUG_REGEX.test(base) ? base : "";
 }
 
+/** Stores created before auto-activate had isActive=false and no approvedAt */
+export async function activateLegacyPendingBusiness(businessId: string) {
+  const b = await prisma.business.findUnique({ where: { id: businessId } });
+  if (!b || b.isActive || b.approvedAt) return false;
+
+  await prisma.business.update({
+    where: { id: businessId },
+    data: { isActive: true, approvedAt: new Date() },
+  });
+  return true;
+}
+
 export async function generateUniqueBusinessSlug(name: string): Promise<string> {
   const base = slugifyBusinessName(name) || "store";
 
