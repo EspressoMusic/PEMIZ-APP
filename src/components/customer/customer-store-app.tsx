@@ -567,7 +567,7 @@ export function CustomerStoreApp({
             locale={locale}
             labels={labels}
             redeemDisabled={!dealHasStock(d)}
-            onRedeem={() => startDealCheckout(d)}
+            onRedeem={() => addDealToActiveOrders(d)}
           />
         ))}
       </div>
