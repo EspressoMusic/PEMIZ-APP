@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireBusinessOwner } from "@/lib/dashboard-auth";
 
 const schema = z.object({
   startAt: z.string().datetime(),
@@ -10,13 +10,14 @@ const schema = z.object({
 });
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user?.business || user.business.type !== "APPOINTMENTS") {
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
+  if (ctx.user.business.type !== "APPOINTMENTS") {
     return jsonError("עסק לא במצב תורים", 400);
   }
 
   const slots = await prisma.appointmentSlot.findMany({
-    where: { businessId: user.business.id },
+    where: { businessId: ctx.user.business.id },
     include: {
       appointments: { where: { status: { not: "CANCELLED" } } },
     },
@@ -26,8 +27,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business || user.business.type !== "APPOINTMENTS") {
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
+  if (ctx.user.business.type !== "APPOINTMENTS") {
     return jsonError("עסק לא במצב תורים", 400);
   }
 
@@ -41,7 +43,7 @@ export async function POST(req: Request) {
 
   const slot = await prisma.appointmentSlot.create({
     data: {
-      businessId: user.business.id,
+      businessId: ctx.user.business.id,
       startAt,
       endAt,
       maxBookings: parsed.data.maxBookings,

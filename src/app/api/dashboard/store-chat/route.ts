@@ -1,21 +1,15 @@
-import { z } from "zod";
-import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireBusinessOwner } from "@/lib/dashboard-auth";
 import { normalizePhone } from "@/lib/phone";
 import { buildSellerChatThreads } from "@/lib/seller-chat-threads";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { replySnippet, type StoreChatMessageDto } from "@/lib/store-chat";
-
-const privateReplySchema = z.object({
-  customerPhone: z.string().min(9).max(20),
-  body: z.string().min(1).max(2000),
-});
-
-const communityPostSchema = z.object({
-  channel: z.literal("COMMUNITY"),
-  body: z.string().min(1).max(2000),
-  replyToId: z.string().optional(),
-});
+import {
+  sellerCommunityChatPostSchema,
+  sellerPrivateChatReplySchema,
+  zodFirstError,
+} from "@/lib/validation/schemas";
 
 const messageInclude = {
   replyTo: {
@@ -25,8 +19,8 @@ const messageInclude = {
 } as const;
 
 export async function GET(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
 
   const url = new URL(req.url);
   const channel = url.searchParams.get("channel");
@@ -34,7 +28,7 @@ export async function GET(req: Request) {
   if (channel === "COMMUNITY") {
     const rows = await prisma.storeChatMessage.findMany({
       where: {
-        businessId: user.business.id,
+        businessId: ctx.user.business.id,
         channel: "COMMUNITY",
       },
       orderBy: { createdAt: "asc" },
@@ -50,7 +44,7 @@ export async function GET(req: Request) {
   if (phone.length >= 9) {
     const rows = await prisma.storeChatMessage.findMany({
       where: {
-        businessId: user.business.id,
+        businessId: ctx.user.business.id,
         channel: "SELLER",
         customerPhone: phone,
       },
@@ -63,7 +57,7 @@ export async function GET(req: Request) {
 
   const rows = await prisma.storeChatMessage.findMany({
     where: {
-      businessId: user.business.id,
+      businessId: ctx.user.business.id,
       channel: "SELLER",
     },
     orderBy: { createdAt: "desc" },
@@ -75,21 +69,24 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
+  const limited = enforceRateLimit(req, "dashboard:store-chat", 60, 60 * 60 * 1000);
+  if (limited) return limited;
+
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== "object") return jsonError("נתונים לא תקינים");
 
   if ((body as { channel?: string }).channel === "COMMUNITY") {
-    const parsed = communityPostSchema.safeParse(body);
-    if (!parsed.success) return jsonError("נתונים לא תקינים");
+    const parsed = sellerCommunityChatPostSchema.safeParse(body);
+    if (!parsed.success) return jsonError(zodFirstError(parsed));
 
     if (parsed.data.replyToId) {
       const parent = await prisma.storeChatMessage.findFirst({
         where: {
           id: parsed.data.replyToId,
-          businessId: user.business.id,
+          businessId: ctx.user.business.id,
           channel: "COMMUNITY",
         },
       });
@@ -98,10 +95,10 @@ export async function POST(req: Request) {
 
     const row = await prisma.storeChatMessage.create({
       data: {
-        businessId: user.business.id,
+        businessId: ctx.user.business.id,
         channel: "COMMUNITY",
         customerPhone: null,
-        customerName: user.business.name,
+        customerName: ctx.user.business.name,
         authorRole: "SELLER",
         body: parsed.data.body.trim(),
         replyToId: parsed.data.replyToId ?? null,
@@ -112,15 +109,15 @@ export async function POST(req: Request) {
     return jsonOk({ message: toDto(row, "") });
   }
 
-  const parsed = privateReplySchema.safeParse(body);
-  if (!parsed.success) return jsonError("נתונים לא תקינים");
+  const parsed = sellerPrivateChatReplySchema.safeParse(body);
+  if (!parsed.success) return jsonError(zodFirstError(parsed));
 
   const phone = normalizePhone(parsed.data.customerPhone);
   if (phone.length < 9) return jsonError("מספר טלפון לא תקין");
 
   const lastCustomer = await prisma.storeChatMessage.findFirst({
     where: {
-      businessId: user.business.id,
+      businessId: ctx.user.business.id,
       channel: "SELLER",
       customerPhone: phone,
       authorRole: "CUSTOMER",
@@ -130,7 +127,7 @@ export async function POST(req: Request) {
 
   const row = await prisma.storeChatMessage.create({
     data: {
-      businessId: user.business.id,
+      businessId: ctx.user.business.id,
       channel: "SELLER",
       customerPhone: phone,
       customerName: lastCustomer?.customerName ?? "לקוח",

@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireStoreOwner } from "@/lib/dashboard-auth";
+import { findOwnedDeal } from "@/lib/security/ownership";
 import { getDealProducts } from "@/lib/store-deal";
 
 const patchSchema = z.object({
@@ -23,16 +24,14 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("אין עסק", 404);
+  const ctx = await requireStoreOwner();
+  if (!ctx.ok) return ctx.response;
   const { id } = await params;
   const body = await req.json().catch(() => null);
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
-  const existing = await prisma.storeDeal.findFirst({
-    where: { id, businessId: user.business.id },
-  });
+  const existing = await findOwnedDeal(ctx.user.business.id, id);
   if (!existing) return jsonError("דיל לא נמצא", 404);
 
   if (parsed.data.productIds) {
@@ -42,7 +41,7 @@ export async function PATCH(
     }
     const products = await prisma.product.findMany({
       where: {
-        businessId: user.business.id,
+        businessId: ctx.user.business.id,
         id: { in: uniqueIds },
         isActive: true,
       },
@@ -65,7 +64,7 @@ export async function PATCH(
     }
 
     return tx.storeDeal.update({
-      where: { id },
+      where: { id, businessId: ctx.user.business.id },
       data: {
         ...(parsed.data.isActive !== undefined && {
           isActive: parsed.data.isActive,
@@ -89,15 +88,15 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("אין עסק", 404);
+  const ctx = await requireStoreOwner();
+  if (!ctx.ok) return ctx.response;
   const { id } = await params;
 
-  const existing = await prisma.storeDeal.findFirst({
-    where: { id, businessId: user.business.id },
-  });
+  const existing = await findOwnedDeal(ctx.user.business.id, id);
   if (!existing) return jsonError("דיל לא נמצא", 404);
 
-  await prisma.storeDeal.delete({ where: { id } });
+  await prisma.storeDeal.delete({
+    where: { id, businessId: ctx.user.business.id },
+  });
   return jsonOk({ ok: true });
 }

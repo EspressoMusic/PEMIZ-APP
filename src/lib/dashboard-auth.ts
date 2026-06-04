@@ -13,7 +13,10 @@ export type DashboardAuthResult =
 
 export async function requireBusinessOwner(): Promise<DashboardAuthResult> {
   const user = await getCurrentUser();
-  if (!user?.business) {
+  if (!user) {
+    return { ok: false, response: jsonError("לא מחובר", 401) };
+  }
+  if (!user.business) {
     return { ok: false, response: jsonError("אין עסק", 404) };
   }
   return { ok: true, user: user as UserWithBusiness };

@@ -1,13 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireBusinessOwner } from "@/lib/dashboard-auth";
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("אין עסק", 404);
-
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
   const inquiries = await prisma.inquiry.findMany({
-    where: { businessId: user.business.id },
+    where: { businessId: ctx.user.business.id },
     orderBy: { createdAt: "desc" },
   });
   return jsonOk({ inquiries });

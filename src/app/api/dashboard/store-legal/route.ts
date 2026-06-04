@@ -1,18 +1,13 @@
-import { z } from "zod";
-import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-
-const patchSchema = z.object({
-  storePolicy: z.string().max(8000).nullable().optional(),
-  storeTerms: z.string().max(8000).nullable().optional(),
-});
+import { requireBusinessOwner } from "@/lib/dashboard-auth";
+import { storeLegalPatchSchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
 
-  const b = user.business;
+  const b = ctx.user.business;
   return jsonOk({
     storePolicy: b.storePolicy ?? "",
     storeTerms: b.storeTerms ?? "",
@@ -20,15 +15,15 @@ export async function GET() {
 }
 
 export async function PATCH(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);
-  const parsed = patchSchema.safeParse(body);
-  if (!parsed.success) return jsonError("נתונים לא תקינים");
+  const parsed = storeLegalPatchSchema.safeParse(body);
+  if (!parsed.success) return jsonError(zodFirstError(parsed));
 
   const updated = await prisma.business.update({
-    where: { id: user.business.id },
+    where: { id: ctx.user.business.id },
     data: {
       ...(parsed.data.storePolicy !== undefined
         ? { storePolicy: parsed.data.storePolicy || null }

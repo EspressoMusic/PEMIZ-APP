@@ -30,6 +30,7 @@ import { CelebrationModal } from "@/components/celebration-modal";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import { getEffectivePrice } from "@/lib/product-price";
 import { customerThemeClass, parseStoreTheme } from "@/lib/store-themes";
+import type { PlatformLegalDocPayload } from "@/lib/legal/platform-legal";
 import {
   isProductInStock,
   maxOrderQuantity,
@@ -122,6 +123,7 @@ type FaqItem = {
 export function CustomerStoreApp({
   business,
   unavailable,
+  platformLegalDocs = [],
 }: {
   business: {
     slug: string;
@@ -141,6 +143,7 @@ export function CustomerStoreApp({
     storeBroadcastAt?: string | null;
   };
   unavailable: boolean;
+  platformLegalDocs?: PlatformLegalDocPayload[];
 }) {
   const isAppointments = business.type === "APPOINTMENTS";
   const [mainTab, setMainTab] = useState<CustomerMainTab>("home");
@@ -811,6 +814,7 @@ export function CustomerStoreApp({
         textScale={textScale}
         onTextScaleChange={(s) => updatePreferences({ textScale: s })}
         storeTheme={displayTheme}
+        platformLegalDocs={platformLegalDocs}
       />
 
       <CustomerContactModal

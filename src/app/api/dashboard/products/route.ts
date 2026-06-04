@@ -1,17 +1,9 @@
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireStoreOwner } from "@/lib/dashboard-auth";
 import { isValidProductImageUrl } from "@/lib/product-image";
-
-const schema = z.object({
-  name: z.string().min(1).max(120),
-  description: z.string().max(500).optional(),
-  price: z.number().positive(),
-  salePrice: z.number().positive().optional().nullable(),
-  imageUrl: z.string().optional(),
-  stock: z.number().int().min(0).optional().nullable(),
-});
+import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { productCreateSchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function GET() {
   const ctx = await requireStoreOwner();
@@ -24,11 +16,14 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const limited = enforceRateLimit(req, "dashboard:products:create", 30, 60 * 60 * 1000);
+  if (limited) return limited;
+
   const ctx = await requireStoreOwner();
   if (!ctx.ok) return ctx.response;
   const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) return jsonError("נתונים לא תקינים");
+  const parsed = productCreateSchema.safeParse(body);
+  if (!parsed.success) return jsonError(zodFirstError(parsed));
 
   const { imageUrl, price, salePrice, stock, ...rest } = parsed.data;
   if (imageUrl && !isValidProductImageUrl(imageUrl)) {

@@ -1,19 +1,24 @@
 import type { AppLocale } from "@/lib/app-locale";
+import {
+  isAllowedImageMime,
+  isValidDataImageUrl,
+  isValidRemoteImageUrl,
+  maxImageBytes,
+} from "@/lib/upload-image";
 
-const MAX_BYTES = 2 * 1024 * 1024;
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_BYTES = maxImageBytes();
 
 const IMAGE_ERRORS: Record<
   AppLocale,
   { type: string; size: string; read: string }
 > = {
   he: {
-    type: "יש להעלות תמונה בפורמט JPG, PNG, WebP או GIF",
+    type: "יש להעלות תמונה בפורמט JPG, PNG או WebP",
     size: "גודל התמונה המקסימלי הוא 2MB",
     read: "שגיאה בקריאת התמונה",
   },
   en: {
-    type: "Use JPG, PNG, WebP, or GIF",
+    type: "Use JPG, PNG, or WebP",
     size: "Maximum image size is 2MB",
     read: "Could not read the image",
   },
@@ -25,7 +30,7 @@ export function readProductImageFile(
 ): Promise<string> {
   const err = IMAGE_ERRORS[locale];
   return new Promise((resolve, reject) => {
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!isAllowedImageMime(file.type)) {
       reject(new Error(err.type));
       return;
     }
@@ -40,6 +45,10 @@ export function readProductImageFile(
         reject(new Error(err.read));
         return;
       }
+      if (!isValidDataImageUrl(result)) {
+        reject(new Error(err.read));
+        return;
+      }
       resolve(result);
     };
     reader.onerror = () => reject(new Error(err.read));
@@ -49,7 +58,6 @@ export function readProductImageFile(
 
 export function isValidProductImageUrl(url: string | null | undefined): boolean {
   if (!url) return true;
-  if (url.startsWith("https://") || url.startsWith("http://")) return url.length <= 2048;
-  if (url.startsWith("data:image/")) return url.length <= 2_800_000;
-  return false;
+  if (url.startsWith("data:image/")) return isValidDataImageUrl(url);
+  return isValidRemoteImageUrl(url);
 }

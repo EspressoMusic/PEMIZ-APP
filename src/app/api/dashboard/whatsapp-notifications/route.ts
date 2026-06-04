@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireStoreOwner } from "@/lib/dashboard-auth";
 import { formatPhoneForWhatsApp } from "@/lib/phone";
 import { isWhatsAppConfigured } from "@/lib/whatsapp";
 import { sendSellerWhatsAppTest } from "@/lib/whatsapp-seller-notify";
@@ -12,27 +12,21 @@ const patchSchema = z.object({
 });
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
-  if (user.business.type !== "STORE") {
-    return jsonError("הגדרה זמינה רק לחנויות", 400);
-  }
+  const ctx = await requireStoreOwner();
+  if (!ctx.ok) return ctx.response;
 
-  const b = user.business;
+  const b = ctx.user.business;
   return jsonOk({
     enabled: b.whatsappNotifyEnabled ?? false,
-    phone: b.whatsappNotifyPhone ?? user.phone ?? "",
-    ownerPhone: user.phone ?? "",
+    phone: b.whatsappNotifyPhone ?? ctx.user.phone ?? "",
+    ownerPhone: ctx.user.phone ?? "",
     serverConfigured: isWhatsAppConfigured(),
   });
 }
 
 export async function PATCH(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
-  if (user.business.type !== "STORE") {
-    return jsonError("הגדרה זמינה רק לחנויות", 400);
-  }
+  const ctx = await requireStoreOwner();
+  if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);
   const parsed = patchSchema.safeParse(body);
@@ -45,7 +39,7 @@ export async function PATCH(req: Request) {
 
   try {
     await prisma.business.update({
-      where: { id: user.business.id },
+      where: { id: ctx.user.business.id },
       data: {
         whatsappNotifyEnabled: parsed.data.enabled,
         whatsappNotifyPhone: parsed.data.phone.trim(),
@@ -67,18 +61,15 @@ export async function PATCH(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
-  if (user.business.type !== "STORE") {
-    return jsonError("הגדרה זמינה רק לחנויות", 400);
-  }
+  const ctx = await requireStoreOwner();
+  if (!ctx.ok) return ctx.response;
 
   const url = new URL(req.url);
   if (url.searchParams.get("action") !== "test") {
     return jsonError("פעולה לא נתמכת", 400);
   }
 
-  const b = user.business;
+  const b = ctx.user.business;
   const result = await sendSellerWhatsAppTest({
     id: b.id,
     name: b.name,

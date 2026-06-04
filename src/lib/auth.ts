@@ -1,6 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { sessionCookieOptions } from "@/lib/security/cookies";
+import { safeUserSelect, type SafeUser } from "@/lib/security/user-select";
 import type { Role } from "@/lib/types";
 
 const COOKIE_NAME = "linky_session";
@@ -27,13 +29,7 @@ export async function createSession(payload: SessionPayload) {
     .sign(getSecret());
 
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
+  cookieStore.set(COOKIE_NAME, token, sessionCookieOptions(60 * 60 * 24 * 7));
 }
 
 export async function destroySession() {
@@ -58,12 +54,12 @@ export async function getSession(): Promise<SessionPayload | null> {
   }
 }
 
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<SafeUser | null> {
   const session = await getSession();
   if (!session) return null;
   return prisma.user.findUnique({
     where: { id: session.userId },
-    include: { business: true },
+    select: safeUserSelect,
   });
 }
 

@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { sessionCookieOptions } from "@/lib/security/cookies";
 
 export const MASTER_COOKIE = "linky_master";
 
@@ -64,11 +65,7 @@ export function masterSessionCookieOptions(token: string) {
   return {
     name: MASTER_COOKIE,
     value: token,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-    path: "/",
-    maxAge: 60 * 60 * 24,
+    ...sessionCookieOptions(60 * 60 * 24),
   };
 }
 

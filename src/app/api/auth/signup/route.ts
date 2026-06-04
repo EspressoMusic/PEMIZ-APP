@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import type { Role } from "@/lib/types";
@@ -7,23 +6,22 @@ import { isSignupEnabled } from "@/lib/platform-config";
 import { jsonError, jsonOk } from "@/lib/api";
 import { isDatabaseConfigured, databaseConfigHint } from "@/lib/db-env";
 import { prismaErrorResponse } from "@/lib/prisma-errors";
-
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  name: z.string().min(2).max(80),
-});
+import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { safeUserSelect } from "@/lib/security/user-select";
+import { signupSchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function POST(req: Request) {
+  const limited = enforceRateLimit(req, "auth:signup", 5, 60 * 60 * 1000);
+  if (limited) return limited;
+
   if (!(await isSignupEnabled())) {
     return jsonError("ההרשמה סגורה כרגע. נסו שוב מאוחר יותר.", 403);
   }
 
   const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
+  const parsed = signupSchema.safeParse(body);
   if (!parsed.success) {
-    const msg = parsed.error.issues[0]?.message ?? "נתונים לא תקינים";
-    return jsonError(msg, 400);
+    return jsonError(zodFirstError(parsed), 400);
   }
 
   if (!isDatabaseConfigured()) {
@@ -35,7 +33,7 @@ export async function POST(req: Request) {
   try {
     const existing = await prisma.user.findUnique({
       where: { email },
-      include: { business: true },
+      select: { id: true, business: { select: { id: true } } },
     });
     if (existing) {
       if (!existing.business) {
@@ -54,6 +52,7 @@ export async function POST(req: Request) {
         passwordHash,
         name: parsed.data.name,
       },
+      select: safeUserSelect,
     });
 
     await createSession({

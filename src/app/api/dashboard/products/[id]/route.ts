@@ -1,29 +1,20 @@
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireStoreOwner } from "@/lib/dashboard-auth";
 import { isValidProductImageUrl } from "@/lib/product-image";
-
-const patchSchema = z.object({
-  name: z.string().min(1).max(120).optional(),
-  description: z.string().max(500).optional(),
-  price: z.number().positive().optional(),
-  salePrice: z.number().positive().nullable().optional(),
-  isActive: z.boolean().optional(),
-  imageUrl: z.string().nullable().optional(),
-  stock: z.number().int().min(0).nullable().optional(),
-});
+import { findOwnedProduct } from "@/lib/security/ownership";
+import { productPatchSchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("אין עסק", 404);
+  const ctx = await requireStoreOwner();
+  if (!ctx.ok) return ctx.response;
   const { id } = await params;
   const body = await req.json().catch(() => null);
-  const parsed = patchSchema.safeParse(body);
-  if (!parsed.success) return jsonError("נתונים לא תקינים");
+  const parsed = productPatchSchema.safeParse(body);
+  if (!parsed.success) return jsonError(zodFirstError(parsed));
 
   if (
     parsed.data.imageUrl !== undefined &&
@@ -33,9 +24,7 @@ export async function PATCH(
     return jsonError("תמונה לא תקינה");
   }
 
-  const existing = await prisma.product.findFirst({
-    where: { id, businessId: user.business.id },
-  });
+  const existing = await findOwnedProduct(ctx.user.business.id, id);
   if (!existing) return jsonError("מוצר לא נמצא", 404);
 
   const data = { ...parsed.data };
@@ -46,7 +35,7 @@ export async function PATCH(
   }
 
   const product = await prisma.product.update({
-    where: { id },
+    where: { id, businessId: ctx.user.business.id },
     data,
   });
   return jsonOk({ product });
@@ -56,15 +45,15 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("אין עסק", 404);
+  const ctx = await requireStoreOwner();
+  if (!ctx.ok) return ctx.response;
   const { id } = await params;
 
-  const existing = await prisma.product.findFirst({
-    where: { id, businessId: user.business.id },
-  });
+  const existing = await findOwnedProduct(ctx.user.business.id, id);
   if (!existing) return jsonError("מוצר לא נמצא", 404);
 
-  await prisma.product.delete({ where: { id } });
+  await prisma.product.delete({
+    where: { id, businessId: ctx.user.business.id },
+  });
   return jsonOk({ ok: true });
 }

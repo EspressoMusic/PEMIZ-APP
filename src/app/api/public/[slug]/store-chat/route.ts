@@ -1,20 +1,13 @@
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { normalizePhone } from "@/lib/phone";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
 import {
   isStoreChatChannel,
   replySnippet,
   type StoreChatMessageDto,
 } from "@/lib/store-chat";
-
-const postSchema = z.object({
-  channel: z.enum(["SELLER", "COMMUNITY"]),
-  customerName: z.string().min(2).max(80),
-  customerPhone: z.string().max(20),
-  body: z.string().min(1).max(2000),
-  replyToId: z.string().optional(),
-});
+import { publicChatPostSchema, zodFirstError } from "@/lib/validation/schemas";
 
 const messageInclude = {
   replyTo: {
@@ -76,6 +69,9 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const limited = enforceRateLimit(req, "public:store-chat", 40, 60 * 60 * 1000);
+  if (limited) return limited;
+
   const { slug } = await params;
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
@@ -85,8 +81,8 @@ export async function POST(
   if (!business.isActive) return jsonError("עסק לא זמין", 403);
 
   const body = await req.json().catch(() => null);
-  const parsed = postSchema.safeParse(body);
-  if (!parsed.success) return jsonError("נתונים לא תקינים");
+  const parsed = publicChatPostSchema.safeParse(body);
+  if (!parsed.success) return jsonError(zodFirstError(parsed));
 
   const phone = normalizePhone(parsed.data.customerPhone);
   if (phone.length < 9) return jsonError("מספר טלפון לא תקין");

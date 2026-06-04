@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import type { Role } from "@/lib/types";
@@ -7,18 +6,18 @@ import { jsonError, jsonOk } from "@/lib/api";
 import { studioConsolePath } from "@/lib/studio-access";
 import { databaseConfigHint, isDatabaseConfigured } from "@/lib/db-env";
 import { prismaErrorResponse } from "@/lib/prisma-errors";
-
-const schema = z.object({
-  email: z.string().email("כתובת אימייל לא תקינה"),
-  password: z.string().min(1, "נא להזין סיסמה"),
-});
+import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { safeUserWithPasswordSelect } from "@/lib/security/user-select";
+import { loginSchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function POST(req: Request) {
+  const limited = enforceRateLimit(req, "auth:login", 10, 15 * 60 * 1000);
+  if (limited) return limited;
+
   const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
+  const parsed = loginSchema.safeParse(body);
   if (!parsed.success) {
-    const msg = parsed.error.issues[0]?.message ?? "נתונים לא תקינים";
-    return jsonError(msg, 400);
+    return jsonError(zodFirstError(parsed), 400);
   }
 
   if (!isDatabaseConfigured()) {
@@ -30,7 +29,7 @@ export async function POST(req: Request) {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
-      include: { business: true },
+      select: safeUserWithPasswordSelect,
     });
 
     if (!user) {

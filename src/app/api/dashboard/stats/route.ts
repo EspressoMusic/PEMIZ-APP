@@ -1,13 +1,13 @@
-import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { last7DayBuckets } from "@/lib/dashboard-stats";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireBusinessOwner } from "@/lib/dashboard-auth";
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
 
-  const businessId = user.business.id;
+  const businessId = ctx.user.business.id;
   const since = new Date();
   since.setHours(0, 0, 0, 0);
   since.setDate(since.getDate() - 6);

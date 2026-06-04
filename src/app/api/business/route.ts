@@ -1,15 +1,13 @@
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { generateUniqueBusinessSlug } from "@/lib/business";
 import { jsonError, jsonOk } from "@/lib/api";
-
-const createSchema = z.object({
-  name: z.string().min(2).max(100),
-  description: z.string().max(500).optional(),
-  type: z.enum(["STORE", "APPOINTMENTS"]),
-  acceptTerms: z.literal(true),
-});
+import { requireBusinessOwner } from "@/lib/dashboard-auth";
+import {
+  businessCreateSchema,
+  businessPatchSchema,
+  zodFirstError,
+} from "@/lib/validation/schemas";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -17,13 +15,13 @@ export async function POST(req: Request) {
   if (user.business) return jsonError("כבר קיים עסק לחשבון זה", 409);
 
   const body = await req.json().catch(() => null);
-  const parsed = createSchema.safeParse(body);
+  const parsed = businessCreateSchema.safeParse(body);
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
     if (issue?.path[0] === "acceptTerms") {
       return jsonError("יש לאשר את תנאי השימוש ומדיניות הפרטיות");
     }
-    return jsonError("בדוק את שם העסק וסוג העסק");
+    return jsonError(zodFirstError(parsed));
   }
 
   const slug = await generateUniqueBusinessSlug(parsed.data.name);
@@ -39,31 +37,37 @@ export async function POST(req: Request) {
       isActive: true,
       approvedAt: new Date(),
     },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      type: true,
+      isActive: true,
+      approvedAt: true,
+      createdAt: true,
+    },
   });
 
   return jsonOk({ business });
 }
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user) return jsonError("לא מחובר", 401);
-  return jsonOk({ business: user.business });
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
+  return jsonOk({ business: ctx.user.business });
 }
 
-const patchSchema = z.object({
-  description: z.string().max(500).nullable().optional(),
-});
-
 export async function PATCH(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מחובר", 401);
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);
-  const parsed = patchSchema.safeParse(body);
-  if (!parsed.success) return jsonError("נתונים לא תקינים");
+  const parsed = businessPatchSchema.safeParse(body);
+  if (!parsed.success) return jsonError(zodFirstError(parsed));
 
   const updated = await prisma.business.update({
-    where: { id: user.business.id },
+    where: { id: ctx.user.business.id },
     data: {
       ...(parsed.data.description !== undefined
         ? { description: parsed.data.description }

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireStoreOwner } from "@/lib/dashboard-auth";
 import {
   defaultDaySlots,
   normalizeTimeInput,
@@ -78,11 +78,8 @@ function normalizeSlotsFromBody(data: z.infer<typeof schema>): OrderDaySlot[] {
 }
 
 export async function PATCH(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
-  if (user.business.type !== "STORE") {
-    return jsonError("הגדרה זמינה רק לחנויות", 400);
-  }
+  const ctx = await requireStoreOwner();
+  if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
@@ -99,7 +96,7 @@ export async function PATCH(req: Request) {
 
   try {
     await prisma.business.update({
-      where: { id: user.business.id },
+      where: { id: ctx.user.business.id },
       data: {
         orderScheduleEnabled: parsed.data.enabled,
         orderSchedule: scheduleJson,

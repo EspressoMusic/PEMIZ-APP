@@ -6,6 +6,7 @@ import {
 } from "@/lib/business";
 import { getDealProducts } from "@/lib/store-deal";
 import { PublicStorefront } from "@/components/public-storefront";
+import { getAllPlatformLegalDocuments } from "@/lib/legal/platform-legal";
 
 export default async function PublicBusinessPage({
   params,
@@ -17,6 +18,7 @@ export default async function PublicBusinessPage({
   if (!business) notFound();
 
   const unavailable = !isBusinessAcceptingCustomers(business);
+  const platformLegalDocs = getAllPlatformLegalDocuments();
 
   return (
     <div className="bakery-frame-bg h-dvh overflow-hidden">
@@ -74,6 +76,7 @@ export default async function PublicBusinessPage({
         storeBroadcastAt: business.storeBroadcastAt?.toISOString() ?? null,
       }}
       unavailable={unavailable}
+      platformLegalDocs={platformLegalDocs}
     />
       </div>
     </div>

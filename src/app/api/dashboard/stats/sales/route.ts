@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
+import { requireBusinessOwner } from "@/lib/dashboard-auth";
 import { normalizeAppLocale } from "@/lib/app-locale";
 import {
   computeSalesStats,
@@ -14,9 +14,8 @@ import {
 const periodSchema = z.enum(["week", "month", "year"]);
 
 export async function GET(req: Request) {
-  const user = await getCurrentUser();
-  if (!user?.business) return jsonError("לא מורשה", 401);
-
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
   const url = new URL(req.url);
   const parsed = periodSchema.safeParse(url.searchParams.get("period") ?? "week");
   if (!parsed.success) return jsonError("תקופה לא תקינה");
@@ -24,11 +23,11 @@ export async function GET(req: Request) {
   const period = parsed.data as SalesStatsPeriod;
   const since = salesStatsRangeStart(period);
   const prior = salesStatsPriorRange(period);
-  const locale = normalizeAppLocale(user.business.storeLocale);
+  const locale = normalizeAppLocale(ctx.user.business.storeLocale);
 
   const orders = await prisma.order.findMany({
     where: {
-      businessId: user.business.id,
+      businessId: ctx.user.business.id,
       createdAt: { gte: prior.start },
       status: { not: "CANCELLED" },
     },
@@ -46,7 +45,7 @@ export async function GET(req: Request) {
 
   return jsonOk({
     period,
-    businessId: user.business.id,
+    businessId: ctx.user.business.id,
     ...stats,
     priorRevenue: priorTotals.totalRevenue,
     priorProfit: priorTotals.totalProfit,
