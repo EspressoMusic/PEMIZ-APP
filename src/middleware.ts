@@ -8,10 +8,6 @@ import {
   STUDIO_GATE_COOKIE,
   verifyStudioGateToken,
 } from "@/lib/studio-access";
-import {
-  buildMasterSessionToken,
-  masterSessionCookieOptions,
-} from "@/lib/master-auth";
 
 const SESSION_COOKIE = "linky_session";
 
@@ -39,12 +35,6 @@ async function attachStudioGate(response: NextResponse) {
   return response;
 }
 
-async function attachMasterSession(response: NextResponse) {
-  const token = await buildMasterSessionToken();
-  response.cookies.set(masterSessionCookieOptions(token));
-  return response;
-}
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const studioPath = getStudioAccessPath();
@@ -66,9 +56,6 @@ export async function middleware(request: NextRequest) {
           : "/dev";
       let response = NextResponse.redirect(new URL(target, request.url));
       response = await attachStudioGate(response);
-      if (isConsole) {
-        response = await attachMasterSession(response);
-      }
       return response;
     }
 

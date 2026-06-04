@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { ChevronDown, Search } from "lucide-react";
 import { Button, Panel, Badge, PageTitle } from "@/components/ui";
+import { MasterLoginGate } from "@/components/master-login-gate";
 import { WebShell } from "@/components/web-shell";
 
 type BusinessRow = {
@@ -41,13 +43,52 @@ type PendingOwner = {
   createdAt: string;
 };
 
+function DetailBox({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/80 p-3">
+      <p className="mb-2 text-[12px] font-extrabold uppercase tracking-wide text-bakery-muted">
+        {title}
+      </p>
+      <div className="space-y-1 text-[14px] text-bakery-ink">{children}</div>
+    </div>
+  );
+}
+
+function matchesStoreQuery(b: BusinessRow, query: string) {
+  const s = query.trim().toLowerCase();
+  if (!s) return true;
+  return (
+    b.name.toLowerCase().includes(s) ||
+    b.slug.toLowerCase().includes(s) ||
+    b.owner.email.toLowerCase().includes(s) ||
+    b.owner.name.toLowerCase().includes(s) ||
+    b.publicUrl.toLowerCase().includes(s)
+  );
+}
+
+function matchesOwnerQuery(u: PendingOwner, query: string) {
+  const s = query.trim().toLowerCase();
+  if (!s) return true;
+  return (
+    u.name.toLowerCase().includes(s) ||
+    u.email.toLowerCase().includes(s)
+  );
+}
+
 export function MasterPanel() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [businesses, setBusinesses] = useState<BusinessRow[]>([]);
   const [pendingOwners, setPendingOwners] = useState<PendingOwner[]>([]);
   const [signupsEnabled, setSignupsEnabled] = useState(true);
   const [platformLoading, setPlatformLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   async function checkAuth() {
     const res = await fetch("/api/master/status");
@@ -128,8 +169,39 @@ export function MasterPanel() {
   async function removeStore(id: string, name: string) {
     if (!confirm(`למחוק את החנות "${name}"? פעולה זו בלתי הפיכה.`)) return;
     const res = await fetch(`/api/admin/businesses/${id}`, { method: "DELETE" });
-    if (res.ok) loadBusinesses();
+    if (res.ok) {
+      if (expandedId === id) setExpandedId(null);
+      loadBusinesses();
+    }
   }
+
+  const sortedBusinesses = useMemo(() => {
+    return [...businesses].sort((a, b) => {
+      const aPending = !a.isActive && !a.approvedAt ? 0 : 1;
+      const bPending = !b.isActive && !b.approvedAt ? 0 : 1;
+      return aPending - bPending;
+    });
+  }, [businesses]);
+
+  const filteredStores = useMemo(
+    () => sortedBusinesses.filter((b) => matchesStoreQuery(b, searchQuery)),
+    [sortedBusinesses, searchQuery]
+  );
+
+  const filteredPendingOwners = useMemo(
+    () => pendingOwners.filter((u) => matchesOwnerQuery(u, searchQuery)),
+    [pendingOwners, searchQuery]
+  );
+
+  useEffect(() => {
+    if (filteredStores.length === 1) {
+      setExpandedId(filteredStores[0]!.id);
+      return;
+    }
+    if (expandedId && !filteredStores.some((b) => b.id === expandedId)) {
+      setExpandedId(null);
+    }
+  }, [searchQuery, filteredStores, expandedId]);
 
   if (authenticated === null) {
     return (
@@ -140,32 +212,11 @@ export function MasterPanel() {
   }
 
   if (!authenticated) {
-    return (
-      <WebShell>
-        <div className="mx-auto w-full max-w-sm px-4 py-12 text-center sm:py-16">
-          <PageTitle subtitle="גישה לניהול החנויות דרך הקישור הפנימי בלבד">
-            אין הרשאה
-          </PageTitle>
-          <p className="mt-4 text-sm text-bakery-muted">
-            אם הגעת לכאן בטעות, חזור לדף הבית.
-          </p>
-          <p className="mt-4">
-            <Link href="/" className="text-sm font-bold text-bakery-primary hover:underline">
-              דף הבית
-            </Link>
-          </p>
-        </div>
-      </WebShell>
-    );
+    return <MasterLoginGate />;
   }
 
   const activeCount = businesses.filter((b) => b.isActive).length;
   const pendingApproval = businesses.filter((b) => !b.isActive && !b.approvedAt);
-  const sortedBusinesses = [...businesses].sort((a, b) => {
-    const aPending = !a.isActive && !a.approvedAt ? 0 : 1;
-    const bPending = !b.isActive && !b.approvedAt ? 0 : 1;
-    return aPending - bPending;
-  });
 
   function storeStatus(b: BusinessRow) {
     if (b.isActive) return { label: "פעיל", tone: "success" as const };
@@ -179,17 +230,45 @@ export function MasterPanel() {
     return "הפעל חנות";
   }
 
+  function toggleSuspendButtonClass(b: BusinessRow) {
+    if (b.isActive) {
+      return "master-btn-matte-warn w-full sm:flex-1";
+    }
+    return "w-full sm:flex-1";
+  }
+
   return (
     <WebShell>
-      <div className="space-y-4 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8 md:px-[14px]">
+      <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8 md:px-[14px]">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-          <PageTitle subtitle="כל החנויות, סטטוסים ופרטי בעלים — השבתה או מחיקה">
-            ניהול חנויות
-          </PageTitle>
+          <PageTitle>ניהול חנויות</PageTitle>
           <Button variant="ghost" onClick={logout}>
             יציאה
           </Button>
         </div>
+
+        <Panel className="!p-3 sm:!p-4">
+          <label className="relative block">
+            <span className="sr-only">חיפוש חנויות</span>
+            <Search
+              className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-bakery-muted"
+              aria-hidden
+            />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="חיפוש לפי שם חנות, אימייל או כתובת..."
+              className="w-full rounded-[16px] border border-bakery-border/40 bg-bakery-input py-3 pe-4 ps-11 text-[15px] text-bakery-ink outline-none ring-bakery-primary/30 placeholder:text-bakery-muted focus:ring-2"
+              dir="auto"
+            />
+          </label>
+          {searchQuery.trim() && (
+            <p className="mt-2 text-[13px] font-semibold text-bakery-muted">
+              {filteredStores.length} חנויות · {filteredPendingOwners.length} חשבונות בלי חנות
+            </p>
+          )}
+        </Panel>
 
         <Panel>
           <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
@@ -241,7 +320,7 @@ export function MasterPanel() {
           </p>
         </Panel>
 
-        {pendingOwners.map((u) => (
+        {filteredPendingOwners.map((u) => (
           <Panel key={u.id}>
             <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1 space-y-1">
@@ -260,8 +339,8 @@ export function MasterPanel() {
                 </p>
               </div>
               <Button
-                variant="danger"
-                className="w-full sm:w-auto"
+                variant="primary"
+                className="master-btn-matte-danger w-full sm:w-auto"
                 onClick={() => removePendingOwner(u.id, u.email)}
               >
                 מחק חשבון
@@ -270,89 +349,142 @@ export function MasterPanel() {
           </Panel>
         ))}
 
-        {sortedBusinesses.map((b) => {
+        {filteredStores.map((b) => {
           const status = storeStatus(b);
+          const expanded = expandedId === b.id;
+          const suspendLabel = approveLabel(b);
+          const isSuspendAction = b.isActive;
+
           return (
-          <Panel key={b.id}>
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="min-w-0 flex-1 space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[18px] font-extrabold text-bakery-ink">{b.name}</p>
-                  <Badge tone={status.tone}>{status.label}</Badge>
-                  <Badge>{b.type === "STORE" ? "חנות" : "תורים"}</Badge>
-                </div>
-
-                <p className="break-all font-mono text-[14px] text-bakery-primary" dir="ltr">
-                  {b.publicUrl}
-                </p>
-
-                {b.description && (
-                  <p className="text-[14px] leading-[1.45] text-bakery-muted">{b.description}</p>
-                )}
-
-                <div className="grid gap-1 text-[13px] text-bakery-muted sm:grid-cols-2">
-                  <p>
-                    <span className="font-bold text-bakery-ink">בעלים:</span> {b.owner.name}
-                  </p>
-                  <p dir="ltr" className="text-left sm:text-right">
-                    {b.owner.email}
-                  </p>
-                  <p>
-                    <span className="font-bold text-bakery-ink">אושר על ידי מנהל:</span>{" "}
-                    {b.approvedAt
-                      ? new Date(b.approvedAt).toLocaleString("he-IL")
-                      : "ממתין"}
-                  </p>
-                  <p>
-                    <span className="font-bold text-bakery-ink">נפתח:</span>{" "}
-                    {new Date(b.createdAt).toLocaleString("he-IL")}
-                  </p>
-                  <p>
-                    <span className="font-bold text-bakery-ink">תנאים:</span>{" "}
-                    {b.termsAcceptedAt
-                      ? new Date(b.termsAcceptedAt).toLocaleDateString("he-IL")
-                      : "—"}
+            <Panel key={b.id} className="!p-0 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setExpandedId(expanded ? null : b.id)}
+                className="flex w-full items-center gap-3 px-4 py-3.5 text-start transition hover:bg-bakery-cream-light/50 sm:px-[18px]"
+                aria-expanded={expanded}
+              >
+                <ChevronDown
+                  className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform ${
+                    expanded ? "rotate-180" : ""
+                  }`}
+                  aria-hidden
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-[17px] font-extrabold text-bakery-ink">{b.name}</p>
+                    <Badge tone={status.tone}>{status.label}</Badge>
+                    <Badge>{b.type === "STORE" ? "חנות" : "תורים"}</Badge>
+                  </div>
+                  <p
+                    className="mt-1 truncate font-mono text-[13px] text-bakery-primary"
+                    dir="ltr"
+                  >
+                    {b.publicUrl}
                   </p>
                 </div>
+              </button>
 
-                <p className="text-[12px] text-bakery-muted">
-                  מוצרים {b._count.products} · הזמנות {b._count.orders} · תורים{" "}
-                  {b._count.appointments} · משבצות {b._count.slots} · פניות{" "}
-                  {b._count.inquiries}
-                </p>
+              {expanded && (
+                <div className="space-y-3 border-t border-bakery-border/25 px-4 pb-4 pt-3 sm:px-[18px]">
+                  {b.description && (
+                    <DetailBox title="תיאור">
+                      <p className="leading-[1.45] text-bakery-muted">{b.description}</p>
+                    </DetailBox>
+                  )}
 
-                <Link
-                  href={`/b/${b.slug}`}
-                  target="_blank"
-                  className="inline-block text-[14px] font-bold text-bakery-primary hover:underline"
-                >
-                  צפייה בעמוד לקוחות →
-                </Link>
-              </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <DetailBox title="בעלים">
+                      <p>
+                        <span className="font-bold">שם:</span> {b.owner.name}
+                      </p>
+                      <p dir="ltr" className="break-all font-mono text-[13px]">
+                        {b.owner.email}
+                      </p>
+                      {b.owner.phone && (
+                        <p dir="ltr" className="font-mono text-[13px]">
+                          {b.owner.phone}
+                        </p>
+                      )}
+                    </DetailBox>
 
-              <div className="flex w-full shrink-0 flex-col gap-2 sm:flex-row sm:w-auto lg:flex-col">
-                <Button
-                  variant={b.isActive ? "danger" : "primary"}
-                  className="w-full sm:flex-1 lg:w-auto"
-                  onClick={() => toggleActive(b.id, b.isActive)}
-                >
-                  {approveLabel(b)}
-                </Button>
-                <Button
-                  variant="danger"
-                  className="w-full sm:flex-1 lg:w-auto"
-                  onClick={() => removeStore(b.id, b.name)}
-                >
-                  מחק חנות
-                </Button>
-              </div>
-            </div>
-          </Panel>
-        );
+                    <DetailBox title="תאריכים">
+                      <p>
+                        <span className="font-bold">נפתח:</span>{" "}
+                        {new Date(b.createdAt).toLocaleString("he-IL")}
+                      </p>
+                      <p>
+                        <span className="font-bold">אישור מנהל:</span>{" "}
+                        {b.approvedAt
+                          ? new Date(b.approvedAt).toLocaleString("he-IL")
+                          : "ממתין"}
+                      </p>
+                      <p>
+                        <span className="font-bold">תנאים:</span>{" "}
+                        {b.termsAcceptedAt
+                          ? new Date(b.termsAcceptedAt).toLocaleDateString("he-IL")
+                          : "—"}
+                      </p>
+                    </DetailBox>
+                  </div>
+
+                  <DetailBox title="נתונים">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {(
+                        [
+                          ["מוצרים", b._count.products],
+                          ["הזמנות", b._count.orders],
+                          ["תורים", b._count.appointments],
+                          ["משבצות", b._count.slots],
+                          ["פניות", b._count.inquiries],
+                        ] as const
+                      ).map(([label, count]) => (
+                        <div
+                          key={label}
+                          className="rounded-[12px] border border-bakery-border/25 bg-bakery-square/60 px-2 py-2 text-center"
+                        >
+                          <p className="text-[11px] font-bold text-bakery-muted">{label}</p>
+                          <p className="text-[18px] font-extrabold text-bakery-ink">{count}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </DetailBox>
+
+                  <div className="rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/80 p-3">
+                    <Link
+                      href={`/b/${b.slug}`}
+                      target="_blank"
+                      className="text-[14px] font-bold text-bakery-primary hover:underline"
+                    >
+                      צפייה בעמוד לקוחות →
+                    </Link>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                      variant={isSuspendAction ? "primary" : b.isActive ? "danger" : "primary"}
+                      className={toggleSuspendButtonClass(b)}
+                      onClick={() => toggleActive(b.id, b.isActive)}
+                    >
+                      {suspendLabel}
+                    </Button>
+                    <Button
+                      variant="primary"
+                      className="master-btn-matte-danger w-full sm:flex-1"
+                      onClick={() => removeStore(b.id, b.name)}
+                    >
+                      מחק חנות
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Panel>
+          );
         })}
 
-        {businesses.length === 0 && pendingOwners.length === 0 && (
-          <p className="text-center text-bakery-muted">אין חנויות רשומות במערכת.</p>
+        {filteredStores.length === 0 && filteredPendingOwners.length === 0 && (
+          <p className="text-center text-bakery-muted">
+            {searchQuery.trim() ? "לא נמצאו תוצאות לחיפוש." : "אין חנויות רשומות במערכת."}
+          </p>
         )}
       </div>
     </WebShell>

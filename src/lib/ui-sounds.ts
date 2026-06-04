@@ -19,7 +19,7 @@ export function playUiPopupSound() {
   }
 }
 
-/** Click tone when a product is added */
+/** Click tone when a product or deal is added (mixkit-cool-interface-click-tone-2568) */
 export function playProductAddedSound() {
   if (typeof window === "undefined") return;
   try {

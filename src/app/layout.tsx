@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { cookies } from "next/headers";
 import "./globals.css";
 import {
@@ -41,17 +42,17 @@ export default async function RootLayout({
       data-locale={locale ?? undefined}
       suppressHydrationWarning
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: DASHBOARD_APPEARANCE_BOOT_SCRIPT,
-          }}
-        />
-      </head>
       <body
         className="flex min-h-dvh flex-col overflow-x-hidden bg-bakery-scaffold text-bakery-ink"
         suppressHydrationWarning
       >
+        <Script
+          id="linky-dashboard-appearance-boot"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: DASHBOARD_APPEARANCE_BOOT_SCRIPT,
+          }}
+        />
         <main className="flex-1">{children}</main>
       </body>
     </html>

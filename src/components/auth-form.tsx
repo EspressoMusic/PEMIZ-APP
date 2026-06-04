@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input, Alert, Panel, PageTitle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
+import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 
 export function AuthForm({
   mode,
@@ -15,6 +16,14 @@ export function AuthForm({
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [signupConfetti, setSignupConfetti] = useState(mode === "signup");
+
+  useEffect(() => {
+    if (mode !== "signup") return;
+    setSignupConfetti(true);
+    const timer = window.setTimeout(() => setSignupConfetti(false), 5000);
+    return () => window.clearTimeout(timer);
+  }, [mode]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -73,6 +82,7 @@ export function AuthForm({
 
   return (
     <WebShell>
+      {mode === "signup" && <DashboardConfettiBackground active={signupConfetti} />}
       <div className="mx-auto w-full max-w-md px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel>
           <PageTitle

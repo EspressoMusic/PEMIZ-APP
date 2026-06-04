@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { playUiPopupSound } from "@/lib/ui-sounds";
+import { playProductAddedSound } from "@/lib/ui-sounds";
+import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
+import { CelebrationModal } from "@/components/celebration-modal";
 import { Button, Input, Badge, Alert } from "@/components/ui";
 import { Gift, Plus, X, Pencil } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -94,6 +96,8 @@ export function DealsManager() {
     validUntil: string;
     validityLabel: string;
   } | null>(null);
+  const [dealSuccessOpen, setDealSuccessOpen] = useState(false);
+  const [dealSuccessName, setDealSuccessName] = useState("");
 
   async function load() {
     const [pRes, dRes] = await Promise.all([
@@ -109,12 +113,6 @@ export function DealsManager() {
   useEffect(() => {
     load();
   }, []);
-
-  useEffect(() => {
-    if (wizardStep === "confirm" && confirmDraft && !editingDealId) {
-      playUiPopupSound();
-    }
-  }, [wizardStep, confirmDraft, editingDealId]);
 
   function resetWizard() {
     setWizardStep(null);
@@ -239,8 +237,15 @@ export function DealsManager() {
       setWizardStep("form");
       return;
     }
+    const createdNew = !editingDealId;
+    const savedName = confirmDraft.name;
     resetWizard();
     load();
+    if (createdNew) {
+      setDealSuccessName(savedName);
+      playProductAddedSound();
+      setDealSuccessOpen(true);
+    }
   }
 
   async function removeDeal(id: string) {
@@ -500,6 +505,18 @@ export function DealsManager() {
           </div>
         )}
       </div>
+
+      <DashboardConfettiBackground active={dealSuccessOpen} />
+
+      <CelebrationModal
+        open={dealSuccessOpen}
+        onClose={() => setDealSuccessOpen(false)}
+        title="הדיל נוסף בהצלחה!"
+        subtitle={dealSuccessName || undefined}
+        detail="הלקוחות יכולים לממש אותו בעמוד החנות"
+        buttonLabel="מעולה"
+        closeAriaLabel={labels.close}
+      />
     </div>
   );
 }

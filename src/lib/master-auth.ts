@@ -1,29 +1,55 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { timingSafeEqual } from "crypto";
 
 export const MASTER_COOKIE = "linky_master";
 
+/** Constant-time compare — Edge-safe (no Node `crypto`). */
+function timingSafeEqualUtf8(a: string, b: string): boolean {
+  const enc = new TextEncoder();
+  const bufA = enc.encode(a.trim());
+  const bufB = enc.encode(b.trim());
+  if (bufA.length !== bufB.length) return false;
+  let diff = 0;
+  for (let i = 0; i < bufA.length; i++) {
+    diff |= bufA[i]! ^ bufB[i]!;
+  }
+  return diff === 0;
+}
+
+const DEV_SESSION_FALLBACK =
+  "linky-dev-secret-change-in-production-32chars-min";
+
 function getSecret() {
   const secret = process.env.SESSION_SECRET;
-  if (!secret || secret.length < 32) {
-    throw new Error("SESSION_SECRET must be at least 32 characters");
+  if (secret && secret.length >= 32) {
+    return new TextEncoder().encode(secret);
   }
-  return new TextEncoder().encode(secret);
+  if (process.env.NODE_ENV !== "production") {
+    return new TextEncoder().encode(DEV_SESSION_FALLBACK);
+  }
+  throw new Error("SESSION_SECRET must be at least 32 characters");
+}
+
+function normalizeEnvSecret(raw: string | undefined): string | null {
+  if (!raw) return null;
+  let key = raw.trim();
+  if (
+    (key.startsWith('"') && key.endsWith('"')) ||
+    (key.startsWith("'") && key.endsWith("'"))
+  ) {
+    key = key.slice(1, -1);
+  }
+  return key.length >= 2 ? key : null;
 }
 
 export function getMasterKeyFromEnv(): string | null {
-  const key = process.env.MASTER_KEY?.trim();
-  return key && key.length >= 2 ? key : null;
+  return normalizeEnvSecret(process.env.MASTER_KEY);
 }
 
 export function verifyMasterKey(input: string): boolean {
   const expected = getMasterKeyFromEnv();
   if (!expected) return false;
-  const a = Buffer.from(input.trim());
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
+  return timingSafeEqualUtf8(input, expected);
 }
 
 export async function buildMasterSessionToken(): Promise<string> {
