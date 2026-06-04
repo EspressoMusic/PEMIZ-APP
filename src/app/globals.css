@@ -36,6 +36,7 @@
   --bakery-scaffold: #f4f0e8;
   /* Light cream surfaces — brighter than tan panels, never pure white */
   --bakery-cream-light: #faf4e6;
+  --bakery-modal-overlay: var(--bakery-cream);
   --bakery-cream: #f6efe3;
   --bakery-cream-mid: #f0e8da;
   --bakery-cream-sheet: #f4ebe0;
@@ -69,6 +70,7 @@
   --font-sans: "Plus Jakarta Sans", "Rubik", system-ui, sans-serif;
   --color-bakery-scaffold: #f4f0e8;
   --color-bakery-cream-light: var(--bakery-cream-light);
+  --color-bakery-modal-overlay: var(--bakery-modal-overlay);
   --color-bakery-cream: var(--bakery-cream);
   --color-bakery-cream-mid: var(--bakery-cream-mid);
   --color-bakery-cream-sheet: var(--bakery-cream-sheet);
@@ -231,6 +233,7 @@ html[data-store-theme="dark"] , .customer-store-root.customer-theme-dark {
   --bakery-sale: #f07178;
   --bakery-error: #f07178;
   --bakery-success: #5cb88a;
+  --bakery-modal-overlay: rgb(15 17 20 / 0.88);
 }
 
 html[data-store-theme="light"] .bg-customer-bg, .customer-store-root.customer-theme-light .bg-customer-bg,
@@ -338,7 +341,9 @@ html[data-store-theme="dark"] .bakery-float-tile--active,
 }
 
 html[data-store-theme="dark"] .bakery-float-panel,
-.customer-store-root.customer-theme-dark .bakery-float-panel {
+html[data-store-theme="dark"] .bakery-action-sheet-panel,
+.customer-store-root.customer-theme-dark .bakery-float-panel,
+.customer-store-root.customer-theme-dark .bakery-action-sheet-panel {
   background: linear-gradient(180deg, #222831 0%, #1a1f26 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
@@ -585,6 +590,20 @@ html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-
     inset 0 1px 0 rgba(250, 244, 230, 0.9),
     0 3px 0 rgba(58, 47, 38, 0.04),
     0 12px 28px rgba(58, 47, 38, 0.1);
+}
+
+/* Modals: slightly darker cream than main action panels */
+.bakery-action-sheet-panel {
+  background: linear-gradient(
+    180deg,
+    var(--bakery-cream) 0%,
+    var(--bakery-cream-sheet) 100%
+  );
+  border: 1px solid rgba(235, 225, 210, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(244, 235, 220, 0.85),
+    0 3px 0 rgba(58, 47, 38, 0.05),
+    0 12px 28px rgba(58, 47, 38, 0.12);
 }
 
 .bakery-float-tile--active {

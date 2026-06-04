@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DashboardSellerPageStack } from "@/components/dashboard/dashboard-panel-frame";
@@ -6,8 +5,6 @@ import { OrdersManager } from "@/components/dashboard-client";
 import { DEV_PREVIEW_ORDERS, DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
 
 export default function DevSellerSettingsOrdersPage() {
-  if (process.env.NODE_ENV === "production") notFound();
-
   return (
     <div className="bakery-frame-bg min-h-screen">
       <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 sm:py-6 lg:px-[14px] lg:py-8">

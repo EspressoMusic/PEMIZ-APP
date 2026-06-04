@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Megaphone } from "lucide-react";
+import { ChevronDown, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui";
 import type { CustomerLabels } from "./customer-labels";
 
@@ -74,7 +74,7 @@ export function CustomerSellerNoticeBanner({
           type="button"
           onClick={onToggle}
           aria-expanded={expanded}
-          className="flex w-full items-center gap-3 px-4 py-3 text-start transition hover:opacity-95"
+          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-start transition hover:bg-bakery-card/40 active:scale-[0.99]"
         >
           <span className="customer-seller-notice-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
             <span className="inline-flex rtl:scale-x-[-1]">
@@ -95,12 +95,20 @@ export function CustomerSellerNoticeBanner({
               </span>
             )}
           </span>
-          {unread && (
-            <span
-              className="h-2.5 w-2.5 shrink-0 rounded-full bg-bakery-error ring-2 ring-[#faf4e6]"
+          <span className="flex shrink-0 items-center gap-1.5">
+            {unread && (
+              <span
+                className="h-2.5 w-2.5 rounded-full bg-bakery-error ring-2 ring-[#faf4e6]"
+                aria-hidden
+              />
+            )}
+            <ChevronDown
+              className={`h-5 w-5 text-bakery-muted transition-transform ${
+                expanded ? "rotate-180" : ""
+              }`}
               aria-hidden
             />
-          )}
+          </span>
         </button>
 
         {expanded && (
@@ -111,8 +119,11 @@ export function CustomerSellerNoticeBanner({
             <Button
               type="button"
               variant="primary"
-              className="customer-seller-notice-btn mt-3 w-full"
-              onClick={onDismiss}
+              className="customer-seller-notice-btn mt-3 w-full min-h-[48px] text-[15px] font-extrabold"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDismiss();
+              }}
             >
               {labels.sellerNoticeGotIt}
             </Button>

@@ -74,7 +74,7 @@ function TabNavButton({
       }`}
     >
       {badge != null && badge > 0 && (
-        <span className="absolute end-1 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-bakery-error px-1 text-[9px] font-extrabold text-white">
+        <span className="absolute end-1 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full border border-bakery-border/50 bg-bakery-card px-1 text-[9px] font-extrabold text-bakery-ink shadow-[0_1px_3px_rgba(58,47,38,0.12)]">
           {badge > 9 ? "9+" : badge}
         </span>
       )}

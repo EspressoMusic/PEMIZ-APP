@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
-import { MasterKeyFab } from "@/components/master-key-fab";
 import {
   DASHBOARD_APPEARANCE_BOOT_SCRIPT,
   parseLocaleCookie,
@@ -54,7 +53,6 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <main className="flex-1">{children}</main>
-        <MasterKeyFab />
       </body>
     </html>
   );

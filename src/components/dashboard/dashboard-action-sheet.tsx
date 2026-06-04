@@ -40,12 +40,12 @@ export function DashboardActionSheet({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-bakery-modal-overlay"
         onClick={onClose}
         aria-label={closeLabel}
       />
-      <div className="relative flex max-h-[min(88vh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] border border-bakery-border/30 bg-bakery-square shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-bakery-border/25 px-4 py-3">
+      <div className="bakery-action-sheet-panel relative flex max-h-[min(88vh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px]">
+        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-bakery-border/20 px-4 py-3">
           {title ? (
             <h2 className="text-[18px] font-extrabold text-bakery-ink">{title}</h2>
           ) : (

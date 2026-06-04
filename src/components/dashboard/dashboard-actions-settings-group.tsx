@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle, Settings, User } from "lucide-react";
+import { MessageCircle, Settings, TrendingUp, User } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardStoreStylePicker } from "@/components/dashboard/dashboard-store-style-picker";
 
 export function DashboardActionsSettingsGroup({
   basePath = "/dashboard",
+  previewOnly = false,
 }: {
   basePath?: string;
+  previewOnly?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
@@ -34,9 +37,15 @@ export function DashboardActionsSettingsGroup({
       <DashboardActionSheet
         open={open}
         onClose={() => setOpen(false)}
-        title={labels.settings}
+        ariaLabel={labels.settings}
       >
         <ul className="space-y-2 text-start">
+          <DashboardActionRow
+            href={`${basePath}/stats/sales`}
+            icon={TrendingUp}
+            title={labels.salesAndProfit}
+          />
+          <DashboardStoreStylePicker previewOnly={previewOnly} />
           <DashboardActionRow
             href={`${basePath}/settings/whatsapp`}
             icon={MessageCircle}

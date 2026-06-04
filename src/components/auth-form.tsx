@@ -37,6 +37,7 @@ export function AuthForm({
         error?: string;
         role?: string;
         hasBusiness?: boolean;
+        redirectTo?: string;
       };
 
       if (!res.ok) {
@@ -55,8 +56,8 @@ export function AuthForm({
 
       if (mode === "signup") {
         router.push("/onboarding");
-      } else if (data.role === "ADMIN") {
-        router.push("/master");
+      } else if (data.redirectTo) {
+        router.push(data.redirectTo);
       } else if (!data.hasBusiness) {
         router.push("/onboarding");
       } else {

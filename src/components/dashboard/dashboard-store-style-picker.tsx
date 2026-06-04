@@ -80,35 +80,33 @@ export function DashboardStoreStylePicker({
       <DashboardActionSheet
         open={open}
         onClose={() => setOpen(false)}
-        title={labels.stylePanelTitle}
+        ariaLabel={labels.styleColorLanguage}
       >
         <div className="space-y-4">
-          <div className="rounded-[20px] border border-bakery-border/30 bg-bakery-card/60 p-3">
-            <p className="mb-2 w-full text-center text-[14px] font-extrabold text-bakery-ink">
-              {labels.storeLanguageForCustomers}
-            </p>
-            <div className="flex justify-center gap-2">
-              {(
-                [
-                  { id: "he" as const, label: labels.hebrew },
-                  { id: "en" as const, label: labels.english },
-                ] as const
-              ).map((l) => (
-                <button
-                  key={l.id}
-                  type="button"
-                  disabled={saving}
-                  onClick={() => saveAppearance({ storeLocale: l.id })}
-                  className={`rounded-full px-5 py-2 text-[14px] font-extrabold transition ${
-                    locale === l.id
-                      ? "bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
-                      : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink"
-                  }`}
-                >
-                  {l.label}
-                </button>
-              ))}
-            </div>
+          <p className="text-center text-[14px] font-bold text-bakery-ink">
+            {labels.storeLanguageForCustomers}
+          </p>
+          <div className="flex justify-center gap-2">
+            {(
+              [
+                { id: "he" as const, label: labels.hebrew },
+                { id: "en" as const, label: labels.english },
+              ] as const
+            ).map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                disabled={saving}
+                onClick={() => saveAppearance({ storeLocale: l.id })}
+                className={`rounded-full px-5 py-2 text-[14px] font-extrabold transition ${
+                  locale === l.id
+                    ? "bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
+                    : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink"
+                }`}
+              >
+                {l.label}
+              </button>
+            ))}
           </div>
 
           <p className="text-center text-[14px] font-bold text-bakery-ink">

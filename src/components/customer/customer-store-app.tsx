@@ -7,12 +7,12 @@ import {
   ShieldPlus,
   UserRound,
   MessagesSquare,
+  Settings,
 } from "lucide-react";
-import { Button, Input, Textarea, PageTitle, Panel } from "@/components/ui";
+import { Button, Input, Textarea, Panel } from "@/components/ui";
 import {
   loadCustomerPreferences,
   saveCustomerPreferences,
-  localeThemeSummary,
   type CustomerDisplayTheme,
   type CustomerLocale,
   type CustomerTextScale,
@@ -37,10 +37,12 @@ import {
 import {
   EmptyStateCard,
   OrdersHubPanel,
+  SettingsCollapsibleSection,
   SettingsMenuRow,
   ProductGridCard,
   DealCard,
   HubEmptyText,
+  CartLineRow,
 } from "./customer-ui";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
 import { CustomerCenterModal } from "./customer-center-modal";
@@ -54,7 +56,6 @@ import {
   CUSTOMER_SCROLL_MAIN,
   CUSTOMER_VIEWPORT_HEIGHT,
 } from "./customer-store-frame";
-import { playUiPopupSound } from "@/lib/ui-sounds";
 import { normalizePhone } from "@/lib/phone";
 import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
 
@@ -155,8 +156,9 @@ export function CustomerStoreApp({
   const [faqOpen, setFaqOpen] = useState(false);
   const [displayOpen, setDisplayOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
+  const [settingsExpanded, setSettingsExpanded] = useState(false);
+  const [cartDeals, setCartDeals] = useState<StoreDeal[]>([]);
   const [orderCheckoutOpen, setOrderCheckoutOpen] = useState(false);
-  const [pendingDeal, setPendingDeal] = useState<StoreDeal | null>(null);
   const [orderSuccessOpen, setOrderSuccessOpen] = useState(false);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [orderError, setOrderError] = useState("");
@@ -244,15 +246,20 @@ export function CustomerStoreApp({
       }
 
       if (!message?.trim() || !sentAt) return;
+
+      const seen = localStorage.getItem(broadcastSeenKey(business.slug));
+      if (seen === sentAt) {
+        setSellerNoticeMessage("");
+        setSellerNoticeSentAt(null);
+        setSellerNoticeUnread(false);
+        setSellerNoticeExpanded(false);
+        return;
+      }
+
       setSellerNoticeMessage(message);
       setSellerNoticeSentAt(sentAt);
-      const seen = localStorage.getItem(broadcastSeenKey(business.slug));
-      const isNew = seen !== sentAt;
-      setSellerNoticeUnread(isNew);
-      if (isNew) {
-        setSellerNoticeExpanded(false);
-        playUiPopupSound();
-      }
+      setSellerNoticeUnread(true);
+      setSellerNoticeExpanded(false);
     }
 
     checkBroadcast();
@@ -308,25 +315,31 @@ export function CustomerStoreApp({
     if (sentAt) {
       localStorage.setItem(broadcastSeenKey(business.slug), sentAt);
     }
+    setSellerNoticeMessage("");
+    setSellerNoticeSentAt(null);
     setSellerNoticeUnread(false);
     setSellerNoticeExpanded(false);
   }
 
   function toggleSellerNotice() {
-    setSellerNoticeExpanded((open) => {
-      const next = !open;
-      if (next && sellerNoticeUnread) {
-        const sentAt = sellerNoticeSentAt ?? business.storeBroadcastAt;
-        if (sentAt) {
-          localStorage.setItem(broadcastSeenKey(business.slug), sentAt);
-        }
-        setSellerNoticeUnread(false);
-      }
-      return next;
-    });
+    setSellerNoticeExpanded((open) => !open);
+    if (!sellerNoticeExpanded) {
+      setSellerNoticeUnread(false);
+    }
   }
 
-  const showSellerNoticeBanner = sellerNoticeMessage.trim().length > 0;
+  const showSellerNoticeBanner =
+    mainTab === "home" && sellerNoticeMessage.trim().length > 0;
+
+  useEffect(() => {
+    if (mainTab !== "home") {
+      setSellerNoticeExpanded(false);
+    }
+  }, [mainTab]);
+
+  useEffect(() => {
+    if (mainTab !== "settings") setSettingsExpanded(false);
+  }, [mainTab]);
 
   function updatePreferences(
     patch: Partial<{
@@ -365,11 +378,13 @@ export function CustomerStoreApp({
     return list.filter((d) => new Date(d.validUntil).getTime() > now);
   }, [business.deals]);
 
-  const checkoutTotal = pendingDeal ? pendingDeal.dealPrice : cartTotal;
+  const dealsTotal = cartDeals.reduce((s, d) => s + d.dealPrice, 0);
+  const checkoutTotal = cartTotal + dealsTotal;
+  const activeOrderCount =
+    cartLines.reduce((n, l) => n + l.qty, 0) + cartDeals.length;
 
   async function submitOrder(name: string, phone: string) {
-    const isDeal = !!pendingDeal;
-    if (!isDeal && cartLines.length === 0) return;
+    if (cartLines.length === 0 && cartDeals.length === 0) return;
     if (!name || !phone) {
       setOrderError(
         locale === "he" ? "יש למלא שם וטלפון" : "Please enter name and phone"
@@ -378,50 +393,70 @@ export function CustomerStoreApp({
     }
     setOrderError("");
     setOrderSubmitting(true);
-    const res = await fetch(`/api/public/${business.slug}/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        isDeal
-          ? {
-              customerName: name,
-              customerPhone: phone,
-              dealId: pendingDeal.id,
-            }
-          : {
-              customerName: name,
-              customerPhone: phone,
-              items: cartLines.map((l) => ({
-                productId: l.product.id,
-                quantity: l.qty,
-              })),
-            }
-      ),
-    });
-    setOrderSubmitting(false);
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setOrderError(
-        (data as { error?: string }).error ??
-          (locale === "he" ? "שגיאה בשליחת ההזמנה" : "Could not place order")
-      );
-      return;
+
+    const payloadBase = {
+      customerName: name,
+      customerPhone: phone,
+    };
+
+    for (const deal of cartDeals) {
+      const res = await fetch(`/api/public/${business.slug}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payloadBase, dealId: deal.id }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setOrderSubmitting(false);
+        setOrderError(
+          (data as { error?: string }).error ??
+            (locale === "he" ? "שגיאה בשליחת ההזמנה" : "Could not place order")
+        );
+        return;
+      }
     }
+
+    if (cartLines.length > 0) {
+      const res = await fetch(`/api/public/${business.slug}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...payloadBase,
+          items: cartLines.map((l) => ({
+            productId: l.product.id,
+            quantity: l.qty,
+          })),
+        }),
+      });
+      setOrderSubmitting(false);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setOrderError(
+          (data as { error?: string }).error ??
+            (locale === "he" ? "שגיאה בשליחת ההזמנה" : "Could not place order")
+        );
+        return;
+      }
+    } else {
+      setOrderSubmitting(false);
+    }
+
     setCustomerName(name);
     setOrderPhone(phone);
     localStorage.setItem(`linky-customer-${business.slug}`, name);
     localStorage.setItem(inquiryPhoneKey(business.slug), phone);
     setCart({});
-    setPendingDeal(null);
+    setCartDeals([]);
     setOrderCheckoutOpen(false);
     setOrderSuccessOpen(true);
   }
 
-  function startDealCheckout(deal: StoreDeal) {
+  function addDealToActiveOrders(deal: StoreDeal) {
     if (!dealHasStock(deal)) return;
-    setOrderError("");
-    setPendingDeal(deal);
-    setOrderCheckoutOpen(true);
+    setCartDeals((prev) =>
+      prev.some((d) => d.id === deal.id) ? prev : [...prev, deal]
+    );
+    setMainTab("orders");
   }
 
   async function sendInquiry(e: React.FormEvent<HTMLFormElement>) {
@@ -471,23 +506,14 @@ export function CustomerStoreApp({
       new Date(s.startAt) > new Date()
   );
 
-  const cartItemCount = cartLines.reduce((n, l) => n + l.qty, 0);
-
-  function renderStoreHeader() {
-    if (!business.description?.trim()) return null;
-    return (
-      <p className="text-[14px] leading-snug text-bakery-muted">
-        {business.description}
-      </p>
-    );
-  }
+  const cartItemCount = activeOrderCount;
 
   function renderProductGrid() {
     if (business.products.length === 0) {
       return <EmptyStateCard message={labels.noServices} />;
     }
     return (
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 items-stretch gap-2.5">
         {business.products.map((p) => {
           const outOfStock = !isProductInStock(p.stock);
           const maxQty = maxOrderQuantity(p.stock);
@@ -530,7 +556,7 @@ export function CustomerStoreApp({
       return <EmptyStateCard message={labels.noDeals} />;
     }
     return (
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-2 items-start gap-2.5">
         {activeDeals.map((d) => (
           <DealCard
             key={d.id}
@@ -565,11 +591,7 @@ export function CustomerStoreApp({
     switch (mainTab) {
       case "home":
         return (
-          <div className="space-y-5 pb-2">
-            {renderStoreHeader()}
-            <PageTitle>
-              {isAppointments ? labels.appointments : labels.menu}
-            </PageTitle>
+          <div className="space-y-4 pb-2">
             {isAppointments ? (
               availableSlots.length === 0 ? (
                 <EmptyStateCard message={labels.noSlots} />
@@ -605,38 +627,40 @@ export function CustomerStoreApp({
 
       case "orders":
         return (
-          <div className="space-y-5 pb-2">
-            <PageTitle>
-              {isAppointments ? labels.myAppointments : labels.orders}
-            </PageTitle>
+          <div className="space-y-4 pb-2">
             {isAppointments ? (
               <EmptyStateCard message={labels.noMyAppts} />
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 <OrdersHubPanel title={labels.activeOrders}>
-                  {cartLines.length === 0 ? (
+                  {cartLines.length === 0 && cartDeals.length === 0 ? (
                     <HubEmptyText>{labels.cartEmpty}</HubEmptyText>
                   ) : (
                     <>
-                      <ul className="space-y-1.5 py-2 text-start text-[15px] text-bakery-ink">
+                      <ul className="space-y-2 py-2">
+                        {cartDeals.map((d) => (
+                          <CartLineRow
+                            key={`deal-${d.id}`}
+                            name={d.name}
+                            imageUrl={d.products[0]?.imageUrl}
+                            qty={1}
+                            lineTotal={d.dealPrice}
+                            locale={locale}
+                          />
+                        ))}
                         {cartLines.map((l) => (
-                          <li
+                          <CartLineRow
                             key={l.product.id}
-                            className="flex justify-between gap-2 font-semibold"
-                          >
-                            <span>
-                              {l.product.name} × {l.qty}
-                            </span>
-                            <span className="shrink-0">
-                              {formatCustomerMoney(
-                                getEffectivePrice(l.product) * l.qty,
-                                locale
-                              )}
-                            </span>
-                          </li>
+                            name={l.product.name}
+                            imageUrl={l.product.imageUrl}
+                            qty={l.qty}
+                            lineTotal={getEffectivePrice(l.product) * l.qty}
+                            locale={locale}
+                          />
                         ))}
                         <li className="border-t border-bakery-border/40 pt-2 font-extrabold">
-                          {labels.total}: {formatCustomerMoney(cartTotal, locale)}
+                          {labels.total}:{" "}
+                          {formatCustomerMoney(checkoutTotal, locale)}
                         </li>
                       </ul>
                       <Button
@@ -662,12 +686,11 @@ export function CustomerStoreApp({
 
       case "deals":
         return (
-          <div className="space-y-5 pb-2">
-            <PageTitle>{labels.deals}</PageTitle>
+          <div className="pb-2">
             {isAppointments ? (
               <EmptyStateCard message={labels.noDeals} />
             ) : (
-              <div className="bakery-float-panel rounded-[24px] p-3">
+              <div className="bakery-float-panel rounded-[24px] p-2.5">
                 {renderDealsGrid()}
               </div>
             )}
@@ -677,38 +700,39 @@ export function CustomerStoreApp({
       case "settings":
         return (
           <div className="space-y-4 pb-2">
-            <PageTitle>{labels.settings}</PageTitle>
             <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
               <SettingsMenuRow
                 icon={HelpCircle}
                 title={labels.faq}
-                subtitle={labels.faqSub}
                 onClick={() => setFaqOpen(true)}
               />
               <SettingsMenuRow
                 icon={MessagesSquare}
                 title={labels.contactSeller}
-                subtitle={labels.inquiriesSub}
                 onClick={openContactModal}
               />
-              <SettingsMenuRow
-                icon={SlidersHorizontal}
-                title={labels.language}
-                subtitle={localeThemeSummary(locale, displayTheme)}
-                onClick={() => setDisplayOpen(true)}
-              />
-              <SettingsMenuRow
-                icon={ShieldPlus}
-                title={labels.legal}
-                subtitle={labels.legalSub}
-                onClick={() => setLegalOpen(true)}
-              />
-              <SettingsMenuRow
-                icon={UserRound}
-                title={labels.signIn}
-                subtitle={labels.signInSub}
-                onClick={() => setProfileModalOpen(true)}
-              />
+              <SettingsCollapsibleSection
+                title={labels.settings}
+                icon={Settings}
+                expanded={settingsExpanded}
+                onToggle={() => setSettingsExpanded((open) => !open)}
+              >
+                <SettingsMenuRow
+                  icon={UserRound}
+                  title={labels.signIn}
+                  onClick={() => setProfileModalOpen(true)}
+                />
+                <SettingsMenuRow
+                  icon={SlidersHorizontal}
+                  title={labels.language}
+                  onClick={() => setDisplayOpen(true)}
+                />
+                <SettingsMenuRow
+                  icon={ShieldPlus}
+                  title={labels.legal}
+                  onClick={() => setLegalOpen(true)}
+                />
+              </SettingsCollapsibleSection>
             </div>
           </div>
         );
@@ -849,15 +873,12 @@ export function CustomerStoreApp({
 
       <OrderCheckoutModal
         open={orderCheckoutOpen}
-        onClose={() => {
-          setOrderCheckoutOpen(false);
-          setPendingDeal(null);
-        }}
+        onClose={() => setOrderCheckoutOpen(false)}
         locale={locale}
         total={checkoutTotal}
         summary={
-          pendingDeal
-            ? `${labels.deals}: ${pendingDeal.name}`
+          cartDeals.length > 0
+            ? `${labels.deals}: ${cartDeals.map((d) => d.name).join(", ")}`
             : undefined
         }
         initialName={customerName}

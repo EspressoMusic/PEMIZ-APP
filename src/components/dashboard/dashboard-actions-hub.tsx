@@ -1,10 +1,12 @@
 "use client";
 
-import { Users, Store, HelpCircle, TrendingUp } from "lucide-react";
-import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
+import { useState } from "react";
+import { Users, Store } from "lucide-react";
 import { DashboardActionsSettingsGroup } from "@/components/dashboard/dashboard-actions-settings-group";
-import { DashboardStoreStylePicker } from "@/components/dashboard/dashboard-store-style-picker";
 import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-square";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardCustomersHubGrid } from "@/components/dashboard/dashboard-customers-hub";
+import { DashboardStoreSettingsHubGrid } from "@/components/dashboard/dashboard-store-settings-hub";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardActionsHub({
@@ -17,6 +19,9 @@ export function DashboardActionsHub({
   previewOnly?: boolean;
 }) {
   const { labels } = useAppLocale();
+  const [customersOpen, setCustomersOpen] = useState(false);
+  const [storeOpen, setStoreOpen] = useState(false);
+  const showStoreHub = businessType === "STORE";
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden py-3 text-center sm:py-4">
@@ -24,35 +29,53 @@ export function DashboardActionsHub({
         <div className="bakery-float-panel shrink-0 rounded-[24px] p-3">
           <div className="grid grid-cols-2 gap-2">
             <DashboardActionSquare
-              href={`${basePath}/customers`}
+              onClick={() => setCustomersOpen(true)}
               icon={Users}
               label={labels.customers}
             />
-            <DashboardActionSquare
-              href={`${basePath}/settings`}
-              icon={Store}
-              label={labels.store}
-            />
+            {showStoreHub ? (
+              <DashboardActionSquare
+                onClick={() => setStoreOpen(true)}
+                icon={Store}
+                label={labels.store}
+              />
+            ) : (
+              <DashboardActionSquare
+                href={`${basePath}/settings`}
+                icon={Store}
+                label={labels.store}
+              />
+            )}
           </div>
         </div>
 
         <div className="bakery-float-panel min-h-0 rounded-[24px] p-3">
           <ul className="space-y-2 text-start">
-          <DashboardActionRow
-            href={`${basePath}/faq`}
-            icon={HelpCircle}
-            title={labels.faq}
-          />
-          <DashboardActionRow
-            href={`${basePath}/stats/sales`}
-            icon={TrendingUp}
-            title={labels.salesAndProfit}
-          />
-          <DashboardStoreStylePicker previewOnly={previewOnly} />
-          <DashboardActionsSettingsGroup basePath={basePath} />
+            <DashboardActionsSettingsGroup
+              basePath={basePath}
+              previewOnly={previewOnly}
+            />
           </ul>
         </div>
       </div>
+
+      <DashboardActionSheet
+        open={customersOpen}
+        onClose={() => setCustomersOpen(false)}
+        ariaLabel={labels.customers}
+      >
+        <DashboardCustomersHubGrid basePath={basePath} />
+      </DashboardActionSheet>
+
+      {showStoreHub && (
+        <DashboardActionSheet
+          open={storeOpen}
+          onClose={() => setStoreOpen(false)}
+          ariaLabel={labels.store}
+        >
+          <DashboardStoreSettingsHubGrid basePath={basePath} />
+        </DashboardActionSheet>
+      )}
     </div>
   );
 }

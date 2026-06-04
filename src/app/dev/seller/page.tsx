@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
 import { demoPrepSummary } from "@/lib/dashboard-prep-summary";
@@ -8,8 +7,6 @@ import {
 } from "@/lib/dev-preview-data";
 
 export default function DevSellerPreviewPage() {
-  if (process.env.NODE_ENV === "production") notFound();
-
   return (
     <DashboardShell
       businessType="STORE"

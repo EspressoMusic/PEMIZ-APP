@@ -1,11 +1,11 @@
 "use client";
 
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
-import { Megaphone, MessageCircle, MessagesSquare } from "lucide-react";
+import { HelpCircle, Megaphone, MessageCircle, MessagesSquare } from "lucide-react";
 import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-square";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
-export function DashboardCustomersHub({
+export function DashboardCustomersHubGrid({
   basePath = "/dashboard",
 }: {
   basePath?: string;
@@ -13,25 +13,40 @@ export function DashboardCustomersHub({
   const { labels } = useAppLocale();
 
   return (
+    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+      <DashboardActionSquare
+        href={`${basePath}/customers/broadcast`}
+        icon={Megaphone}
+        label={labels.customerMessage}
+      />
+      <DashboardActionSquare
+        href={`${basePath}/customers/inquiries`}
+        icon={MessagesSquare}
+        label={labels.customerInquiries}
+      />
+      <DashboardActionSquare
+        href={`${basePath}/customers/chat`}
+        icon={MessageCircle}
+        label={labels.sellerChatTitle}
+      />
+      <DashboardActionSquare
+        href={`${basePath}/faq`}
+        icon={HelpCircle}
+        label={labels.faq}
+      />
+    </div>
+  );
+}
+
+export function DashboardCustomersHub({
+  basePath = "/dashboard",
+}: {
+  basePath?: string;
+}) {
+  return (
     <div className={`${DASHBOARD_PAGE_ROOT} justify-start pb-2 text-center`}>
       <div className="bakery-float-panel rounded-[24px] p-4">
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
-          <DashboardActionSquare
-            href={`${basePath}/customers/broadcast`}
-            icon={Megaphone}
-            label={labels.customerMessage}
-          />
-          <DashboardActionSquare
-            href={`${basePath}/customers/inquiries`}
-            icon={MessagesSquare}
-            label={labels.customerInquiries}
-          />
-          <DashboardActionSquare
-            href={`${basePath}/customers/chat`}
-            icon={MessageCircle}
-            label={labels.sellerChatTitle}
-          />
-        </div>
+        <DashboardCustomersHubGrid basePath={basePath} />
       </div>
     </div>
   );

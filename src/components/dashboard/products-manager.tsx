@@ -17,6 +17,10 @@ import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
 import { formatStockLabel } from "@/lib/product-stock";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import {
+  DASHBOARD_PAGE_ROOT,
+  DASHBOARD_SCROLL_MAIN,
+} from "@/components/dashboard/dashboard-panel-frame";
 
 type Product = {
   id: string;
@@ -29,10 +33,42 @@ type Product = {
   isActive: boolean;
 };
 
-export function ProductsManager() {
+function toPreviewProducts(
+  items: {
+    id: string;
+    name: string;
+    price: number;
+    salePrice?: number | null;
+    stock?: number | null;
+    description?: string | null;
+    imageUrl?: string | null;
+    isActive?: boolean;
+  }[]
+): Product[] {
+  return items.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    salePrice: p.salePrice ?? null,
+    stock: p.stock ?? null,
+    description: p.description ?? null,
+    imageUrl: p.imageUrl ?? null,
+    isActive: p.isActive ?? true,
+  }));
+}
+
+export function ProductsManager({
+  previewOnly = false,
+  initialProducts,
+}: {
+  previewOnly?: boolean;
+  initialProducts?: Parameters<typeof toPreviewProducts>[0];
+} = {}) {
   const { labels, formatMoney } = useAppLocale();
   const formRef = useRef<HTMLFormElement>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(() =>
+    previewOnly && initialProducts ? toPreviewProducts(initialProducts) : []
+  );
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
@@ -43,6 +79,7 @@ export function ProductsManager() {
   const [successName, setSuccessName] = useState("");
 
   async function load() {
+    if (previewOnly) return;
     const res = await fetch("/api/dashboard/products");
     const data = await res.json();
     if (res.ok) setProducts(data.products);
@@ -50,11 +87,39 @@ export function ProductsManager() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [previewOnly]);
 
   async function addProduct(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    if (previewOnly) {
+      const fd = new FormData(e.currentTarget);
+      const name = String(fd.get("name") ?? "").trim();
+      const price = Number(fd.get("price"));
+      if (!name || Number.isNaN(price)) return;
+      setProducts((prev) => [
+        {
+          id: `preview-${Date.now()}`,
+          name,
+          price,
+          salePrice: null,
+          stock: null,
+          description: String(fd.get("description") ?? "") || null,
+          imageUrl: imageData,
+          isActive: true,
+        },
+        ...prev,
+      ]);
+      formRef.current?.reset();
+      setImagePreview(null);
+      setImageData(null);
+      setLimitDiscountOn(false);
+      setMoreDetailsOpen(false);
+      setSuccessName(name);
+      playProductAddedSound();
+      setSuccessOpen(true);
+      return;
+    }
     setAdding(true);
     const fd = new FormData(e.currentTarget);
     const name = String(fd.get("name") ?? "").trim();
@@ -134,6 +199,12 @@ export function ProductsManager() {
   }
 
   async function toggleProduct(id: string, isActive: boolean) {
+    if (previewOnly) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, isActive: !isActive } : p))
+      );
+      return;
+    }
     await fetch(`/api/dashboard/products/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -143,7 +214,13 @@ export function ProductsManager() {
   }
 
   return (
-    <div className="space-y-5 pb-2">
+    <div className={`${DASHBOARD_PAGE_ROOT} pb-2`}>
+      <div className={`${DASHBOARD_SCROLL_MAIN} space-y-5`}>
+      {previewOnly && (
+        <p className="rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
+          תצוגה מקדימה — השינויים לא נשמרים ולא מועלים לשרת
+        </p>
+      )}
       {error && <Alert variant="error">{error}</Alert>}
 
       <div className="bakery-float-panel rounded-[24px] p-4">
@@ -252,58 +329,74 @@ export function ProductsManager() {
         </form>
       </div>
 
-      <div className="grid grid-cols-1 gap-2.5 min-[380px]:grid-cols-2 sm:gap-3 md:grid-cols-3">
-        {products.map((p) => (
-          <SquareCard
-            key={p.id}
-            className="bakery-float-tile overflow-hidden rounded-[20px] p-0"
+      {products.length > 0 && (
+        <div className="mx-auto w-full max-w-[320px]">
+          <p className="mb-2 text-center text-[15px] font-extrabold text-bakery-ink">
+            {labels.products}
+          </p>
+          <div
+            className="no-scrollbar aspect-square w-full overflow-y-auto overscroll-contain rounded-[20px] border-[1.2px] border-bakery-border/40 bg-bakery-card/50 p-2.5 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]"
+            role="region"
+            aria-label={labels.products}
           >
-            {p.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={p.imageUrl}
-                alt=""
-                className="aspect-[4/3] w-full object-cover"
-              />
-            ) : (
-              <div className="flex aspect-[4/3] items-center justify-center bg-bakery-card text-3xl">
-                🧁
-              </div>
-            )}
-            <div className="p-3 text-center">
-              <p className="truncate text-[17px] font-extrabold">{p.name}</p>
-              {hasDiscount(p) ? (
-                <p className="mt-1">
-                  <span className="text-[14px] text-bakery-muted line-through">
-                    {formatMoney(p.price)}
-                  </span>
-                  <span className="ms-2 text-[16px] font-extrabold text-red-600">
-                    {formatMoney(getEffectivePrice(p))}
-                  </span>
-                </p>
-              ) : (
-                <p className="text-[16px] font-extrabold text-bakery-ink">
-                  {formatMoney(p.price)}
-                </p>
-              )}
-              <p className="mt-1 text-[13px] font-semibold text-bakery-muted">
-                {formatStockLabel(p.stock)}
-              </p>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-1">
-                <Badge tone={p.isActive ? "success" : "default"}>
-                  {p.isActive ? labels.active : labels.hidden}
-                </Badge>
-                <Button
-                  variant="ghost"
-                  onClick={() => toggleProduct(p.id, p.isActive)}
+            <div className="grid grid-cols-2 gap-2.5">
+              {products.map((p) => (
+                <SquareCard
+                  key={p.id}
+                  className="bakery-float-tile overflow-hidden rounded-[16px] p-0"
                 >
-                  {p.isActive ? labels.hide : labels.show}
-                </Button>
-              </div>
+                  {p.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={p.imageUrl}
+                      alt=""
+                      className="aspect-square w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex aspect-square items-center justify-center bg-bakery-card text-2xl">
+                      🧁
+                    </div>
+                  )}
+                  <div className="p-2 text-center">
+                    <p className="truncate text-[14px] font-extrabold">
+                      {p.name}
+                    </p>
+                    {hasDiscount(p) ? (
+                      <p className="mt-0.5">
+                        <span className="text-[12px] text-bakery-muted line-through">
+                          {formatMoney(p.price)}
+                        </span>
+                        <span className="ms-1 text-[13px] font-extrabold text-red-600">
+                          {formatMoney(getEffectivePrice(p))}
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="text-[13px] font-extrabold text-bakery-ink">
+                        {formatMoney(p.price)}
+                      </p>
+                    )}
+                    <p className="mt-0.5 text-[11px] font-semibold text-bakery-muted">
+                      {formatStockLabel(p.stock)}
+                    </p>
+                    <div className="mt-1.5 flex flex-col items-center gap-0.5">
+                      <Badge tone={p.isActive ? "success" : "default"}>
+                        {p.isActive ? labels.active : labels.hidden}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        className="text-[13px]"
+                        onClick={() => toggleProduct(p.id, p.isActive)}
+                      >
+                        {p.isActive ? labels.hide : labels.show}
+                      </Button>
+                    </div>
+                  </div>
+                </SquareCard>
+              ))}
             </div>
-          </SquareCard>
-        ))}
-      </div>
+          </div>
+        </div>
+      )}
 
       <DashboardConfettiBackground active={successOpen} />
 
@@ -312,6 +405,7 @@ export function ProductsManager() {
         productName={successName}
         onClose={() => setSuccessOpen(false)}
       />
+      </div>
     </div>
   );
 }

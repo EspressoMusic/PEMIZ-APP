@@ -9,6 +9,42 @@ import {
   type StoreThemeId,
 } from "@/lib/store-themes";
 
+/** Modal top bar: centered title, close on the side, optional leading control (back). */
+export function CustomerModalHeaderBar({
+  title,
+  onClose,
+  closeLabel,
+  leading,
+}: {
+  title?: string;
+  onClose: () => void;
+  closeLabel: string;
+  leading?: ReactNode;
+}) {
+  return (
+    <div className="relative flex shrink-0 min-h-[52px] items-center justify-center border-b border-bakery-border/25 px-12 py-3">
+      {leading ? (
+        <div className="absolute start-2 top-1/2 flex -translate-y-1/2 items-center">
+          {leading}
+        </div>
+      ) : null}
+      {title ? (
+        <h2 className="w-full text-center text-[18px] font-extrabold leading-tight text-bakery-ink">
+          {title}
+        </h2>
+      ) : null}
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute end-2 top-1/2 -translate-y-1/2 shrink-0 rounded-full p-1.5 text-bakery-muted transition hover:bg-bakery-card/80"
+        aria-label={closeLabel}
+      >
+        <X className="h-5 w-5" strokeWidth={2} />
+      </button>
+    </div>
+  );
+}
+
 /** Centered dialog — not a bottom sheet */
 export function CustomerCenterModal({
   open,
@@ -67,17 +103,11 @@ export function CustomerCenterModal({
       >
         {header ??
           (title ? (
-            <div className="customer-center-modal__header flex shrink-0 items-center justify-between gap-2 border-b border-bakery-border/25 px-4 py-3">
-              <h2 className="text-[18px] font-extrabold text-bakery-ink">{title}</h2>
-              <button
-                type="button"
-                onClick={onClose}
-                className="shrink-0 rounded-full p-1.5 text-bakery-muted transition hover:bg-bakery-card/80"
-                aria-label={closeLabel}
-              >
-                <X className="h-5 w-5" strokeWidth={2} />
-              </button>
-            </div>
+            <CustomerModalHeaderBar
+              title={title}
+              onClose={onClose}
+              closeLabel={closeLabel}
+            />
           ) : null)}
         <div
           className={`customer-center-modal__body min-h-0 flex-1 overscroll-contain ${bodyClassName || "overflow-y-auto"}`}

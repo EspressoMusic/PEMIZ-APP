@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { timingSafeEqual } from "crypto";
 
-const MASTER_COOKIE = "linky_master";
+export const MASTER_COOKIE = "linky_master";
 
 function getSecret() {
   const secret = process.env.SESSION_SECRET;
@@ -26,21 +26,30 @@ export function verifyMasterKey(input: string): boolean {
   return timingSafeEqual(a, b);
 }
 
-export async function createMasterSession() {
-  const token = await new SignJWT({ master: true })
+export async function buildMasterSessionToken(): Promise<string> {
+  return new SignJWT({ master: true })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("24h")
     .sign(getSecret());
+}
 
-  const cookieStore = await cookies();
-  cookieStore.set(MASTER_COOKIE, token, {
+export function masterSessionCookieOptions(token: string) {
+  return {
+    name: MASTER_COOKIE,
+    value: token,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "lax" as const,
     path: "/",
     maxAge: 60 * 60 * 24,
-  });
+  };
+}
+
+export async function createMasterSession() {
+  const token = await buildMasterSessionToken();
+  const cookieStore = await cookies();
+  cookieStore.set(MASTER_COOKIE, token, masterSessionCookieOptions(token));
 }
 
 export async function destroyMasterSession() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Languages, Globe } from "lucide-react";
+import { Languages, Globe, X } from "lucide-react";
 import type { CustomerDisplayTheme, CustomerLocale } from "@/lib/customer-preferences";
 import { STORE_THEMES, storeThemeLabel } from "@/lib/store-themes";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
@@ -24,17 +24,28 @@ function SelectTile({
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99] ${
         selected
-          ? "bg-bakery-cream-light ring-2 ring-bakery-primary/35"
-          : "bg-bakery-square"
+          ? "bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.2)]"
+          : "bg-bakery-square text-bakery-ink"
       }`}
     >
-      <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-        <Icon className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
+      <span
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] ${
+          selected ? "bg-bakery-on-primary/15" : "bakery-icon-tile"
+        }`}
+      >
+        <Icon
+          className={`h-6 w-6 ${selected ? "text-bakery-on-primary" : "text-bakery-ink"}`}
+          strokeWidth={1.75}
+        />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[16px] font-extrabold text-bakery-ink">{title}</span>
+        <span className="block text-[16px] font-extrabold">{title}</span>
         {subtitle && (
-          <span className="mt-1 block text-[13px] font-medium leading-snug text-bakery-muted">
+          <span
+            className={`mt-1 block text-[13px] font-medium leading-snug ${
+              selected ? "text-bakery-on-primary/80" : "text-bakery-muted"
+            }`}
+          >
             {subtitle}
           </span>
         )}
@@ -66,17 +77,30 @@ export function CustomerDisplaySheet({
     english: "English",
   };
 
+  const closeLabel = locale === "he" ? "סגור" : "Close";
+
   return (
     <CustomerCenterModal
       open={open}
       onClose={onClose}
-      title={t.sheetTitle}
       locale={locale}
       storeTheme={theme}
+      ariaLabel={t.sheetTitle}
+      header={
+        <div className="flex shrink-0 justify-end border-b border-bakery-border/25 px-4 py-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[15px] font-semibold text-bakery-ink transition hover:bg-bakery-card/80"
+          >
+            <X className="h-5 w-5" strokeWidth={2} />
+            {closeLabel}
+          </button>
+        </div>
+      }
     >
       <div className="px-4 py-4">
       <section>
-        <h2 className="mb-3 text-[17px] font-extrabold text-bakery-ink">{t.language}</h2>
         <ul className="space-y-2.5">
           <li>
             <SelectTile
@@ -97,8 +121,7 @@ export function CustomerDisplaySheet({
         </ul>
       </section>
 
-      <section className="mt-7">
-        <h2 className="mb-3 text-[17px] font-extrabold text-bakery-ink">{t.display}</h2>
+      <section className="mt-5">
         <ul className="space-y-2">
           {STORE_THEMES.map((s) => {
             const active = theme === s.id;
@@ -109,21 +132,25 @@ export function CustomerDisplaySheet({
                 <button
                   type="button"
                   onClick={() => onThemeChange(s.id)}
-                  className={`flex w-full items-center gap-3 rounded-[16px] border px-3 py-2.5 text-start transition ${
+                  className={`flex w-full items-center gap-3 rounded-[16px] border px-3 py-2.5 text-start transition active:scale-[0.99] ${
                     active
-                      ? "border-bakery-primary/40 bg-bakery-cream-light ring-2 ring-bakery-primary/30"
-                      : "border-bakery-border/30 bg-bakery-square"
+                      ? "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.2)]"
+                      : "border-bakery-border/30 bg-bakery-square text-bakery-ink"
                   }`}
                 >
                   <span
-                    className={`h-10 w-14 shrink-0 rounded-[10px] bg-gradient-to-b ${s.preview}`}
+                    className={`h-10 w-14 shrink-0 rounded-[10px] bg-gradient-to-b ring-1 ${s.preview} ${
+                      active ? "ring-bakery-on-primary/40" : "ring-bakery-border/25"
+                    }`}
                     aria-hidden
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[14px] font-extrabold text-bakery-ink">
-                      {title}
-                    </span>
-                    <span className="block text-[12px] font-semibold text-bakery-muted">
+                    <span className="block text-[14px] font-extrabold">{title}</span>
+                    <span
+                      className={`block text-[12px] font-semibold ${
+                        active ? "text-bakery-on-primary/80" : "text-bakery-muted"
+                      }`}
+                    >
                       {subtitle}
                     </span>
                   </span>

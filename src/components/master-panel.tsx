@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button, Panel, Badge, PageTitle, Input, Alert } from "@/components/ui";
+import { Button, Panel, Badge, PageTitle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 
 type BusinessRow = {
@@ -43,8 +43,6 @@ type PendingOwner = {
 
 export function MasterPanel() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-  const [key, setKey] = useState("");
-  const [error, setError] = useState("");
   const [businesses, setBusinesses] = useState<BusinessRow[]>([]);
   const [pendingOwners, setPendingOwners] = useState<PendingOwner[]>([]);
   const [signupsEnabled, setSignupsEnabled] = useState(true);
@@ -112,26 +110,6 @@ export function MasterPanel() {
     if (authenticated) loadBusinesses();
   }, [authenticated]);
 
-  async function login(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    const res = await fetch("/api/master/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key }),
-    });
-    const data = await res.json();
-    setLoading(false);
-    if (!res.ok) {
-      setError(data.error ?? "שגיאה");
-      return;
-    }
-    setAuthenticated(true);
-    setKey("");
-    loadBusinesses();
-  }
-
   async function logout() {
     await fetch("/api/master/logout", { method: "POST" });
     setAuthenticated(false);
@@ -164,34 +142,16 @@ export function MasterPanel() {
   if (!authenticated) {
     return (
       <WebShell>
-        <div className="mx-auto w-full max-w-sm px-4 py-12 sm:py-16">
-          <PageTitle subtitle="גישת מנהל פלטפורמה לכל החנויות">
-            כניסת מפתח
+        <div className="mx-auto w-full max-w-sm px-4 py-12 text-center sm:py-16">
+          <PageTitle subtitle="גישה לניהול החנויות דרך הקישור הפנימי בלבד">
+            אין הרשאה
           </PageTitle>
-          {error && (
-            <div className="mb-4">
-              <Alert variant="error">{error}</Alert>
-            </div>
-          )}
-          <Panel>
-            <form onSubmit={login} className="space-y-3">
-              <Input
-                label="מפתח מנהל"
-                type="password"
-                value={key}
-                onChange={(e) => setKey(e.target.value)}
-                required
-                dir="ltr"
-                autoComplete="off"
-              />
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "בודק..." : "כניסה"}
-              </Button>
-            </form>
-          </Panel>
-          <p className="mt-4 text-center">
-            <Link href="/" className="text-sm font-bold text-bakery-muted hover:text-bakery-ink">
-              חזרה לדף הבית
+          <p className="mt-4 text-sm text-bakery-muted">
+            אם הגעת לכאן בטעות, חזור לדף הבית.
+          </p>
+          <p className="mt-4">
+            <Link href="/" className="text-sm font-bold text-bakery-primary hover:underline">
+              דף הבית
             </Link>
           </p>
         </div>
@@ -224,7 +184,7 @@ export function MasterPanel() {
       <div className="space-y-4 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8 md:px-[14px]">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
           <PageTitle subtitle="כל החנויות, סטטוסים ופרטי בעלים — השבתה או מחיקה">
-            ניהול חנויות (מפתח)
+            ניהול חנויות
           </PageTitle>
           <Button variant="ghost" onClick={logout}>
             יציאה

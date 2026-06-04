@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import type { Role } from "@/lib/types";
 import { jsonError, jsonOk } from "@/lib/api";
+import { studioConsolePath } from "@/lib/studio-access";
 import { databaseConfigHint, isDatabaseConfigured } from "@/lib/db-env";
 import { prismaErrorResponse } from "@/lib/prisma-errors";
 
@@ -47,12 +48,16 @@ export async function POST(req: Request) {
       role: user.role as Role,
     });
 
+    const consolePath =
+      user.role === "ADMIN" ? studioConsolePath() || undefined : undefined;
+
     return jsonOk({
       userId: user.id,
       role: user.role,
       emailVerified: user.emailVerified,
       hasBusiness: !!user.business,
       businessActive: user.business?.isActive ?? false,
+      redirectTo: consolePath,
     });
   } catch (error) {
     console.error("login failed", error);

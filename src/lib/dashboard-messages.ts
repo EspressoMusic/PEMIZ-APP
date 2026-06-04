@@ -23,12 +23,21 @@ export type DashboardLabels = {
   sellerChatTitle: string;
   sellerChatHint: string;
   sellerChatEmpty: string;
+  sellerChatTabPrivate: string;
+  sellerChatTabCommunity: string;
+  sellerChatNotInquiries: string;
+  sellerChatBackToList: string;
+  chatLoading: string;
+  chatEmpty: string;
+  chatPlaceholder: string;
+  chatReply: string;
+  replyingTo: string;
+  cancelReply: string;
   store: string;
   faq: string;
   salesAndProfit: string;
   orderStatsTitle: string;
   styleColorLanguage: string;
-  stylePanelTitle: string;
   storeLanguageForCustomers: string;
   storeMode: string;
   hebrew: string;
@@ -240,12 +249,22 @@ const HE: DashboardLabels = {
   sellerChatTitle: "צ'אט עם לקוחות",
   sellerChatHint: "בחר שיחה והגב כשמתאים לך",
   sellerChatEmpty: "אין הודעות צ'אט מלקוחות עדיין",
+  sellerChatTabPrivate: "צ'אטים פרטיים",
+  sellerChatTabCommunity: "צ'אט קהילתי",
+  sellerChatNotInquiries:
+    "הודעות בצ'אט לא מופיעות ב«פניות» — רק בטופס פנייה נשמר שם",
+  sellerChatBackToList: "רשימת שיחות",
+  chatLoading: "טוען…",
+  chatEmpty: "אין הודעות עדיין",
+  chatPlaceholder: "כתוב הודעה…",
+  chatReply: "הגב",
+  replyingTo: "משיב ל־",
+  cancelReply: "ביטול",
   store: "החנות",
   faq: "שאלות ותשובות",
   salesAndProfit: "מכירות ורווחים",
   orderStatsTitle: "סטטיסטיקת הזמנות",
   styleColorLanguage: "סגנון ושפה לחנות",
-  stylePanelTitle: "סגנון ושפה",
   storeLanguageForCustomers: "שפת החנות ללקוחות",
   storeMode: "מצב תצוגה",
   hebrew: "עברית",
@@ -464,12 +483,22 @@ const EN: DashboardLabels = {
   sellerChatTitle: "Customer chat",
   sellerChatHint: "Pick a conversation and reply when you can",
   sellerChatEmpty: "No customer chat messages yet",
+  sellerChatTabPrivate: "Private chats",
+  sellerChatTabCommunity: "Community chat",
+  sellerChatNotInquiries:
+    "Chat messages do not appear under Inquiries — only the contact form does",
+  sellerChatBackToList: "All chats",
+  chatLoading: "Loading…",
+  chatEmpty: "No messages yet",
+  chatPlaceholder: "Write a message…",
+  chatReply: "Reply",
+  replyingTo: "Replying to",
+  cancelReply: "Cancel",
   store: "Store",
   faq: "FAQ",
   salesAndProfit: "Sales & profit",
   orderStatsTitle: "Order statistics",
   styleColorLanguage: "Style & language",
-  stylePanelTitle: "Style & language",
   storeLanguageForCustomers: "Store language for customers",
   storeMode: "Display mode",
   hebrew: "Hebrew",

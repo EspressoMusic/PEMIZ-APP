@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { studioConsolePath } from "@/lib/studio-access";
 import { activateLegacyPendingBusiness } from "@/lib/business";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
@@ -11,7 +12,10 @@ export default async function DashboardLayout({
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (!user.business) {
-    if (user.role === "ADMIN") redirect("/master");
+    if (user.role === "ADMIN") {
+      const consolePath = studioConsolePath();
+      redirect(consolePath || "/");
+    }
     redirect("/onboarding");
   }
 

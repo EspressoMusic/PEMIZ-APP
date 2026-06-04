@@ -3,28 +3,29 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  X,
   Accessibility,
   Shield,
   FileText,
   Gavel,
   ArrowRight,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import type { CustomerLocale, CustomerTextScale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
-import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
+import {
+  CustomerCenterModal,
+  CustomerModalHeaderBar,
+} from "@/components/customer/customer-center-modal";
 
 function MenuTile({
   icon: Icon,
   title,
-  subtitle,
   href,
   onClick,
 }: {
   icon: LucideIcon;
   title: string;
-  subtitle: string;
   href?: string;
   onClick?: () => void;
 }) {
@@ -33,11 +34,8 @@ function MenuTile({
       <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
         <Icon className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
       </span>
-      <span className="min-w-0 flex-1 text-start">
-        <span className="block text-[16px] font-extrabold text-bakery-ink">{title}</span>
-        <span className="mt-0.5 block text-[13px] font-medium leading-snug text-bakery-muted">
-          {subtitle}
-        </span>
+      <span className="min-w-0 flex-1 text-start text-[16px] font-extrabold text-bakery-ink">
+        {title}
       </span>
     </>
   );
@@ -133,47 +131,52 @@ export function CustomerLegalSheet({
       storeTheme={storeTheme}
       ariaLabel={t.sheetTitle}
       header={
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-bakery-border/25 px-4 py-3">
-          {view === "accessibility" ? (
+        view === "accessibility" ? (
+          <CustomerModalHeaderBar
+            title={t.a11yTitle}
+            onClose={onClose}
+            closeLabel={t.close}
+            leading={
+              <button
+                type="button"
+                onClick={() => setView("main")}
+                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[14px] font-semibold text-bakery-ink"
+              >
+                <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
+                {t.back}
+              </button>
+            }
+          />
+        ) : (
+          <div className="flex shrink-0 justify-end border-b border-bakery-border/25 px-4 py-3">
             <button
               type="button"
-              onClick={() => setView("main")}
-              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[14px] font-semibold text-bakery-ink"
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[15px] font-semibold text-bakery-ink transition hover:bg-bakery-card/80"
             >
-              <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
-              {t.back}
+              <X className="h-5 w-5" strokeWidth={2} />
+              {t.close}
             </button>
-          ) : (
-            <h2 className="text-[18px] font-extrabold text-bakery-ink">{t.sheetTitle}</h2>
-          )}
-          <button
-            type="button"
-            onClick={onClose}
-            className="ms-auto shrink-0 rounded-full p-1.5 text-bakery-muted transition hover:bg-bakery-card/80"
-            aria-label={t.close}
-          >
-            <X className="h-5 w-5" strokeWidth={2} />
-          </button>
-        </div>
+          </div>
+        )
       }
     >
         <div className="px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           {view === "main" ? (
             <>
               <section>
-                <h2 className="mb-3 text-[17px] font-extrabold text-bakery-ink">
+                <h2 className="mb-3 text-center text-[17px] font-extrabold text-bakery-ink">
                   {t.accessibility}
                 </h2>
                 <MenuTile
                   icon={Accessibility}
                   title={t.accessibility}
-                  subtitle={t.accessibilitySub}
                   onClick={() => setView("accessibility")}
                 />
               </section>
 
-              <section className="mt-7">
-                <h2 className="mb-3 text-[17px] font-extrabold text-bakery-ink">
+              <section className="mt-5">
+                <h2 className="mb-3 text-center text-[17px] font-extrabold text-bakery-ink">
                   {t.legal}
                 </h2>
                 <ul className="space-y-3">
@@ -181,7 +184,6 @@ export function CustomerLegalSheet({
                     <MenuTile
                       icon={Shield}
                       title={t.privacy}
-                      subtitle={t.privacySub}
                       href="/privacy"
                     />
                   </li>
@@ -189,7 +191,6 @@ export function CustomerLegalSheet({
                     <MenuTile
                       icon={FileText}
                       title={t.terms}
-                      subtitle={t.termsSub}
                       href="/terms"
                     />
                   </li>
@@ -208,8 +209,7 @@ export function CustomerLegalSheet({
             </>
           ) : (
             <section>
-              <h2 className="text-[20px] font-extrabold text-bakery-ink">{t.a11yTitle}</h2>
-              <p className="mt-1 mb-4 text-[14px] text-bakery-muted">{t.a11yHint}</p>
+              <p className="mb-4 text-center text-[14px] text-bakery-muted">{t.a11yHint}</p>
               <ul className="space-y-2.5">
                 {scales.map((s) => (
                   <li key={s.id}>

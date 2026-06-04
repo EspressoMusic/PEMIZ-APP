@@ -12,7 +12,10 @@ import {
   X,
 } from "lucide-react";
 import { Button, Input, Textarea, Panel } from "@/components/ui";
-import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
+import {
+  CustomerCenterModal,
+  CustomerModalHeaderBar,
+} from "@/components/customer/customer-center-modal";
 import { SettingsMenuRow } from "@/components/customer/customer-ui";
 import type { CustomerLabels } from "@/components/customer/customer-labels";
 import type { CustomerLocale } from "@/lib/customer-preferences";
@@ -273,13 +276,11 @@ export function CustomerContactModal({
         <SettingsMenuRow
           icon={FileText}
           title={labels.contactOptionInquiry}
-          subtitle={labels.contactOptionInquirySub}
           onClick={() => onViewChange("inquiry")}
         />
         <SettingsMenuRow
           icon={MessageCircle}
           title={labels.contactOptionSellerChat}
-          subtitle={labels.contactOptionSellerChatSub}
           onClick={() => onViewChange("seller-chat")}
         />
         <SettingsMenuRow
@@ -512,33 +513,34 @@ export function CustomerContactModal({
       }
       ariaLabel={title}
       header={
-        <div className="flex shrink-0 items-center gap-2 border-b border-bakery-border/25 px-4 py-3">
-          {view !== "menu" ? (
+        view === "menu" ? (
+          <div className="flex shrink-0 justify-end border-b border-bakery-border/25 px-4 py-3">
             <button
               type="button"
-              onClick={() => onViewChange("menu")}
-              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[14px] font-semibold text-bakery-ink"
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[15px] font-semibold text-bakery-ink transition hover:bg-bakery-card/80"
             >
-              <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
-              {labels.back}
+              <X className="h-5 w-5" strokeWidth={2} />
+              {closeLabel}
             </button>
-          ) : (
-            <h2 className="text-[18px] font-extrabold text-bakery-ink">{title}</h2>
-          )}
-          {view !== "menu" && (
-            <h2 className="min-w-0 flex-1 truncate text-center text-[16px] font-extrabold text-bakery-ink">
-              {title}
-            </h2>
-          )}
-          <button
-            type="button"
-            onClick={onClose}
-            className="ms-auto shrink-0 rounded-full p-1.5 text-bakery-muted transition hover:bg-bakery-card/80"
-            aria-label={closeLabel}
-          >
-            <X className="h-5 w-5" strokeWidth={2} />
-          </button>
-        </div>
+          </div>
+        ) : (
+          <CustomerModalHeaderBar
+            title={title}
+            onClose={onClose}
+            closeLabel={closeLabel}
+            leading={
+              <button
+                type="button"
+                onClick={() => onViewChange("menu")}
+                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[14px] font-semibold text-bakery-ink"
+              >
+                <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
+                {labels.back}
+              </button>
+            }
+          />
+        )
       }
     >
       {view === "menu" && renderMenu()}

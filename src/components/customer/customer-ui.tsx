@@ -32,6 +32,45 @@ export function EmptyStateCard({ message }: { message: string }) {
   );
 }
 
+const settingsMenuShell =
+  "block w-full rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square bakery-panel-shadow";
+
+/** Settings tab — same row style as other settings items; tap to expand nested rows */
+export function SettingsCollapsibleSection({
+  title,
+  icon: Icon,
+  expanded,
+  onToggle,
+  children,
+}: {
+  title: string;
+  icon: LucideIcon;
+  expanded: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={expanded}
+        className={`${settingsMenuShell} transition active:scale-[0.99]`}
+      >
+        <div className="flex items-center gap-3.5 px-[18px] py-3.5">
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <Icon className="h-[26px] w-[26px] text-bakery-ink" strokeWidth={1.75} />
+          </span>
+          <p className="min-w-0 flex-1 text-start text-[18px] font-extrabold leading-tight text-bakery-ink">
+            {title}
+          </p>
+        </div>
+      </button>
+      {expanded ? <div className="space-y-2">{children}</div> : null}
+    </div>
+  );
+}
+
 /** [BakeryOrdersPanel] / [_OrdersHubSquare] */
 export function OrdersHubPanel({
   title,
@@ -132,7 +171,9 @@ export function SettingsMenuRow({
   href?: string;
 }) {
   const content = (
-    <div className="flex items-center gap-3.5 px-[18px] py-4">
+    <div
+      className={`flex items-center gap-3.5 px-[18px] ${subtitle ? "py-4" : "py-3.5"}`}
+    >
       <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
         <Icon className="h-[26px] w-[26px] text-bakery-ink" strokeWidth={1.75} />
       </span>
@@ -171,6 +212,40 @@ export function SettingsMenuRow({
     >
       {content}
     </button>
+  );
+}
+
+export function CartLineRow({
+  name,
+  imageUrl,
+  qty,
+  lineTotal,
+  locale,
+}: {
+  name: string;
+  imageUrl?: string | null;
+  qty: number;
+  lineTotal: number;
+  locale: CustomerLocale;
+}) {
+  return (
+    <li className="flex items-center gap-2.5 text-start">
+      <ProductThumb
+        imageUrl={imageUrl}
+        className="h-12 w-12 shrink-0 rounded-[12px]"
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[14px] font-extrabold text-bakery-ink">
+          {name}
+        </p>
+        <p className="text-[13px] font-bold text-bakery-ink">
+          × {qty}
+        </p>
+      </div>
+      <span className="shrink-0 text-[14px] font-extrabold text-bakery-ink">
+        {formatCustomerMoney(lineTotal, locale)}
+      </span>
+    </li>
   );
 }
 
@@ -344,41 +419,48 @@ export function ProductGridCard({
   return (
     <>
     <div
-      className={`flex flex-col rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
+      className={`flex h-full min-h-0 flex-col rounded-[16px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
     >
-      <div className="aspect-[2/3] w-full shrink-0 overflow-hidden rounded-[14px] bg-bakery-card">
+      <div className="aspect-square w-full shrink-0 overflow-hidden rounded-[12px] bg-bakery-card">
         <ProductThumb
           imageUrl={imageUrl}
           className="h-full w-full object-cover"
         />
       </div>
-      <div className="mt-1.5 flex items-center gap-1.5">
-        <h3 className="min-w-0 flex-1 truncate text-start text-[17px] font-extrabold text-bakery-ink">
-          {name}
-        </h3>
-        <button
-          type="button"
-          onClick={() => setInfoOpen(true)}
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/95 text-bakery-primary shadow-[0_1px_4px_rgba(58,47,38,0.12)] transition active:scale-95"
-          aria-label={infoLabel}
+      <div className="mt-1 flex min-h-0 flex-1 flex-col">
+        <div className="flex items-center gap-1">
+          <h3 className="min-w-0 flex-1 truncate text-start text-[14px] font-extrabold text-bakery-ink">
+            {name}
+          </h3>
+          <button
+            type="button"
+            onClick={() => setInfoOpen(true)}
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/95 text-bakery-primary shadow-[0_1px_4px_rgba(58,47,38,0.12)] transition active:scale-95"
+            aria-label={infoLabel}
+          >
+            <Info className="h-3 w-3" strokeWidth={2.5} />
+          </button>
+        </div>
+        <p
+          className={`mt-0.5 line-clamp-1 min-h-[14px] text-start text-[11px] leading-[14px] text-bakery-muted ${
+            description ? "" : "invisible"
+          }`}
         >
-          <Info className="h-3 w-3" strokeWidth={2.5} />
-        </button>
-      </div>
-      <p
-        className={`line-clamp-2 min-h-[2.75rem] text-start text-[14px] leading-[1.4] text-bakery-muted ${!description ? "opacity-0" : ""}`}
-      >
-        {description || "—"}
-      </p>
-      <div className="mt-1 flex items-center justify-between pt-1">
-        <span className="flex flex-col items-start leading-tight">
-          {onSale && (
-            <span className="text-[13px] font-semibold text-bakery-muted line-through">
-              {formatCustomerMoney(price, locale)}
-            </span>
-          )}
+          {description || "—"}
+        </p>
+        <div className="mt-auto flex items-end justify-between gap-1 pt-1.5">
+        <span className="flex h-[34px] flex-col items-start justify-end leading-none">
           <span
-            className={`text-[16px] font-extrabold ${onSale ? "text-red-600" : "text-bakery-ink"}`}
+            className={`text-[11px] font-semibold leading-none line-through ${
+              onSale ? "text-bakery-muted" : "invisible"
+            }`}
+          >
+            {formatCustomerMoney(price, locale)}
+          </span>
+          <span
+            className={`text-[15px] font-extrabold leading-none ${
+              onSale ? "text-red-600" : "text-bakery-ink"
+            }`}
           >
             {formatCustomerMoney(display, locale)}
           </span>
@@ -397,7 +479,11 @@ export function ProductGridCard({
             >
               −
             </button>
-            <span className="min-w-[20px] text-center text-[16px] font-extrabold text-bakery-ink">
+            <span
+              className={`min-w-[20px] text-center text-[15px] font-extrabold ${
+                qty > 0 ? "text-black" : "text-bakery-ink"
+              }`}
+            >
               {qty}
             </span>
             <button
@@ -410,6 +496,7 @@ export function ProductGridCard({
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
 
@@ -465,22 +552,6 @@ type DealProduct = {
   salePrice?: number | null;
 };
 
-function DealInfoTile({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`box-border w-full rounded-[14px] border-[1.2px] border-bakery-border/45 bg-bakery-card px-4 py-3 text-center shadow-[0_2px_8px_rgba(58,47,38,0.1)] ${className}`}
-    >
-      {children}
-    </div>
-  );
-}
-
 export function DealCard({
   name,
   dealPrice,
@@ -509,69 +580,53 @@ export function DealCard({
   );
 
   return (
-    <div className="flex w-full flex-col gap-2.5 rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-3 shadow-[0_3px_10px_rgba(0,0,0,0.13)]">
-      <DealInfoTile>
-        <p className="text-[17px] font-extrabold leading-snug text-bakery-ink">
-          {name}
-        </p>
-      </DealInfoTile>
+    <article className="flex flex-col gap-1.5 rounded-[16px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-2.5 shadow-[0_2px_8px_rgba(58,47,38,0.1)]">
+      <h3 className="line-clamp-2 min-h-[2.35rem] text-center text-[13px] font-extrabold leading-[1.25] text-bakery-ink">
+        {name}
+      </h3>
 
-      <DealInfoTile>
-        <p className="text-[12px] font-bold text-bakery-muted">
-          {labels.dealIncludes}
-        </p>
-        <p className="mt-1 text-[14px] font-extrabold leading-snug text-bakery-ink">
-          {products.map((p) => p.name).join(" + ")}
-        </p>
-      </DealInfoTile>
-
-      <div className="box-border w-full rounded-[14px] border-[1.2px] border-bakery-border/45 bg-bakery-card p-3 shadow-[0_2px_8px_rgba(58,47,38,0.1)]">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {products.map((p, index) => (
-            <Fragment key={p.id ?? p.name}>
-              {index > 0 && (
-                <span
-                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/35 bg-bakery-square"
-                  aria-hidden
-                >
-                  <Plus className="h-7 w-7 text-bakery-primary" strokeWidth={2.5} />
-                </span>
-              )}
-              <div className="flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-bakery-border/35 bg-bakery-square p-1.5">
-                <ProductThumb
-                  imageUrl={p.imageUrl}
-                  className="h-full w-full rounded-[10px]"
-                />
-              </div>
-            </Fragment>
-          ))}
-        </div>
+      <div className="flex h-10 flex-nowrap items-center justify-center gap-1">
+        {products.map((p, index) => (
+          <Fragment key={p.id ?? p.name}>
+            {index > 0 && (
+              <Plus
+                className="h-3.5 w-3.5 shrink-0 text-bakery-primary"
+                strokeWidth={2.5}
+                aria-hidden
+              />
+            )}
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-bakery-border/35 bg-bakery-card p-0.5">
+              <ProductThumb
+                imageUrl={p.imageUrl}
+                className="h-full w-full scale-[1.14] rounded-[8px] object-cover"
+              />
+            </div>
+          </Fragment>
+        ))}
       </div>
 
-      <DealInfoTile>
-        <div className="flex flex-wrap items-baseline justify-center gap-2">
-          <span className="text-[14px] font-semibold text-bakery-muted line-through">
+      <div className="flex flex-col items-center gap-0.5 py-0.5">
+        <div className="flex flex-wrap items-baseline justify-center gap-1.5">
+          <span className="text-[12px] font-semibold text-bakery-muted line-through">
             {formatCustomerMoney(originalTotal, locale)}
           </span>
-          <span className="text-[20px] font-extrabold text-red-600">
+          <span className="text-[17px] font-extrabold leading-none text-red-600">
             {formatCustomerMoney(dealPrice, locale)}
           </span>
         </div>
-      </DealInfoTile>
+        <p className="text-center text-[11px] font-semibold leading-tight text-bakery-muted">
+          {labels.dealValidUntil}: {until}
+        </p>
+      </div>
 
-      <p className="py-0.5 text-center text-[13px] font-bold text-bakery-ink">
-        {labels.dealValidUntil}: {until}
-      </p>
-
-      <Button
+      <button
         type="button"
-        variant="primary"
-        className="mt-0.5 w-full min-h-[44px] font-extrabold"
         onClick={onRedeem}
         disabled={redeemDisabled}
+        className="w-full rounded-[12px] bg-bakery-primary px-2 py-2.5 text-[13px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
       >
         {redeemDisabled ? labels.outOfStock : labels.redeemDeal}
-      </Button>
-    </div>
+      </button>
+    </article>
   );
 }
