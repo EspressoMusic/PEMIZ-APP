@@ -6,6 +6,7 @@ import {
   Shield,
   FileText,
   Gavel,
+  Files,
   ArrowRight,
   X,
   type LucideIcon,
@@ -44,6 +45,87 @@ function MenuTile({
         {title}
       </span>
     </button>
+  );
+}
+
+function MoreDocsTile({
+  title,
+  docIds,
+  docMap,
+  locale,
+  draftNotice,
+  onOpenDoc,
+  sheetOpen,
+  storeTheme,
+}: {
+  title: string;
+  docIds: PlatformLegalDocId[];
+  docMap: Map<PlatformLegalDocId, PlatformLegalDocPayload>;
+  locale: CustomerLocale;
+  draftNotice: string;
+  onOpenDoc: (id: PlatformLegalDocId) => void;
+  sheetOpen: boolean;
+  storeTheme: StoreThemeId;
+}) {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!sheetOpen) setModalOpen(false);
+  }, [sheetOpen]);
+
+  return (
+    <>
+      <MenuTile
+        icon={Files}
+        title={title}
+        onClick={() => setModalOpen(true)}
+      />
+      <CustomerCenterModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        locale={locale}
+        storeTheme={storeTheme}
+        ariaLabel={title}
+        title={title}
+        panelClassName="max-h-fit"
+      >
+        <div className="px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-card px-3 py-3.5 shadow-[0_2px_8px_rgba(58,47,38,0.06)]">
+            {docIds.length > 0 && (
+              <ul className="space-y-2">
+                {docIds.map((id) => {
+                  const d = docMap.get(id);
+                  if (!d) return null;
+                  return (
+                    <li key={id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setModalOpen(false);
+                          onOpenDoc(id);
+                        }}
+                        className="w-full text-center text-[14px] font-semibold text-bakery-primary hover:underline"
+                      >
+                        {locale === "he" ? d.titleHe : d.titleEn}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <p
+              className={`text-center text-[12px] leading-[1.45] text-bakery-muted ${
+                docIds.length > 0
+                  ? "mt-3 border-t border-bakery-border/25 pt-3"
+                  : ""
+              }`}
+            >
+              {draftNotice}
+            </p>
+          </div>
+        </div>
+      </CustomerCenterModal>
+    </>
   );
 }
 
@@ -236,37 +318,22 @@ export function CustomerLegalSheet({
                     }}
                   />
                 </li>
+                <li>
+                  <MoreDocsTile
+                    title={t.moreDocs}
+                    docIds={extraDocIds}
+                    docMap={docMap}
+                    locale={locale}
+                    draftNotice={t.draftNotice}
+                    sheetOpen={open}
+                    storeTheme={storeTheme}
+                    onOpenDoc={(id) => {
+                      setActiveDocId(id);
+                      setView("document");
+                    }}
+                  />
+                </li>
               </ul>
-              {extraDocIds.length > 0 && (
-                <div className="mt-4 rounded-[18px] border border-bakery-border/25 bg-bakery-cream-light/60 px-3 py-3">
-                  <p className="mb-2 text-center text-[13px] font-bold text-bakery-muted">
-                    {t.moreDocs}
-                  </p>
-                  <ul className="space-y-2">
-                    {extraDocIds.map((id) => {
-                      const d = docMap.get(id);
-                      if (!d) return null;
-                      return (
-                        <li key={id}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveDocId(id);
-                              setView("document");
-                            }}
-                            className="w-full text-center text-[14px] font-semibold text-bakery-primary hover:underline"
-                          >
-                            {locale === "he" ? d.titleHe : d.titleEn}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-              <p className="mt-4 text-center text-[12px] leading-[1.4] text-bakery-muted">
-                {t.draftNotice}
-              </p>
             </section>
           </>
         )}

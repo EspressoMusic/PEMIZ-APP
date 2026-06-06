@@ -41,7 +41,7 @@ export function DashboardNav({
 
   return (
     <nav
-      className="dashboard-bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/25 bg-bakery-card"
+      className="dashboard-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-bakery-card"
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
       aria-label={labels.navSeller}
     >
@@ -54,9 +54,9 @@ export function DashboardNav({
               key={l.key}
               href={l.href}
               aria-current={active ? "page" : undefined}
-              className={`flex flex-1 flex-col items-center rounded-[16px] px-2 py-2 transition ${
+              className={`flex flex-1 flex-col items-center rounded-full px-2 py-2 transition ${
                 active
-                  ? "dashboard-bottom-nav__link--active bg-bakery-square text-bakery-ink shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
+                  ? "dashboard-bottom-nav__link--active text-bakery-ink"
                   : "text-bakery-muted"
               }`}
             >

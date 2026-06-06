@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, Copy, Share2, X } from "lucide-react";
 import {
-  DASHBOARD_SETTINGS_BAR,
-  DASHBOARD_SETTINGS_BAR_INNER,
-} from "@/components/dashboard/dashboard-settings-bar";
+  DashboardSettingsTile,
+  DashboardSettingsTileRow,
+} from "@/components/dashboard/dashboard-settings-tile";
+import { DASHBOARD_SETTINGS_ACTION } from "@/components/dashboard/dashboard-settings-bar";
 import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
@@ -25,30 +26,6 @@ function displayPath(url: string): string {
   }
   return url;
 }
-
-const SOCIAL_SHARE = [
-  {
-    id: "whatsapp",
-    label: "WhatsApp",
-    href: (link: string) =>
-      `https://wa.me/?text=${encodeURIComponent(link)}`,
-  },
-  {
-    id: "facebook",
-    label: "Facebook",
-    href: (link: string) =>
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,
-  },
-  {
-    id: "telegram",
-    label: "Telegram",
-    href: (link: string) =>
-      `https://t.me/share/url?url=${encodeURIComponent(link)}`,
-  },
-] as const;
-
-const RECT_COMPACT =
-  "flex w-full flex-col overflow-hidden rounded-[12px] border-[1.2px] border-bakery-border/35 bg-bakery-card p-3 shadow-[var(--shadow-bakery-card)]";
 
 export function DashboardCustomerLinkCard({
   url,
@@ -113,15 +90,12 @@ export function DashboardCustomerLinkCard({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
+        className="dashboard-modal-backdrop absolute inset-0"
         onClick={closeSheet}
         aria-label={labels.close}
       />
-      <div className="relative w-full max-w-md overflow-hidden rounded-[24px] border border-bakery-border/30 bg-bakery-cream-sheet shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
-        <div className="flex items-center justify-between border-b border-bakery-border/25 px-4 py-3">
-          <h2 className="text-[18px] font-extrabold text-bakery-ink">
-            {labels.shareStoreLink}
-          </h2>
+      <div className="dashboard-modal-card relative w-full max-w-md overflow-hidden">
+        <div className="flex items-center justify-end border-b border-bakery-border/25 px-4 py-2">
           <button
             type="button"
             onClick={closeSheet}
@@ -134,7 +108,7 @@ export function DashboardCustomerLinkCard({
 
         <div className="space-y-3 px-4 py-4">
           <p
-            className="truncate rounded-[14px] bg-bakery-cream-light px-3 py-2.5 text-center font-mono text-[12px] font-semibold text-bakery-muted"
+            className="dashboard-share-tile truncate rounded-[9999px] px-4 py-3 text-center font-mono text-[12px] font-semibold text-bakery-ink"
             dir="ltr"
           >
             {toAbsoluteUrl(url)}
@@ -143,7 +117,7 @@ export function DashboardCustomerLinkCard({
           <button
             type="button"
             onClick={() => void copyUrl()}
-            className="flex w-full items-center justify-center gap-2 rounded-[16px] border border-bakery-border/30 bg-bakery-card px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.99]"
+            className="dashboard-share-tile flex w-full min-h-[52px] items-center justify-center gap-2 rounded-[9999px] px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition active:scale-[0.99]"
           >
             {copied ? (
               <Check className="h-5 w-5 text-bakery-success" strokeWidth={2.5} />
@@ -157,27 +131,12 @@ export function DashboardCustomerLinkCard({
             <button
               type="button"
               onClick={() => void nativeShare()}
-              className="flex w-full items-center justify-center gap-2 rounded-[16px] border border-bakery-border/30 bg-bakery-card px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.99]"
+              className="dashboard-share-tile flex w-full min-h-[52px] items-center justify-center gap-2 rounded-[9999px] px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition active:scale-[0.99]"
             >
               <Share2 className="h-5 w-5" strokeWidth={2} />
               {labels.shareStoreLink}
             </button>
           )}
-
-          <div className="grid grid-cols-3 gap-2">
-            {SOCIAL_SHARE.map((item) => (
-              <a
-                key={item.id}
-                href={item.href(toAbsoluteUrl(url))}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={closeSheet}
-                className="rounded-[16px] border border-bakery-border/30 bg-bakery-card px-2 py-3 text-center text-[13px] font-extrabold text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.98]"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
         </div>
       </div>
     </div>
@@ -186,19 +145,14 @@ export function DashboardCustomerLinkCard({
   if (isSettingsBar) {
     return (
       <>
-        <section className={DASHBOARD_SETTINGS_BAR}>
-          <div className={DASHBOARD_SETTINGS_BAR_INNER}>
-            <div className="min-w-0 text-start">
-              <p className="text-[15px] font-extrabold text-bakery-ink">
-                {labels.shareStoreLink}
-              </p>
-              <DashboardHelpText>
-                <p className="text-[13px] text-bakery-muted">
-                  {labels.copyLink}
+        <DashboardSettingsTile>
+          <DashboardSettingsTileRow
+            panel={
+              <>
+                <p className="text-[15px] font-extrabold text-bakery-ink">
+                  {labels.shareStoreLink}
                 </p>
-              </DashboardHelpText>
-              {previewHref && (
-                <DashboardHelpText>
+                {previewHref ? (
                   <Link
                     href={previewHref}
                     target={previewHref.startsWith("http") ? "_blank" : undefined}
@@ -206,53 +160,50 @@ export function DashboardCustomerLinkCard({
                   >
                     {labels.customerPreview}
                   </Link>
-                </DashboardHelpText>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              className="w-full min-w-0 rounded-[12px] border border-bakery-border/30 bg-bakery-cream-light px-4 py-3 font-mono text-[13px] font-semibold text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.99] sm:max-w-[220px] sm:shrink-0"
-              dir="ltr"
-              aria-label={labels.shareStoreLink}
-            >
-              <span className="block truncate">{pathLabel}</span>
-            </button>
-          </div>
-        </section>
+                ) : null}
+              </>
+            }
+            action={
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className={`${DASHBOARD_SETTINGS_ACTION} min-w-[7.5rem] max-w-[11rem] border border-bakery-border/35 bg-bakery-card/60 px-3 font-mono text-[12px] font-semibold text-bakery-ink transition active:scale-[0.99]`}
+                dir="ltr"
+                aria-label={labels.shareStoreLink}
+              >
+                <span className="block truncate">{pathLabel}</span>
+              </button>
+            }
+          />
+        </DashboardSettingsTile>
         {shareSheet}
       </>
     );
   }
 
   return (
-    <section className={RECT_COMPACT}>
-      <DashboardHelpText>
-        <p className="mb-1.5 text-center text-[12px] font-bold text-bakery-muted">
-          {labels.shareStoreLink}
-        </p>
-      </DashboardHelpText>
-
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-center rounded-[10px] border border-bakery-border/25 bg-bakery-cream-light px-3 py-2.5 transition hover:bg-bakery-cream-hover active:scale-[0.99]"
-        aria-label={labels.shareStoreLink}
-      >
-        <p
-          className="min-w-0 truncate text-center font-mono text-[11px] font-semibold text-bakery-ink sm:text-[12px]"
-          dir="ltr"
-        >
-          {pathLabel}
-        </p>
-      </button>
+    <>
+      <div className="dashboard-home-header">
+        <div className="dashboard-home-header__inner px-3 py-3.5 text-center">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="dashboard-home-store-link"
+            aria-label={labels.storeLinkBarLabel}
+          >
+            <span className="block min-w-0 truncate text-[19px] font-extrabold sm:text-[20px]">
+              {labels.storeLinkBarLabel}
+            </span>
+          </button>
+        </div>
+      </div>
 
       {previewHref && (
         <DashboardHelpText>
           <Link
             href={previewHref}
             target={previewHref.startsWith("http") ? "_blank" : undefined}
-            className="mt-1.5 block text-center text-[11px] font-bold text-bakery-primary hover:underline"
+            className="mt-2 block text-center text-[13px] font-bold text-bakery-primary hover:underline"
           >
             {labels.customerPreview}
           </Link>
@@ -260,6 +211,6 @@ export function DashboardCustomerLinkCard({
       )}
 
       {shareSheet}
-    </section>
+    </>
   );
 }

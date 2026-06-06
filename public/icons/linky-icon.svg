@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Linky">
+  <rect width="512" height="512" rx="112" fill="#E6D4B8"/>
+  <rect x="48" y="48" width="416" height="416" rx="88" fill="#F6EFE3" stroke="#C9B89A" stroke-width="8"/>
+  <path
+    fill="#5C4A3E"
+    d="M156 168c0-22 18-40 40-40h120c66 0 120 54 120 120s-54 120-120 120h-80v72c0 13-11 24-24 24s-24-11-24-24V168zm64 40v80h56c33 0 60-27 60-60s-27-60-60-60h-56z"
+  />
+</svg>

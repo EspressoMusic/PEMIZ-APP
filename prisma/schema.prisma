@@ -29,6 +29,21 @@ model User {
   createdAt                  DateTime  @default(now())
   business                   Business?
   otpCodes                   OtpCode[]
+  pushSubscriptions          SellerPushSubscription[]
+}
+
+model SellerPushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model OtpCode {
@@ -54,10 +69,14 @@ model Business {
   storeTerms             String?
   storeBroadcast         String?
   storeBroadcastAt       DateTime?
+  storeBroadcastHistory  String?
   orderScheduleEnabled   Boolean  @default(false)
   orderSchedule          String?
-  whatsappNotifyEnabled  Boolean  @default(false)
-  whatsappNotifyPhone    String?
+  sellerAlertsEnabled    Boolean  @default(false)
+  sellerAlertOnInquiry   Boolean  @default(true)
+  sellerAlertOnChat      Boolean  @default(true)
+  sellerAlertOnNewOrder  Boolean  @default(true)
+  sellerAlertOnLowStock  Boolean  @default(true)
   isActive               Boolean  @default(false)
   approvedAt      DateTime?
   ownerId         String   @unique
@@ -132,6 +151,7 @@ model StoreDealItem {
   deal      StoreDeal @relation(fields: [dealId], references: [id], onDelete: Cascade)
   productId String
   product   Product   @relation("DealLineProducts", fields: [productId], references: [id])
+  quantity  Int       @default(1)
   sortOrder Int       @default(0)
 
   @@unique([dealId, productId])

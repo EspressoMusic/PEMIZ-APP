@@ -24,7 +24,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="bakery-frame-bg h-dvh overflow-hidden">
+    <div className="dashboard-surface bakery-frame-bg h-dvh overflow-hidden">
       <div className="app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-4 lg:px-[14px]">
         <DashboardShell
           businessType={user.business.type}

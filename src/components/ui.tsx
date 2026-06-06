@@ -67,7 +67,8 @@ export function Button({
       "border-[1.6px] border-bakery-primary bg-transparent text-bakery-ink hover:bg-bakery-card/80",
     square:
       "min-h-[48px] border-[1.2px] border-bakery-border/40 bg-bakery-square text-bakery-ink shadow-none hover:bg-bakery-card",
-    danger: "bg-bakery-error text-white hover:opacity-90",
+    danger:
+      "bg-bakery-error text-white shadow-none hover:bg-[var(--bakery-error-hover)] hover:opacity-100 active:scale-[0.99]",
     ghost: "min-h-0 rounded-[14px] px-3 py-2 text-bakery-muted hover:bg-bakery-card/90",
   };
   return (
@@ -79,20 +80,26 @@ export function Button({
 
 export function Input({
   label,
+  labelClassName = "",
   error,
   className = "",
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
+  labelClassName?: string;
   error?: string;
 }) {
   return (
     <label className="block space-y-1.5">
       {label && (
-        <span className="text-[14px] font-bold text-bakery-ink">{label}</span>
+        <span
+          className={`block text-start text-[14px] font-bold text-bakery-ink ${labelClassName}`}
+        >
+          {label}
+        </span>
       )}
       <input
-        className={`bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-base text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 sm:text-[15px] ${className}`}
+        className={`bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-start text-base text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 sm:text-[15px] ${className}`}
         {...props}
       />
       {error && (
@@ -104,17 +111,23 @@ export function Input({
 
 export function Textarea({
   label,
+  labelClassName = "",
   error,
   className = "",
   ...props
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label?: string;
+  labelClassName?: string;
   error?: string;
 }) {
   return (
     <label className="block space-y-1.5">
       {label && (
-        <span className="text-[14px] font-bold text-bakery-ink">{label}</span>
+        <span
+          className={`text-[14px] font-bold text-bakery-ink ${labelClassName}`}
+        >
+          {label}
+        </span>
       )}
       <textarea
         className={`bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-base text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 sm:text-[15px] ${className}`}

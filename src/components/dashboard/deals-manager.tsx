@@ -1,22 +1,25 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { playProductAddedSound } from "@/lib/ui-sounds";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { CelebrationModal } from "@/components/celebration-modal";
 import { Button, Input, Badge, Alert } from "@/components/ui";
-import { Gift, Plus, X, Pencil } from "lucide-react";
+import { ChevronDown, Gift, Package, Plus, Tags, X, Pencil } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import {
-  DASHBOARD_PAGE_ROOT,
-  DASHBOARD_SCROLL_MAIN,
-} from "@/components/dashboard/dashboard-panel-frame";
+import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
+import { MAX_DEAL_PRODUCT_LINES } from "@/lib/store-deal";
 
 type Product = {
   id: string;
   name: string;
   price: number;
   isActive: boolean;
+  imageUrl?: string | null;
+};
+
+type DealLineSelection = {
+  productId: string;
+  quantity: number;
 };
 
 type Deal = {
@@ -26,6 +29,7 @@ type Deal = {
   validUntil: string;
   isActive: boolean;
   products: Product[];
+  items?: { productId: string; quantity: number; product: Product }[];
   _count?: { redemptions: number };
 };
 
@@ -77,7 +81,10 @@ export function DealsManager() {
   const [editingDealId, setEditingDealId] = useState<string | null>(null);
   const [dealValidityMode, setDealValidityMode] = useState<ValidityMode>("7d");
   const [customValidDate, setCustomValidDate] = useState("");
-  const [dealSelectedIds, setDealSelectedIds] = useState<string[]>([]);
+  const [dealSelectedLines, setDealSelectedLines] = useState<DealLineSelection[]>(
+    []
+  );
+  const [quantityEditorId, setQuantityEditorId] = useState<string | null>(null);
   const [showDealProductPicker, setShowDealProductPicker] = useState(false);
   const { labels, locale, formatMoney, formatDateTime } = useAppLocale();
   const dealValidityOptions = useMemo(
@@ -98,6 +105,7 @@ export function DealsManager() {
   } | null>(null);
   const [dealSuccessOpen, setDealSuccessOpen] = useState(false);
   const [dealSuccessName, setDealSuccessName] = useState("");
+  const [dealsListOpen, setDealsListOpen] = useState(false);
 
   async function load() {
     const [pRes, dRes] = await Promise.all([
@@ -120,7 +128,8 @@ export function DealsManager() {
     setDealError("");
     setDealValidityMode("7d");
     setCustomValidDate("");
-    setDealSelectedIds([]);
+    setDealSelectedLines([]);
+    setQuantityEditorId(null);
     setShowDealProductPicker(false);
     setConfirmDraft(null);
     dealFormRef.current?.reset();
@@ -128,13 +137,22 @@ export function DealsManager() {
 
   function openNewDealForm() {
     resetWizard();
+    setDealsListOpen(false);
     setWizardStep("form");
   }
 
   function openEditDeal(deal: Deal) {
     setDealError("");
     setEditingDealId(deal.id);
-    setDealSelectedIds((deal.products ?? []).map((p) => p.id));
+    setDealSelectedLines(
+      (deal.items ?? []).length > 0
+        ? (deal.items ?? []).map((item) => ({
+            productId: item.productId,
+            quantity: Math.max(1, item.quantity ?? 1),
+          }))
+        : (deal.products ?? []).map((p) => ({ productId: p.id, quantity: 1 }))
+    );
+    setQuantityEditorId(null);
     setDealValidityMode("custom");
     setCustomValidDate(customDateFromIso(deal.validUntil));
     setShowDealProductPicker(false);
@@ -150,14 +168,57 @@ export function DealsManager() {
     });
   }
 
-  function addProductToDeal(productId: string) {
-    setDealSelectedIds((ids) =>
-      ids.includes(productId) ? ids : [...ids, productId]
+  function getDealLineQuantity(productId: string) {
+    return (
+      dealSelectedLines.find((line) => line.productId === productId)?.quantity ??
+      0
+    );
+  }
+
+  function pickProductForDeal(productId: string) {
+    const existing = dealSelectedLines.find(
+      (line) => line.productId === productId
+    );
+    if (existing) {
+      setQuantityEditorId(productId);
+      return;
+    }
+    if (dealSelectedLines.length >= MAX_DEAL_PRODUCT_LINES) {
+      setDealError(labels.dealMaxProducts);
+      return;
+    }
+    setDealError("");
+    setDealSelectedLines((lines) => {
+      const next = [...lines, { productId, quantity: 1 }];
+      if (next.length >= MAX_DEAL_PRODUCT_LINES) {
+        setShowDealProductPicker(false);
+      }
+      return next;
+    });
+    setQuantityEditorId(productId);
+  }
+
+  function setDealLineQuantity(productId: string, quantity: number) {
+    if (quantity < 1) {
+      removeProductFromDeal(productId);
+      return;
+    }
+    setDealSelectedLines((lines) =>
+      lines.map((line) =>
+        line.productId === productId
+          ? { ...line, quantity: Math.min(99, quantity) }
+          : line
+      )
     );
   }
 
   function removeProductFromDeal(productId: string) {
-    setDealSelectedIds((ids) => ids.filter((id) => id !== productId));
+    setDealSelectedLines((lines) =>
+      lines.filter((line) => line.productId !== productId)
+    );
+    setQuantityEditorId((current) =>
+      current === productId ? null : current
+    );
   }
 
   function goToConfirm(e: React.FormEvent<HTMLFormElement>) {
@@ -175,8 +236,12 @@ export function DealsManager() {
       setDealError(labels.dealFillPrice);
       return;
     }
-    if (dealSelectedIds.length < 1) {
+    if (dealSelectedLines.length < 1) {
       setDealError(labels.dealPickProduct);
+      return;
+    }
+    if (dealSelectedLines.length > MAX_DEAL_PRODUCT_LINES) {
+      setDealError(labels.dealMaxProducts);
       return;
     }
 
@@ -213,7 +278,10 @@ export function DealsManager() {
 
     const payload = {
       name: confirmDraft.name,
-      productIds: dealSelectedIds,
+      items: dealSelectedLines.map((line) => ({
+        productId: line.productId,
+        quantity: line.quantity,
+      })),
       dealPrice: confirmDraft.dealPrice,
       validUntil: confirmDraft.validUntil,
     };
@@ -243,7 +311,6 @@ export function DealsManager() {
     load();
     if (createdNew) {
       setDealSuccessName(savedName);
-      playProductAddedSound();
       setDealSuccessOpen(true);
     }
   }
@@ -256,90 +323,193 @@ export function DealsManager() {
   }
 
   const activeProducts = products.filter((p) => p.isActive);
-  const selectedProducts = dealSelectedIds
-    .map((id) => products.find((p) => p.id === id))
-    .filter((p): p is Product => p != null);
+  const pickerProducts = activeProducts.filter(
+    (p) => getDealLineQuantity(p.id) === 0
+  );
+  const selectedDealLines = dealSelectedLines
+    .map((line) => {
+      const product = products.find((p) => p.id === line.productId);
+      if (!product) return null;
+      return { product, quantity: line.quantity };
+    })
+    .filter((line): line is { product: Product; quantity: number } => line != null);
+
+  function formatDealLineLabel(name: string, quantity: number) {
+    return quantity > 1 ? `${name} ×${quantity}` : name;
+  }
 
   return (
-    <div className={`${DASHBOARD_PAGE_ROOT} pb-2`}>
-      <div className={`${DASHBOARD_SCROLL_MAIN} space-y-3`}>
-        <div className="bakery-float-panel rounded-[24px] p-4">
-          {wizardStep === null && (
-            <button
-              type="button"
-              onClick={openNewDealForm}
-              className="bakery-float-tile flex w-full min-h-[56px] items-center justify-center gap-3 rounded-[20px] px-5 py-4"
-            >
-              <Gift className="h-8 w-8 shrink-0 text-bakery-ink" strokeWidth={1.5} />
-              <span className="text-[16px] font-extrabold text-bakery-ink">
-                {labels.addDeal}
-              </span>
-            </button>
-          )}
+    <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
+      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+        {wizardStep === null ? (
+          <button
+            type="button"
+            onClick={openNewDealForm}
+            className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+          >
+            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+              <Gift className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {labels.addDeal}
+            </span>
+            <ChevronDown
+              className="h-5 w-5 shrink-0 text-bakery-muted"
+              strokeWidth={2.5}
+              aria-hidden
+            />
+          </button>
+        ) : (
+          <>
+            <h2 className="mb-2 text-center text-[15px] font-extrabold text-bakery-ink">
+              {editingDealId ? labels.edit : labels.addDeal}
+            </h2>
 
           {wizardStep === "form" && (
             <form
               ref={dealFormRef}
               onSubmit={goToConfirm}
-              className="flex w-full flex-col items-stretch gap-3"
+              className="flex w-full flex-col items-stretch gap-3 text-start"
             >
               {dealError && <Alert variant="error">{dealError}</Alert>}
               <Input name="name" label={labels.dealName} required />
 
-              <div className="space-y-3 text-center">
-                <span className="text-[14px] font-bold text-bakery-ink">
+              <div className="space-y-3 text-start">
+                <span className="block text-[14px] font-bold text-bakery-ink">
                   {labels.products}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setShowDealProductPicker((v) => !v)}
-                  className="bakery-float-tile mx-auto flex w-full max-w-[240px] min-h-[48px] items-center justify-center gap-2 rounded-[16px] px-4 py-3"
-                >
-                  <Plus className="h-6 w-6 text-bakery-ink" strokeWidth={1.5} />
-                  <span className="text-[14px] font-extrabold">{labels.addProduct}</span>
-                </button>
+                {dealSelectedLines.length < MAX_DEAL_PRODUCT_LINES &&
+                  pickerProducts.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowDealProductPicker((v) => !v)}
+                    aria-expanded={showDealProductPicker}
+                    className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
+                      showDealProductPicker ? "bakery-float-tile--active" : ""
+                    }`}
+                  >
+                    <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+                      <Plus className="h-6 w-6" strokeWidth={1.75} />
+                    </span>
+                    <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+                      {labels.addProduct}
+                    </span>
+                    <ChevronDown
+                      className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
+                        showDealProductPicker ? "rotate-180" : ""
+                      }`}
+                      strokeWidth={2.5}
+                      aria-hidden
+                    />
+                  </button>
+                )}
 
-                {showDealProductPicker && activeProducts.length > 0 && (
-                  <div className="grid max-h-[200px] grid-cols-2 gap-2 overflow-y-auto">
-                    {activeProducts
-                      .filter((p) => !dealSelectedIds.includes(p.id))
-                      .map((p) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => addProductToDeal(p.id)}
-                          className="bakery-float-tile rounded-[14px] px-2 py-2.5 text-[12px] font-extrabold leading-tight text-bakery-ink transition active:scale-[0.98]"
-                        >
-                          {p.name}
-                        </button>
+                {showDealProductPicker && pickerProducts.length > 0 && (
+                  <div className="no-scrollbar max-h-[min(40vh,220px)] overflow-y-auto overscroll-contain rounded-[14px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]">
+                    <ul className="space-y-1">
+                      {pickerProducts.map((p) => (
+                        <li key={p.id}>
+                          <button
+                            type="button"
+                            onClick={() => pickProductForDeal(p.id)}
+                            className="flex w-full rounded-[12px] px-3 py-2.5 text-start text-[14px] font-extrabold leading-snug text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.99]"
+                          >
+                            {p.name}
+                          </button>
+                        </li>
                       ))}
+                    </ul>
                   </div>
                 )}
 
-                {dealSelectedIds.length > 0 && (
-                  <ul className="space-y-2">
-                    {dealSelectedIds.map((id) => {
-                      const p = products.find((x) => x.id === id);
-                      if (!p) return null;
-                      return (
-                        <li
-                          key={id}
-                          className="bakery-float-tile flex items-center justify-between gap-2 rounded-[14px] px-3 py-2"
+                {dealSelectedLines.length > 0 && (
+                  <ul className="space-y-1.5">
+                    {selectedDealLines.map(({ product: p, quantity }) => (
+                      <li key={p.id} className="space-y-1.5">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setQuantityEditorId((current) =>
+                              current === p.id ? null : p.id
+                            )
+                          }
+                          className={`flex w-full items-center gap-2.5 rounded-[12px] border px-2 py-1.5 text-start transition ${
+                            quantityEditorId === p.id
+                              ? "border-bakery-primary/40 bg-bakery-primary/8"
+                              : "border-bakery-border/35 bg-[#F9F3E5]"
+                          }`}
                         >
-                          <span className="text-[14px] font-extrabold text-bakery-ink">
-                            {p.name}
+                          {p.imageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={p.imageUrl}
+                              alt=""
+                              className="h-11 w-11 shrink-0 rounded-[10px] object-cover"
+                            />
+                          ) : (
+                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-bakery-card">
+                              <Package
+                                className="h-5 w-5 text-bakery-muted"
+                                strokeWidth={1.5}
+                              />
+                            </span>
+                          )}
+                          <span className="min-w-0 flex-1 truncate text-[13px] font-extrabold text-bakery-ink">
+                            {formatDealLineLabel(p.name, quantity)}
                           </span>
                           <button
                             type="button"
-                            onClick={() => removeProductFromDeal(id)}
-                            className="rounded-full p-1 text-bakery-muted hover:bg-bakery-card"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeProductFromDeal(p.id);
+                            }}
+                            className="shrink-0 rounded-full p-0.5 text-bakery-muted hover:bg-bakery-card"
                             aria-label={labels.delete}
                           >
-                            <X className="h-5 w-5" />
+                            <X className="h-4 w-4" strokeWidth={2.25} />
                           </button>
-                        </li>
-                      );
-                    })}
+                        </button>
+
+                        {quantityEditorId === p.id && (
+                          <div className="mx-auto flex w-full max-w-[240px] flex-col items-stretch gap-2">
+                            <div className="flex items-center justify-center gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-input px-2 py-1.5">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setDealLineQuantity(p.id, quantity - 1)
+                                }
+                                className="flex h-8 w-8 items-center justify-center rounded-full border border-bakery-border/40 bg-bakery-card text-[18px] font-bold leading-none text-bakery-ink transition active:scale-95"
+                                aria-label={labels.delete}
+                              >
+                                −
+                              </button>
+                              <span className="min-w-[2rem] text-center text-[16px] font-extrabold tabular-nums text-bakery-ink">
+                                {quantity}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setDealLineQuantity(p.id, quantity + 1)
+                                }
+                                disabled={quantity >= 99}
+                                className="flex h-8 w-8 items-center justify-center rounded-full border border-bakery-border/40 bg-bakery-card text-[18px] font-bold leading-none text-bakery-ink transition active:scale-95 disabled:opacity-40"
+                                aria-label={labels.addProduct}
+                              >
+                                +
+                              </button>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="primary"
+                              className="min-h-[40px] w-full rounded-full font-extrabold"
+                              onClick={() => setQuantityEditorId(null)}
+                            >
+                              {labels.confirm}
+                            </Button>
+                          </div>
+                        )}
+                      </li>
+                    ))}
                   </ul>
                 )}
               </div>
@@ -352,11 +522,11 @@ export function DealsManager() {
                 required
                 dir="ltr"
               />
-              <div className="space-y-2 text-center">
-                <span className="text-[14px] font-bold text-bakery-ink">
+              <div className="space-y-2 text-start">
+                <span className="block text-[14px] font-bold text-bakery-ink">
                   {labels.dealDate}
                 </span>
-                <div className="flex flex-wrap justify-center gap-2">
+                <div className="flex flex-wrap justify-start gap-2">
                   {dealValidityOptions.map((opt) => (
                     <button
                       key={opt.id}
@@ -384,29 +554,19 @@ export function DealsManager() {
                 )}
               </div>
 
-              <div className="flex flex-col gap-2">
-                <Button
-                  type="submit"
-                  variant="square"
-                  className="bakery-float-tile w-full"
-                  disabled={dealSelectedIds.length < 1}
-                >
-                  {labels.continueToConfirm}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={resetWizard}
-                >
-                  {labels.cancel}
-                </Button>
-              </div>
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full min-h-[44px] rounded-full font-extrabold"
+                disabled={dealSelectedLines.length < 1}
+              >
+                {labels.continueToConfirm}
+              </Button>
             </form>
           )}
 
           {wizardStep === "confirm" && confirmDraft && (
-            <div className="space-y-4 text-center">
+            <div className="space-y-4 text-start">
               <p className="text-[15px] font-extrabold text-bakery-ink">
                 {labels.confirmBeforeSave}
               </p>
@@ -415,7 +575,11 @@ export function DealsManager() {
                   {confirmDraft.name}
                 </p>
                 <p className="text-[14px] text-bakery-muted">
-                  {selectedProducts.map((p) => p.name).join(" + ")}
+                  {selectedDealLines
+                    .map(({ product, quantity }) =>
+                      formatDealLineLabel(product.name, quantity)
+                    )
+                    .join(" + ")}
                 </p>
                 <p className="text-[18px] font-extrabold text-bakery-primary">
                   {formatMoney(confirmDraft.dealPrice)}
@@ -431,8 +595,8 @@ export function DealsManager() {
               <div className="flex flex-col gap-2">
                 <Button
                   type="button"
-                  variant="square"
-                  className="bakery-float-tile w-full"
+                  variant="primary"
+                  className="w-full min-h-[44px] rounded-full font-extrabold"
                   disabled={saving}
                   onClick={confirmAndSave}
                 >
@@ -453,55 +617,121 @@ export function DealsManager() {
               </div>
             </div>
           )}
-        </div>
 
-        {deals.length > 0 && (
-          <div className="bakery-float-panel rounded-[24px] p-4">
-            <ul className="space-y-3">
-              {deals.map((d) => (
-                <li
-                  key={d.id}
-                  className="bakery-float-tile rounded-[18px] p-3 text-center"
-                >
-                  <p className="text-[16px] font-extrabold text-bakery-ink">
-                    {d.name}
-                  </p>
-                  <p className="text-[14px] text-bakery-muted">
-                    {(d.products ?? []).map((p) => p.name).join(" + ")}
-                  </p>
-                  <p className="text-[18px] font-extrabold text-bakery-primary">
-                    {formatMoney(d.dealPrice)}
-                  </p>
-                  <p className="text-[12px] text-bakery-muted">
-                    {formatDateTime(d.validUntil)}
-                  </p>
-                  <div className="mt-2 flex flex-wrap justify-center gap-2">
-                    <Badge tone={d.isActive ? "success" : "default"}>
-                      {d.isActive ? labels.active : labels.inactive}
-                    </Badge>
-                  </div>
-                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-center">
-                    <Button
-                      type="button"
-                      variant="square"
-                      className="bakery-float-tile inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 sm:max-w-[160px]"
-                      onClick={() => openEditDeal(d)}
+            <button
+              type="button"
+              onClick={resetWizard}
+              aria-label={labels.close}
+              className="mt-2 flex w-full min-h-[44px] items-center justify-center rounded-[22px] text-bakery-muted transition hover:bg-bakery-card/60 hover:text-bakery-ink active:opacity-80"
+            >
+              <ChevronDown
+                className="h-6 w-6 rotate-180 transition-transform duration-200"
+                strokeWidth={2.5}
+                aria-hidden
+              />
+            </button>
+          </>
+        )}
+      </div>
+
+      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+        <button
+          type="button"
+          onClick={() => {
+            setDealsListOpen((v) => !v);
+            if (wizardStep !== null) resetWizard();
+          }}
+          aria-expanded={dealsListOpen}
+          aria-controls="dashboard-deals-list"
+          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
+            dealsListOpen ? "bakery-float-tile--active" : ""
+          }`}
+        >
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <Tags className="h-6 w-6" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+            {labels.existingDeals}
+            {deals.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({deals.length})
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
+              dealsListOpen ? "rotate-180" : ""
+            }`}
+            strokeWidth={2.5}
+            aria-hidden
+          />
+        </button>
+
+        {dealsListOpen && (
+          <div
+            id="dashboard-deals-list"
+            className="no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]"
+            role="region"
+            aria-label={labels.existingDeals}
+          >
+            {deals.length === 0 ? (
+              <p className="py-6 text-center text-[14px] text-bakery-muted">
+                {labels.noExistingDeals}
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {deals.map((d) => (
+                  <li
+                    key={d.id}
+                    className="bakery-float-tile rounded-[18px] p-3 text-start"
+                  >
+                    <p className="text-[16px] font-extrabold text-bakery-ink">
+                      {d.name}
+                    </p>
+                    <p className="text-[14px] text-bakery-muted">
+                      {(d.products ?? []).map((p) => p.name).join(" + ")}
+                    </p>
+                    <p
+                      dir="ltr"
+                      className="text-[18px] font-extrabold tabular-nums text-bakery-primary"
                     >
-                      <Pencil className="h-4 w-4" strokeWidth={2} />
-                      {labels.edit}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="min-h-[44px] flex-1 sm:max-w-[160px]"
-                      onClick={() => removeDeal(d.id)}
-                    >
-                      {labels.delete}
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                      {formatMoney(d.dealPrice)}
+                    </p>
+                    <p className="text-[12px] text-bakery-muted">
+                      {formatDateTime(d.validUntil)}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Badge tone={d.isActive ? "success" : "default"}>
+                        {d.isActive ? labels.active : labels.inactive}
+                      </Badge>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        variant="square"
+                        className="bakery-float-tile inline-flex min-h-[44px] items-center justify-center gap-2"
+                        onClick={() => {
+                          setDealsListOpen(false);
+                          openEditDeal(d);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" strokeWidth={2} />
+                        {labels.edit}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="min-h-[44px]"
+                        onClick={() => removeDeal(d.id)}
+                      >
+                        {labels.delete}
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
       </div>

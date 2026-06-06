@@ -1,13 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   HelpCircle,
+  History,
+  Receipt,
   SlidersHorizontal,
   ShieldPlus,
   UserRound,
   MessagesSquare,
   Settings,
+  Smartphone,
 } from "lucide-react";
 import { Button, Input, Textarea, Panel } from "@/components/ui";
 import {
@@ -25,32 +29,60 @@ import {
 import { CustomerFaqSheet } from "./customer-faq-sheet";
 import { CustomerDisplaySheet } from "./customer-display-sheet";
 import { CustomerLegalSheet } from "./customer-legal-sheet";
+import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
 import { OrderCheckoutModal } from "./order-checkout-modal";
-import { CelebrationModal } from "@/components/celebration-modal";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import { getEffectivePrice } from "@/lib/product-price";
 import { customerThemeClass, parseStoreTheme } from "@/lib/store-themes";
 import type { PlatformLegalDocPayload } from "@/lib/legal/platform-legal";
 import {
+  canFulfillQuantity,
   isProductInStock,
   maxOrderQuantity,
 } from "@/lib/product-stock";
 import {
   EmptyStateCard,
-  OrdersHubPanel,
   SettingsCollapsibleSection,
   SettingsMenuRow,
+  SettingsMenuSubRow,
   ProductGridCard,
   DealCard,
   HubEmptyText,
-  CartLineRow,
+  OrderHistorySummaryRow,
+  OrderPreviewCard,
+  type OrderPreviewLine,
 } from "./customer-ui";
+import {
+  addPendingDeal,
+  clearPendingDeals,
+  loadPendingDeals,
+  pendingDealsToSnapshots,
+  removePendingDeals,
+} from "@/lib/customer-pending-deals";
+import {
+  appendCustomerOrderHistory,
+  loadCustomerOrderHistory,
+  type CustomerOrderHistoryEntry,
+} from "@/lib/customer-order-history";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
 import { CustomerCenterModal } from "./customer-center-modal";
-import {
-  CustomerContactModal,
-  type ContactView,
-} from "./customer-contact-modal";
+import type { ContactView } from "./customer-contact-modal";
+
+const CustomerContactModal = dynamic(
+  () =>
+    import("./customer-contact-modal").then((m) => ({
+      default: m.CustomerContactModal,
+    })),
+  { ssr: false }
+);
+
+const CelebrationModal = dynamic(
+  () =>
+    import("@/components/celebration-modal").then((m) => ({
+      default: m.CelebrationModal,
+    })),
+  { ssr: false }
+);
 import {
   CUSTOMER_MOBILE_STACK,
   CUSTOMER_PAGE_ROOT,
@@ -59,6 +91,9 @@ import {
 } from "./customer-store-frame";
 import { normalizePhone } from "@/lib/phone";
 import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
+import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
+
+const PRODUCT_CONFETTI_MS = 2800;
 
 type MyInquiry = {
   id: string;
@@ -99,11 +134,14 @@ type StoreDeal = {
     price: number;
     salePrice?: number | null;
     stock?: number | null;
+    quantity?: number;
   }[];
 };
 
 function dealHasStock(deal: StoreDeal): boolean {
-  return deal.products.every((p) => isProductInStock(p.stock));
+  return deal.products.every((p) =>
+    canFulfillQuantity(p.stock, Math.max(1, p.quantity ?? 1))
+  );
 }
 
 type Slot = {
@@ -118,6 +156,14 @@ type FaqItem = {
   id: string;
   question: string;
   answer: string;
+};
+
+type DemoOrderPreview = {
+  id: string;
+  placedAt: string;
+  statusLabel: string;
+  lines: OrderPreviewLine[];
+  total: number;
 };
 
 export function CustomerStoreApp({
@@ -141,6 +187,10 @@ export function CustomerStoreApp({
     storeTerms?: string | null;
     storeBroadcast?: string | null;
     storeBroadcastAt?: string | null;
+    demoOrders?: {
+      active: DemoOrderPreview[];
+      history: DemoOrderPreview[];
+    };
   };
   unavailable: boolean;
   platformLegalDocs?: PlatformLegalDocPayload[];
@@ -159,12 +209,26 @@ export function CustomerStoreApp({
   const [faqOpen, setFaqOpen] = useState(false);
   const [displayOpen, setDisplayOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
+  const [installAppOpen, setInstallAppOpen] = useState(false);
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const [cartDeals, setCartDeals] = useState<StoreDeal[]>([]);
   const [orderCheckoutOpen, setOrderCheckoutOpen] = useState(false);
   const [orderSuccessOpen, setOrderSuccessOpen] = useState(false);
+  const [activeOrdersOpen, setActiveOrdersOpen] = useState(false);
+  const [historyOrdersOpen, setHistoryOrdersOpen] = useState(false);
+  const [localOrderHistory, setLocalOrderHistory] = useState<
+    CustomerOrderHistoryEntry[]
+  >([]);
+  const [historyDetailOrder, setHistoryDetailOrder] =
+    useState<CustomerOrderHistoryEntry | null>(null);
+  const prevActiveOrderCountRef = useRef(0);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [orderError, setOrderError] = useState("");
+  const [productConfettiActive, setProductConfettiActive] = useState(false);
+  const [productConfettiBurst, setProductConfettiBurst] = useState(0);
+  const productConfettiTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const [sellerNoticeUnread, setSellerNoticeUnread] = useState(false);
   const [sellerNoticeExpanded, setSellerNoticeExpanded] = useState(false);
   const [sellerNoticeMessage, setSellerNoticeMessage] = useState("");
@@ -184,12 +248,22 @@ export function CustomerStoreApp({
   const labels = useMemo(() => getCustomerLabels(locale), [locale]);
 
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, []);
+    setLocalOrderHistory(loadCustomerOrderHistory(business.slug));
+    setCartDeals(pendingDealsToSnapshots(loadPendingDeals(business.slug)));
+  }, [business.slug]);
+
+  const syncPendingDeals = useCallback(() => {
+    const pending = loadPendingDeals(business.slug);
+    setCartDeals(pendingDealsToSnapshots(pending));
+    return pending;
+  }, [business.slug]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      syncPendingDeals();
+    }, 60_000);
+    return () => window.clearInterval(id);
+  }, [syncPendingDeals]);
 
   useEffect(() => {
     const saved = localStorage.getItem(`linky-customer-${business.slug}`);
@@ -386,8 +460,109 @@ export function CustomerStoreApp({
   const activeOrderCount =
     cartLines.reduce((n, l) => n + l.qty, 0) + cartDeals.length;
 
+  const demoHistoryOrders = business.demoOrders?.history ?? [];
+  const cartHasItems = cartLines.length > 0 || cartDeals.length > 0;
+  const orderHistoryList = useMemo(() => {
+    const seen = new Set<string>();
+    const merged: CustomerOrderHistoryEntry[] = [];
+    for (const order of [...localOrderHistory, ...demoHistoryOrders]) {
+      if (seen.has(order.id)) continue;
+      seen.add(order.id);
+      merged.push(order);
+    }
+    return merged.sort(
+      (a, b) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime()
+    );
+  }, [localOrderHistory, demoHistoryOrders]);
+  const activeProductLines = useMemo(
+    (): OrderPreviewLine[] =>
+      cartLines.map((l) => ({
+        name: l.product.name,
+        imageUrl: l.product.imageUrl,
+        qty: l.qty,
+        lineTotal: getEffectivePrice(l.product) * l.qty,
+        productId: l.product.id,
+      })),
+    [cartLines]
+  );
+
+  const activeCartLines = useMemo((): OrderPreviewLine[] => {
+    const dealLines = cartDeals.map((d) => ({
+      name: d.name,
+      imageUrl: d.products[0]?.imageUrl ?? null,
+      qty: 1,
+      lineTotal: d.dealPrice,
+      dealId: d.id,
+    }));
+    return [...dealLines, ...activeProductLines];
+  }, [cartDeals, activeProductLines]);
+
+  const redeemedDealIds = useMemo(
+    () => new Set(cartDeals.map((d) => d.id)),
+    [cartDeals]
+  );
+
+  useEffect(() => {
+    const prev = prevActiveOrderCountRef.current;
+    if (activeOrderCount > prev && activeOrderCount > 0) {
+      setActiveOrdersOpen(true);
+    }
+    prevActiveOrderCountRef.current = activeOrderCount;
+  }, [activeOrderCount]);
+
+  function reorderFromHistory(order: CustomerOrderHistoryEntry) {
+    const nextCart: Record<string, number> = {};
+    const nextDeals: StoreDeal[] = [];
+
+    for (const line of order.lines) {
+      if (line.dealId) {
+        const deal =
+          activeDeals.find((d) => d.id === line.dealId) ??
+          (business.deals ?? []).find((d) => d.id === line.dealId);
+        if (
+          deal &&
+          dealHasStock(deal) &&
+          !nextDeals.some((d) => d.id === deal.id)
+        ) {
+          nextDeals.push(deal);
+        }
+        continue;
+      }
+
+      const product =
+        (line.productId
+          ? business.products.find((p) => p.id === line.productId)
+          : undefined) ??
+        business.products.find((p) => p.name === line.name);
+
+      if (product && isProductInStock(product.stock)) {
+        const maxQty = maxOrderQuantity(product.stock);
+        nextCart[product.id] = Math.min(line.qty, maxQty);
+      }
+    }
+
+    if (Object.keys(nextCart).length === 0 && nextDeals.length === 0) return;
+
+    clearPendingDeals(business.slug);
+    for (const deal of nextDeals) {
+      addPendingDeal(business.slug, deal);
+    }
+    setCart(nextCart);
+    setCartDeals(pendingDealsToSnapshots(loadPendingDeals(business.slug)));
+    setHistoryDetailOrder(null);
+    setActiveOrdersOpen(true);
+    setMainTab("orders");
+  }
+
   async function submitOrder(name: string, phone: string) {
     if (cartLines.length === 0 && cartDeals.length === 0) return;
+    const orderSnapshot: CustomerOrderHistoryEntry = {
+      id: `order-${Date.now()}`,
+      placedAt: new Date().toISOString(),
+      lines: activeCartLines,
+      total: checkoutTotal,
+      statusLabel: labels.pendingOrder,
+    };
     if (!name || !phone) {
       setOrderError(
         locale === "he" ? "יש למלא שם וטלפון" : "Please enter name and phone"
@@ -448,18 +623,33 @@ export function CustomerStoreApp({
     setOrderPhone(phone);
     localStorage.setItem(`linky-customer-${business.slug}`, name);
     localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+    removePendingDeals(
+      business.slug,
+      cartDeals.map((d) => d.id)
+    );
     setCart({});
     setCartDeals([]);
     setOrderCheckoutOpen(false);
     setOrderSuccessOpen(true);
+    const nextHistory = appendCustomerOrderHistory(business.slug, orderSnapshot);
+    setLocalOrderHistory(nextHistory);
+    setHistoryOrdersOpen(true);
+    setActiveOrdersOpen(false);
+  }
+
+  function clearActiveCart() {
+    clearPendingDeals(business.slug);
+    setCart({});
+    setCartDeals([]);
   }
 
   function addDealToActiveOrders(deal: StoreDeal) {
     if (!dealHasStock(deal)) return;
-    setCartDeals((prev) =>
-      prev.some((d) => d.id === deal.id) ? prev : [...prev, deal]
-    );
+    if (redeemedDealIds.has(deal.id)) return;
+    const next = addPendingDeal(business.slug, deal);
+    setCartDeals(pendingDealsToSnapshots(next));
     setMainTab("orders");
+    setActiveOrdersOpen(true);
   }
 
   async function sendInquiry(e: React.FormEvent<HTMLFormElement>) {
@@ -511,15 +701,68 @@ export function CustomerStoreApp({
 
   const cartItemCount = activeOrderCount;
 
+  const triggerProductConfetti = useCallback(() => {
+    if (productConfettiTimeoutRef.current) {
+      clearTimeout(productConfettiTimeoutRef.current);
+    }
+    setProductConfettiBurst((n) => n + 1);
+    setProductConfettiActive(true);
+    productConfettiTimeoutRef.current = setTimeout(() => {
+      setProductConfettiActive(false);
+      productConfettiTimeoutRef.current = null;
+    }, PRODUCT_CONFETTI_MS);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (productConfettiTimeoutRef.current) {
+        clearTimeout(productConfettiTimeoutRef.current);
+      }
+    },
+    []
+  );
+
+  const incrementProductInCart = useCallback(
+    (productId: string, maxQty: number) => {
+      let added = false;
+      setCart((c) => {
+        const current = c[productId] ?? 0;
+        if (current >= maxQty) return c;
+        added = true;
+        return { ...c, [productId]: current + 1 };
+      });
+      if (added) triggerProductConfetti();
+    },
+    [triggerProductConfetti]
+  );
+
+  const productCartHandlers = useMemo(() => {
+    const map: Record<string, { onDec: () => void; onInc: () => void }> = {};
+    for (const p of business.products) {
+      const id = p.id;
+      const maxQty = maxOrderQuantity(p.stock);
+      map[id] = {
+        onDec: () =>
+          setCart((c) => ({
+            ...c,
+            [id]: Math.max(0, (c[id] ?? 0) - 1),
+          })),
+        onInc: () => incrementProductInCart(id, maxQty),
+      };
+    }
+    return map;
+  }, [business.products, incrementProductInCart]);
+
   function renderProductGrid() {
     if (business.products.length === 0) {
       return <EmptyStateCard message={labels.noServices} />;
     }
     return (
-      <div className="grid grid-cols-2 items-stretch gap-2.5">
+      <div className="grid min-w-0 grid-cols-2 items-stretch gap-2">
         {business.products.map((p) => {
           const outOfStock = !isProductInStock(p.stock);
           const maxQty = maxOrderQuantity(p.stock);
+          const handlers = productCartHandlers[p.id];
           return (
             <ProductGridCard
               key={p.id}
@@ -535,18 +778,8 @@ export function CustomerStoreApp({
               outOfStock={outOfStock}
               outOfStockLabel={labels.outOfStock}
               maxQty={maxQty}
-              onDec={() =>
-                setCart((c) => ({
-                  ...c,
-                  [p.id]: Math.max(0, (c[p.id] ?? 0) - 1),
-                }))
-              }
-              onInc={() =>
-                setCart((c) => ({
-                  ...c,
-                  [p.id]: Math.min(maxQty, (c[p.id] ?? 0) + 1),
-                }))
-              }
+              onDec={handlers?.onDec ?? (() => {})}
+              onInc={handlers?.onInc ?? (() => {})}
             />
           );
         })}
@@ -559,7 +792,7 @@ export function CustomerStoreApp({
       return <EmptyStateCard message={labels.noDeals} />;
     }
     return (
-      <div className="grid grid-cols-2 items-start gap-2.5">
+      <div className="grid min-w-0 grid-cols-1 items-stretch gap-4">
         {activeDeals.map((d) => (
           <DealCard
             key={d.id}
@@ -568,7 +801,9 @@ export function CustomerStoreApp({
             validUntil={d.validUntil}
             products={d.products}
             locale={locale}
+            storeTheme={displayTheme}
             labels={labels}
+            faded={redeemedDealIds.has(d.id)}
             redeemDisabled={!dealHasStock(d)}
             onRedeem={() => addDealToActiveOrders(d)}
           />
@@ -621,7 +856,7 @@ export function CustomerStoreApp({
                 </div>
               )
             ) : (
-              <div className="bakery-float-panel rounded-[24px] p-3">
+              <div className="p-1">
                 {renderProductGrid()}
               </div>
             )}
@@ -634,54 +869,52 @@ export function CustomerStoreApp({
             {isAppointments ? (
               <EmptyStateCard message={labels.noMyAppts} />
             ) : (
-              <div className="grid grid-cols-1 gap-4">
-                <OrdersHubPanel title={labels.activeOrders}>
-                  {cartLines.length === 0 && cartDeals.length === 0 ? (
+              <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
+                <SettingsCollapsibleSection
+                  title={labels.activeOrders}
+                  icon={Receipt}
+                  expanded={activeOrdersOpen}
+                  onToggle={() => setActiveOrdersOpen((open) => !open)}
+                >
+                  {!cartHasItems ? (
                     <HubEmptyText>{labels.cartEmpty}</HubEmptyText>
                   ) : (
-                    <>
-                      <ul className="space-y-2 py-2">
-                        {cartDeals.map((d) => (
-                          <CartLineRow
-                            key={`deal-${d.id}`}
-                            name={d.name}
-                            imageUrl={d.products[0]?.imageUrl}
-                            qty={1}
-                            lineTotal={d.dealPrice}
-                            locale={locale}
-                          />
-                        ))}
-                        {cartLines.map((l) => (
-                          <CartLineRow
-                            key={l.product.id}
-                            name={l.product.name}
-                            imageUrl={l.product.imageUrl}
-                            qty={l.qty}
-                            lineTotal={getEffectivePrice(l.product) * l.qty}
-                            locale={locale}
-                          />
-                        ))}
-                        <li className="border-t border-bakery-border/40 pt-2 font-extrabold">
-                          {labels.total}:{" "}
-                          {formatCustomerMoney(checkoutTotal, locale)}
-                        </li>
-                      </ul>
-                      <Button
-                        type="button"
-                        className="mt-3 w-full min-h-[48px]"
-                        onClick={() => {
-                          setOrderError("");
-                          setOrderCheckoutOpen(true);
-                        }}
-                      >
-                        {labels.confirmOrder}
-                      </Button>
-                    </>
+                    <OrderPreviewCard
+                      lines={activeCartLines}
+                      locale={locale}
+                      confirmLabel={labels.confirmOrder}
+                      cancelLabel={labels.cancelOrder}
+                      onConfirm={() => {
+                        setOrderError("");
+                        setOrderCheckoutOpen(true);
+                      }}
+                      onCancel={clearActiveCart}
+                    />
                   )}
-                </OrdersHubPanel>
-                <OrdersHubPanel title={labels.orderHistory}>
-                  <HubEmptyText>{labels.noPastOrders}</HubEmptyText>
-                </OrdersHubPanel>
+                </SettingsCollapsibleSection>
+                <SettingsCollapsibleSection
+                  title={labels.orderHistory}
+                  icon={History}
+                  expanded={historyOrdersOpen}
+                  onToggle={() => setHistoryOrdersOpen((open) => !open)}
+                >
+                  {orderHistoryList.length === 0 ? (
+                    <HubEmptyText>{labels.noPastOrders}</HubEmptyText>
+                  ) : (
+                    <ul className="space-y-2">
+                      {orderHistoryList.map((order) => (
+                        <li key={order.id}>
+                          <OrderHistorySummaryRow
+                            placedAt={order.placedAt}
+                            total={order.total}
+                            locale={locale}
+                            onClick={() => setHistoryDetailOrder(order)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </SettingsCollapsibleSection>
               </div>
             )}
           </div>
@@ -693,7 +926,7 @@ export function CustomerStoreApp({
             {isAppointments ? (
               <EmptyStateCard message={labels.noDeals} />
             ) : (
-              <div className="bakery-float-panel rounded-[24px] p-2.5">
+              <div className="p-1">
                 {renderDealsGrid()}
               </div>
             )}
@@ -720,20 +953,25 @@ export function CustomerStoreApp({
                 expanded={settingsExpanded}
                 onToggle={() => setSettingsExpanded((open) => !open)}
               >
-                <SettingsMenuRow
+                <SettingsMenuSubRow
                   icon={UserRound}
                   title={labels.signIn}
                   onClick={() => setProfileModalOpen(true)}
                 />
-                <SettingsMenuRow
+                <SettingsMenuSubRow
                   icon={SlidersHorizontal}
                   title={labels.language}
                   onClick={() => setDisplayOpen(true)}
                 />
-                <SettingsMenuRow
+                <SettingsMenuSubRow
                   icon={ShieldPlus}
                   title={labels.legal}
                   onClick={() => setLegalOpen(true)}
+                />
+                <SettingsMenuSubRow
+                  icon={Smartphone}
+                  title={labels.installApp}
+                  onClick={() => setInstallAppOpen(true)}
                 />
               </SettingsCollapsibleSection>
             </div>
@@ -762,6 +1000,10 @@ export function CustomerStoreApp({
       dir={rootDir}
       className={`customer-store-root ${themeClass} ${textScaleClass} flex h-full min-h-0 w-full flex-col overflow-hidden`}
     >
+      <DashboardConfettiBackground
+        key={productConfettiBurst}
+        active={productConfettiActive}
+      />
       <div className={CUSTOMER_VIEWPORT_HEIGHT}>
         <div className={`${CUSTOMER_MOBILE_STACK} ${CUSTOMER_PAGE_ROOT}`}>
           {!unavailable && showSellerNoticeBanner && (
@@ -817,8 +1059,29 @@ export function CustomerStoreApp({
         platformLegalDocs={platformLegalDocs}
       />
 
+      <CustomerInstallAppSheet
+        open={installAppOpen}
+        onClose={() => setInstallAppOpen(false)}
+        locale={locale}
+        storeTheme={displayTheme}
+        copy={{
+          title: labels.installApp,
+          panelTitle: labels.installAppPanelTitle,
+          panelSubtitle: labels.installAppPanelSubtitle,
+          installedTitle: labels.installAppInstalledTitle,
+          installedHint: labels.installAppInstalledHint,
+          installButton: labels.installAppButton,
+          iosStep1: labels.installAppIosStep1,
+          iosStep2: labels.installAppIosStep2,
+          iosStep3: labels.installAppIosStep3,
+          androidHint: labels.installAppAndroidHint,
+          desktopHint: labels.installAppDesktopHint,
+        }}
+      />
+
+      {contactModalOpen && (
       <CustomerContactModal
-        open={contactModalOpen}
+        open
         onClose={() => setContactModalOpen(false)}
         view={contactView}
         onViewChange={setContactView}
@@ -833,6 +1096,7 @@ export function CustomerStoreApp({
         inquirySent={inquirySent}
         onSubmitInquiry={sendInquiry}
       />
+      )}
 
       <CustomerCenterModal
         open={profileModalOpen}
@@ -840,6 +1104,7 @@ export function CustomerStoreApp({
         locale={locale}
         storeTheme={displayTheme}
         title={labels.signIn}
+        panelClassName="customer-profile-modal-panel max-h-fit"
       >
         <div className="space-y-3 px-4 py-4">
           {profileSavedFlash && (
@@ -877,8 +1142,12 @@ export function CustomerStoreApp({
 
       <OrderCheckoutModal
         open={orderCheckoutOpen}
-        onClose={() => setOrderCheckoutOpen(false)}
+        onClose={() => {
+          setOrderCheckoutOpen(false);
+          setOrderError("");
+        }}
         locale={locale}
+        storeTheme={displayTheme}
         total={checkoutTotal}
         summary={
           cartDeals.length > 0
@@ -896,14 +1165,43 @@ export function CustomerStoreApp({
         }}
       />
 
+      {orderSuccessOpen && (
       <CelebrationModal
-        open={orderSuccessOpen}
+        open
         onClose={() => setOrderSuccessOpen(false)}
         title={labels.orderSuccessTitle}
         detail={labels.orderSuccessDetail}
         buttonLabel={labels.great}
         closeAriaLabel={labels.close}
       />
+      )}
+
+      <CustomerCenterModal
+        open={historyDetailOrder !== null}
+        onClose={() => setHistoryDetailOrder(null)}
+        title={labels.orderDetails}
+        locale={locale}
+        storeTheme={displayTheme}
+        ariaLabel={labels.orderDetails}
+        panelClassName="customer-order-detail-modal-panel"
+        bodyClassName="px-3 py-4"
+      >
+        {historyDetailOrder ? (
+          <div className="space-y-4">
+            <OrderPreviewCard
+              lines={historyDetailOrder.lines}
+              locale={locale}
+            />
+            <Button
+              type="button"
+              className="w-full font-extrabold"
+              onClick={() => reorderFromHistory(historyDetailOrder)}
+            >
+              {labels.orderAgain}
+            </Button>
+          </div>
+        ) : null}
+      </CustomerCenterModal>
     </div>
   );
 }

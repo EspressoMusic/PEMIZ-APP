@@ -23,9 +23,7 @@ export default function DevSellerPreviewPage() {
             prepProducts={demoPrepSummary()}
             prepRefreshFromApi={false}
             inquiriesHref="/dev/seller/customers/inquiries"
-            ordersHref="/dev/seller/settings/orders"
             inquiryBellPreview
-            storeHealthPreview
           />
     </DashboardShell>
   );

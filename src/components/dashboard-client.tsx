@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown, ClipboardList, History } from "lucide-react";
 import {
   Button,
   Input,
@@ -9,16 +10,17 @@ import {
   PageTitle,
 } from "@/components/ui";
 import {
+  DashboardOrdersList,
   DashboardOrdersSection,
   type DashboardOrderView,
 } from "@/components/dashboard/dashboard-order-card";
+import {
+  customerProfileInitial,
+  useDashboardCustomerProfile,
+} from "@/components/dashboard/dashboard-customer-profile";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { getDashboardLabels, type AppLocale } from "@/lib/app-locale";
-import {
-  DashboardPanelFrame,
-  DASHBOARD_PAGE_ROOT,
-  DASHBOARD_SCROLL_MAIN,
-} from "@/components/dashboard/dashboard-panel-frame";
+import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
 export { ProductsManager } from "@/components/dashboard/products-manager";
 
 function orderStatusLabel(status: string, locale: AppLocale): string {
@@ -38,6 +40,34 @@ function isActiveOrderStatus(status: string) {
   return ACTIVE_ORDER_STATUSES.has(status);
 }
 
+function normalizeCustomerPhone(phone: string) {
+  return phone.replace(/\s/g, "");
+}
+
+function enrichOrdersWithCustomerJoinedAt(
+  orders: DashboardOrderView[]
+): DashboardOrderView[] {
+  const firstOrderByPhone = new Map<string, string>();
+  for (const order of orders) {
+    if (!order.createdAt) continue;
+    const phone = normalizeCustomerPhone(order.customerPhone);
+    const existing = firstOrderByPhone.get(phone);
+    if (
+      !existing ||
+      new Date(order.createdAt).getTime() < new Date(existing).getTime()
+    ) {
+      firstOrderByPhone.set(phone, order.createdAt);
+    }
+  }
+  return orders.map((order) => ({
+    ...order,
+    customerJoinedAt:
+      order.customerJoinedAt ??
+      firstOrderByPhone.get(normalizeCustomerPhone(order.customerPhone)) ??
+      order.createdAt,
+  }));
+}
+
 function mapOrdersFromApi(
   locale: AppLocale,
   raw: {
@@ -53,28 +83,36 @@ function mapOrdersFromApi(
     }[];
   }[]
 ): DashboardOrderView[] {
-  return raw.map((o) => ({
-    id: o.id,
-    customerName: o.customerName,
-    customerPhone: o.customerPhone,
-    status: o.status,
-    statusLabel: orderStatusLabel(o.status, locale),
-    createdAt: o.createdAt,
-    items: o.items.map((it) => ({
-      name: it.product.name,
-      quantity: it.quantity,
-      lineTotal: it.priceAtOrder * it.quantity,
-      imageUrl: it.product.imageUrl,
-    })),
-  }));
+  return enrichOrdersWithCustomerJoinedAt(
+    raw.map((o) => ({
+      id: o.id,
+      customerName: o.customerName,
+      customerPhone: o.customerPhone,
+      status: o.status,
+      statusLabel: orderStatusLabel(o.status, locale),
+      createdAt: o.createdAt,
+      items: o.items.map((it) => ({
+        name: it.product.name,
+        quantity: it.quantity,
+        lineTotal: it.priceAtOrder * it.quantity,
+        imageUrl: it.product.imageUrl,
+      })),
+    }))
+  );
 }
 
 function OrdersPanels({
   orders,
   onStatusChange,
+  onCustomerClick,
+  customerModal,
 }: {
   orders: DashboardOrderView[];
   onStatusChange?: (orderId: string, status: string) => void;
+  onCustomerClick?: ReturnType<
+    typeof useDashboardCustomerProfile
+  >["openCustomer"];
+  customerModal?: React.ReactNode;
 }) {
   const { labels } = useAppLocale();
   const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
@@ -86,11 +124,14 @@ function OrdersPanels({
         title={labels.activeOrders}
         orders={activeOrders}
         onStatusChange={onStatusChange}
+        onCustomerClick={onCustomerClick}
+        customerModal={customerModal}
         emptyMessage={labels.noActiveOrders}
       />
       <DashboardOrdersSection
         title={labels.orderHistory}
         orders={historyOrders}
+        onCustomerClick={onCustomerClick}
         emptyMessage={labels.noOrderHistory}
       />
     </div>
@@ -99,17 +140,21 @@ function OrdersPanels({
 
 export function OrdersManager({
   framed = true,
+  previewOnly = false,
   previewOrders,
 }: {
   /** מסגרת לבנה כמו דף פעולות */
   framed?: boolean;
+  previewOnly?: boolean;
   previewOrders?: DashboardOrderView[];
 }) {
   const [orders, setOrders] = useState<DashboardOrderView[]>(previewOrders ?? []);
-  const { locale } = useAppLocale();
+  const [activeOrdersOpen, setActiveOrdersOpen] = useState(false);
+  const [historyOrdersOpen, setHistoryOrdersOpen] = useState(false);
+  const { labels, locale } = useAppLocale();
 
   async function load() {
-    if (previewOrders) return;
+    if (previewOnly) return;
     const res = await fetch("/api/dashboard/orders");
     const data = await res.json();
     if (!res.ok) return;
@@ -118,20 +163,35 @@ export function OrdersManager({
   }
 
   useEffect(() => {
-    if (previewOrders) {
+    if (previewOnly && previewOrders) {
       setOrders(
-        previewOrders.map((o) => ({
-          ...o,
-          statusLabel: orderStatusLabel(o.status, locale),
-        }))
+        enrichOrdersWithCustomerJoinedAt(
+          previewOrders.map((o) => ({
+            ...o,
+            statusLabel: orderStatusLabel(o.status, locale),
+          }))
+        )
       );
       return;
     }
     void load();
-  }, [locale, previewOrders]);
+  }, [locale, previewOnly, previewOrders]);
 
   async function setStatus(orderId: string, status: string) {
-    if (previewOrders) return;
+    if (previewOnly) {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? {
+                ...o,
+                status,
+                statusLabel: orderStatusLabel(status, locale),
+              }
+            : o
+        )
+      );
+      return;
+    }
     await fetch("/api/dashboard/orders", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -140,10 +200,20 @@ export function OrdersManager({
     load();
   }
 
+  const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
+  const historyOrders = orders.filter((o) => !isActiveOrderStatus(o.status));
+  const onStatusChange = setStatus;
+  const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
+    previewOnly,
+    previewOrders: orders,
+  });
+
   const panels = (
     <OrdersPanels
       orders={orders}
-      onStatusChange={previewOrders ? undefined : setStatus}
+      onStatusChange={onStatusChange}
+      onCustomerClick={openCustomer}
+      customerModal={customerModal}
     />
   );
 
@@ -151,11 +221,114 @@ export function OrdersManager({
     return <div className="space-y-4 text-center">{panels}</div>;
   }
 
+  const ordersListClassName =
+    "no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
+
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <DashboardPanelFrame className="flex min-h-0 flex-1 flex-col overflow-hidden text-center">
-        <div className={DASHBOARD_SCROLL_MAIN}>{panels}</div>
-      </DashboardPanelFrame>
+    <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
+      {previewOnly && (
+        <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
+          תצוגה מקדימה — הזמנות דמו לבדיקה, השינויים לא נשמרים בשרת
+        </p>
+      )}
+      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+        <button
+          type="button"
+          onClick={() => setActiveOrdersOpen((v) => !v)}
+          aria-expanded={activeOrdersOpen}
+          aria-controls="dashboard-active-orders-list"
+          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
+            activeOrdersOpen ? "bakery-float-tile--active" : ""
+          }`}
+        >
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <ClipboardList className="h-6 w-6" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+            {labels.orders}
+            {activeOrders.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({activeOrders.length})
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
+              activeOrdersOpen ? "rotate-180" : ""
+            }`}
+            strokeWidth={2.5}
+            aria-hidden
+          />
+        </button>
+
+        {activeOrdersOpen && (
+          <div
+            id="dashboard-active-orders-list"
+            className={ordersListClassName}
+            role="region"
+            aria-label={labels.orders}
+          >
+            <DashboardOrdersList
+              orders={activeOrders}
+              onStatusChange={onStatusChange}
+              onCustomerClick={openCustomer}
+              emptyMessage={labels.noActiveOrders}
+              emptyCompact
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+        <button
+          type="button"
+          onClick={() => setHistoryOrdersOpen((v) => !v)}
+          aria-expanded={historyOrdersOpen}
+          aria-controls="dashboard-order-history-list"
+          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
+            historyOrdersOpen ? "bakery-float-tile--active" : ""
+          }`}
+        >
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <History className="h-6 w-6" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+            {labels.orderHistory}
+            {historyOrders.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({historyOrders.length})
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
+              historyOrdersOpen ? "rotate-180" : ""
+            }`}
+            strokeWidth={2.5}
+            aria-hidden
+          />
+        </button>
+
+        {historyOrdersOpen && (
+          <div
+            id="dashboard-order-history-list"
+            className={ordersListClassName}
+            role="region"
+            aria-label={labels.orderHistory}
+          >
+            <DashboardOrdersList
+              orders={historyOrders}
+              onCustomerClick={openCustomer}
+              emptyMessage={labels.noOrderHistory}
+              emptyCompact
+              showPrices
+            />
+          </div>
+        )}
+      </div>
+      {customerModal}
     </div>
   );
 }
@@ -254,6 +427,7 @@ export function SlotsManager() {
 
 export function AppointmentsManager() {
   const { labels, formatDateTime } = useAppLocale();
+  const { openCustomer, modal: customerModal } = useDashboardCustomerProfile();
   const [items, setItems] = useState<
     {
       id: string;
@@ -288,27 +462,49 @@ export function AppointmentsManager() {
       <PageTitle>{labels.orders}</PageTitle>
       {items.map((a) => (
         <Panel key={a.id}>
-          <p className="text-[17px] font-extrabold">{a.customerName}</p>
-          <p className="text-[14px]" dir="ltr">
-            {a.customerPhone}
-          </p>
-          <p className="text-[14px] text-bakery-muted" dir="ltr">
-            {formatDateTime(a.slot.startAt)}
-          </p>
-          <Badge>{a.status}</Badge>
-          <div className="mt-2 flex gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => setStatus(a.id, "CONFIRMED")}
+          <div className="flex items-start gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                openCustomer({
+                  customerName: a.customerName,
+                  customerPhone: a.customerPhone,
+                  fallbackDate: a.slot.startAt,
+                })
+              }
+              className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-bakery-border/35 bg-bakery-on-primary text-[18px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)] transition hover:opacity-90 active:scale-[0.98]"
+              aria-label={`${labels.customer}: ${a.customerName}`}
             >
-              {labels.confirmOrder}
-            </Button>
-            <Button variant="danger" onClick={() => setStatus(a.id, "CANCELLED")}>
-              {labels.cancelOrder}
-            </Button>
+              {customerProfileInitial(a.customerName, labels.anonymousCustomer)}
+            </button>
+            <div className="min-w-0 flex-1">
+              <p className="text-[17px] font-extrabold">{a.customerName}</p>
+              <p className="text-[14px]" dir="ltr">
+                {a.customerPhone}
+              </p>
+              <p className="text-[14px] text-bakery-muted" dir="ltr">
+                {formatDateTime(a.slot.startAt)}
+              </p>
+              <Badge>{a.status}</Badge>
+              <div className="mt-2 flex gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => setStatus(a.id, "CONFIRMED")}
+                >
+                  {labels.confirmOrder}
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => setStatus(a.id, "CANCELLED")}
+                >
+                  {labels.cancelOrder}
+                </Button>
+              </div>
+            </div>
           </div>
         </Panel>
       ))}
+      {customerModal}
     </div>
   );
 }

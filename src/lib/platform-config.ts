@@ -5,6 +5,7 @@ const CONFIG_ID = "default";
 const DEFAULT_CONFIG = { id: CONFIG_ID, signupsEnabled: true };
 
 import { isDatabaseConfigured } from "@/lib/db-env";
+import { withDbTimeout } from "@/lib/db-query-timeout";
 
 function hasDatabaseUrl() {
   return isDatabaseConfigured();
@@ -15,11 +16,13 @@ export async function getPlatformConfig() {
     return DEFAULT_CONFIG;
   }
   try {
-    return await prisma.platformConfig.upsert({
-      where: { id: CONFIG_ID },
-      create: { id: CONFIG_ID, signupsEnabled: true },
-      update: {},
-    });
+    return await withDbTimeout(
+      prisma.platformConfig.upsert({
+        where: { id: CONFIG_ID },
+        create: { id: CONFIG_ID, signupsEnabled: true },
+        update: {},
+      })
+    );
   } catch (err) {
     console.error("[platform-config] DB unavailable, using defaults", err);
     return DEFAULT_CONFIG;

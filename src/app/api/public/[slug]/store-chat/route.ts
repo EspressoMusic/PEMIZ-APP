@@ -2,19 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { normalizePhone } from "@/lib/phone";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { isStoreChatChannel } from "@/lib/store-chat";
 import {
-  isStoreChatChannel,
-  replySnippet,
-  type StoreChatMessageDto,
-} from "@/lib/store-chat";
+  STORE_CHAT_LIST_LIMIT,
+  storeChatMessageInclude,
+  storeChatRowToDto,
+} from "@/lib/store-chat-query";
 import { publicChatPostSchema, zodFirstError } from "@/lib/validation/schemas";
-
-const messageInclude = {
-  replyTo: {
-    select: { id: true, body: true, customerName: true },
-  },
-  likes: { select: { customerPhone: true } },
-} as const;
+import { notifySellerChat } from "@/lib/seller-push";
 
 export async function GET(
   req: Request,
@@ -36,32 +31,20 @@ export async function GET(
   if (!business) return jsonError("עסק לא נמצא", 404);
   if (!business.isActive) return jsonError("עסק לא זמין", 403);
 
-  if (channelRaw === "SELLER") {
-    if (viewerPhone.length < 9) return jsonError("מספר טלפון לא תקין");
-
-    const rows = await prisma.storeChatMessage.findMany({
-      where: {
-        businessId: business.id,
-        channel: "SELLER",
-        customerPhone: viewerPhone,
-      },
-      orderBy: { createdAt: "asc" },
-      take: 200,
-      include: messageInclude,
-    });
-    return jsonOk({
-      messages: rows.map((row) => toDto(row, viewerPhone)),
-    });
-  }
+  if (viewerPhone.length < 9) return jsonError("מספר טלפון לא תקין");
 
   const rows = await prisma.storeChatMessage.findMany({
-    where: { businessId: business.id, channel: "COMMUNITY" },
+    where: {
+      businessId: business.id,
+      channel: "SELLER",
+      customerPhone: viewerPhone,
+    },
     orderBy: { createdAt: "asc" },
-    take: 200,
-    include: messageInclude,
+    take: STORE_CHAT_LIST_LIMIT,
+    include: storeChatMessageInclude,
   });
   return jsonOk({
-    messages: rows.map((row) => toDto(row, viewerPhone)),
+    messages: rows.map((row) => storeChatRowToDto(row)),
   });
 }
 
@@ -87,65 +70,23 @@ export async function POST(
   const phone = normalizePhone(parsed.data.customerPhone);
   if (phone.length < 9) return jsonError("מספר טלפון לא תקין");
 
-  if (parsed.data.replyToId) {
-    const parent = await prisma.storeChatMessage.findFirst({
-      where: {
-        id: parsed.data.replyToId,
-        businessId: business.id,
-        channel: parsed.data.channel,
-      },
-    });
-    if (!parent) return jsonError("ההודעה לתגובה לא נמצאה");
-  }
-
   const row = await prisma.storeChatMessage.create({
     data: {
       businessId: business.id,
-      channel: parsed.data.channel,
+      channel: "SELLER",
       customerPhone: phone,
       customerName: parsed.data.customerName.trim(),
       authorRole: "CUSTOMER",
       body: parsed.data.body.trim(),
-      replyToId: parsed.data.replyToId ?? null,
     },
-    include: messageInclude,
+    include: storeChatMessageInclude,
   });
 
-  return jsonOk({ message: toDto(row, phone) });
-}
-
-function toDto(
-  row: {
-    id: string;
-    channel: string;
-    customerPhone: string | null;
-    customerName: string;
-    authorRole: string;
-    body: string;
-    createdAt: Date;
-    replyTo: { id: string; body: string; customerName: string } | null;
-    likes: { customerPhone: string }[];
-  },
-  viewerPhone: string
-): StoreChatMessageDto {
-  return {
+  void notifySellerChat(business.id, {
     id: row.id,
-    channel: row.channel as StoreChatMessageDto["channel"],
-    customerPhone: row.customerPhone,
     customerName: row.customerName,
-    authorRole: row.authorRole as StoreChatMessageDto["authorRole"],
     body: row.body,
-    createdAt: row.createdAt.toISOString(),
-    replyTo: row.replyTo
-      ? {
-          id: row.replyTo.id,
-          customerName: row.replyTo.customerName,
-          body: replySnippet(row.replyTo.body),
-        }
-      : null,
-    likeCount: row.likes.length,
-    likedByMe:
-      viewerPhone.length >= 9 &&
-      row.likes.some((l) => l.customerPhone === viewerPhone),
-  };
+  });
+
+  return jsonOk({ message: storeChatRowToDto(row) });
 }

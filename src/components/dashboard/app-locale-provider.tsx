@@ -12,6 +12,7 @@ import {
 import {
   applyDocumentLocale,
   formatAppDateTime,
+  formatAppDayDate,
   formatAppMoney,
   formatAppNumber,
   getDashboardLabels,
@@ -31,6 +32,7 @@ type AppLocaleContextValue = {
   formatMoney: (amount: number) => string;
   formatNumber: (n: number) => string;
   formatDateTime: (iso: string) => string;
+  formatDayDate: (iso: string) => string;
 };
 
 const AppLocaleContext = createContext<AppLocaleContextValue | null>(null);
@@ -68,6 +70,7 @@ export function AppLocaleProvider({
       formatMoney: (amount: number) => formatAppMoney(amount, locale),
       formatNumber: (n: number) => formatAppNumber(n, locale),
       formatDateTime: (iso: string) => formatAppDateTime(iso, locale),
+      formatDayDate: (iso: string) => formatAppDayDate(iso, locale),
     }),
     [locale, setLocale]
   );
@@ -88,6 +91,7 @@ export function useAppLocale() {
       formatMoney: (amount: number) => formatAppMoney(amount, locale),
       formatNumber: (n: number) => formatAppNumber(n, locale),
       formatDateTime: (iso: string) => formatAppDateTime(iso, locale),
+      formatDayDate: (iso: string) => formatAppDayDate(iso, locale),
     };
   }
   return ctx;

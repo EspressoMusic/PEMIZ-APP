@@ -25,7 +25,7 @@ export function DashboardPanelFrame({
 }) {
   return (
     <div
-      className={`bakery-float-panel rounded-[24px] p-4 text-center ${className}`}
+      className={`dashboard-card bakery-float-panel rounded-[32px] p-4 text-center ${className}`}
     >
       {children}
     </div>

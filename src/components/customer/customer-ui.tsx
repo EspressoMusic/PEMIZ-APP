@@ -1,14 +1,22 @@
 "use client";
 
-import { Fragment, useState, type ReactNode } from "react";
-import { Info, Plus, type LucideIcon } from "lucide-react";
+import { memo, useState, type ReactNode } from "react";
+import { ChevronDown, Info, Tag, type LucideIcon } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatCustomerMoney } from "@/lib/customer-money";
+import {
+  CustomerCenterModal,
+  CustomerModalHeaderBar,
+} from "@/components/customer/customer-center-modal";
 import { getEffectivePrice } from "@/lib/product-price";
-import { Button } from "@/components/ui";
-import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
-import type { CustomerLabels } from "./customer-labels";
+import { getCustomerLabels, type CustomerLabels } from "./customer-labels";
 import type { StoreThemeId } from "@/lib/store-themes";
+import {
+  formatCustomerOrderDate,
+  type OrderPreviewLine,
+} from "@/lib/customer-order-history";
+
+export type { OrderPreviewLine };
 
 /** Matches [CustomerTabBody] — 12px top safe area */
 export function CustomerTabBody({ children }: { children: ReactNode }) {
@@ -33,9 +41,75 @@ export function EmptyStateCard({ message }: { message: string }) {
 }
 
 const settingsMenuShell =
-  "block w-full rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square bakery-panel-shadow";
+  "block w-full rounded-[22px] border-[1.2px] border-bakery-border/45 bg-[#E6D5B8] bakery-panel-shadow";
 
-/** Settings tab — same row style as other settings items; tap to expand nested rows */
+const settingsMenuInner =
+  "rounded-[14px] bg-bakery-card px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]";
+
+const settingsMenuIconBox =
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/35 bg-bakery-square shadow-[0_2px_6px_rgba(58,47,38,0.08)]";
+
+/** Active / history order tiles — single light fill + dark stroke */
+const orderCardShell =
+  "rounded-[18px] border-[2px] border-bakery-primary bg-bakery-card px-3 py-3";
+
+function SettingsMenuInnerRow({
+  icon: Icon,
+  title,
+  subtitle,
+  trailing,
+}: {
+  icon: LucideIcon;
+  title: string;
+  subtitle?: string;
+  trailing?: ReactNode;
+}) {
+  return (
+    <div className={`${settingsMenuInner} px-3 py-3`}>
+      <div className="flex items-center gap-3">
+        <span className={settingsMenuIconBox}>
+          <Icon className="h-[26px] w-[26px] text-bakery-ink" strokeWidth={1.75} />
+        </span>
+        <div className="min-w-0 flex-1 text-start">
+          <p className="text-[18px] font-extrabold leading-tight text-bakery-ink">
+            {title}
+          </p>
+          {subtitle ? (
+            <p className="mt-1 text-[14px] font-semibold leading-[1.35] text-bakery-muted">
+              {subtitle}
+            </p>
+          ) : null}
+        </div>
+        {trailing}
+      </div>
+    </div>
+  );
+}
+
+function SettingsMenuRowBody({
+  icon,
+  title,
+  subtitle,
+  trailing,
+}: {
+  icon: LucideIcon;
+  title: string;
+  subtitle?: string;
+  trailing?: ReactNode;
+}) {
+  return (
+    <div className="m-3">
+      <SettingsMenuInnerRow
+        icon={icon}
+        title={title}
+        subtitle={subtitle}
+        trailing={trailing}
+      />
+    </div>
+  );
+}
+
+/** Settings / orders — tan shell, cream inner row (matches seller settings group). */
 export function SettingsCollapsibleSection({
   title,
   icon: Icon,
@@ -50,42 +124,68 @@ export function SettingsCollapsibleSection({
   children: ReactNode;
 }) {
   return (
-    <div className="space-y-2">
+    <div className={settingsMenuShell}>
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={expanded}
-        className={`${settingsMenuShell} transition active:scale-[0.99]`}
+        className="w-full text-start transition active:scale-[0.99]"
       >
-        <div className="flex items-center gap-3.5 px-[18px] py-3.5">
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <Icon className="h-[26px] w-[26px] text-bakery-ink" strokeWidth={1.75} />
-          </span>
-          <p className="min-w-0 flex-1 text-start text-[18px] font-extrabold leading-tight text-bakery-ink">
-            {title}
-          </p>
-        </div>
+        <SettingsMenuRowBody
+          icon={Icon}
+          title={title}
+          trailing={
+            <ChevronDown
+              className={`h-6 w-6 shrink-0 text-bakery-ink transition-transform duration-200 ${
+                expanded ? "rotate-180" : ""
+              }`}
+              strokeWidth={2}
+              aria-hidden
+            />
+          }
+        />
       </button>
-      {expanded ? <div className="space-y-2">{children}</div> : null}
+      {expanded ? (
+        <div className="space-y-2 px-3 pb-3">{children}</div>
+      ) : null}
     </div>
   );
 }
 
-/** [BakeryOrdersPanel] / [_OrdersHubSquare] */
-export function OrdersHubPanel({
+/** Nested row inside SettingsCollapsibleSection — same inner style, no extra outer shell. */
+export function SettingsMenuSubRow({
+  icon: Icon,
   title,
-  children,
+  subtitle,
+  onClick,
+  href,
 }: {
+  icon: LucideIcon;
   title: string;
-  children: ReactNode;
+  subtitle?: string;
+  onClick?: () => void;
+  href?: string;
 }) {
+  const content = (
+    <SettingsMenuInnerRow icon={Icon} title={title} subtitle={subtitle} />
+  );
+
+  if (href) {
+    return (
+      <a href={href} className="block no-underline transition active:scale-[0.99]">
+        {content}
+      </a>
+    );
+  }
+
   return (
-    <div className="rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square px-3 py-2.5 bakery-panel-shadow">
-      <h3 className="text-center text-[17px] font-extrabold text-bakery-ink">
-        {title}
-      </h3>
-      <div className="mt-1.5">{children}</div>
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full cursor-pointer text-start transition active:scale-[0.99]"
+    >
+      {content}
+    </button>
   );
 }
 
@@ -171,47 +271,59 @@ export function SettingsMenuRow({
   href?: string;
 }) {
   const content = (
-    <div
-      className={`flex items-center gap-3.5 px-[18px] ${subtitle ? "py-4" : "py-3.5"}`}
-    >
-      <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-        <Icon className="h-[26px] w-[26px] text-bakery-ink" strokeWidth={1.75} />
-      </span>
-      <div className="min-w-0 flex-1 text-start">
-        <p className="text-[18px] font-extrabold leading-tight text-bakery-ink">
-          {title}
-        </p>
-        {subtitle ? (
-          <p className="mt-1 text-[14px] font-semibold leading-[1.35] text-bakery-muted">
-            {subtitle}
-          </p>
-        ) : null}
-      </div>
-    </div>
+    <SettingsMenuRowBody icon={Icon} title={title} subtitle={subtitle} />
   );
-
-  const shell = "block w-full rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square bakery-panel-shadow";
 
   if (href) {
     return (
-      <a href={href} className={`${shell} no-underline`}>
+      <a href={href} className={`${settingsMenuShell} no-underline`}>
         {content}
       </a>
     );
   }
 
   if (!onClick) {
-    return <div className={shell}>{content}</div>;
+    return <div className={settingsMenuShell}>{content}</div>;
   }
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`${shell} w-full cursor-pointer text-start transition active:scale-[0.99]`}
+      className={`${settingsMenuShell} w-full cursor-pointer text-start transition active:scale-[0.99]`}
     >
       {content}
     </button>
+  );
+}
+
+function CartLineThumb({
+  imageUrl,
+  isDeal,
+}: {
+  imageUrl?: string | null;
+  isDeal?: boolean;
+}) {
+  if (imageUrl) {
+    return (
+      <ProductThumb
+        imageUrl={imageUrl}
+        className="h-12 w-12 shrink-0 rounded-[12px]"
+      />
+    );
+  }
+  if (isDeal) {
+    return (
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] border border-bakery-border/35 bg-bakery-square">
+        <Tag className="h-6 w-6 text-bakery-primary" strokeWidth={2} aria-hidden />
+      </div>
+    );
+  }
+  return (
+    <ProductThumb
+      imageUrl={null}
+      className="h-12 w-12 shrink-0 rounded-[12px]"
+    />
   );
 }
 
@@ -221,31 +333,46 @@ export function CartLineRow({
   qty,
   lineTotal,
   locale,
+  isDeal,
+  faded,
 }: {
   name: string;
   imageUrl?: string | null;
   qty: number;
   lineTotal: number;
   locale: CustomerLocale;
+  isDeal?: boolean;
+  faded?: boolean;
 }) {
+  const subtitle = isDeal
+    ? locale === "he"
+      ? "מבצע"
+      : "Deal"
+    : `× ${qty}`;
+
   return (
-    <li className="flex items-center gap-2.5 text-start">
-      <ProductThumb
-        imageUrl={imageUrl}
-        className="h-12 w-12 shrink-0 rounded-[12px]"
-      />
+    <div
+      className={`flex min-h-[3rem] items-center gap-2.5 text-start ${
+        faded ? "opacity-45 saturate-[0.65]" : ""
+      }`}
+    >
+      <CartLineThumb imageUrl={imageUrl} isDeal={isDeal} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-[14px] font-extrabold text-bakery-ink">
           {name}
         </p>
-        <p className="text-[13px] font-bold text-bakery-ink">
-          × {qty}
+        <p
+          className={`text-[13px] font-bold ${
+            isDeal ? "text-bakery-muted" : "text-bakery-ink"
+          }`}
+        >
+          {subtitle}
         </p>
       </div>
       <span className="shrink-0 text-[14px] font-extrabold text-bakery-ink">
         {formatCustomerMoney(lineTotal, locale)}
       </span>
-    </li>
+    </div>
   );
 }
 
@@ -255,6 +382,104 @@ export function HubEmptyText({ children }: { children: ReactNode }) {
       <p className="text-center text-[15px] font-normal leading-[1.35] text-bakery-muted">
         {children}
       </p>
+    </div>
+  );
+}
+
+export function OrderHistorySummaryRow({
+  placedAt,
+  total,
+  locale,
+  onClick,
+}: {
+  placedAt: string;
+  total: number;
+  locale: CustomerLocale;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${orderCardShell} w-full text-start transition active:scale-[0.99]`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[14px] font-bold text-bakery-muted">
+          {formatCustomerOrderDate(placedAt, locale)}
+        </span>
+        <span className="text-[16px] font-extrabold text-bakery-ink">
+          {formatCustomerMoney(total, locale)}
+        </span>
+      </div>
+    </button>
+  );
+}
+
+export function OrderPreviewCard({
+  lines,
+  locale,
+  confirmLabel,
+  cancelLabel,
+  onConfirm,
+  onCancel,
+}: {
+  lines: OrderPreviewLine[];
+  locale: CustomerLocale;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+}) {
+  const showActions = Boolean(onConfirm || onCancel);
+  const labels = getCustomerLabels(locale);
+  const orderTotal = lines.reduce((sum, line) => sum + line.lineTotal, 0);
+
+  return (
+    <div className="space-y-2">
+      {lines.map((line, index) => (
+        <div key={`${line.name}-${index}`} className={orderCardShell}>
+          <CartLineRow
+            name={line.name}
+            imageUrl={line.imageUrl}
+            qty={line.qty}
+            lineTotal={line.lineTotal}
+            locale={locale}
+            isDeal={Boolean(line.dealId)}
+          />
+        </div>
+      ))}
+      {showActions ? (
+        <div className="space-y-2 pt-1">
+          <div className="flex items-center justify-between gap-3 px-1">
+            <span className="text-[14px] font-bold text-bakery-ink">
+              {labels.total}
+            </span>
+            <span className="text-[17px] font-extrabold text-bakery-ink tabular-nums">
+              {formatCustomerMoney(orderTotal, locale)}
+            </span>
+          </div>
+          <div className="flex justify-center gap-1.5">
+          {onConfirm ? (
+            <button
+              type="button"
+              className="inline-flex min-h-8 max-w-[9.5rem] flex-1 items-center justify-center rounded-[12px] bg-bakery-primary px-2.5 py-1.5 text-[12px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98]"
+              onClick={onConfirm}
+            >
+              {confirmLabel}
+            </button>
+          ) : null}
+          {onCancel ? (
+            <button
+              type="button"
+              className="inline-flex min-h-8 max-w-[9.5rem] flex-1 items-center justify-center rounded-[12px] border border-bakery-primary bg-transparent px-2.5 py-1.5 text-[12px] font-extrabold leading-tight text-bakery-ink transition hover:bg-bakery-cream-light/80 active:scale-[0.98]"
+              onClick={onCancel}
+            >
+              {cancelLabel}
+            </button>
+          ) : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -277,6 +502,8 @@ function ProductGridImage({
           src={imageUrl}
           alt=""
           className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
       ) : (
         <span
@@ -305,6 +532,8 @@ function ProductThumb({
         src={imageUrl}
         alt=""
         className={`object-cover ${className}`}
+        loading="lazy"
+        decoding="async"
       />
     );
   }
@@ -378,7 +607,7 @@ export function ProductCatalogRow({
   );
 }
 
-export function ProductGridCard({
+export const ProductGridCard = memo(function ProductGridCard({
   name,
   description,
   price,
@@ -419,7 +648,7 @@ export function ProductGridCard({
   return (
     <>
     <div
-      className={`flex h-full min-h-0 flex-col rounded-[16px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
+      className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-[16px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
     >
       <div className="aspect-square w-full shrink-0 overflow-hidden rounded-[12px] bg-bakery-card">
         <ProductThumb
@@ -427,75 +656,59 @@ export function ProductGridCard({
           className="h-full w-full object-cover"
         />
       </div>
-      <div className="mt-1 flex min-h-0 flex-1 flex-col">
-        <div className="flex items-center gap-1">
-          <h3 className="min-w-0 flex-1 truncate text-start text-[14px] font-extrabold text-bakery-ink">
+      <div className="mt-1.5 flex min-h-[5.5rem] flex-1 flex-col">
+        <div className="grid h-8 shrink-0 grid-cols-[minmax(0,1fr)_1.75rem] items-center gap-1.5">
+          <h3 className="truncate text-start text-[17px] font-extrabold leading-[1.15] text-bakery-ink">
             {name}
           </h3>
           <button
             type="button"
             onClick={() => setInfoOpen(true)}
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/95 text-bakery-primary shadow-[0_1px_4px_rgba(58,47,38,0.12)] transition active:scale-95"
+            className="flex h-7 w-7 items-center justify-center justify-self-end rounded-full border border-bakery-border/35 bg-bakery-cream-light/95 text-bakery-primary shadow-[0_1px_4px_rgba(58,47,38,0.12)] transition active:scale-95"
             aria-label={infoLabel}
           >
-            <Info className="h-3 w-3" strokeWidth={2.5} />
+            <Info className="h-3.5 w-3.5" strokeWidth={2.5} />
           </button>
         </div>
-        <p
-          className={`mt-0.5 line-clamp-1 min-h-[14px] text-start text-[11px] leading-[14px] text-bakery-muted ${
-            description ? "" : "invisible"
-          }`}
-        >
-          {description || "—"}
-        </p>
-        <div className="mt-auto flex items-end justify-between gap-1 pt-1.5">
-        <span className="flex h-[34px] flex-col items-start justify-end leading-none">
+        <div className="mt-auto grid h-9 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1">
           <span
-            className={`text-[11px] font-semibold leading-none line-through ${
-              onSale ? "text-bakery-muted" : "invisible"
-            }`}
-          >
-            {formatCustomerMoney(price, locale)}
-          </span>
-          <span
-            className={`text-[15px] font-extrabold leading-none ${
-              onSale ? "text-red-600" : "text-bakery-ink"
+            className={`min-w-0 truncate text-[17px] font-extrabold leading-none tabular-nums ${
+              onSale ? "text-bakery-sale" : "text-bakery-ink"
             }`}
           >
             {formatCustomerMoney(display, locale)}
           </span>
-        </span>
-        {outOfStock ? (
-          <span className="text-[13px] font-bold text-bakery-muted">
-            {outOfStockLabel}
-          </span>
-        ) : (
-          <div className="flex items-center rounded-2xl border border-bakery-border/40 bg-bakery-card/95">
-            <button
-              type="button"
-              className="flex h-[26px] w-[26px] items-center justify-center text-[15px] font-extrabold text-bakery-ink disabled:opacity-40"
-              onClick={onDec}
-              disabled={qty <= 0}
-            >
-              −
-            </button>
-            <span
-              className={`min-w-[20px] text-center text-[15px] font-extrabold ${
-                qty > 0 ? "text-black" : "text-bakery-ink"
-              }`}
-            >
-              {qty}
+          {outOfStock ? (
+            <span className="shrink-0 text-[12px] font-bold text-bakery-muted">
+              {outOfStockLabel}
             </span>
-            <button
-              type="button"
-              className="flex h-[26px] w-[26px] items-center justify-center text-[15px] font-extrabold text-bakery-ink disabled:opacity-40"
-              onClick={onInc}
-              disabled={atMax}
-            >
-              +
-            </button>
-          </div>
-        )}
+          ) : (
+            <div className="flex h-[28px] max-w-full shrink-0 items-center rounded-2xl border border-bakery-border/40 bg-bakery-card/95">
+              <button
+                type="button"
+                className="flex h-[28px] w-6 items-center justify-center text-[15px] font-extrabold text-bakery-ink disabled:opacity-40"
+                onClick={onDec}
+                disabled={qty <= 0}
+              >
+                −
+              </button>
+              <span
+                className={`min-w-[1.125rem] text-center text-[15px] font-extrabold tabular-nums ${
+                  qty > 0 ? "text-black" : "text-bakery-ink"
+                }`}
+              >
+                {qty}
+              </span>
+              <button
+                type="button"
+                className="flex h-[28px] w-6 items-center justify-center text-[15px] font-extrabold text-bakery-ink disabled:opacity-40"
+                onClick={onInc}
+                disabled={atMax}
+              >
+                +
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -516,24 +729,26 @@ export function ProductGridCard({
             className="h-full w-full object-cover"
           />
         </div>
-        <h3 className="text-center text-[18px] font-extrabold text-bakery-ink">
+        <h3 className="text-center text-[22px] font-extrabold leading-tight text-bakery-ink">
           {name}
         </h3>
         {description ? (
-          <p className="whitespace-pre-wrap text-center text-[15px] leading-[1.5] text-bakery-ink">
+          <p className="whitespace-pre-wrap text-center text-[17px] leading-[1.5] text-bakery-ink">
             {description}
           </p>
         ) : (
-          <p className="text-center text-[14px] text-bakery-muted">—</p>
+          <p className="text-center text-[16px] text-bakery-muted">—</p>
         )}
-        <div className="flex justify-center gap-2 pt-1">
+        <div className="flex flex-wrap items-baseline justify-center gap-2.5 pt-2">
           {onSale && (
-            <span className="text-[15px] font-semibold text-bakery-muted line-through">
+            <span className="text-[20px] font-semibold leading-none text-bakery-muted line-through tabular-nums">
               {formatCustomerMoney(price, locale)}
             </span>
           )}
           <span
-            className={`text-[18px] font-extrabold ${onSale ? "text-red-600" : "text-bakery-ink"}`}
+            className={`text-[26px] font-extrabold leading-none tabular-nums ${
+              onSale ? "text-bakery-sale" : "text-bakery-ink"
+            }`}
           >
             {formatCustomerMoney(display, locale)}
           </span>
@@ -542,7 +757,7 @@ export function ProductGridCard({
     </CustomerCenterModal>
     </>
   );
-}
+});
 
 type DealProduct = {
   id?: string;
@@ -550,6 +765,7 @@ type DealProduct = {
   imageUrl?: string | null;
   price: number;
   salePrice?: number | null;
+  quantity?: number;
 };
 
 export function DealCard({
@@ -558,75 +774,192 @@ export function DealCard({
   validUntil,
   products,
   locale,
+  storeTheme,
   labels,
   onRedeem,
   redeemDisabled,
+  faded,
 }: {
   name: string;
   dealPrice: number;
   validUntil: string;
   products: DealProduct[];
   locale: CustomerLocale;
+  storeTheme: StoreThemeId;
   labels: CustomerLabels;
   onRedeem: () => void;
   redeemDisabled?: boolean;
+  faded?: boolean;
 }) {
+  const [infoOpen, setInfoOpen] = useState(false);
   const originalTotal = products.reduce(
-    (s, p) => s + getEffectivePrice(p),
+    (sum, product) =>
+      sum + getEffectivePrice(product) * Math.max(1, product.quantity ?? 1),
     0
   );
-  const until = new Date(validUntil).toLocaleDateString(
-    locale === "he" ? "he-IL" : "en-GB"
-  );
+  const validUntilLabel = `${labels.dealValidUntil} ${formatCustomerOrderDate(validUntil, locale)}`;
 
   return (
-    <article className="flex flex-col gap-1.5 rounded-[16px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-2.5 shadow-[0_2px_8px_rgba(58,47,38,0.1)]">
-      <h3 className="line-clamp-2 min-h-[2.35rem] text-center text-[13px] font-extrabold leading-[1.25] text-bakery-ink">
-        {name}
-      </h3>
-
-      <div className="flex h-10 flex-nowrap items-center justify-center gap-1">
-        {products.map((p, index) => (
-          <Fragment key={p.id ?? p.name}>
-            {index > 0 && (
-              <Plus
-                className="h-3.5 w-3.5 shrink-0 text-bakery-primary"
-                strokeWidth={2.5}
-                aria-hidden
-              />
-            )}
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-bakery-border/35 bg-bakery-card p-0.5">
-              <ProductThumb
-                imageUrl={p.imageUrl}
-                className="h-full w-full scale-[1.14] rounded-[8px] object-cover"
-              />
-            </div>
-          </Fragment>
-        ))}
-      </div>
-
-      <div className="flex flex-col items-center gap-0.5 py-0.5">
-        <div className="flex flex-wrap items-baseline justify-center gap-1.5">
-          <span className="text-[12px] font-semibold text-bakery-muted line-through">
-            {formatCustomerMoney(originalTotal, locale)}
-          </span>
-          <span className="text-[17px] font-extrabold leading-none text-red-600">
-            {formatCustomerMoney(dealPrice, locale)}
-          </span>
-        </div>
-        <p className="text-center text-[11px] font-semibold leading-tight text-bakery-muted">
-          {labels.dealValidUntil}: {until}
-        </p>
-      </div>
-
-      <button
-        type="button"
-        onClick={onRedeem}
-        disabled={redeemDisabled}
-        className="w-full rounded-[12px] bg-bakery-primary px-2 py-2.5 text-[13px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
+    <>
+      <article
+        className={`flex min-h-[17rem] min-w-0 flex-col gap-3.5 overflow-hidden rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-4 shadow-[0_3px_12px_rgba(58,47,38,0.12)] transition-opacity duration-300 ${
+          faded ? "opacity-45 saturate-[0.65]" : ""
+        }`}
       >
-        {redeemDisabled ? labels.outOfStock : labels.redeemDeal}
-      </button>
-    </article>
+        <div className="relative flex min-h-[2.75rem] items-center justify-center px-9">
+          <h3 className="line-clamp-2 w-full text-center text-[18px] font-extrabold leading-[1.2] text-bakery-ink">
+            {name}
+          </h3>
+          <button
+            type="button"
+            onClick={() => setInfoOpen(true)}
+            className="absolute end-0 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/95 text-bakery-primary shadow-[0_1px_4px_rgba(58,47,38,0.12)] transition active:scale-95"
+            aria-label={labels.productInfo}
+          >
+            <Info className="h-3.5 w-3.5" strokeWidth={2.5} />
+          </button>
+        </div>
+
+        <div className="flex flex-1 flex-col gap-2.5">
+          {products.map((p) => {
+            const qty = Math.max(1, p.quantity ?? 1);
+            return (
+              <div
+                key={p.id ?? p.name}
+                className="flex min-h-[3.75rem] min-w-0 items-center gap-3 rounded-[14px] border border-bakery-border/35 bg-bakery-card px-3 py-2.5 shadow-[0_3px_10px_rgba(58,47,38,0.12)]"
+              >
+                <div className="h-14 w-[5.25rem] shrink-0 overflow-hidden rounded-[10px] bg-bakery-on-primary">
+                  <ProductThumb
+                    imageUrl={p.imageUrl}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <p className="min-w-0 flex-1 truncate text-start text-[14px] font-bold leading-tight text-bakery-ink">
+                  {p.name}
+                </p>
+                <span className="shrink-0 text-[15px] font-extrabold leading-none text-bakery-primary tabular-nums">
+                  ×{qty}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col items-center gap-1">
+          {originalTotal > dealPrice && (
+            <p className="text-center text-[16px] font-semibold leading-none text-bakery-muted line-through tabular-nums">
+              {formatCustomerMoney(originalTotal, locale)}
+            </p>
+          )}
+          <p className="text-center text-[22px] font-extrabold leading-none text-bakery-sale tabular-nums">
+            {formatCustomerMoney(dealPrice, locale)}
+          </p>
+        </div>
+
+        <p className="text-center text-[12px] font-semibold leading-snug text-bakery-muted">
+          {validUntilLabel}
+        </p>
+
+        <button
+          type="button"
+          onClick={onRedeem}
+          disabled={redeemDisabled || faded}
+          className="mx-auto min-h-[40px] w-full max-w-[11rem] rounded-full bg-bakery-primary px-5 py-2 text-[13px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
+        >
+          {faded
+            ? labels.dealRedeemed
+            : redeemDisabled
+              ? labels.outOfStock
+              : labels.redeemDeal}
+        </button>
+      </article>
+
+      <CustomerCenterModal
+        open={infoOpen}
+        onClose={() => setInfoOpen(false)}
+        locale={locale}
+        storeTheme={storeTheme}
+        ariaLabel={name}
+        header={
+          <CustomerModalHeaderBar
+            onClose={() => setInfoOpen(false)}
+            closeLabel={locale === "he" ? "סגור" : "Close"}
+          />
+        }
+        bodyClassName="overflow-hidden"
+        panelClassName="max-h-fit"
+      >
+        <div className="flex flex-col gap-3 px-4 py-4">
+          <div className="rounded-[14px] border border-bakery-border/35 bg-bakery-square px-4 py-3.5 text-center shadow-[0_2px_8px_rgba(58,47,38,0.08)]">
+            <h3 className="text-[20px] font-extrabold leading-tight text-bakery-ink">
+              {name}
+            </h3>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-center text-[12px] font-bold text-bakery-muted">
+              {labels.dealIncludes}
+            </p>
+            {products.map((product) => {
+              const qty = Math.max(1, product.quantity ?? 1);
+              return (
+                <div
+                  key={product.id ?? product.name}
+                  className="flex min-h-[3.5rem] items-center gap-3 rounded-[14px] border border-bakery-border/35 bg-bakery-card px-3 py-2.5 shadow-[0_3px_10px_rgba(58,47,38,0.1)]"
+                >
+                  <div className="h-12 w-[4.5rem] shrink-0 overflow-hidden rounded-[10px] bg-bakery-on-primary">
+                    <ProductThumb
+                      imageUrl={product.imageUrl}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <p className="min-w-0 flex-1 truncate text-start text-[15px] font-bold leading-tight text-bakery-ink">
+                    {product.name}
+                  </p>
+                  <span className="shrink-0 text-[15px] font-extrabold leading-none text-bakery-primary tabular-nums">
+                    ×{qty}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5 rounded-[14px] border border-bakery-border/35 bg-bakery-card px-4 py-3.5 shadow-[0_2px_8px_rgba(58,47,38,0.08)]">
+            {originalTotal > dealPrice && (
+              <p className="text-center text-[17px] font-semibold leading-none text-bakery-muted line-through tabular-nums">
+                {formatCustomerMoney(originalTotal, locale)}
+              </p>
+            )}
+            <p className="text-center text-[26px] font-extrabold leading-none text-bakery-sale tabular-nums">
+              {formatCustomerMoney(dealPrice, locale)}
+            </p>
+          </div>
+
+          <p className="rounded-[12px] bg-bakery-square/90 px-3 py-2.5 text-center text-[12px] font-semibold leading-snug text-bakery-muted">
+            {validUntilLabel}
+          </p>
+
+          <p className="rounded-[12px] bg-bakery-square/90 px-3 py-2.5 text-center text-[12px] font-medium leading-snug text-bakery-muted">
+            {labels.dealOnce}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => {
+              setInfoOpen(false);
+              onRedeem();
+            }}
+            disabled={redeemDisabled || faded}
+            className="min-h-[44px] w-full rounded-full bg-bakery-primary px-5 py-2.5 text-[14px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
+          >
+            {faded
+              ? labels.dealRedeemed
+              : redeemDisabled
+                ? labels.outOfStock
+                : labels.redeemDeal}
+          </button>
+        </div>
+      </CustomerCenterModal>
+    </>
   );
 }

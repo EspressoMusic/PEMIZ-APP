@@ -67,10 +67,10 @@ function TabNavButton({
       type="button"
       onClick={onClick}
       aria-current={active ? "page" : undefined}
-      className={`relative flex min-w-0 flex-1 flex-col items-center rounded-[16px] px-1 py-2 transition ${
+      className={`relative flex min-w-0 flex-1 flex-col items-center rounded-[16px] border-[2.5px] px-1 py-2 transition ${
         active
-          ? "bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.18)]"
-          : "text-bakery-muted"
+          ? "border-bakery-primary bg-bakery-square text-bakery-ink shadow-[0_2px_8px_rgba(58,47,38,0.1)]"
+          : "border-transparent text-bakery-muted"
       }`}
     >
       {badge != null && badge > 0 && (
@@ -78,10 +78,13 @@ function TabNavButton({
           {badge > 9 ? "9+" : badge}
         </span>
       )}
-      <Icon className="h-6 w-6 shrink-0" strokeWidth={active ? 2.25 : 1.75} />
+      <Icon
+        className={`h-6 w-6 shrink-0 ${active ? "text-bakery-ink" : "text-bakery-muted"}`}
+        strokeWidth={active ? 2.25 : 1.75}
+      />
       <span
         className={`mt-1 max-w-full truncate text-center text-[10px] font-bold leading-tight sm:text-[11px] ${
-          active ? "text-bakery-on-primary" : ""
+          active ? "text-bakery-ink" : "text-bakery-muted"
         }`}
       >
         {label}

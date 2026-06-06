@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-import { notifySellerNewInquiry } from "@/lib/whatsapp-seller-notify";
-
+import { notifySellerInquiry } from "@/lib/seller-push";
 const schema = z.object({
   customerName: z.string().min(2).max(80),
   customerPhone: z.string().max(20).optional(),
@@ -38,15 +37,11 @@ export async function POST(
     },
   });
 
-  void notifySellerNewInquiry(
-    {
-      id: business.id,
-      name: business.name,
-      whatsappNotifyEnabled: business.whatsappNotifyEnabled,
-      whatsappNotifyPhone: business.whatsappNotifyPhone,
-    },
-    inquiry.id
-  ).catch((e) => console.error("[WhatsApp] inquiry notify", e));
+  void notifySellerInquiry(business.id, {
+    id: inquiry.id,
+    customerName: inquiry.customerName,
+    subject: inquiry.subject,
+  });
 
   return jsonOk({ inquiryId: inquiry.id });
 }

@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
 import { Button, Input } from "@/components/ui";
+import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatCustomerMoney } from "@/lib/customer-money";
+import type { StoreThemeId } from "@/lib/store-themes";
 
 export function OrderCheckoutModal({
   open,
   onClose,
   locale,
+  storeTheme = "calm",
   total,
   initialName,
   initialPhone,
@@ -21,6 +23,7 @@ export function OrderCheckoutModal({
   open: boolean;
   onClose: () => void;
   locale: CustomerLocale;
+  storeTheme?: StoreThemeId;
   total: number;
   initialName: string;
   initialPhone: string;
@@ -31,18 +34,13 @@ export function OrderCheckoutModal({
 }) {
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
+
   useEffect(() => {
     if (open) {
       setName(initialName);
       setPhone(initialPhone);
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
     }
   }, [open, initialName, initialPhone]);
-
-  if (!open) return null;
 
   const t =
     locale === "he"
@@ -53,7 +51,6 @@ export function OrderCheckoutModal({
           total: 'סה"כ',
           submit: "אישור הזמנה",
           submitting: "שולח...",
-          close: "סגור",
         }
       : {
           title: "Complete your order",
@@ -62,69 +59,60 @@ export function OrderCheckoutModal({
           total: "Total",
           submit: "Confirm order",
           submitting: "Sending...",
-          close: "Close",
         };
 
   return (
-    <div
-      className="fixed inset-0 z-[75] flex items-end justify-center sm:items-center sm:p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t.title}
+    <CustomerCenterModal
+      open={open}
+      onClose={onClose}
+      title={t.title}
+      locale={locale}
+      storeTheme={storeTheme}
+      bodyClassName="px-5 py-5"
+      panelClassName="customer-order-detail-modal-panel max-h-fit"
     >
-      <button
-        type="button"
-        className="absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
-        onClick={onClose}
-        aria-label={t.close}
-      />
-
-      <div className="relative w-full max-w-md rounded-t-[28px] bg-bakery-cream-sheet p-5 shadow-[0_-8px_32px_rgba(58,47,38,0.18)] sm:rounded-[28px]">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[20px] font-extrabold text-bakery-ink">{t.title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full p-1 text-bakery-ink hover:bg-bakery-card/80"
-            aria-label={t.close}
-          >
-            <X className="h-6 w-6" strokeWidth={2} />
-          </button>
-        </div>
-
-        {summary && (
-          <p className="mb-2 text-[14px] font-semibold text-bakery-muted">
+      <div className="space-y-4 text-center">
+        {summary ? (
+          <p className="text-[14px] font-semibold leading-snug text-bakery-muted">
             {summary}
           </p>
-        )}
+        ) : null}
 
-        <p className="mb-4 text-[16px] font-extrabold text-bakery-ink">
+        <p className="text-[17px] font-extrabold text-bakery-ink">
           {t.total}: {formatCustomerMoney(total, locale)}
         </p>
 
-        {error && (
-          <p className="mb-3 rounded-2xl bg-bakery-error/10 px-3 py-2 text-[14px] text-bakery-error">
+        {error ? (
+          <p
+            role="alert"
+            className="rounded-2xl bg-bakery-error/10 px-3 py-2 text-[14px] font-semibold text-bakery-error"
+          >
             {error}
           </p>
-        )}
+        ) : null}
 
-        <div className="space-y-3">
+        <div className="space-y-3 pt-1">
           <Input
             label={t.name}
+            labelClassName="text-center"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="text-center"
             required
           />
           <Input
             label={t.phone}
+            labelClassName="text-center"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            className="text-center"
             required
             dir="ltr"
+            inputMode="tel"
           />
           <Button
             type="button"
-            className="w-full min-h-[48px]"
+            className="w-full min-h-[48px] font-extrabold"
             disabled={submitting}
             onClick={() => onSubmit(name.trim(), phone.trim())}
           >
@@ -132,6 +120,6 @@ export function OrderCheckoutModal({
           </Button>
         </div>
       </div>
-    </div>
+    </CustomerCenterModal>
   );
 }

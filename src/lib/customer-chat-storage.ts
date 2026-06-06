@@ -52,36 +52,6 @@ export function filterDevSellerChat(
   );
 }
 
-export function enrichDevCommunityMessages(
-  messages: StoreChatMessageDto[],
-  viewerPhone: string
-): StoreChatMessageDto[] {
-  const phone = normalizePhone(viewerPhone);
-  const byId = new Map(messages.map((m) => [m.id, m]));
-
-  return messages.map((m) => {
-    const likedBy =
-      phone.length >= 9 &&
-      (m.likedByPhones ?? []).some((p) => normalizePhone(p) === phone);
-    const replySource = m.replyToId ? byId.get(m.replyToId) : undefined;
-    return {
-      ...m,
-      likeCount: m.likedByPhones?.length ?? m.likeCount ?? 0,
-      likedByMe: likedBy,
-      replyTo: replySource
-        ? {
-            id: replySource.id,
-            customerName: replySource.customerName,
-            body:
-              replySource.body.length > 80
-                ? `${replySource.body.slice(0, 80)}…`
-                : replySource.body,
-          }
-        : m.replyTo ?? null,
-    };
-  });
-}
-
 export function ensureDevSellerChatSeed(
   slug: string,
   seed: StoreChatMessageDto[]
@@ -96,36 +66,4 @@ export function appendDevSellerChatMessage(
   message: StoreChatMessageDto
 ) {
   appendDevStoreChat(slug, "SELLER", message);
-}
-
-export function toggleDevCommunityLike(
-  slug: string,
-  messageId: string,
-  viewerPhone: string
-): boolean {
-  const list = loadDevStoreChat(slug, "COMMUNITY");
-  const phone = normalizePhone(viewerPhone);
-  const idx = list.findIndex((m) => m.id === messageId);
-  if (idx < 0) return false;
-
-  const msg = list[idx]!;
-  const likes = new Set(
-    (msg.likedByPhones ?? []).map((p) => normalizePhone(p))
-  );
-  let liked: boolean;
-  if (likes.has(phone)) {
-    likes.delete(phone);
-    liked = false;
-  } else {
-    likes.add(phone);
-    liked = true;
-  }
-  list[idx] = {
-    ...msg,
-    likedByPhones: [...likes],
-    likeCount: likes.size,
-    likedByMe: liked,
-  };
-  saveDevStoreChat(slug, "COMMUNITY", list);
-  return liked;
 }

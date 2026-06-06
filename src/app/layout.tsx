@@ -7,11 +7,29 @@ import {
   parseLocaleCookie,
   parseThemeCookie,
 } from "@/lib/dashboard-appearance-boot";
+import { PwaRoot } from "@/components/pwa/pwa-root";
 
 export const metadata: Metadata = {
   title: "Linky — עמוד דיגיטלי לעסק שלך",
   description:
     "פלטפורמת SaaS לעסקים קטנים: קישור ללקוחות, הזמנות, תורים ופניות בדשבורד פשוט.",
+  manifest: "/manifest.webmanifest",
+  applicationName: "Linky",
+  appleWebApp: {
+    capable: true,
+    title: "Linky",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport = {
@@ -53,7 +71,9 @@ export default async function RootLayout({
             __html: DASHBOARD_APPEARANCE_BOOT_SCRIPT,
           }}
         />
-        <main className="flex-1">{children}</main>
+        <PwaRoot>
+          <main className="flex-1">{children}</main>
+        </PwaRoot>
       </body>
     </html>
   );

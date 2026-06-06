@@ -5,9 +5,10 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import {
-  DASHBOARD_SETTINGS_BAR,
-  DASHBOARD_SETTINGS_BAR_INNER,
-} from "@/components/dashboard/dashboard-settings-bar";
+  DashboardSettingsTile,
+  DashboardSettingsTileRow,
+} from "@/components/dashboard/dashboard-settings-tile";
+import { DASHBOARD_SETTINGS_ACTION } from "@/components/dashboard/dashboard-settings-bar";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardDeleteStoreSection({
@@ -55,30 +56,31 @@ export function DashboardDeleteStoreSection({
 
   return (
     <>
-      <section
-        className={`${DASHBOARD_SETTINGS_BAR} border-bakery-error/35`}
-      >
-        <div className={`${DASHBOARD_SETTINGS_BAR_INNER} !items-center`}>
-          <div className="min-w-0">
+      <DashboardSettingsTile variant="danger">
+        <DashboardSettingsTileRow
+          panel={
             <p className="text-[15px] font-extrabold text-bakery-error">
               {labels.deleteStoreTitle}
             </p>
-          </div>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={deleting}
-            className="h-12 min-h-12 w-12 shrink-0 border-bakery-error/45 bg-bakery-card p-0 text-bakery-error hover:bg-bakery-error/10"
-            onClick={openConfirm}
-            aria-label={labels.deleteStoreButton}
-          >
-            <Trash2 className="h-5 w-5 text-bakery-error" strokeWidth={2.25} />
-          </Button>
-        </div>
+          }
+          action={
+            <button
+              type="button"
+              disabled={deleting}
+              onClick={openConfirm}
+              aria-label={labels.deleteStoreButton}
+              className={`${DASHBOARD_SETTINGS_ACTION} w-10 border border-bakery-error/50 bg-bakery-card/70 text-bakery-error transition hover:bg-bakery-error/10 disabled:opacity-50`}
+            >
+              <Trash2 size={20} strokeWidth={2.1} aria-hidden />
+            </button>
+          }
+        />
         {error && !confirmOpen && (
-          <p className="mt-3 text-[13px] font-semibold text-bakery-error">{error}</p>
+          <p className="px-3 pb-3 text-center text-[13px] font-semibold text-bakery-error">
+            {error}
+          </p>
         )}
-      </section>
+      </DashboardSettingsTile>
 
       <DashboardActionSheet
         open={confirmOpen}

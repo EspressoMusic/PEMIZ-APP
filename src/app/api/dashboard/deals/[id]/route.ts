@@ -3,12 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireStoreOwner } from "@/lib/dashboard-auth";
 import { findOwnedDeal } from "@/lib/security/ownership";
-import { getDealProducts } from "@/lib/store-deal";
+import { getDealProducts, MAX_DEAL_PRODUCT_LINES } from "@/lib/store-deal";
+
+const dealItemSchema = z.object({
+  productId: z.string(),
+  quantity: z.number().int().min(1).max(99),
+});
 
 const patchSchema = z.object({
   isActive: z.boolean().optional(),
   name: z.string().min(1).max(120).optional(),
-  productIds: z.array(z.string()).min(1).optional(),
+  items: z
+    .array(dealItemSchema)
+    .min(1)
+    .max(MAX_DEAL_PRODUCT_LINES)
+    .optional(),
   dealPrice: z.number().positive().optional(),
   validUntil: z.string().datetime().optional(),
 });
@@ -34,9 +43,10 @@ export async function PATCH(
   const existing = await findOwnedDeal(ctx.user.business.id, id);
   if (!existing) return jsonError("דיל לא נמצא", 404);
 
-  if (parsed.data.productIds) {
-    const uniqueIds = [...new Set(parsed.data.productIds)];
-    if (uniqueIds.length !== parsed.data.productIds.length) {
+  if (parsed.data.items) {
+    const productIds = parsed.data.items.map((item) => item.productId);
+    const uniqueIds = [...new Set(productIds)];
+    if (uniqueIds.length !== productIds.length) {
       return jsonError("אותו מוצר לא יכול להופיע פעמיים בדיל");
     }
     const products = await prisma.product.findMany({
@@ -52,12 +62,13 @@ export async function PATCH(
   }
 
   const deal = await prisma.$transaction(async (tx) => {
-    if (parsed.data.productIds) {
+    if (parsed.data.items) {
       await tx.storeDealItem.deleteMany({ where: { dealId: id } });
       await tx.storeDealItem.createMany({
-        data: parsed.data.productIds.map((productId, sortOrder) => ({
+        data: parsed.data.items.map((item, sortOrder) => ({
           dealId: id,
-          productId,
+          productId: item.productId,
+          quantity: item.quantity,
           sortOrder,
         })),
       });

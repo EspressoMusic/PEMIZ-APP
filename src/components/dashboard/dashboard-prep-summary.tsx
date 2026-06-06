@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Package, X, User } from "lucide-react";
+import { Package, X } from "lucide-react";
+import {
+  customerProfileInitial,
+  useDashboardCustomerProfile,
+  type CustomerProfileInput,
+} from "@/components/dashboard/dashboard-customer-profile";
 import {
   groupPrepLinesByCustomer,
   type PrepProductSummary,
@@ -25,17 +30,17 @@ function ProductThumb({
       <img
         src={imageUrl}
         alt={name}
-        className={`${size} object-cover shadow-sm`}
+        className={`dashboard-prep-product-img ${size} object-cover shadow-sm`}
       />
     );
   }
   return (
     <span
-      className={`flex items-center justify-center bg-bakery-card shadow-sm ${size}`}
+      className={`dashboard-prep-product-placeholder flex items-center justify-center shadow-sm ${size}`}
     >
       <Package
-        className={compact ? "h-5 w-5 text-bakery-muted" : "h-8 w-8 text-bakery-muted"}
-        strokeWidth={1.5}
+        className={compact ? "h-5 w-5 text-bakery-ink" : "h-8 w-8 text-bakery-ink"}
+        strokeWidth={2}
       />
     </span>
   );
@@ -44,11 +49,15 @@ function ProductThumb({
 function PrepDetailModal({
   product,
   onClose,
+  onCustomerClick,
   labels,
+  anonymousLabel,
 }: {
   product: PrepProductSummary;
   onClose: () => void;
+  onCustomerClick?: (input: CustomerProfileInput) => void;
   labels: DashboardLabels;
+  anonymousLabel: string;
 }) {
   const customers = groupPrepLinesByCustomer(product.orders);
   useEffect(() => {
@@ -67,12 +76,12 @@ function PrepDetailModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
+        className="dashboard-modal-backdrop absolute inset-0"
         onClick={onClose}
         aria-label={labels.close}
       />
-      <div className="relative max-h-[85dvh] w-full max-w-md overflow-hidden rounded-[24px] bg-bakery-cream-sheet shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
-        <div className="flex items-center justify-between border-b border-bakery-border/25 px-4 py-3">
+      <div className="dashboard-modal-card relative max-h-[85dvh] w-full max-w-md overflow-hidden">
+        <div className="dashboard-modal-header-band flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <ProductThumb name={product.name} imageUrl={product.imageUrl} />
             <div className="text-start">
@@ -110,9 +119,22 @@ function PrepDetailModal({
                 className="rounded-[18px] border border-bakery-border/25 bg-bakery-cream-light p-3 text-start"
               >
                 <div className="flex items-start gap-2">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-bakery-primary/12 text-bakery-primary">
-                    <User className="h-5 w-5" strokeWidth={2} />
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onCustomerClick?.({
+                        customerName: customer.customerName,
+                        customerPhone: customer.customerPhone,
+                      })
+                    }
+                    className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border border-bakery-border/35 bg-bakery-on-primary text-[16px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)] transition hover:opacity-90 active:scale-[0.98]"
+                    aria-label={`${labels.customer}: ${customer.customerName}`}
+                  >
+                    {customerProfileInitial(
+                      customer.customerName,
+                      anonymousLabel
+                    )}
+                  </button>
                   <div className="min-w-0 flex-1">
                     <p className="text-[16px] font-extrabold text-bakery-ink">
                       {customer.customerName}
@@ -123,13 +145,12 @@ function PrepDetailModal({
                       {customer.orderCount > 1 &&
                         ` · ${customer.orderCount} ${labels.orders}`}
                     </p>
-                    <a
-                      href={`tel:${customer.customerPhone.replace(/\s/g, "")}`}
-                      className="mt-1 block text-[14px] font-semibold text-bakery-ink underline-offset-2 hover:underline"
+                    <p
+                      className="mt-1 text-[14px] font-semibold text-bakery-muted"
                       dir="ltr"
                     >
                       {customer.customerPhone}
-                    </a>
+                    </p>
                     {customer.customerEmail && (
                       <a
                         href={`mailto:${customer.customerEmail}`}
@@ -175,6 +196,7 @@ export function DashboardPrepSummary({
   fillHeight?: boolean;
 }) {
   const { labels } = useAppLocale();
+  const { openCustomer, modal: customerModal } = useDashboardCustomerProfile();
   const spread = fillHeight && !compact;
   const [products, setProducts] = useState(initialProducts);
   const [selected, setSelected] = useState<PrepProductSummary | null>(null);
@@ -228,7 +250,7 @@ export function DashboardPrepSummary({
       type="button"
       disabled={loadingDetail}
       onClick={() => void openProductDetail(p)}
-      className={`bakery-float-tile flex flex-col items-center justify-center transition active:scale-[0.98] disabled:opacity-60 ${
+      className={`dashboard-prep-product-tile flex flex-col items-center justify-center transition active:scale-[0.98] disabled:opacity-60 ${
         spread
           ? "min-h-[5.5rem] gap-2 rounded-[20px] p-3 sm:min-h-[6.5rem]"
           : compact
@@ -265,23 +287,21 @@ export function DashboardPrepSummary({
       }`}
     >
       <div
-        className={`bakery-float-panel ${
-          spread
-            ? "flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden rounded-[24px] px-4 py-4 sm:px-5 sm:py-5"
-            : compact
-              ? "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[20px] px-3 py-2.5"
-              : "rounded-[24px] px-4 py-4 sm:px-5 sm:py-5"
-        }`}
+        className={`dashboard-card bakery-float-panel rounded-[32px] ${
+          spread || compact
+            ? "flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden p-0"
+            : "p-0"
+        } ${!spread && !compact ? "px-4 py-4 sm:px-5 sm:py-5" : ""}`}
       >
         {products.length === 0 ? (
           <div
             className={`flex flex-col items-center justify-center ${
-              compact ? "py-4" : "py-8"
+              compact ? "px-3 py-4" : "px-4 py-8"
             }`}
           >
             <Package
-              className={`text-bakery-muted ${compact ? "h-8 w-8" : "h-12 w-12"}`}
-              strokeWidth={1.25}
+              className={`text-bakery-ink/70 ${compact ? "h-8 w-8" : "h-12 w-12"}`}
+              strokeWidth={1.75}
             />
             <p
               className={`font-semibold text-bakery-muted ${
@@ -293,26 +313,28 @@ export function DashboardPrepSummary({
           </div>
         ) : (
           <>
-            <p
-              className={`shrink-0 ${
-                compact
-                  ? "text-[22px] font-extrabold leading-none text-bakery-primary"
-                  : "text-[28px] font-extrabold leading-none text-bakery-primary"
-              }`}
-            >
-              {grandTotal}
-              <span
-                className={`ms-1 font-bold text-bakery-ink ${
-                  compact ? "text-[12px]" : "text-[14px]"
-                }`}
+            <div className="dashboard-prep-top-band shrink-0 text-center">
+              <p
+                className={
+                  compact
+                    ? "text-[22px] font-extrabold leading-none text-bakery-primary"
+                    : "text-[28px] font-extrabold leading-none text-bakery-primary"
+                }
               >
-                {labels.units}
-              </span>
-            </p>
+                {grandTotal}
+                <span
+                  className={`ms-1 font-bold text-bakery-ink ${
+                    compact ? "text-[12px]" : "text-[14px]"
+                  }`}
+                >
+                  {labels.units}
+                </span>
+              </p>
+            </div>
             {spread || compact ? (
               <div
-                className={`no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain ${
-                  spread ? "mt-3" : "mt-2"
+                className={`no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-2.5 pt-2 sm:px-4 sm:pb-3 ${
+                  spread ? "sm:pt-3" : ""
                 }`}
               >
                 <div
@@ -324,7 +346,9 @@ export function DashboardPrepSummary({
                 </div>
               </div>
             ) : (
-              <div className="mt-4 grid grid-cols-2 gap-3">{productTiles}</div>
+              <div className="px-4 pb-4 pt-3">
+                <div className="grid grid-cols-2 gap-3">{productTiles}</div>
+              </div>
             )}
           </>
         )}
@@ -334,9 +358,12 @@ export function DashboardPrepSummary({
         <PrepDetailModal
           product={selected}
           labels={labels}
+          anonymousLabel={labels.anonymousCustomer}
+          onCustomerClick={openCustomer}
           onClose={() => setSelected(null)}
         />
       )}
+      {customerModal}
     </div>
   );
 }

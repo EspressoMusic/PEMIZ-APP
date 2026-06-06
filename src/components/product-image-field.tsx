@@ -3,28 +3,34 @@
 import { useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import { readProductImageFile } from "@/lib/product-image";
+import { uploadProductImageFile } from "@/lib/product-image";
 
 export function ProductImageField({
   preview,
   onChange,
   onError,
+  compact = false,
 }: {
   preview: string | null;
-  onChange: (dataUrl: string | null) => void;
+  onChange: (imageUrl: string | null) => void;
   onError: (msg: string) => void;
+  compact?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   async function handleFile(file: File | null) {
     if (!file) return;
+    setUploading(true);
     try {
-      const dataUrl = await readProductImageFile(file, locale);
-      onChange(dataUrl);
+      const url = await uploadProductImageFile(file, locale);
+      onChange(url);
     } catch (e) {
       onError(e instanceof Error ? e.message : labels.productImageReadError);
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -36,7 +42,7 @@ export function ProductImageField({
           <img
             src={preview}
             alt={labels.productImagePreviewAlt}
-            className="aspect-[4/3] w-full object-cover"
+            className={`w-full object-cover ${compact ? "aspect-square max-h-[100px]" : "aspect-[4/3]"}`}
           />
           <button
             type="button"
@@ -53,7 +59,8 @@ export function ProductImageField({
       ) : (
         <button
           type="button"
-          onClick={() => inputRef.current?.click()}
+          onClick={() => !uploading && inputRef.current?.click()}
+          disabled={uploading}
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -64,19 +71,26 @@ export function ProductImageField({
             setDragOver(false);
             void handleFile(e.dataTransfer.files[0] ?? null);
           }}
-          className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 transition ${
+          className={`flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed transition ${
+            compact ? "gap-1 px-3 py-4" : "gap-2 px-4 py-8"
+          } ${
             dragOver
               ? "border-bakery-primary bg-bakery-primary/8"
               : "border-bakery-border/50 bg-bakery-input/80 hover:border-bakery-primary/50"
           }`}
         >
-          <ImagePlus className="h-8 w-8 text-bakery-muted" strokeWidth={1.5} />
-          <span className="text-[14px] font-bold text-bakery-ink">
-            {labels.productImageUpload}
+          <ImagePlus
+            className={`text-bakery-muted ${compact ? "h-6 w-6" : "h-8 w-8"}`}
+            strokeWidth={1.5}
+          />
+          <span className={`font-bold text-bakery-ink ${compact ? "text-[12px]" : "text-[14px]"}`}>
+            {uploading ? labels.productImageUploading : labels.productImageUpload}
           </span>
-          <span className="text-[12px] text-bakery-muted">
-            {labels.productImageDropHint}
-          </span>
+          {!compact && (
+            <span className="text-[12px] text-bakery-muted">
+              {labels.productImageDropHint}
+            </span>
+          )}
         </button>
       )}
 

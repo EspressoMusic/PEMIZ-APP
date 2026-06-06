@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireStoreOwner } from "@/lib/dashboard-auth";
-import { isValidProductImageUrl } from "@/lib/product-image";
+import { isValidProductImageUrlForSave } from "@/lib/product-image";
+import { publicCatalogImageUrl } from "@/lib/public-image-url";
 import { findOwnedProduct } from "@/lib/security/ownership";
 import { productPatchSchema, zodFirstError } from "@/lib/validation/schemas";
 
@@ -19,7 +20,7 @@ export async function PATCH(
   if (
     parsed.data.imageUrl !== undefined &&
     parsed.data.imageUrl !== null &&
-    !isValidProductImageUrl(parsed.data.imageUrl)
+    !isValidProductImageUrlForSave(parsed.data.imageUrl)
   ) {
     return jsonError("תמונה לא תקינה");
   }
@@ -38,7 +39,12 @@ export async function PATCH(
     where: { id, businessId: ctx.user.business.id },
     data,
   });
-  return jsonOk({ product });
+  return jsonOk({
+    product: {
+      ...product,
+      imageUrl: publicCatalogImageUrl(product.imageUrl),
+    },
+  });
 }
 
 export async function DELETE(

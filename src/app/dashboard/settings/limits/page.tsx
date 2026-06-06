@@ -11,8 +11,10 @@ export default async function SettingsLimitsPage() {
   const b = user.business;
 
   return (
-    <div className="space-y-5 pb-2 text-center">
-      <DashboardSettingsBackLink />
+    <div className="flex flex-col gap-3 pb-2 text-center">
+      <div className="px-1 text-start">
+        <DashboardSettingsBackLink />
+      </div>
       <DashboardOrderScheduleSettings
         initialEnabled={b.orderScheduleEnabled ?? false}
         initialScheduleJson={b.orderSchedule ?? null}

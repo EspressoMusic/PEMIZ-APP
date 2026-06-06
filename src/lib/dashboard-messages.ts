@@ -14,7 +14,52 @@ export type DashboardLabels = {
   deals: string;
   limits: string;
   settings: string;
-  whatsappAlerts: string;
+  alerts: string;
+  installApp: string;
+  installAppTitle: string;
+  installAppSubtitle: string;
+  installAppInstalledTitle: string;
+  installAppInstalledHint: string;
+  installAppButton: string;
+  installAppIosStep1: string;
+  installAppIosStep2: string;
+  installAppIosStep3: string;
+  installAppAndroidHint: string;
+  installAppDesktopHint: string;
+  installAppBannerTitle: string;
+  installAppBannerHint: string;
+  installAppBannerInstall: string;
+  installAppBannerDismiss: string;
+  pushEnableTitle: string;
+  pushEnableHint: string;
+  pushSubscribeButton: string;
+  pushSubscribed: string;
+  pushPermissionDenied: string;
+  pushUnsupported: string;
+  pushUnconfigured: string;
+  pushSubscribeError: string;
+  pushPreviewOnly: string;
+  subscription: string;
+  subscriptionPlansTitle: string;
+  subscriptionPlansHint: string;
+  subscriptionPremium: string;
+  subscriptionUltimate: string;
+  subscriptionPerMonth: string;
+  subscriptionChoose: string;
+  subscriptionComingSoon: string;
+  subscriptionPreviewOnly: string;
+  subscriptionPremiumFeature1: string;
+  subscriptionPremiumFeature2: string;
+  subscriptionPremiumFeature3: string;
+  subscriptionUltimateFeature1: string;
+  subscriptionUltimateFeature2: string;
+  subscriptionUltimateFeature3: string;
+  alertsEnableTitle: string;
+  alertsEnableHint: string;
+  alertOnCustomerInquiry: string;
+  alertOnChatMessage: string;
+  alertOnNewOrder: string;
+  alertOnLowStock: string;
   accountAndLink: string;
   extras: string;
   customers: string;
@@ -25,7 +70,6 @@ export type DashboardLabels = {
   sellerChatEmpty: string;
   sellerChatTabPrivate: string;
   sellerChatTabCommunity: string;
-  sellerChatNotInquiries: string;
   sellerChatBackToList: string;
   chatLoading: string;
   chatEmpty: string;
@@ -46,6 +90,7 @@ export type DashboardLabels = {
   close: string;
   save: string;
   cancel: string;
+  confirm: string;
   send: string;
   saved: string;
   saveError: string;
@@ -70,11 +115,14 @@ export type DashboardLabels = {
   unit: string;
   units: string;
   customer: string;
+  customerJoinDate: string;
   continueToConfirm: string;
   confirmBeforeSave: string;
   confirmAndSave: string;
   backToEdit: string;
   addDeal: string;
+  existingDeals: string;
+  noExistingDeals: string;
   closeForm: string;
   saveDeal: string;
   saving: string;
@@ -88,6 +136,7 @@ export type DashboardLabels = {
   show: string;
   hide: string;
   enableOrderLimit: string;
+  orderScheduleLimitTitle: string;
   saveOrderSettings: string;
   whichDays: string;
   whichHours: string;
@@ -122,6 +171,18 @@ export type DashboardLabels = {
   whatsappAria: string;
   whatsappIntro: string;
   whatsappMetaNote: string;
+  whatsappConnect: string;
+  whatsappDisconnect: string;
+  whatsappStatusConnected: string;
+  whatsappStatusDisconnected: string;
+  whatsappStatusPhonePending: string;
+  whatsappStatusServerPending: string;
+  whatsappStatusVerifyPending: string;
+  whatsappUseAccountPhone: string;
+  whatsappConnectedHint: string;
+  whatsappConnectStepPhone: string;
+  whatsappConnectStepVerify: string;
+  whatsappConnectStepDone: string;
   faqNoQuestionsYet: string;
   scheduleDemoHint: string;
   schedulePickDaysHint: string;
@@ -144,6 +205,8 @@ export type DashboardLabels = {
   productDescription: string;
   productDiscount: string;
   productDiscountAndStock: string;
+  productDiscountPrice: string;
+  productDiscountLimit: string;
   productMaxDiscount: string;
   productStock: string;
   productStockUnlimited: string;
@@ -151,7 +214,9 @@ export type DashboardLabels = {
   productDiscountBelowPrice: string;
   productMaxDiscountRequired: string;
   productStockInvalid: string;
+  productStockRequired: string;
   productImageUpload: string;
+  productImageUploading: string;
   productImageDropHint: string;
   productImagePreviewAlt: string;
   productImageRemove: string;
@@ -164,6 +229,7 @@ export type DashboardLabels = {
   dealFillName: string;
   dealFillPrice: string;
   dealPickProduct: string;
+  dealMaxProducts: string;
   dealPickDate: string;
   dealDateFuture: string;
   dealSaveFailed: string;
@@ -201,10 +267,12 @@ export type DashboardLabels = {
   deleteStoreModalConfirm: string;
   deleteStoreError: string;
   deleteStorePreviewOnly: string;
+  sendCustomerWhatsApp: string;
   deleting: string;
   helpTextTitle: string;
   helpTextDesc: string;
   shareStoreLink: string;
+  storeLinkBarLabel: string;
   copyLink: string;
   copied: string;
   customerPreview: string;
@@ -214,12 +282,21 @@ export type DashboardLabels = {
   broadcastWriteMessage: string;
   broadcastSentPreview: string;
   broadcastPublished: string;
+  broadcastHistory: string;
+  broadcastHistoryEmpty: string;
+  anonymousCustomer: string;
+  noCustomersYet: string;
+  customerOrderCount: string;
+  customerLastOrder: string;
+  sendCustomerMessage: string;
+  callCustomer: string;
+  customerMessagePlaceholder: string;
+  customerMessageInvalidPhone: string;
   storeDescription: string;
   storeDescriptionPlaceholder: string;
   slotStart: string;
   slotEnd: string;
   maxOrders: string;
-  name: string;
   price: string;
   description: string;
   revenue: string;
@@ -240,7 +317,6 @@ const HE: DashboardLabels = {
   deals: "דילים",
   limits: "הגבלות",
   settings: "הגדרות",
-  whatsappAlerts: "התראות וואטסאפ",
   accountAndLink: "חשבון וקישור לחנות",
   extras: "פרטים נוספים",
   customers: "לקוחות",
@@ -251,8 +327,6 @@ const HE: DashboardLabels = {
   sellerChatEmpty: "אין הודעות צ'אט מלקוחות עדיין",
   sellerChatTabPrivate: "צ'אטים פרטיים",
   sellerChatTabCommunity: "צ'אט קהילתי",
-  sellerChatNotInquiries:
-    "הודעות בצ'אט לא מופיעות ב«פניות» — רק בטופס פנייה נשמר שם",
   sellerChatBackToList: "רשימת שיחות",
   chatLoading: "טוען…",
   chatEmpty: "אין הודעות עדיין",
@@ -273,6 +347,7 @@ const HE: DashboardLabels = {
   close: "סגור",
   save: "שמור",
   cancel: "ביטול",
+  confirm: "אישור",
   send: "שלח",
   saved: "נשמר",
   saveError: "שגיאה בשמירה",
@@ -280,7 +355,7 @@ const HE: DashboardLabels = {
   loadError: "שגיאה בטעינה",
   previewSavedHint: "נשמר בתצוגה — בדשבורד האמיתי לחץ שמור לאחר ההתחברות",
   activeOrders: "הזמנות פעילות",
-  orderHistory: "הסטוריית הזמנות",
+  orderHistory: "היסטוריה",
   noActiveOrders: "אין הזמנות פעילות",
   noOrderHistory: "אין הזמנות בהיסטוריה",
   noOrders: "אין הזמנות.",
@@ -297,11 +372,14 @@ const HE: DashboardLabels = {
   unit: "יחידה",
   units: "יחידות",
   customer: "לקוח",
+  customerJoinDate: "תאריך הצטרפות",
   continueToConfirm: "המשך לאישור",
   confirmBeforeSave: "אישור לפני שמירה",
   confirmAndSave: "אישור ושמירה",
   backToEdit: "חזרה לעריכה",
   addDeal: "הוסף דיל",
+  existingDeals: "דילים קיימים",
+  noExistingDeals: "אין דילים עדיין",
   closeForm: "סגור טופס",
   saveDeal: "שמור דיל",
   saving: "שומר...",
@@ -315,6 +393,7 @@ const HE: DashboardLabels = {
   show: "הצג",
   hide: "הסתר",
   enableOrderLimit: "הגבל מתי לקוחות יכולים להזמין",
+  orderScheduleLimitTitle: "הגבלת שעות וימי הזמנה",
   saveOrderSettings: "שמור הגדרות הזמנה",
   whichDays: "איזה ימים",
   whichHours: "איזה שעות",
@@ -350,7 +429,19 @@ const HE: DashboardLabels = {
   whatsappIntro:
     "חברו את מספר הוואטסאפ שלכם כדי לקבל הודעה אוטומטית על כל הזמנה חדשה או פנייה מלקוח. המספר הוא זה שבו אתם משתמשים בוואטסאפ (לרוב אותו טלפון נייד).",
   whatsappMetaNote:
-    "שליחת הודעות מהאפליקציה דורשת חיבור WhatsApp Business בשרת (מפתחות Meta). אפשר לשמור את המספר וההעדפה כבר עכשיו; ההתראות יופעלו כשהמנהל יגדיר את החיבור.",
+    "שליחת הודעות מהאפליקציה דורשת WHATSAPP_ACCESS_TOKEN ו-WHATSAPP_PHONE_NUMBER_ID בשרת (Meta Cloud API). אפשר לשמור מספר והעדפה כבר עכשיו; ההתראות יופעלו אחרי הגדרת המפתחות.",
+  whatsappConnect: "חבר וואטסאפ",
+  whatsappDisconnect: "נתק וואטסאפ",
+  whatsappStatusConnected: "מחובר",
+  whatsappStatusDisconnected: "לא מחובר",
+  whatsappStatusPhonePending: "יש להזין מספר וואטסאפ",
+  whatsappStatusServerPending: "ממתין להגדרת שרת",
+  whatsappStatusVerifyPending: "שלחו הודעת בדיקה לאימות",
+  whatsappUseAccountPhone: "השתמש במספר החשבון שלי",
+  whatsappConnectedHint: "תקבלו הודעת וואטסאפ על כל הזמנה חדשה ופנייה מלקוח",
+  whatsappConnectStepPhone: "שמירת מספר",
+  whatsappConnectStepVerify: "אימות בוואטסאפ",
+  whatsappConnectStepDone: "מחובר",
   faqNoQuestionsYet: "עדיין אין שאלות — הלקוחות יראו הודעה ריקה עד שתוסיף/י.",
   scheduleDemoHint:
     "תצוגת דמו — המתג והבחירות עובדים. לשמירה אמיתית התחבר לדשבורד.",
@@ -374,14 +465,18 @@ const HE: DashboardLabels = {
   productDescription: "תיאור",
   productDiscount: "הנחה",
   productDiscountAndStock: "הנחה",
+  productDiscountPrice: "מחיר בהנחה",
+  productDiscountLimit: "הגבלה",
   productMaxDiscount: "מקסימום הנחה",
   productStock: "מלאי",
   productStockUnlimited: "ריק = ללא הגבלה",
-  productDiscountRequired: "יש למלא מחיר הנחה כשמגבילים את גובה ההנחה",
+  productDiscountRequired: "יש למלא מחיר בהנחה",
   productDiscountBelowPrice: "מחיר ההנחה חייב להיות נמוך מהמחיר הרגיל",
   productMaxDiscountRequired: "יש למלא מקסימום הנחה",
   productStockInvalid: "מלאי חייב להיות מספר שלם (0 ומעלה)",
+  productStockRequired: "יש למלא מלאי",
   productImageUpload: "העלאת תמונה",
+  productImageUploading: "מעלה…",
   productImageDropHint: "לחץ או גרור לכאן",
   productImagePreviewAlt: "תצוגה מקדימה",
   productImageRemove: "הסר תמונה",
@@ -394,6 +489,7 @@ const HE: DashboardLabels = {
   dealFillName: "יש למלא שם דיל",
   dealFillPrice: "יש למלא מחיר תקין",
   dealPickProduct: "יש לבחור לפחות מוצר אחד",
+  dealMaxProducts: "ניתן לבחור עד 3 מוצרים בדיל",
   dealPickDate: "יש לבחור תאריך",
   dealDateFuture: "תאריך התוקף חייב להיות בעתיד",
   dealSaveFailed: "שמירה נשחלה",
@@ -410,7 +506,8 @@ const HE: DashboardLabels = {
   ordersCountHint: "מספר הזמנות בתקופה",
   periodWeek: "שבועי",
   periodMonth: "חודשי",
-  periodYear: "שנתי",
+  sendCustomerMessage: "שלח באפליקציה",
+  sendCustomerWhatsApp: "שלח בוואטסאפ",
   periodSummaryWeek: "7 הימים האחרונים",
   periodSummaryMonth: "30 הימים האחרונים",
   periodSummaryYear: "12 החודשים האחרונים",
@@ -438,22 +535,82 @@ const HE: DashboardLabels = {
   helpTextTitle: "טקסט עזר בממשק",
   helpTextDesc: "הסברים ליד כפתורים וקישורים",
   shareStoreLink: "שיתוף קישור",
+  storeLinkBarLabel: "קישור החנות",
   copyLink: "העתק קישור",
   copied: "הועתק!",
-  customerPreview: "תצוגת לקוח →",
+  alerts: "התראות",
+  installApp: "הורדת אפליקציה",
+  installAppTitle: "התקינו את Linky במכשיר",
+  installAppSubtitle:
+    "אותן פונקציות כמו באתר — ניהול חנות, הזמנות, לקוחות ופניות — ישירות מהמסך הראשי.",
+  installAppInstalledTitle: "האפליקציה מותקנת",
+  installAppInstalledHint: "אפשר לפתוח את Linky מהמסך הראשי בכל עת.",
+  installAppButton: "התקנת אפליקציה",
+  installAppIosStep1: "לחצו על כפתור השיתוף בתחתית Safari",
+  installAppIosStep2: "גללו ובחרו «הוספה למסך הבית»",
+  installAppIosStep3: "אשרו — האפליקציה תופיע במסך הבית",
+  installAppAndroidHint:
+    "ב-Chrome: תפריט (⋮) → «התקן אפליקציה» או «הוסף למסך הבית». אם מופיע כפתור למעלה — לחצו עליו.",
+  installAppDesktopHint:
+    "במחשב: Chrome/Edge → אייקון ההתקנה בשורת הכתובת. בחנויות: Android/iOS דרך תיקיית mobile בפרויקט.",
+  installAppBannerTitle: "התקינו את Linky",
+  installAppBannerHint: "גישה מהירה לדשבורד מהמסך הראשי",
+  installAppBannerInstall: "התקנה",
+  installAppBannerDismiss: "סגירה",
+  pushEnableTitle: "התראות דחיפה במכשיר",
+  pushEnableHint:
+    "לאחר הפעלת ההתראות למעלה, לחצו כאן ואשרו הרשאת התראות בדפדפן. כך תקבלו הודעה גם כשהאפליקציה סגורה (Android / iPhone מותקן למסך הבית).",
+  pushSubscribeButton: "הפעלת התראות במכשיר",
+  pushSubscribed: "מחובר להתראות דחיפה במכשיר זה",
+  pushPermissionDenied:
+    "הרשאת התראות נחסמה. אפשר לאפשר בהגדרות הדפדפן / המכשיר ולנסות שוב.",
+  pushUnsupported: "הדפדפן או המכשיר לא תומכים בהתראות דחיפה.",
+  pushUnconfigured:
+    "התראות דחיפה לא מוגדרות בשרת. מפתחות VAPID נדרשים בפרודקשן.",
+  pushSubscribeError: "לא הצלחנו להפעיל התראות — נסו שוב.",
+  pushPreviewOnly: "בתצוגת דמו אין חיבור להתראות אמיתיות.",
+  subscription: "מנוי",
+  subscriptionPlansTitle: "חבילות מנוי",
+  subscriptionPlansHint: "בחרו את החבילה המתאימה לעסק שלכם",
+  subscriptionPremium: "פרימיום",
+  subscriptionUltimate: "אולטימייט",
+  subscriptionPerMonth: "לחודש",
+  subscriptionChoose: "בחירת חבילה",
+  subscriptionComingSoon: "תשלום אונליין יתווסף בקרוב",
+  subscriptionPreviewOnly: "בתצוגת דמו — בחירת חבילה ללא תשלום",
+  subscriptionPremiumFeature1: "חנות מלאה, הזמנות ולקוחות",
+  subscriptionPremiumFeature2: "התראות וסטטיסטיקות",
+  subscriptionPremiumFeature3: "מבצעים וצ'אט עם לקוחות",
+  subscriptionUltimateFeature1: "כל מה שבפרימיום",
+  subscriptionUltimateFeature2: "תמיכה מועדפת ועדיפות",
+  subscriptionUltimateFeature3: "הרחבות מתקדמות לעסק",
+  alertsEnableTitle: "הפעלת התראות",
+  alertsEnableHint: "בחרו על אילו אירועים תרצו לקבל התראה",
+  alertOnCustomerInquiry: "התראה על פניית לקוח",
+  alertOnChatMessage: "התראה על פנייה בצ'אט",
+  alertOnNewOrder: "התראה על הזמנה חדשה",
+  alertOnLowStock: "התראה כשהמלאי עומד להיגמר",
   broadcastMessage: "תוכן ההודעה",
   broadcastPlaceholder: "לדוגמה: מבצע סוף שבוע — 10% על כל המוצרים!",
   sendToAllCustomers: "שלח לכל הלקוחות",
   broadcastWriteMessage: "יש לכתוב הודעה",
   broadcastSentPreview: "ההודעה נשלחה (תצוגה) — הלקוחות יראו התראה",
   broadcastPublished: "ההודעה פורסמה — כל הלקוחות יקבלו התראה בכניסה לחנות",
+  broadcastHistory: "היסטוריה",
+  broadcastHistoryEmpty: "אין הודעות קודמות",
+  anonymousCustomer: "אנונימי",
+  noCustomersYet: "אין לקוחות עדיין",
+  customerOrderCount: "מספר הזמנות",
+  customerLastOrder: "הזמנה אחרונה",
+  callCustomer: "התקשר ללקוח",
+  customerMessagePlaceholder: "כתוב/י הודעה ללקוח…",
+  customerMessageInvalidPhone: "מספר הטלפון לא תקין לשליחה",
   storeDescription: "תיאור החנות",
   storeDescriptionPlaceholder:
     "ספר/י ללקוחות על העסק, שעות, מדיניות משלוח...",
   slotStart: "התחלה",
   slotEnd: "סיום",
   maxOrders: "מקסימום הזמנות",
-  name: "שם",
   price: "מחיר",
   description: "תיאור",
   revenue: "הכנסות",
@@ -474,7 +631,6 @@ const EN: DashboardLabels = {
   deals: "Deals",
   limits: "Limits",
   settings: "Settings",
-  whatsappAlerts: "WhatsApp alerts",
   accountAndLink: "Account & store link",
   extras: "More details",
   customers: "Customers",
@@ -485,8 +641,6 @@ const EN: DashboardLabels = {
   sellerChatEmpty: "No customer chat messages yet",
   sellerChatTabPrivate: "Private chats",
   sellerChatTabCommunity: "Community chat",
-  sellerChatNotInquiries:
-    "Chat messages do not appear under Inquiries — only the contact form does",
   sellerChatBackToList: "All chats",
   chatLoading: "Loading…",
   chatEmpty: "No messages yet",
@@ -507,6 +661,7 @@ const EN: DashboardLabels = {
   close: "Close",
   save: "Save",
   cancel: "Cancel",
+  confirm: "Confirm",
   send: "Send",
   saved: "Saved",
   saveError: "Could not save",
@@ -514,7 +669,7 @@ const EN: DashboardLabels = {
   loadError: "Could not load",
   previewSavedHint: "Saved in preview — sign in and tap Save in the live dashboard",
   activeOrders: "Active orders",
-  orderHistory: "Order history",
+  orderHistory: "History",
   noActiveOrders: "No active orders",
   noOrderHistory: "No orders in history",
   noOrders: "No orders.",
@@ -531,28 +686,9 @@ const EN: DashboardLabels = {
   unit: "unit",
   units: "units",
   customer: "customer",
+  customerJoinDate: "Join date",
   continueToConfirm: "Continue to review",
   confirmBeforeSave: "Confirm before saving",
-  confirmAndSave: "Confirm & save",
-  backToEdit: "Back to edit",
-  addDeal: "Add deal",
-  closeForm: "Close form",
-  saveDeal: "Save deal",
-  saving: "Saving...",
-  adding: "Adding...",
-  sending: "Sending...",
-  edit: "Edit",
-  delete: "Delete",
-  active: "Active",
-  inactive: "Inactive",
-  hidden: "Hidden",
-  show: "Show",
-  hide: "Hide",
-  enableOrderLimit: "Limit when customers can order",
-  saveOrderSettings: "Save order settings",
-  whichDays: "Which days",
-  whichHours: "Which hours",
-  fromHour: "From",
   toHour: "Until",
   addProduct: "Add product",
   messageSent: "Saved — limits apply to customers",
@@ -584,7 +720,19 @@ const EN: DashboardLabels = {
   whatsappIntro:
     "Add your WhatsApp number to get an automatic message for every new order or customer inquiry. Use the number you use on WhatsApp (usually your mobile).",
   whatsappMetaNote:
-    "Sending from the app requires WhatsApp Business API on the server (Meta keys). You can save your number and preference now; alerts go live once the connection is configured.",
+    "Sending requires WHATSAPP_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID on the server (Meta Cloud API). Save your number now; alerts go live once keys are set.",
+  whatsappConnect: "Connect WhatsApp",
+  whatsappDisconnect: "Disconnect WhatsApp",
+  whatsappStatusConnected: "Connected",
+  whatsappStatusDisconnected: "Not connected",
+  whatsappStatusPhonePending: "Enter a WhatsApp number",
+  whatsappStatusServerPending: "Waiting for server setup",
+  whatsappStatusVerifyPending: "Send a test message to verify",
+  whatsappUseAccountPhone: "Use my account phone",
+  whatsappConnectedHint: "You will get a WhatsApp alert for every new order and customer inquiry",
+  whatsappConnectStepPhone: "Save number",
+  whatsappConnectStepVerify: "Verify on WhatsApp",
+  whatsappConnectStepDone: "Connected",
   faqNoQuestionsYet:
     "No questions yet — customers will see an empty message until you add some.",
   scheduleDemoHint:
@@ -609,6 +757,8 @@ const EN: DashboardLabels = {
   productDescription: "Description",
   productDiscount: "Discount",
   productDiscountAndStock: "Discount",
+  productDiscountPrice: "Sale price",
+  productDiscountLimit: "Limit",
   productMaxDiscount: "Max discount",
   productStock: "Stock",
   productStockUnlimited: "Empty = unlimited",
@@ -616,7 +766,9 @@ const EN: DashboardLabels = {
   productDiscountBelowPrice: "Sale price must be lower than the regular price",
   productMaxDiscountRequired: "Enter a maximum discount",
   productStockInvalid: "Stock must be a whole number (0 or more)",
+  productStockRequired: "Enter stock quantity",
   productImageUpload: "Upload image",
+  productImageUploading: "Uploading…",
   productImageDropHint: "Click or drag here",
   productImagePreviewAlt: "Preview",
   productImageRemove: "Remove image",
@@ -629,6 +781,7 @@ const EN: DashboardLabels = {
   dealFillName: "Enter a deal name",
   dealFillPrice: "Enter a valid price",
   dealPickProduct: "Select at least one product",
+  dealMaxProducts: "You can add up to 3 products per deal",
   dealPickDate: "Pick a date",
   dealDateFuture: "Expiry date must be in the future",
   dealSaveFailed: "Could not save",
@@ -645,7 +798,8 @@ const EN: DashboardLabels = {
   ordersCountHint: "Number of orders in this period",
   periodWeek: "Weekly",
   periodMonth: "Monthly",
-  periodYear: "Yearly",
+  sendCustomerMessage: "Send in app",
+  sendCustomerWhatsApp: "Send on WhatsApp",
   periodSummaryWeek: "Last 7 days",
   periodSummaryMonth: "Last 30 days",
   periodSummaryYear: "Last 12 months",
@@ -673,8 +827,60 @@ const EN: DashboardLabels = {
   helpTextTitle: "Interface help text",
   helpTextDesc: "Hints next to buttons and links",
   shareStoreLink: "Share link",
+  storeLinkBarLabel: "Store link",
   copyLink: "Copy link",
   copied: "Copied!",
+  alerts: "Alerts",
+  installApp: "Install app",
+  installAppTitle: "Install Linky on your device",
+  installAppSubtitle:
+    "Same features as the website — store management, orders, customers, and inquiries — from your home screen.",
+  installAppInstalledTitle: "App installed",
+  installAppInstalledHint: "Open Linky anytime from your home screen.",
+  installAppButton: "Install app",
+  installAppIosStep1: "Tap the Share button at the bottom of Safari",
+  installAppIosStep2: "Scroll and choose “Add to Home Screen”",
+  installAppIosStep3: "Confirm — Linky will appear on your home screen",
+  installAppAndroidHint:
+    "In Chrome: menu (⋮) → “Install app” or “Add to Home screen”. Use the install button if it appears.",
+  installAppDesktopHint:
+    "On desktop: Chrome/Edge → install icon in the address bar. For app stores, use the mobile/ folder in the project.",
+  installAppBannerTitle: "Install Linky",
+  installAppBannerHint: "Quick access to your dashboard from the home screen",
+  installAppBannerInstall: "Install",
+  installAppBannerDismiss: "Dismiss",
+  pushEnableTitle: "Push notifications on this device",
+  pushEnableHint:
+    "After enabling alerts above, tap here and allow notifications in the browser. You’ll get alerts even when the app is closed (Android / iOS home-screen install).",
+  pushSubscribeButton: "Enable push on this device",
+  pushSubscribed: "Push notifications enabled on this device",
+  pushPermissionDenied:
+    "Notifications were blocked. Allow them in browser or device settings and try again.",
+  pushUnsupported: "This browser or device does not support push notifications.",
+  pushUnconfigured: "Push is not configured on the server (VAPID keys required).",
+  pushSubscribeError: "Could not enable push — try again.",
+  pushPreviewOnly: "Push is not available in preview mode.",
+  subscription: "Subscription",
+  subscriptionPlansTitle: "Subscription plans",
+  subscriptionPlansHint: "Choose the plan that fits your business",
+  subscriptionPremium: "Premium",
+  subscriptionUltimate: "Ultimate",
+  subscriptionPerMonth: "per month",
+  subscriptionChoose: "Choose plan",
+  subscriptionComingSoon: "Online checkout coming soon",
+  subscriptionPreviewOnly: "Preview mode — plan selection without payment",
+  subscriptionPremiumFeature1: "Full store, orders & customers",
+  subscriptionPremiumFeature2: "Alerts & analytics",
+  subscriptionPremiumFeature3: "Deals & customer chat",
+  subscriptionUltimateFeature1: "Everything in Premium",
+  subscriptionUltimateFeature2: "Priority support",
+  subscriptionUltimateFeature3: "Advanced business tools",
+  alertsEnableTitle: "Enable alerts",
+  alertsEnableHint: "Choose which events should trigger a notification",
+  alertOnCustomerInquiry: "Alert on customer inquiry",
+  alertOnChatMessage: "Alert on chat message",
+  alertOnNewOrder: "Alert on new order",
+  alertOnLowStock: "Alert when stock is low",
   customerPreview: "Customer preview →",
   broadcastMessage: "Message",
   broadcastPlaceholder: "e.g. Weekend sale — 10% off everything!",
@@ -682,12 +888,20 @@ const EN: DashboardLabels = {
   broadcastWriteMessage: "Write a message",
   broadcastSentPreview: "Sent in preview — customers will see an alert",
   broadcastPublished: "Published — every customer will see it when they open the store",
+  broadcastHistory: "History",
+  broadcastHistoryEmpty: "No previous messages",
+  anonymousCustomer: "Anonymous",
+  noCustomersYet: "No customers yet",
+  customerOrderCount: "Orders",
+  customerLastOrder: "Last order",
+  callCustomer: "Call customer",
+  customerMessagePlaceholder: "Write a message to this customer…",
+  customerMessageInvalidPhone: "Phone number is not valid for messaging",
   storeDescription: "Store description",
   storeDescriptionPlaceholder: "Tell customers about your business, hours, delivery...",
   slotStart: "Start",
   slotEnd: "End",
   maxOrders: "Max orders",
-  name: "Name",
   price: "Price",
   description: "Description",
   revenue: "Revenue",

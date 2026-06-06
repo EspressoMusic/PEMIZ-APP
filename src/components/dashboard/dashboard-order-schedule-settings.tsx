@@ -121,26 +121,22 @@ export function DashboardOrderScheduleSettings({
   );
 
   return (
-    <div className="bakery-float-panel rounded-[24px] p-4 text-center">
+    <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3 text-center">
       <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-4">
-        {previewOnly && <Alert variant="info">{labels.scheduleDemoHint}</Alert>}
+        <div className="dashboard-action-square flex w-full items-center justify-between gap-3 rounded-[22px] px-3 py-3.5 text-start">
+          <span className="min-w-0 text-[15px] font-extrabold leading-snug text-bakery-ink">
+            {labels.orderScheduleLimitTitle}
+          </span>
+          <Toggle
+            enabled={enabled}
+            onChange={handleToggle}
+            ariaLabel={labels.orderScheduleLimitTitle}
+          />
+        </div>
 
         <DashboardHelpText>
           <p className="text-[13px] font-semibold text-bakery-muted">{summary}</p>
         </DashboardHelpText>
-
-        <div className="flex w-full items-center justify-center gap-3">
-          <DashboardHelpText>
-            <span className="text-[14px] font-bold text-bakery-ink">
-              {labels.enableOrderLimit}
-            </span>
-          </DashboardHelpText>
-          <Toggle
-            enabled={enabled}
-            onChange={handleToggle}
-            ariaLabel={labels.enableOrderLimit}
-          />
-        </div>
 
         {enabled && (
           <div className="w-full overflow-hidden rounded-[20px] border border-bakery-border/35 bg-bakery-card/70 p-3 shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)]">
@@ -207,17 +203,23 @@ export function DashboardOrderScheduleSettings({
         )}
 
         {error && <Alert variant="error">{error}</Alert>}
-        {message && <Alert variant="success">{message}</Alert>}
+        {message && (
+          <p className="w-full rounded-full border border-bakery-border/45 bg-bakery-input px-4 py-2.5 text-center text-[13px] font-bold text-bakery-ink">
+            {message}
+          </p>
+        )}
 
-        <Button
-          type="button"
-          variant="square"
-          className="w-full"
-          disabled={saving}
-          onClick={save}
-        >
-          {saving ? labels.saving : labels.saveOrderSettings}
-        </Button>
+        {enabled && (
+          <Button
+            type="button"
+            variant="primary"
+            className="w-full min-h-[44px] rounded-full font-extrabold"
+            disabled={saving}
+            onClick={save}
+          >
+            {saving ? labels.saving : labels.saveOrderSettings}
+          </Button>
+        )}
       </div>
     </div>
   );

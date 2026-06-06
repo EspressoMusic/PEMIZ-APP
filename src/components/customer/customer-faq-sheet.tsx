@@ -24,9 +24,9 @@ function StoreTermsButton({
       <button
         type="button"
         onClick={onClick}
-        className="w-full overflow-hidden rounded-full border border-bakery-primary/20 bg-bakery-border px-5 py-3.5 text-center shadow-[0_3px_10px_rgba(58,47,38,0.16)] transition active:scale-[0.99]"
+        className="w-full overflow-hidden rounded-full border border-bakery-border/35 bg-[#E6D5B8] px-5 py-3.5 text-center shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99]"
       >
-        <span className="text-[16px] font-extrabold leading-snug text-bakery-ink">
+        <span className="text-[16px] font-extrabold leading-snug text-bakery-primary">
           {title}
         </span>
       </button>
@@ -67,9 +67,10 @@ export function CustomerFaqSheet({
   useEffect(() => {
     if (!open) {
       setTermsOpen(false);
+      setExpandedId(null);
       return;
     }
-    setExpandedId(items[0]?.id ?? null);
+    setExpandedId(null);
   }, [open, items]);
 
   return (
@@ -131,9 +132,11 @@ export function CustomerFaqSheet({
                             )}
                           </button>
                           {expanded && (
-                            <p className="border-t border-bakery-border/25 px-4 pb-4 pt-3 text-[15px] leading-[1.5] text-bakery-ink whitespace-pre-wrap">
-                              {item.answer}
-                            </p>
+                            <div className="px-3 pb-3">
+                              <div className="rounded-[14px] bg-bakery-card px-4 py-3.5 text-[15px] leading-[1.5] text-bakery-ink whitespace-pre-wrap shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
+                                {item.answer}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </li>
@@ -157,6 +160,7 @@ export function CustomerFaqSheet({
         locale={locale}
         storeTheme={storeTheme}
         ariaLabel={termsTitle}
+        panelClassName="customer-profile-modal-panel max-h-fit"
         header={
           <div className="flex shrink-0 justify-end border-b border-bakery-border/25 px-4 py-3">
             <button
@@ -171,9 +175,11 @@ export function CustomerFaqSheet({
         }
       >
         <div className="px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <p className="whitespace-pre-wrap text-start text-[15px] leading-[1.6] text-bakery-ink">
-            {termsBody}
-          </p>
+          <div className="rounded-[16px] border border-bakery-border/25 bg-bakery-card px-4 py-4 shadow-[0_2px_8px_rgba(58,47,38,0.06)]">
+            <p className="whitespace-pre-wrap text-start text-[15px] leading-[1.6] text-bakery-muted">
+              {termsBody}
+            </p>
+          </div>
         </div>
       </CustomerCenterModal>
     </>

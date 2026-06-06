@@ -1,7 +1,11 @@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardInquiriesManager } from "@/components/dashboard/dashboard-inquiries-manager";
 import { DashboardCustomersBackLink } from "@/components/dashboard/dashboard-back-links";
-import { DEV_PREVIEW_INQUIRIES, DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
+import {
+  DEV_PREVIEW_INQUIRIES,
+  DEV_PREVIEW_ORDERS,
+  DEV_STORE_BUSINESS,
+} from "@/lib/dev-preview-data";
 
 export default function DevSellerCustomersInquiriesPage() {
   return (
@@ -14,6 +18,7 @@ export default function DevSellerCustomersInquiriesPage() {
             <DashboardInquiriesManager
               previewOnly
               initialItems={DEV_PREVIEW_INQUIRIES}
+              previewOrders={DEV_PREVIEW_ORDERS}
             />
           </div>
         </DashboardShell>

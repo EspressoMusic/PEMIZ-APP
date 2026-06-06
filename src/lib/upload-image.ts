@@ -34,7 +34,14 @@ export function isValidDataImageUrl(url: string): boolean {
   return bytes <= MAX_BYTES && url.length <= 2_800_000;
 }
 
+export function isValidUploadedProductImagePath(url: string): boolean {
+  if (!url.startsWith("/uploads/products/")) return false;
+  if (url.length > 512 || url.includes("..")) return false;
+  return /^\/uploads\/products\/[^/]+\/[a-f0-9]{32}\.(jpg|png|webp)$/.test(url);
+}
+
 export function isValidRemoteImageUrl(url: string): boolean {
+  if (isValidUploadedProductImagePath(url)) return true;
   if (!url.startsWith("https://")) return false;
   if (url.length > 2048) return false;
   try {

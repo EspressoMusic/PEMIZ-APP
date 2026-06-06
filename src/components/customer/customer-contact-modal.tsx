@@ -1,16 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ArrowRight,
-  CornerUpRight,
-  FileText,
-  Heart,
-  MessageCircle,
-  Send,
-  Users,
-  X,
-} from "lucide-react";
+import { ArrowRight, FileText, MessageCircle, Send, X } from "lucide-react";
 import { Button, Input, Textarea, Panel } from "@/components/ui";
 import {
   CustomerCenterModal,
@@ -20,16 +11,15 @@ import { SettingsMenuRow } from "@/components/customer/customer-ui";
 import type { CustomerLabels } from "@/components/customer/customer-labels";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
-import type { StoreChatChannel, StoreChatMessageDto } from "@/lib/store-chat";
-import { replySnippet } from "@/lib/store-chat";
+import type { StoreChatMessageDto } from "@/lib/store-chat";
 import {
   appendDevStoreChat,
-  enrichDevCommunityMessages,
   filterDevSellerChat,
   loadDevStoreChat,
-  toggleDevCommunityLike,
 } from "@/lib/customer-chat-storage";
 import { normalizePhone } from "@/lib/phone";
+import { chatMessagesEqual } from "@/lib/store-chat-query";
+import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 
 function formatChatTime(iso: string, locale: CustomerLocale) {
   return new Date(iso).toLocaleTimeString(
@@ -38,7 +28,7 @@ function formatChatTime(iso: string, locale: CustomerLocale) {
   );
 }
 
-export type ContactView = "menu" | "inquiry" | "seller-chat" | "community";
+export type ContactView = "menu" | "inquiry" | "seller-chat";
 
 type MyInquiry = {
   id: string;
@@ -82,16 +72,10 @@ export function CustomerContactModal({
   const [chatDraft, setChatDraft] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState("");
-  const [replyTo, setReplyTo] = useState<StoreChatMessageDto | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chatLenRef = useRef(0);
 
-  const channel: StoreChatChannel | null =
-    view === "seller-chat"
-      ? "SELLER"
-      : view === "community"
-        ? "COMMUNITY"
-        : null;
-
+  const isSellerChat = view === "seller-chat";
   const closeLabel = locale === "he" ? "סגור" : "Close";
 
   const title =
@@ -101,23 +85,15 @@ export function CustomerContactModal({
         ? labels.contactOptionInquiry
         : view === "seller-chat"
           ? labels.contactOptionSellerChat
-          : view === "community"
-            ? labels.contactOptionCommunity
-            : labels.contactSeller;
+          : labels.contactSeller;
 
   const loadChat = useCallback(async () => {
-    if (!channel) return;
+    if (!isSellerChat) return;
     setChatError("");
+
     if (isDevPreview) {
-      const all = loadDevStoreChat(slug, channel);
-      let list =
-        channel === "SELLER"
-          ? filterDevSellerChat(all, customerPhone)
-          : all.filter((m) => m.channel === "COMMUNITY");
-      if (channel === "COMMUNITY") {
-        list = enrichDevCommunityMessages(list, customerPhone);
-      }
-      setChatMessages(list);
+      const all = loadDevStoreChat(slug, "SELLER");
+      setChatMessages(filterDevSellerChat(all, customerPhone));
       return;
     }
 
@@ -128,26 +104,26 @@ export function CustomerContactModal({
       return;
     }
 
-    setChatLoading(true);
+    if (chatLenRef.current === 0) setChatLoading(true);
     try {
-      const q =
-        channel === "SELLER"
-          ? `channel=SELLER&phone=${encodeURIComponent(customerPhone)}`
-          : `channel=COMMUNITY&phone=${encodeURIComponent(customerPhone)}`;
+      const q = `channel=SELLER&phone=${encodeURIComponent(customerPhone)}`;
       const res = await fetch(`/api/public/${slug}/store-chat?${q}`);
       const data = await res.json();
       if (!res.ok) {
         setChatError((data as { error?: string }).error ?? labels.chatLoadError);
         return;
       }
-      setChatMessages(data.messages ?? []);
+      const incoming = (data.messages ?? []) as StoreChatMessageDto[];
+      setChatMessages((prev) =>
+        chatMessagesEqual(prev, incoming) ? prev : incoming
+      );
     } catch {
       setChatError(labels.chatLoadError);
     } finally {
       setChatLoading(false);
     }
   }, [
-    channel,
+    isSellerChat,
     slug,
     customerPhone,
     isDevPreview,
@@ -155,29 +131,27 @@ export function CustomerContactModal({
     labels.chatPhoneRequired,
   ]);
 
+  useVisibilityInterval(() => void loadChat(), 8000, 45_000, open && isSellerChat);
+
   useEffect(() => {
-    if (!open || !channel) return;
-    setReplyTo(null);
+    if (!open || !isSellerChat) return;
     void loadChat();
-    const id = window.setInterval(() => void loadChat(), 5000);
-    return () => window.clearInterval(id);
-  }, [open, channel, loadChat]);
+  }, [open, isSellerChat, loadChat]);
 
   useEffect(() => {
-    if (view !== "community") setReplyTo(null);
-  }, [view]);
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [chatMessages, view]);
+    const el = scrollRef.current;
+    if (!el || chatMessages.length === 0) return;
+    if (chatMessages.length > chatLenRef.current) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "auto" });
+    }
+    chatLenRef.current = chatMessages.length;
+  }, [chatMessages]);
 
   async function sendChat() {
-    if (!channel) return;
+    if (!isSellerChat) return;
     const body = chatDraft.trim();
     if (!body) return;
+
     const name = customerName.trim();
     const phone = customerPhone.trim();
     if (name.length < 2) {
@@ -190,36 +164,19 @@ export function CustomerContactModal({
     }
 
     setChatError("");
-    const replyToId =
-      view === "community" && replyTo ? replyTo.id : undefined;
 
     if (isDevPreview) {
-      const parent = replyToId
-        ? chatMessages.find((m) => m.id === replyToId)
-        : undefined;
       const msg: StoreChatMessageDto = {
         id: `dev-${Date.now()}`,
-        channel,
+        channel: "SELLER",
         customerPhone: normalizePhone(phone),
         customerName: name,
         authorRole: "CUSTOMER",
         body,
         createdAt: new Date().toISOString(),
-        replyToId: replyToId ?? null,
-        likedByPhones: [],
-        likeCount: 0,
-        likedByMe: false,
-        replyTo: parent
-          ? {
-              id: parent.id,
-              customerName: parent.customerName,
-              body: replySnippet(parent.body),
-            }
-          : null,
       };
-      appendDevStoreChat(slug, channel, msg);
+      appendDevStoreChat(slug, "SELLER", msg);
       setChatDraft("");
-      setReplyTo(null);
       void loadChat();
       return;
     }
@@ -228,11 +185,10 @@ export function CustomerContactModal({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        channel,
+        channel: "SELLER",
         customerName: name,
         customerPhone: phone,
         body,
-        replyToId,
       }),
     });
     const data = await res.json();
@@ -241,32 +197,6 @@ export function CustomerContactModal({
       return;
     }
     setChatDraft("");
-    setReplyTo(null);
-    void loadChat();
-  }
-
-  async function toggleLike(messageId: string) {
-    const phone = customerPhone.trim();
-    if (normalizePhone(phone).length < 9) {
-      setChatError(labels.chatPhoneRequired);
-      return;
-    }
-    setChatError("");
-    if (isDevPreview) {
-      toggleDevCommunityLike(slug, messageId, phone);
-      void loadChat();
-      return;
-    }
-    const res = await fetch(`/api/public/${slug}/store-chat/like`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messageId, customerPhone: phone }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setChatError((data as { error?: string }).error ?? labels.chatSendError);
-      return;
-    }
     void loadChat();
   }
 
@@ -282,11 +212,6 @@ export function CustomerContactModal({
           icon={MessageCircle}
           title={labels.contactOptionSellerChat}
           onClick={() => onViewChange("seller-chat")}
-        />
-        <SettingsMenuRow
-          icon={Users}
-          title={labels.contactOptionCommunity}
-          onClick={() => onViewChange("community")}
         />
       </div>
     );
@@ -363,8 +288,6 @@ export function CustomerContactModal({
     );
   }
 
-  const isChatView = view === "seller-chat" || view === "community";
-
   function renderChat() {
     return (
       <div className="customer-wa-chat">
@@ -379,12 +302,7 @@ export function CustomerContactModal({
             </p>
           ) : (
             chatMessages.map((m) => {
-              const mine =
-                view === "community"
-                  ? normalizePhone(m.customerPhone ?? "") ===
-                    normalizePhone(customerPhone)
-                  : m.authorRole === "CUSTOMER";
-              const showReactions = view === "community";
+              const mine = m.authorRole === "CUSTOMER";
               return (
                 <div
                   key={m.id}
@@ -393,55 +311,10 @@ export function CustomerContactModal({
                   <div
                     className={`customer-wa-chat__bubble ${mine ? "customer-wa-chat__bubble--out" : "customer-wa-chat__bubble--in"}`}
                   >
-                    {!mine && view === "community" && (
-                      <p className="customer-wa-chat__sender">{m.customerName}</p>
-                    )}
-                    {m.replyTo && (
-                      <div className="customer-wa-chat__quote">
-                        <p className="customer-wa-chat__quote-name">
-                          {m.replyTo.customerName}
-                        </p>
-                        <p className="customer-wa-chat__quote-body">
-                          {m.replyTo.body}
-                        </p>
-                      </div>
-                    )}
                     <p className="customer-wa-chat__text">{m.body}</p>
-                    <div className="customer-wa-chat__meta">
-                      <p className="customer-wa-chat__time">
-                        {formatChatTime(m.createdAt, locale)}
-                      </p>
-                      {showReactions && (
-                        <div className="customer-wa-chat__actions">
-                          <button
-                            type="button"
-                            className="customer-wa-chat__action-btn"
-                            onClick={() => setReplyTo(m)}
-                            aria-label={labels.chatReply}
-                          >
-                            <CornerUpRight
-                              className="h-4 w-4 rtl:scale-x-[-1]"
-                              strokeWidth={2}
-                            />
-                            <span>{labels.chatReply}</span>
-                          </button>
-                          <button
-                            type="button"
-                            className={`customer-wa-chat__action-btn customer-wa-chat__action-btn--like ${m.likedByMe ? "is-liked" : ""}`}
-                            onClick={() => void toggleLike(m.id)}
-                            aria-label={labels.chatLike}
-                          >
-                            <Heart
-                              className={`h-4 w-4 ${m.likedByMe ? "fill-current" : ""}`}
-                              strokeWidth={2}
-                            />
-                            {(m.likeCount ?? 0) > 0 && (
-                              <span>{m.likeCount}</span>
-                            )}
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    <p className="customer-wa-chat__time">
+                      {formatChatTime(m.createdAt, locale)}
+                    </p>
                   </div>
                 </div>
               );
@@ -452,26 +325,6 @@ export function CustomerContactModal({
           <p className="bg-bakery-cream-light px-3 py-1.5 text-center text-[12px] font-semibold text-bakery-error">
             {chatError}
           </p>
-        )}
-        {replyTo && view === "community" && (
-          <div className="customer-wa-chat__reply-bar">
-            <div className="min-w-0 flex-1">
-              <p className="text-[12px] font-bold text-bakery-primary">
-                {labels.replyingTo} {replyTo.customerName}
-              </p>
-              <p className="truncate text-[13px] text-bakery-muted">
-                {replyTo.body}
-              </p>
-            </div>
-            <button
-              type="button"
-              className="shrink-0 rounded-full p-1 text-bakery-muted hover:bg-bakery-card/80"
-              onClick={() => setReplyTo(null)}
-              aria-label={labels.cancelReply}
-            >
-              <X className="h-4 w-4" strokeWidth={2} />
-            </button>
-          </div>
         )}
         <div className="customer-wa-chat__composer">
           <textarea
@@ -501,15 +354,17 @@ export function CustomerContactModal({
     );
   }
 
+  if (!open) return null;
+
   return (
     <CustomerCenterModal
       open={open}
       onClose={onClose}
       locale={locale}
       storeTheme={storeTheme}
-      panelClassName={isChatView ? "customer-center-modal__panel--chat" : ""}
+      panelClassName={isSellerChat ? "customer-center-modal__panel--chat" : ""}
       bodyClassName={
-        isChatView ? "flex min-h-0 flex-1 flex-col overflow-hidden p-0" : ""
+        isSellerChat ? "flex min-h-0 flex-1 flex-col overflow-hidden p-0" : ""
       }
       ariaLabel={title}
       header={
@@ -545,7 +400,7 @@ export function CustomerContactModal({
     >
       {view === "menu" && renderMenu()}
       {view === "inquiry" && renderInquiry()}
-      {(view === "seller-chat" || view === "community") && renderChat()}
+      {view === "seller-chat" && renderChat()}
     </CustomerCenterModal>
   );
 }

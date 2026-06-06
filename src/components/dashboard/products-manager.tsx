@@ -1,26 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Button,
   Input,
   SquareCard,
-  Badge,
   Alert,
   Toggle,
 } from "@/components/ui";
 import { ProductImageField } from "@/components/product-image-field";
 import { ProductSuccessModal } from "@/components/product-success-modal";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
-import { playProductAddedSound } from "@/lib/ui-sounds";
 import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
 import { formatStockLabel } from "@/lib/product-stock";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, Package, Plus } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import {
-  DASHBOARD_PAGE_ROOT,
-  DASHBOARD_SCROLL_MAIN,
-} from "@/components/dashboard/dashboard-panel-frame";
+import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
 
 type Product = {
   id: string;
@@ -57,6 +58,86 @@ function toPreviewProducts(
   }));
 }
 
+const ProductCard = memo(function ProductCard({
+  product: p,
+  labels,
+  formatMoney,
+  onHide,
+  onDelete,
+}: {
+  product: Product;
+  labels: ReturnType<typeof useAppLocale>["labels"];
+  formatMoney: (n: number) => string;
+  onHide: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <SquareCard className="bakery-float-tile overflow-hidden rounded-[14px] p-0 transition">
+      {p.imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={p.imageUrl}
+          alt=""
+          className="h-[5.75rem] w-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <div className="flex h-[5.75rem] items-center justify-center bg-bakery-card text-3xl">
+          🧁
+        </div>
+      )}
+      <div className="flex flex-col gap-1.5 px-2 py-2 text-center">
+        <p className="line-clamp-2 text-[12px] font-extrabold leading-snug text-bakery-ink">
+          {p.name}
+        </p>
+        {hasDiscount(p) ? (
+          <div className="flex flex-col items-center gap-0.5">
+            <span
+              dir="ltr"
+              className="text-[10px] font-medium tabular-nums text-bakery-muted line-through"
+            >
+              {formatMoney(p.price)}
+            </span>
+            <span
+              dir="ltr"
+              className="text-[12px] font-extrabold tabular-nums text-bakery-sale"
+            >
+              {formatMoney(getEffectivePrice(p))}
+            </span>
+          </div>
+        ) : (
+          <p
+            dir="ltr"
+            className="text-[12px] font-extrabold tabular-nums text-bakery-ink"
+          >
+            {formatMoney(p.price)}
+          </p>
+        )}
+        <p className="text-[10px] font-semibold leading-snug text-bakery-muted">
+          {formatStockLabel(p.stock)}
+        </p>
+        <div className="mt-0.5 grid grid-cols-2 gap-1.5 border-t border-bakery-border/25 pt-1.5">
+          <button
+            type="button"
+            className="flex min-h-[2rem] items-center justify-center rounded-[10px] bg-[#F9F3E5] px-1 py-1.5 text-[11px] font-bold text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.98]"
+            onClick={onHide}
+          >
+            {p.isActive ? labels.hide : labels.show}
+          </button>
+          <button
+            type="button"
+            className="flex min-h-[2rem] items-center justify-center rounded-[10px] bg-[#F9F3E5] px-1 py-1.5 text-[11px] font-bold text-bakery-sale transition hover:bg-bakery-cream-hover active:scale-[0.98]"
+            onClick={onDelete}
+          >
+            {labels.delete}
+          </button>
+        </div>
+      </div>
+    </SquareCard>
+  );
+});
+
 export function ProductsManager({
   previewOnly = false,
   initialProducts,
@@ -64,8 +145,9 @@ export function ProductsManager({
   previewOnly?: boolean;
   initialProducts?: Parameters<typeof toPreviewProducts>[0];
 } = {}) {
-  const { labels, formatMoney } = useAppLocale();
+  const { labels, formatMoney, locale } = useAppLocale();
   const formRef = useRef<HTMLFormElement>(null);
+
   const [products, setProducts] = useState<Product[]>(() =>
     previewOnly && initialProducts ? toPreviewProducts(initialProducts) : []
   );
@@ -73,37 +155,84 @@ export function ProductsManager({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [limitDiscountOn, setLimitDiscountOn] = useState(false);
-  const [moreDetailsOpen, setMoreDetailsOpen] = useState(false);
+  const [discountOpen, setDiscountOpen] = useState(false);
+  const [stockOpen, setStockOpen] = useState(false);
+  const [addFormOpen, setAddFormOpen] = useState(false);
+  const [productsListOpen, setProductsListOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [successName, setSuccessName] = useState("");
 
-  async function load() {
+  const load = useCallback(async () => {
     if (previewOnly) return;
     const res = await fetch("/api/dashboard/products");
     const data = await res.json();
     if (res.ok) setProducts(data.products);
-  }
+  }, [previewOnly]);
 
   useEffect(() => {
-    load();
-  }, [previewOnly]);
+    void load();
+  }, [load]);
 
   async function addProduct(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    const fd = new FormData(e.currentTarget);
+    const name = String(fd.get("name") ?? "").trim();
+    const price = Number(fd.get("price"));
+    const saleRaw = String(fd.get("salePrice") ?? "").trim();
+    const salePrice = saleRaw ? Number(saleRaw) : null;
+    const maxDiscountRaw = String(fd.get("maxDiscount") ?? "").trim();
+
+    if (!name || Number.isNaN(price)) return;
+
+    if (discountOpen) {
+      if (!saleRaw || Number.isNaN(salePrice!)) {
+        setError(labels.productDiscountRequired);
+        return;
+      }
+      if (salePrice! >= price) {
+        setError(labels.productDiscountBelowPrice);
+        return;
+      }
+      const maxDiscount = Number(maxDiscountRaw);
+      if (!maxDiscountRaw || Number.isNaN(maxDiscount) || maxDiscount <= 0) {
+        setError(labels.productMaxDiscountRequired);
+        return;
+      }
+      if (price - salePrice! > maxDiscount) {
+        setError(
+          `${labels.productMaxDiscountRequired} (${formatMoney(maxDiscount)})`
+        );
+        return;
+      }
+    }
+
+    let stock: number | null = null;
+    if (stockOpen) {
+      const stockRaw = String(fd.get("stock") ?? "").trim();
+      if (!stockRaw) {
+        setError(labels.productStockRequired);
+        return;
+      }
+      const parsedStock = parseInt(stockRaw, 10);
+      if (Number.isNaN(parsedStock) || parsedStock < 0) {
+        setError(labels.productStockInvalid);
+        return;
+      }
+      stock = parsedStock;
+    }
+
     if (previewOnly) {
-      const fd = new FormData(e.currentTarget);
-      const name = String(fd.get("name") ?? "").trim();
-      const price = Number(fd.get("price"));
-      if (!name || Number.isNaN(price)) return;
       setProducts((prev) => [
         {
           id: `preview-${Date.now()}`,
           name,
           price,
-          salePrice: null,
-          stock: null,
+          salePrice:
+            discountOpen && salePrice != null && !Number.isNaN(salePrice)
+              ? salePrice
+              : null,
+          stock,
           description: String(fd.get("description") ?? "") || null,
           imageUrl: imageData,
           isActive: true,
@@ -113,61 +242,15 @@ export function ProductsManager({
       formRef.current?.reset();
       setImagePreview(null);
       setImageData(null);
-      setLimitDiscountOn(false);
-      setMoreDetailsOpen(false);
+      setDiscountOpen(false);
+      setStockOpen(false);
+      setAddFormOpen(false);
       setSuccessName(name);
-      playProductAddedSound();
       setSuccessOpen(true);
       return;
     }
+
     setAdding(true);
-    const fd = new FormData(e.currentTarget);
-    const name = String(fd.get("name") ?? "").trim();
-    const price = Number(fd.get("price"));
-    const saleRaw = String(fd.get("salePrice") ?? "").trim();
-    const salePrice = saleRaw ? Number(saleRaw) : null;
-    const limitOn = limitDiscountOn;
-    const maxDiscountRaw = String(fd.get("maxDiscount") ?? "").trim();
-
-    if (limitOn && (!saleRaw || Number.isNaN(salePrice!))) {
-      setError(labels.productDiscountRequired);
-      setAdding(false);
-      return;
-    }
-
-    if (saleRaw && salePrice != null && !Number.isNaN(salePrice)) {
-      if (salePrice >= price) {
-        setError(labels.productDiscountBelowPrice);
-        setAdding(false);
-        return;
-      }
-      if (limitOn) {
-        const maxDiscount = Number(maxDiscountRaw);
-        if (!maxDiscountRaw || Number.isNaN(maxDiscount) || maxDiscount <= 0) {
-          setError(labels.productMaxDiscountRequired);
-          setAdding(false);
-          return;
-        }
-        if (price - salePrice > maxDiscount) {
-          setError(`${labels.productMaxDiscountRequired} (${formatMoney(maxDiscount)})`);
-          setAdding(false);
-          return;
-        }
-      }
-    }
-
-    const stockRaw = String(fd.get("stock") ?? "").trim();
-    let stock: number | null = null;
-    if (stockRaw) {
-      const parsedStock = parseInt(stockRaw, 10);
-      if (Number.isNaN(parsedStock) || parsedStock < 0) {
-        setError(labels.productStockInvalid);
-        setAdding(false);
-        return;
-      }
-      stock = parsedStock;
-    }
-
     const res = await fetch("/api/dashboard/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -176,7 +259,9 @@ export function ProductsManager({
         description: fd.get("description") || undefined,
         price,
         salePrice:
-          salePrice != null && !Number.isNaN(salePrice) ? salePrice : null,
+          discountOpen && salePrice != null && !Number.isNaN(salePrice)
+            ? salePrice
+            : null,
         stock,
         imageUrl: imageData || undefined,
       }),
@@ -187,216 +272,268 @@ export function ProductsManager({
       setError(d.error);
       return;
     }
+    const data = await res.json();
+    if (data.product) {
+      setProducts((prev) => [data.product as Product, ...prev]);
+    }
     formRef.current?.reset();
     setImagePreview(null);
     setImageData(null);
-    setLimitDiscountOn(false);
-    setMoreDetailsOpen(false);
+    setDiscountOpen(false);
+    setStockOpen(false);
+    setAddFormOpen(false);
     setSuccessName(name);
-    playProductAddedSound();
     setSuccessOpen(true);
-    load();
   }
 
-  async function toggleProduct(id: string, isActive: boolean) {
-    if (previewOnly) {
+  const setProductActive = useCallback(
+    async (id: string, isActive: boolean) => {
+      if (previewOnly) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, isActive: !isActive } : p))
+        );
+        return;
+      }
       setProducts((prev) =>
         prev.map((p) => (p.id === id ? { ...p, isActive: !isActive } : p))
       );
-      return;
-    }
-    await fetch(`/api/dashboard/products/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !isActive }),
-    });
-    load();
-  }
+      const res = await fetch(`/api/dashboard/products/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !isActive }),
+      });
+      if (!res.ok) void load();
+    },
+    [previewOnly, load]
+  );
+
+  const deleteProduct = useCallback(
+    async (id: string, name: string) => {
+      const msg =
+        locale === "he"
+          ? `למחוק את «${name}»?`
+          : `Delete «${name}»?`;
+      if (!confirm(msg)) return;
+
+      if (previewOnly) {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+        return;
+      }
+
+      const prev = products;
+      setProducts((list) => list.filter((p) => p.id !== id));
+      const res = await fetch(`/api/dashboard/products/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        setProducts(prev);
+        setError(labels.saveError);
+      }
+    },
+    [previewOnly, products, locale, labels.saveError]
+  );
 
   return (
-    <div className={`${DASHBOARD_PAGE_ROOT} pb-2`}>
-      <div className={`${DASHBOARD_SCROLL_MAIN} space-y-5`}>
+    <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
       {previewOnly && (
-        <p className="rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
+        <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
           תצוגה מקדימה — השינויים לא נשמרים ולא מועלים לשרת
         </p>
       )}
-      {error && <Alert variant="error">{error}</Alert>}
+      {error && (
+        <div className="shrink-0">
+          <Alert variant="error">{error}</Alert>
+        </div>
+      )}
 
-      <div className="bakery-float-panel rounded-[24px] p-4">
-        <h2 className="w-full text-center text-[18px] font-extrabold text-bakery-ink">
-          {labels.addProduct}
-        </h2>
-        <form
-          ref={formRef}
-          onSubmit={addProduct}
-          className="mx-auto mt-4 flex w-full max-w-[320px] flex-col items-stretch gap-3"
-        >
-          <Input name="name" label={labels.productName} required />
-          <Input
-            name="price"
-            label={labels.productPrice}
-            type="number"
-            step="0.01"
-            required
-            dir="ltr"
-          />
-          <Input name="description" label={labels.productDescription} />
-          <ProductImageField
-            preview={imagePreview}
-            onChange={(url) => {
-              setImagePreview(url);
-              setImageData(url);
-            }}
-            onError={setError}
-          />
-          <div className="overflow-hidden rounded-[16px] border border-bakery-border/35 bg-bakery-card/50">
-            <button
-              type="button"
-              onClick={() => setMoreDetailsOpen((o) => !o)}
-              className="flex w-full items-center justify-between gap-2 px-3 py-3 text-end"
-              aria-expanded={moreDetailsOpen}
+      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+        {!addFormOpen ? (
+          <button
+            type="button"
+            onClick={() => setAddFormOpen(true)}
+            className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+          >
+            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+              <Plus className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {labels.addProduct}
+            </span>
+            <ChevronDown
+              className="h-5 w-5 shrink-0 text-bakery-muted"
+              strokeWidth={2.5}
+              aria-hidden
+            />
+          </button>
+        ) : (
+          <>
+            <h2 className="mb-2 text-center text-[15px] font-extrabold text-bakery-ink">
+              {labels.addProduct}
+            </h2>
+            <form
+              ref={formRef}
+              onSubmit={addProduct}
+              className="flex flex-col gap-2 overflow-hidden px-0.5 text-start"
             >
-              <span className="text-[15px] font-extrabold text-bakery-ink">
-                {labels.productDiscountAndStock}
-              </span>
-              {moreDetailsOpen ? (
-                <ChevronUp
-                  className="h-5 w-5 shrink-0 text-bakery-ink"
-                  strokeWidth={2}
+              <Input name="name" label={labels.productName} required />
+              <Input
+                name="price"
+                label={labels.productPrice}
+                type="number"
+                step="0.01"
+                required
+                dir="ltr"
+              />
+              <Input name="description" label={labels.productDescription} />
+              <ProductImageField
+                compact
+                preview={imagePreview}
+                onChange={(url) => {
+                  setImagePreview(url);
+                  setImageData(url);
+                }}
+                onError={setError}
+              />
+              <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2.5 text-start">
+                <span className="text-[14px] font-bold text-bakery-ink">
+                  {labels.productDiscount}
+                </span>
+                <Toggle
+                  enabled={discountOpen}
+                  onChange={setDiscountOpen}
+                  ariaLabel={labels.productDiscount}
                 />
-              ) : (
-                <ChevronDown
-                  className="h-5 w-5 shrink-0 text-bakery-ink"
-                  strokeWidth={2}
-                />
-              )}
-            </button>
-            {moreDetailsOpen && (
-              <div className="flex flex-col gap-3 border-t border-bakery-border/30 px-3 pb-3 pt-3">
-                <Input
-                  name="salePrice"
-                  label={labels.productDiscount}
-                  type="number"
-                  step="0.01"
-                  min={0.01}
-                  dir="ltr"
-                />
-                <div className="w-full text-end">
-                  <div className="inline-flex items-center gap-3">
-                    <span className="text-[14px] font-bold text-bakery-ink">
-                      {labels.productMaxDiscount}
-                    </span>
-                    <Toggle
-                      enabled={limitDiscountOn}
-                      onChange={setLimitDiscountOn}
-                      ariaLabel={labels.productMaxDiscount}
-                    />
-                  </div>
-                </div>
-                {limitDiscountOn && (
+              </div>
+              {discountOpen && (
+                <>
                   <Input
-                    name="maxDiscount"
-                    label={labels.productMaxDiscount}
+                    name="salePrice"
+                    label={labels.productDiscountPrice}
                     type="number"
                     step="0.01"
                     min={0.01}
+                    dir="ltr"
                     required
+                  />
+                  <Input
+                    name="maxDiscount"
+                    label={labels.productDiscountLimit}
+                    type="number"
+                    step="0.01"
+                    min={0.01}
                     dir="ltr"
                     placeholder="10"
+                    required
                   />
-                )}
+                </>
+              )}
+              <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2.5 text-start">
+                <span className="text-[14px] font-bold text-bakery-ink">
+                  {labels.productStock}
+                </span>
+                <Toggle
+                  enabled={stockOpen}
+                  onChange={setStockOpen}
+                  ariaLabel={labels.productStock}
+                />
+              </div>
+              {stockOpen && (
                 <Input
                   name="stock"
-                  label={labels.productStock}
                   type="number"
                   step="1"
                   min={0}
                   dir="ltr"
-                  placeholder={labels.productStockUnlimited}
+                  required
                 />
-              </div>
-            )}
-          </div>
-          <Button
-            type="submit"
-            variant="square"
-            className="bakery-float-tile w-full"
-            disabled={adding}
-          >
-            {adding ? labels.adding : labels.addProduct}
-          </Button>
-        </form>
+              )}
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full min-h-[44px] rounded-full font-extrabold"
+                disabled={adding}
+              >
+                {adding ? labels.adding : labels.addProduct}
+              </Button>
+            </form>
+            <button
+              type="button"
+              onClick={() => setAddFormOpen(false)}
+              aria-label={labels.close}
+              className="mt-2 flex w-full min-h-[44px] items-center justify-center rounded-[22px] text-bakery-muted transition hover:bg-bakery-card/60 hover:text-bakery-ink active:opacity-80"
+            >
+              <ChevronDown
+                className="h-6 w-6 rotate-180 transition-transform duration-200"
+                strokeWidth={2.5}
+                aria-hidden
+              />
+            </button>
+          </>
+        )}
       </div>
 
-      {products.length > 0 && (
-        <div className="mx-auto w-full max-w-[320px]">
-          <p className="mb-2 text-center text-[15px] font-extrabold text-bakery-ink">
+      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+        <button
+          type="button"
+          onClick={() => {
+            setProductsListOpen((v) => !v);
+            if (addFormOpen) setAddFormOpen(false);
+          }}
+          aria-expanded={productsListOpen}
+          aria-controls="dashboard-products-list"
+          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
+            productsListOpen ? "bakery-float-tile--active" : ""
+          }`}
+        >
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <Package className="h-6 w-6" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
             {labels.products}
-          </p>
+            {products.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({products.length})
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
+              productsListOpen ? "rotate-180" : ""
+            }`}
+            strokeWidth={2.5}
+            aria-hidden
+          />
+        </button>
+
+        {productsListOpen && (
           <div
-            className="no-scrollbar aspect-square w-full overflow-y-auto overscroll-contain rounded-[20px] border-[1.2px] border-bakery-border/40 bg-bakery-card/50 p-2.5 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]"
+            id="dashboard-products-list"
+            className="no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]"
             role="region"
             aria-label={labels.products}
           >
-            <div className="grid grid-cols-2 gap-2.5">
-              {products.map((p) => (
-                <SquareCard
-                  key={p.id}
-                  className="bakery-float-tile overflow-hidden rounded-[16px] p-0"
-                >
-                  {p.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={p.imageUrl}
-                      alt=""
-                      className="aspect-square w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex aspect-square items-center justify-center bg-bakery-card text-2xl">
-                      🧁
-                    </div>
-                  )}
-                  <div className="p-2 text-center">
-                    <p className="truncate text-[14px] font-extrabold">
-                      {p.name}
-                    </p>
-                    {hasDiscount(p) ? (
-                      <p className="mt-0.5">
-                        <span className="text-[12px] text-bakery-muted line-through">
-                          {formatMoney(p.price)}
-                        </span>
-                        <span className="ms-1 text-[13px] font-extrabold text-red-600">
-                          {formatMoney(getEffectivePrice(p))}
-                        </span>
-                      </p>
-                    ) : (
-                      <p className="text-[13px] font-extrabold text-bakery-ink">
-                        {formatMoney(p.price)}
-                      </p>
-                    )}
-                    <p className="mt-0.5 text-[11px] font-semibold text-bakery-muted">
-                      {formatStockLabel(p.stock)}
-                    </p>
-                    <div className="mt-1.5 flex flex-col items-center gap-0.5">
-                      <Badge tone={p.isActive ? "success" : "default"}>
-                        {p.isActive ? labels.active : labels.hidden}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        className="text-[13px]"
-                        onClick={() => toggleProduct(p.id, p.isActive)}
-                      >
-                        {p.isActive ? labels.hide : labels.show}
-                      </Button>
-                    </div>
-                  </div>
-                </SquareCard>
-              ))}
-            </div>
+            {products.length === 0 ? (
+              <p className="py-6 text-center text-[14px] text-bakery-muted">
+                {locale === "he" ? "אין מוצרים עדיין" : "No products yet"}
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {products.map((p) => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    labels={labels}
+                    formatMoney={formatMoney}
+                    onHide={() => void setProductActive(p.id, p.isActive)}
+                    onDelete={() => void deleteProduct(p.id, p.name)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <DashboardConfettiBackground active={successOpen} />
 
@@ -405,7 +542,6 @@ export function ProductsManager({
         productName={successName}
         onClose={() => setSuccessOpen(false)}
       />
-      </div>
     </div>
   );
 }

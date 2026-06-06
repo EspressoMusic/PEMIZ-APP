@@ -2,33 +2,34 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { getEffectivePrice } from "@/lib/product-price";
-import { getDealProducts, splitDealPrice } from "@/lib/store-deal";
+import { getDealLines, splitDealPrice } from "@/lib/store-deal";
 import { normalizePhone } from "@/lib/phone";
 import {
   isWithinOrderSchedule,
   ORDER_SCHEDULE_CLOSED_MESSAGE,
 } from "@/lib/order-schedule";
-import { isProductInStock, OUT_OF_STOCK_MESSAGE } from "@/lib/product-stock";
+import {
+  canFulfillQuantity,
+  isProductInStock,
+  OUT_OF_STOCK_MESSAGE,
+} from "@/lib/product-stock";
 import {
   OrderStockError,
   reserveStockAndCreateOrder,
 } from "@/lib/product-stock-order";
-import { notifySellerNewOrder } from "@/lib/whatsapp-seller-notify";
+import {
+  notifyLowStockAfterOrder,
+  notifySellerNewOrder,
+} from "@/lib/seller-push";
 
-function scheduleOrderWhatsAppNotify(
-  business: {
-    id: string;
-    name: string;
-    whatsappNotifyEnabled: boolean;
-    whatsappNotifyPhone: string | null;
-  },
-  orderId: string
+function afterOrderPlaced(
+  businessId: string,
+  order: { id: string; customerName: string },
+  lines: { productId: string; quantity: number }[]
 ) {
-  void notifySellerNewOrder(business, orderId).catch((e) =>
-    console.error("[WhatsApp] order notify", e)
-  );
+  void notifySellerNewOrder(businessId, order);
+  void notifyLowStockAfterOrder(businessId, lines);
 }
-
 const schema = z.object({
   customerName: z.string().min(2).max(80),
   customerPhone: z.string().min(9).max(20),
@@ -98,19 +99,23 @@ export async function POST(
     });
     if (redeemed) return jsonError("כבר מימשת את הדיל הזה פעם אחת");
 
-    const dealProducts = getDealProducts(deal);
-    if (dealProducts.length < 1) return jsonError("דיל לא תקין");
-    if (dealProducts.some((p) => !p.isActive)) {
+    const dealLines = getDealLines(deal);
+    if (dealLines.length < 1) return jsonError("דיל לא תקין");
+    if (dealLines.some((line) => !line.product.isActive)) {
       return jsonError("מוצר בדיל לא זמין");
     }
-    if (dealProducts.some((p) => !isProductInStock(p.stock))) {
+    if (
+      dealLines.some(
+        (line) => !canFulfillQuantity(line.product.stock, line.quantity)
+      )
+    ) {
       return jsonError(OUT_OF_STOCK_MESSAGE);
     }
 
-    const split = splitDealPrice(deal.dealPrice, dealProducts);
+    const split = splitDealPrice(deal.dealPrice, dealLines);
     orderItems = split.map((row) => ({
       productId: row.productId,
-      quantity: 1,
+      quantity: row.quantity,
       priceAtOrder: row.priceAtOrder,
     }));
 
@@ -134,7 +139,11 @@ export async function POST(
         });
         return created;
       });
-      scheduleOrderWhatsAppNotify(business, order.id);
+      afterOrderPlaced(
+        business.id,
+        { id: order.id, customerName: order.customerName },
+        orderItems
+      );
       return jsonOk({ orderId: order.id, dealApplied: true });
     } catch (e) {
       if (e instanceof OrderStockError) return jsonError(e.message);
@@ -164,7 +173,11 @@ export async function POST(
         notes: parsed.data.notes,
       })
     );
-    scheduleOrderWhatsAppNotify(business, order.id);
+    afterOrderPlaced(
+      business.id,
+      { id: order.id, customerName: order.customerName },
+      orderItems
+    );
     return jsonOk({ orderId: order.id });
   } catch (e) {
     if (e instanceof OrderStockError) return jsonError(e.message);

@@ -13,7 +13,7 @@ export function DashboardCustomersHubGrid({
   const { labels } = useAppLocale();
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 gap-2">
       <DashboardActionSquare
         href={`${basePath}/customers/broadcast`}
         icon={Megaphone}
@@ -45,7 +45,7 @@ export function DashboardCustomersHub({
 }) {
   return (
     <div className={`${DASHBOARD_PAGE_ROOT} justify-start pb-2 text-center`}>
-      <div className="bakery-float-panel rounded-[24px] p-4">
+      <div className="dashboard-card bakery-float-panel rounded-[32px] p-3">
         <DashboardCustomersHubGrid basePath={basePath} />
       </div>
     </div>

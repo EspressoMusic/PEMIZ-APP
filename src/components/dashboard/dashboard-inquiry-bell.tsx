@@ -1,10 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 import Link from "next/link";
 import { Bell, X } from "lucide-react";
-import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
+import { DEV_PREVIEW_INQUIRIES, DEV_PREVIEW_ORDERS } from "@/lib/dev-preview-data";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import {
+  customerProfileInitial,
+  useDashboardCustomerProfile,
+} from "@/components/dashboard/dashboard-customer-profile";
 
 type InquiryRow = {
   id: string;
@@ -38,6 +43,10 @@ export function DashboardInquiryBell({
   previewOnly?: boolean;
 }) {
   const { labels, formatDateTime } = useAppLocale();
+  const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
+    previewOnly,
+    previewOrders: previewOnly ? DEV_PREVIEW_ORDERS : undefined,
+  });
   const [items, setItems] = useState<InquiryRow[]>([]);
   const [lastSeenAt, setLastSeenAt] = useState("");
   const [open, setOpen] = useState(false);
@@ -63,9 +72,9 @@ export function DashboardInquiryBell({
   useEffect(() => {
     setLastSeenAt(getLastSeenAt(businessSlug));
     void load();
-    const id = window.setInterval(() => void load(), 45_000);
-    return () => window.clearInterval(id);
   }, [businessSlug, load]);
+
+  useVisibilityInterval(() => void load(), 300_000, 600_000);
 
   const pending = useMemo(
     () => items.filter((q) => !q.sellerReply),
@@ -79,6 +88,7 @@ export function DashboardInquiryBell({
   }, [pending, lastSeenAt]);
 
   const hasNew = newPending.length > 0;
+  const hasPending = pending.length > 0;
 
   function openPanel() {
     setOpen(true);
@@ -95,21 +105,20 @@ export function DashboardInquiryBell({
       <button
         type="button"
         onClick={openPanel}
-        className={`relative flex h-11 w-11 items-center justify-center rounded-2xl border border-bakery-border/30 bg-bakery-square shadow-[0_3px_12px_rgba(58,47,38,0.12)] transition hover:bg-bakery-card/90 ${
-          hasNew ? "animate-bell-wiggle" : ""
+        className={`bakery-icon-tile relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] transition ${
+          hasPending ? "animate-bell-wiggle" : ""
         }`}
         aria-label={
-          hasNew
-            ? `${labels.inquiryUpdates} (${newPending.length})`
+          hasPending
+            ? hasNew
+              ? `${labels.inquiryUpdates} (${newPending.length})`
+              : `${labels.customerInquiries} (${pending.length})`
             : labels.customerInquiries
         }
       >
-        <Bell className="h-6 w-6 text-bakery-ink" strokeWidth={2} />
-        {hasNew && (
-          <span
-            className="absolute end-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-bakery-error ring-2 ring-[#f9f6f0]"
-            aria-hidden
-          />
+        <Bell className="h-6 w-6" strokeWidth={2} />
+        {hasPending && (
+          <span className="dashboard-inquiry-dot" aria-hidden />
         )}
       </button>
 
@@ -122,11 +131,11 @@ export function DashboardInquiryBell({
         >
           <button
             type="button"
-            className="absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
+            className="dashboard-modal-backdrop absolute inset-0"
             onClick={closePanel}
             aria-label={labels.close}
           />
-          <div className="relative max-h-[min(85dvh,560px)] w-full max-w-md overflow-hidden rounded-[24px] border border-bakery-border/30 bg-bakery-cream-sheet shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
+          <div className="dashboard-modal-card relative max-h-[min(85dvh,560px)] w-full max-w-md overflow-hidden">
             <div className="relative border-b border-bakery-border/25 px-4 py-3">
               <button
                 type="button"
@@ -170,21 +179,55 @@ export function DashboardInquiryBell({
                           : "border-bakery-border/25 bg-bakery-cream-light"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-[16px] font-extrabold text-bakery-ink">
-                          {q.customerName}
-                        </p>
-                        {isNew && (
-                          <span className="shrink-0 rounded-full bg-bakery-error px-2 py-0.5 text-[10px] font-bold text-white">
-                            {labels.pending}
-                          </span>
-                        )}
+                      <div className="flex items-start gap-2">
+                        {q.customerPhone ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openCustomer({
+                                customerName: q.customerName,
+                                customerPhone: q.customerPhone!,
+                                fallbackDate: q.createdAt,
+                              })
+                            }
+                            className="relative shrink-0"
+                            aria-label={`${labels.customer}: ${q.customerName}`}
+                          >
+                            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[12px] border border-bakery-border/35 bg-bakery-on-primary text-[16px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)]">
+                              {customerProfileInitial(
+                                q.customerName,
+                                labels.anonymousCustomer
+                              )}
+                            </span>
+                            {isNew && (
+                              <span
+                                className="dashboard-inquiry-pending-dot"
+                                aria-label={labels.pending}
+                              />
+                            )}
+                          </button>
+                        ) : null}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-[16px] font-extrabold text-bakery-ink">
+                              {q.customerName}
+                            </p>
+                            {isNew && !q.customerPhone && (
+                              <span className="shrink-0 rounded-full bg-bakery-error px-2 py-0.5 text-[10px] font-bold text-white">
+                                {labels.pending}
+                              </span>
+                            )}
+                          </div>
+                          {q.customerPhone && (
+                            <p
+                              className="mt-0.5 text-[13px] text-bakery-muted"
+                              dir="ltr"
+                            >
+                              {q.customerPhone}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      {q.customerPhone && (
-                        <p className="mt-0.5 text-[13px] text-bakery-muted" dir="ltr">
-                          {q.customerPhone}
-                        </p>
-                      )}
                       <p className="mt-2 whitespace-pre-wrap text-[14px] leading-snug text-bakery-ink">
                         {q.message}
                       </p>
@@ -201,7 +244,7 @@ export function DashboardInquiryBell({
               <Link
                 href={inquiriesHref}
                 onClick={closePanel}
-                className="flex min-h-[48px] w-full items-center justify-center rounded-[18px] border-[1.2px] border-bakery-border/40 bg-bakery-square text-[15px] font-medium text-bakery-ink shadow-none transition hover:bg-bakery-card"
+                className="dashboard-elevated-btn flex min-h-[48px] w-full items-center justify-center rounded-[18px] border text-[15px] font-extrabold text-bakery-ink transition active:scale-[0.99]"
               >
                 {labels.answerCustomer}
               </Link>
@@ -209,6 +252,7 @@ export function DashboardInquiryBell({
           </div>
         </div>
       )}
+      {customerModal}
     </>
   );
 }

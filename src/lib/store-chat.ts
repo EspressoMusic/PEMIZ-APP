@@ -1,4 +1,4 @@
-export const STORE_CHAT_CHANNELS = ["SELLER", "COMMUNITY"] as const;
+export const STORE_CHAT_CHANNELS = ["SELLER"] as const;
 export type StoreChatChannel = (typeof STORE_CHAT_CHANNELS)[number];
 
 export const STORE_CHAT_ROLES = ["CUSTOMER", "SELLER"] as const;
@@ -19,15 +19,11 @@ export type StoreChatMessageDto = {
   body: string;
   createdAt: string;
   replyTo?: StoreChatReplyPreview | null;
-  likeCount?: number;
-  likedByMe?: boolean;
-  /** Dev preview only — persisted in localStorage */
-  likedByPhones?: string[];
   replyToId?: string | null;
 };
 
 export function isStoreChatChannel(value: string): value is StoreChatChannel {
-  return value === "SELLER" || value === "COMMUNITY";
+  return value === "SELLER";
 }
 
 export function replySnippet(body: string, max = 80) {

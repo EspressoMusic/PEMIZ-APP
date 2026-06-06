@@ -61,3 +61,77 @@ export function isValidProductImageUrl(url: string | null | undefined): boolean 
   if (url.startsWith("data:image/")) return isValidDataImageUrl(url);
   return isValidRemoteImageUrl(url);
 }
+
+/** New saves must use uploaded URL — not inline base64. */
+export function isValidProductImageUrlForSave(
+  url: string | null | undefined
+): boolean {
+  if (!url) return true;
+  if (url.startsWith("data:")) return false;
+  return isValidRemoteImageUrl(url);
+}
+
+export async function compressProductImageFile(
+  file: File,
+  maxEdge = 1200,
+  quality = 0.82
+): Promise<Blob> {
+  if (typeof document === "undefined") return file;
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+  const w = Math.max(1, Math.round(bitmap.width * scale));
+  const h = Math.max(1, Math.round(bitmap.height * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    bitmap.close();
+    return file;
+  }
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  bitmap.close();
+
+  const mime =
+    file.type === "image/png" ? "image/png" : "image/jpeg";
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, mime, quality)
+  );
+  return blob ?? file;
+}
+
+export async function uploadProductImageFile(
+  file: File,
+  locale: AppLocale = "he"
+): Promise<string> {
+  const err = IMAGE_ERRORS[locale];
+  if (!isAllowedImageMime(file.type)) {
+    throw new Error(err.type);
+  }
+  if (file.size > MAX_BYTES) {
+    throw new Error(err.size);
+  }
+
+  const compressed = await compressProductImageFile(file);
+  if (compressed.size > MAX_BYTES) {
+    throw new Error(err.size);
+  }
+
+  const form = new FormData();
+  form.append("file", compressed, file.name);
+
+  const res = await fetch("/api/dashboard/products/image", {
+    method: "POST",
+    body: form,
+  });
+  const data = (await res.json().catch(() => ({}))) as {
+    url?: string;
+    error?: string;
+  };
+  if (!res.ok || !data.url) {
+    throw new Error(data.error ?? err.read);
+  }
+  return data.url;
+}

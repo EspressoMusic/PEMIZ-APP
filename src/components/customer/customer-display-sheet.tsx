@@ -22,30 +22,19 @@ function SelectTile({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99] ${
+      className={`flex w-full items-center gap-3 rounded-[22px] border-[2.5px] px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99] ${
         selected
-          ? "bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.2)]"
-          : "bg-bakery-square text-bakery-ink"
+          ? "border-bakery-primary bg-bakery-square text-bakery-ink"
+          : "border-bakery-border/30 bg-bakery-square text-bakery-ink"
       }`}
     >
-      <span
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] ${
-          selected ? "bg-bakery-on-primary/15" : "bakery-icon-tile"
-        }`}
-      >
-        <Icon
-          className={`h-6 w-6 ${selected ? "text-bakery-on-primary" : "text-bakery-ink"}`}
-          strokeWidth={1.75}
-        />
+      <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+        <Icon className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[16px] font-extrabold">{title}</span>
         {subtitle && (
-          <span
-            className={`mt-1 block text-[13px] font-medium leading-snug ${
-              selected ? "text-bakery-on-primary/80" : "text-bakery-muted"
-            }`}
-          >
+          <span className="mt-1 block text-[13px] font-medium leading-snug text-bakery-muted">
             {subtitle}
           </span>
         )}
@@ -132,25 +121,19 @@ export function CustomerDisplaySheet({
                 <button
                   type="button"
                   onClick={() => onThemeChange(s.id)}
-                  className={`flex w-full items-center gap-3 rounded-[16px] border px-3 py-2.5 text-start transition active:scale-[0.99] ${
+                  className={`flex w-full items-center gap-3 rounded-[16px] border-[2.5px] px-3 py-2.5 text-start transition active:scale-[0.99] ${
                     active
-                      ? "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.2)]"
+                      ? "border-bakery-primary bg-bakery-square text-bakery-ink shadow-[0_2px_8px_rgba(58,47,38,0.1)]"
                       : "border-bakery-border/30 bg-bakery-square text-bakery-ink"
                   }`}
                 >
                   <span
-                    className={`h-10 w-14 shrink-0 rounded-[10px] bg-gradient-to-b ring-1 ${s.preview} ${
-                      active ? "ring-bakery-on-primary/40" : "ring-bakery-border/25"
-                    }`}
+                    className={`h-10 w-14 shrink-0 rounded-[10px] bg-gradient-to-b ring-1 ${s.preview} ring-bakery-border/25`}
                     aria-hidden
                   />
                   <span className="min-w-0 flex-1">
                     <span className="block text-[14px] font-extrabold">{title}</span>
-                    <span
-                      className={`block text-[12px] font-semibold ${
-                        active ? "text-bakery-on-primary/80" : "text-bakery-muted"
-                      }`}
-                    >
+                    <span className="block text-[12px] font-semibold text-bakery-muted">
                       {subtitle}
                     </span>
                   </span>

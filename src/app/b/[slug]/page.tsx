@@ -4,9 +4,10 @@ import {
   isBusinessAcceptingCustomers,
   publicBusinessUrl,
 } from "@/lib/business";
-import { getDealProducts } from "@/lib/store-deal";
+import { getDealLines } from "@/lib/store-deal";
 import { PublicStorefront } from "@/components/public-storefront";
 import { getAllPlatformLegalDocuments } from "@/lib/legal/platform-legal";
+import { publicCatalogImageUrl } from "@/lib/public-image-url";
 
 export default async function PublicBusinessPage({
   params,
@@ -33,25 +34,26 @@ export default async function PublicBusinessPage({
           id: p.id,
           name: p.name,
           description: p.description,
-          imageUrl: p.imageUrl,
+          imageUrl: publicCatalogImageUrl(p.imageUrl),
           price: p.price,
           salePrice: p.salePrice,
           stock: p.stock,
         })),
         deals: business.storeDeals.map((d) => {
-          const prods = getDealProducts(d);
+          const lines = getDealLines(d);
           return {
             id: d.id,
             name: d.name,
             dealPrice: d.dealPrice,
             validUntil: d.validUntil.toISOString(),
-            products: prods.map((p) => ({
-              id: p.id,
-              name: p.name,
-              imageUrl: p.imageUrl,
-              price: p.price,
-              salePrice: p.salePrice,
-              stock: p.stock,
+            products: lines.map((line) => ({
+              id: line.product.id,
+              name: line.product.name,
+              imageUrl: publicCatalogImageUrl(line.product.imageUrl),
+              price: line.product.price,
+              salePrice: line.product.salePrice,
+              stock: line.product.stock,
+              quantity: line.quantity,
             })),
           };
         }),

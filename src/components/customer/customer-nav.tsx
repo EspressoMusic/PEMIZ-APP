@@ -29,10 +29,10 @@ export function CustomerNav({
               type="button"
               onClick={() => onSelect(i)}
               aria-current={active ? "page" : undefined}
-              className={`flex shrink-0 snap-start items-center gap-2 rounded-[14px] px-3 py-2.5 text-[14px] font-bold transition lg:w-full ${
+              className={`flex shrink-0 snap-start items-center gap-2 rounded-[14px] border-[2.5px] px-3 py-2.5 text-[14px] font-bold transition lg:w-full ${
                 active
-                  ? "bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.2)]"
-                  : "text-bakery-muted hover:bg-bakery-primary/10 hover:text-bakery-ink"
+                  ? "border-bakery-primary bg-bakery-square text-bakery-ink shadow-[0_2px_8px_rgba(58,47,38,0.1)]"
+                  : "border-transparent text-bakery-muted hover:bg-bakery-primary/10 hover:text-bakery-ink"
               }`}
             >
               <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={active ? 2.25 : 1.75} />

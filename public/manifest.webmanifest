@@ -1,0 +1,42 @@
+{
+  "name": "Linky — עמוד דיגיטלי לעסק",
+  "short_name": "Linky",
+  "description": "ניהול חנות, הזמנות, לקוחות ופניות — הכל במקום אחד.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F0E8",
+  "theme_color": "#5C4A3E",
+  "dir": "rtl",
+  "lang": "he",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/linky-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

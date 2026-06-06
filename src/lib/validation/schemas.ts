@@ -34,7 +34,7 @@ export const productCreateSchema = z.object({
   description: z.string().max(500).optional(),
   price: z.number().positive().max(1_000_000),
   salePrice: z.number().positive().max(1_000_000).optional().nullable(),
-  imageUrl: z.string().max(2_800_000).optional(),
+  imageUrl: z.string().max(2048).optional(),
   stock: z.number().int().min(0).max(1_000_000).optional().nullable(),
 });
 
@@ -44,27 +44,20 @@ export const productPatchSchema = z.object({
   price: z.number().positive().max(1_000_000).optional(),
   salePrice: z.number().positive().nullable().optional(),
   isActive: z.boolean().optional(),
-  imageUrl: z.string().max(2_800_000).nullable().optional(),
+  imageUrl: z.string().max(2048).nullable().optional(),
   stock: z.number().int().min(0).max(1_000_000).nullable().optional(),
 });
 
 export const publicChatPostSchema = z.object({
-  channel: z.enum(["SELLER", "COMMUNITY"]),
+  channel: z.literal("SELLER"),
   customerName: z.string().trim().min(2).max(80),
   customerPhone: z.string().max(20),
   body: z.string().trim().min(1).max(2000),
-  replyToId: z.string().min(1).max(64).optional(),
 });
 
 export const sellerPrivateChatReplySchema = z.object({
   customerPhone: z.string().min(9).max(20),
   body: z.string().trim().min(1).max(2000),
-});
-
-export const sellerCommunityChatPostSchema = z.object({
-  channel: z.literal("COMMUNITY"),
-  body: z.string().trim().min(1).max(2000),
-  replyToId: z.string().min(1).max(64).optional(),
 });
 
 export const storeThemePatchSchema = z.object({

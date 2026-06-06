@@ -284,7 +284,7 @@ export function MasterPanel() {
               variant={signupsEnabled ? "danger" : "primary"}
               onClick={toggleSignups}
               disabled={platformLoading}
-              className="w-full sm:w-auto"
+              className={`w-full sm:w-auto ${signupsEnabled ? "master-btn-matte-danger" : ""}`}
             >
               {platformLoading
                 ? "שומר..."

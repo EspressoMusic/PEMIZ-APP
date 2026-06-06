@@ -4,42 +4,21 @@ import { requireBusinessOwner } from "@/lib/dashboard-auth";
 import { normalizePhone } from "@/lib/phone";
 import { buildSellerChatThreads } from "@/lib/seller-chat-threads";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
-import { replySnippet, type StoreChatMessageDto } from "@/lib/store-chat";
 import {
-  sellerCommunityChatPostSchema,
+  STORE_CHAT_LIST_LIMIT,
+  storeChatMessageInclude,
+  storeChatRowToDto,
+} from "@/lib/store-chat-query";
+import {
   sellerPrivateChatReplySchema,
   zodFirstError,
 } from "@/lib/validation/schemas";
-
-const messageInclude = {
-  replyTo: {
-    select: { id: true, body: true, customerName: true },
-  },
-  likes: { select: { customerPhone: true } },
-} as const;
 
 export async function GET(req: Request) {
   const ctx = await requireBusinessOwner();
   if (!ctx.ok) return ctx.response;
 
   const url = new URL(req.url);
-  const channel = url.searchParams.get("channel");
-
-  if (channel === "COMMUNITY") {
-    const rows = await prisma.storeChatMessage.findMany({
-      where: {
-        businessId: ctx.user.business.id,
-        channel: "COMMUNITY",
-      },
-      orderBy: { createdAt: "asc" },
-      take: 300,
-      include: messageInclude,
-    });
-    return jsonOk({
-      messages: rows.map((row) => toDto(row, "")),
-    });
-  }
-
   const phone = normalizePhone(url.searchParams.get("phone") ?? "");
   if (phone.length >= 9) {
     const rows = await prisma.storeChatMessage.findMany({
@@ -49,10 +28,10 @@ export async function GET(req: Request) {
         customerPhone: phone,
       },
       orderBy: { createdAt: "asc" },
-      take: 200,
-      include: messageInclude,
+      take: STORE_CHAT_LIST_LIMIT,
+      include: storeChatMessageInclude,
     });
-    return jsonOk({ messages: rows.map((row) => toDto(row, phone)) });
+    return jsonOk({ messages: rows.map((row) => storeChatRowToDto(row)) });
   }
 
   const rows = await prisma.storeChatMessage.findMany({
@@ -76,39 +55,6 @@ export async function POST(req: Request) {
   if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);
-  if (!body || typeof body !== "object") return jsonError("נתונים לא תקינים");
-
-  if ((body as { channel?: string }).channel === "COMMUNITY") {
-    const parsed = sellerCommunityChatPostSchema.safeParse(body);
-    if (!parsed.success) return jsonError(zodFirstError(parsed));
-
-    if (parsed.data.replyToId) {
-      const parent = await prisma.storeChatMessage.findFirst({
-        where: {
-          id: parsed.data.replyToId,
-          businessId: ctx.user.business.id,
-          channel: "COMMUNITY",
-        },
-      });
-      if (!parent) return jsonError("ההודעה לתגובה לא נמצאה");
-    }
-
-    const row = await prisma.storeChatMessage.create({
-      data: {
-        businessId: ctx.user.business.id,
-        channel: "COMMUNITY",
-        customerPhone: null,
-        customerName: ctx.user.business.name,
-        authorRole: "SELLER",
-        body: parsed.data.body.trim(),
-        replyToId: parsed.data.replyToId ?? null,
-      },
-      include: messageInclude,
-    });
-
-    return jsonOk({ message: toDto(row, "") });
-  }
-
   const parsed = sellerPrivateChatReplySchema.safeParse(body);
   if (!parsed.success) return jsonError(zodFirstError(parsed));
 
@@ -134,44 +80,8 @@ export async function POST(req: Request) {
       authorRole: "SELLER",
       body: parsed.data.body.trim(),
     },
-    include: messageInclude,
+    include: storeChatMessageInclude,
   });
 
-  return jsonOk({ message: toDto(row, phone) });
-}
-
-function toDto(
-  row: {
-    id: string;
-    channel: string;
-    customerPhone: string | null;
-    customerName: string;
-    authorRole: string;
-    body: string;
-    createdAt: Date;
-    replyTo: { id: string; body: string; customerName: string } | null;
-    likes: { customerPhone: string }[];
-  },
-  viewerPhone: string
-): StoreChatMessageDto {
-  return {
-    id: row.id,
-    channel: row.channel as StoreChatMessageDto["channel"],
-    customerPhone: row.customerPhone,
-    customerName: row.customerName,
-    authorRole: row.authorRole as StoreChatMessageDto["authorRole"],
-    body: row.body,
-    createdAt: row.createdAt.toISOString(),
-    replyTo: row.replyTo
-      ? {
-          id: row.replyTo.id,
-          customerName: row.replyTo.customerName,
-          body: replySnippet(row.replyTo.body),
-        }
-      : null,
-    likeCount: row.likes.length,
-    likedByMe:
-      viewerPhone.length >= 9 &&
-      row.likes.some((l) => l.customerPhone === viewerPhone),
-  };
+  return jsonOk({ message: storeChatRowToDto(row) });
 }

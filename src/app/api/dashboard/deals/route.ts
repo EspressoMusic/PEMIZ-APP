@@ -2,11 +2,16 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireStoreOwner } from "@/lib/dashboard-auth";
-import { getDealProducts } from "@/lib/store-deal";
+import { getDealProducts, MAX_DEAL_PRODUCT_LINES } from "@/lib/store-deal";
+
+const dealItemSchema = z.object({
+  productId: z.string(),
+  quantity: z.number().int().min(1).max(99),
+});
 
 const schema = z.object({
   name: z.string().min(1).max(120),
-  productIds: z.array(z.string()).min(1),
+  items: z.array(dealItemSchema).min(1).max(MAX_DEAL_PRODUCT_LINES),
   dealPrice: z.number().positive(),
   validUntil: z.string().datetime(),
 });
@@ -44,8 +49,9 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
-  const uniqueIds = [...new Set(parsed.data.productIds)];
-  if (uniqueIds.length !== parsed.data.productIds.length) {
+  const productIds = parsed.data.items.map((item) => item.productId);
+  const uniqueIds = [...new Set(productIds)];
+  if (uniqueIds.length !== productIds.length) {
     return jsonError("אותו מוצר לא יכול להופיע פעמיים בדיל");
   }
 
@@ -67,8 +73,9 @@ export async function POST(req: Request) {
       dealPrice: parsed.data.dealPrice,
       validUntil: new Date(parsed.data.validUntil),
       items: {
-        create: uniqueIds.map((productId, sortOrder) => ({
-          productId,
+        create: parsed.data.items.map((item, sortOrder) => ({
+          productId: item.productId,
+          quantity: item.quantity,
           sortOrder,
         })),
       },

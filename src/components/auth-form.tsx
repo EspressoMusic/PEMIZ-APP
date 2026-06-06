@@ -81,17 +81,11 @@ export function AuthForm({
   }
 
   return (
-    <WebShell>
+    <WebShell lockViewport>
       {mode === "signup" && <DashboardConfettiBackground active={signupConfetti} />}
-      <div className="mx-auto w-full max-w-md px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
-        <Panel>
-          <PageTitle
-            subtitle={
-              mode === "login"
-                ? "התחבר לחשבון העסק שלך"
-                : "צור חשבון ובנה עמוד דיגיטלי"
-            }
-          >
+      <div className="auth-surface mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
+        <Panel className="dashboard-card sm:p-8">
+          <PageTitle>
             {mode === "login" ? "התחברות" : "פתיחת חשבון"}
           </PageTitle>
           {error && (

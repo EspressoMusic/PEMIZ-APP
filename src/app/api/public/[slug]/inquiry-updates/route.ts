@@ -19,22 +19,18 @@ export async function GET(
   if (!business) return jsonError("עסק לא נמצא", 404);
   if (!business.isActive) return jsonError("עסק לא זמין", 403);
 
+  const phoneVariants = [...new Set([phone, phoneRaw.trim()].filter(Boolean))];
   const inquiries = await prisma.inquiry.findMany({
     where: {
       businessId: business.id,
-      customerPhone: { not: null },
+      customerPhone: { in: phoneVariants },
     },
     orderBy: { createdAt: "desc" },
-    take: 50,
-  });
-
-  const matched = inquiries.filter((row) => {
-    if (!row.customerPhone) return false;
-    return normalizePhone(row.customerPhone) === phone;
+    take: 30,
   });
 
   return jsonOk({
-    inquiries: matched.map((row) => ({
+    inquiries: inquiries.map((row) => ({
       id: row.id,
       subject: row.subject,
       message: row.message,

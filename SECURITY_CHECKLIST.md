@@ -47,7 +47,7 @@
 
 ## Remaining risks (documented)
 
-- Public **inquiry-updates** and **community chat** are intentionally weak-auth (phone/slug); abuse mitigated by rate limits on chat POST only.
+- Public **inquiry-updates** and **seller chat** are intentionally weak-auth (phone/slug); abuse mitigated by rate limits on chat POST.
 - **In-memory** rate limits are best-effort on Vercel multi-instance.
 - Seller **appearance cookies** (theme/locale) are httpOnly but not `secure` in local dev — production uses `secure` when `NODE_ENV=production`.
 

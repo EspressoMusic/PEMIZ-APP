@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Button, Textarea, Alert, PageTitle } from "@/components/ui";
-import { DashboardHelpTextToggle } from "@/components/dashboard/dashboard-ui-preferences";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardStoreExtras({
@@ -71,7 +70,6 @@ export function DashboardStoreExtras({
       )}
 
       <div className="bakery-float-panel rounded-[24px] p-4 space-y-4">
-        <DashboardHelpTextToggle />
         <p className="text-center text-[14px] font-semibold text-bakery-muted">
           {labels.storeDescription}
         </p>

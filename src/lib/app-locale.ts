@@ -36,6 +36,15 @@ export function formatAppDateTime(iso: string, locale: AppLocale): string {
   });
 }
 
+export function formatAppDayDate(iso: string, locale: AppLocale): string {
+  return new Date(iso).toLocaleString(localeTag(locale), {
+    weekday: "long",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
+}
+
 export function applyDocumentLocale(locale: AppLocale) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;

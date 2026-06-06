@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { withDbTimeout } from "@/lib/db-query-timeout";
 import { sessionCookieOptions } from "@/lib/security/cookies";
 import { safeUserSelect, type SafeUser } from "@/lib/security/user-select";
 import type { Role } from "@/lib/types";
@@ -57,10 +58,16 @@ export async function getSession(): Promise<SessionPayload | null> {
 export async function getCurrentUser(): Promise<SafeUser | null> {
   const session = await getSession();
   if (!session) return null;
-  return prisma.user.findUnique({
-    where: { id: session.userId },
-    select: safeUserSelect,
-  });
+  try {
+    return await withDbTimeout(
+      prisma.user.findUnique({
+        where: { id: session.userId },
+        select: safeUserSelect,
+      })
+    );
+  } catch {
+    return null;
+  }
 }
 
 export function generateOtp(): string {

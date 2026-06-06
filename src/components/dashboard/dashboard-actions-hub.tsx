@@ -6,7 +6,7 @@ import { DashboardActionsSettingsGroup } from "@/components/dashboard/dashboard-
 import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-square";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardCustomersHubGrid } from "@/components/dashboard/dashboard-customers-hub";
-import { DashboardStoreSettingsHubGrid } from "@/components/dashboard/dashboard-store-settings-hub";
+import { DashboardStoreSettingsHubPanel } from "@/components/dashboard/dashboard-store-settings-hub";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardActionsHub({
@@ -26,7 +26,7 @@ export function DashboardActionsHub({
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden py-3 text-center sm:py-4">
       <div className="flex min-h-0 flex-1 flex-col justify-start gap-3 overflow-y-auto overflow-x-hidden">
-        <div className="bakery-float-panel shrink-0 rounded-[24px] p-3">
+        <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <div className="grid grid-cols-2 gap-2">
             <DashboardActionSquare
               onClick={() => setCustomersOpen(true)}
@@ -49,7 +49,7 @@ export function DashboardActionsHub({
           </div>
         </div>
 
-        <div className="bakery-float-panel min-h-0 rounded-[24px] p-3">
+        <div className="dashboard-card bakery-float-panel min-h-0 rounded-[32px] p-3">
           <ul className="space-y-2 text-start">
             <DashboardActionsSettingsGroup
               basePath={basePath}
@@ -63,6 +63,8 @@ export function DashboardActionsHub({
         open={customersOpen}
         onClose={() => setCustomersOpen(false)}
         ariaLabel={labels.customers}
+        placement="top"
+        showBackButton
       >
         <DashboardCustomersHubGrid basePath={basePath} />
       </DashboardActionSheet>
@@ -72,8 +74,11 @@ export function DashboardActionsHub({
           open={storeOpen}
           onClose={() => setStoreOpen(false)}
           ariaLabel={labels.store}
+          placement="top"
+          showBackButton
+          backButtonLabel={labels.backToActions}
         >
-          <DashboardStoreSettingsHubGrid basePath={basePath} />
+          <DashboardStoreSettingsHubPanel basePath={basePath} embedded />
         </DashboardActionSheet>
       )}
     </div>

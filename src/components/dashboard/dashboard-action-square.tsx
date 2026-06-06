@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
 const tileClassName =
-  "bakery-float-tile flex aspect-square flex-col items-center justify-center gap-3 rounded-[20px] px-2 py-4 text-center sm:gap-3.5 sm:px-3 sm:py-5";
+  "dashboard-action-square flex aspect-square flex-col items-center justify-center gap-3 rounded-[24px] px-2 py-4 text-center sm:gap-3.5 sm:px-3 sm:py-5";
 
 function DashboardActionSquareContent({
   icon: Icon,
@@ -29,15 +29,24 @@ export function DashboardActionSquare({
   onClick,
   icon,
   label,
+  active = false,
 }: {
   href?: string;
   onClick?: () => void;
   icon: LucideIcon;
   label: string;
+  active?: boolean;
 }) {
+  const className = `${tileClassName}${active ? " dashboard-action-square--active" : ""}`;
+
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={tileClassName}>
+      <button
+        type="button"
+        onClick={onClick}
+        aria-expanded={active}
+        className={className}
+      >
         <DashboardActionSquareContent icon={icon} label={label} />
       </button>
     );
@@ -48,7 +57,7 @@ export function DashboardActionSquare({
   }
 
   return (
-    <Link href={href} className={tileClassName}>
+    <Link href={href} className={className}>
       <DashboardActionSquareContent icon={icon} label={label} />
     </Link>
   );

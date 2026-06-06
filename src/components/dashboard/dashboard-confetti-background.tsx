@@ -12,9 +12,14 @@ type Piece = {
 };
 
 export function DashboardConfettiBackground({ active }: { active: boolean }) {
+  const reducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   const pieces = useMemo<Piece[]>(() => {
+    if (reducedMotion) return [];
     const colors = ["#e6d4b8", "#5c4a3e", "#c9b89a", "#43a047", "#7eb8ff", "#f4f0e8"];
-    return Array.from({ length: 48 }, (_, id) => ({
+    return Array.from({ length: 24 }, (_, id) => ({
       id,
       left: Math.random() * 100,
       delay: Math.random() * 0.6,
@@ -22,9 +27,9 @@ export function DashboardConfettiBackground({ active }: { active: boolean }) {
       color: colors[id % colors.length]!,
       size: 5 + Math.floor(Math.random() * 7),
     }));
-  }, [active]);
+  }, [active, reducedMotion]);
 
-  if (!active) return null;
+  if (!active || reducedMotion || pieces.length === 0) return null;
 
   return (
     <div

@@ -11,7 +11,13 @@
     "lint": "eslint",
     "db:push": "dotenv -e .env.local -- prisma db push",
     "db:seed": "dotenv -e .env.local -- npx tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "icons:generate": "node scripts/generate-app-icons.mjs",
+    "vapid:generate": "node scripts/generate-vapid-keys.mjs",
+    "mobile:install": "npm install --prefix mobile",
+    "mobile:sync": "npm run --prefix mobile cap:sync",
+    "mobile:android": "npm run --prefix mobile cap:open:android",
+    "mobile:ios": "npm run --prefix mobile cap:open:ios"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -25,6 +31,7 @@
     "prisma": "^5.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "web-push": "^3.6.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -36,6 +43,7 @@
     "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
     "typescript": "^5"
