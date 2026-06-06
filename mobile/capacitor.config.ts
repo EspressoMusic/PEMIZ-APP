@@ -1,11 +1,9 @@
-import type { CapacitorConfig } from "@capacitor/cli";
-
 const serverUrl =
   process.env.CAPACITOR_SERVER_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
   "http://localhost:3000";
 
-const config: CapacitorConfig = {
+const config = {
   appId: "com.linky.app",
   appName: "Linky",
   webDir: "../public",
