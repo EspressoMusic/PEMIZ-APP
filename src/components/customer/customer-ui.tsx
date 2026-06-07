@@ -15,6 +15,7 @@ import {
   formatCustomerOrderDate,
   type OrderPreviewLine,
 } from "@/lib/customer-order-history";
+import { formatAppointmentDateTime } from "@/lib/customer-appointment-history";
 
 export type { OrderPreviewLine };
 
@@ -44,7 +45,7 @@ const settingsMenuShell =
   "block w-full rounded-[22px] border-[1.2px] border-bakery-border/45 bg-[#E6D5B8] bakery-panel-shadow";
 
 const settingsMenuInner =
-  "rounded-[14px] bg-bakery-card px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]";
+  "rounded-[14px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]";
 
 const settingsMenuIconBox =
   "flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/35 bg-bakery-square shadow-[0_2px_6px_rgba(58,47,38,0.08)]";
@@ -263,15 +264,22 @@ export function SettingsMenuRow({
   subtitle,
   onClick,
   href,
+  trailing,
 }: {
   icon: LucideIcon;
   title: string;
   subtitle?: string;
   onClick?: () => void;
   href?: string;
+  trailing?: ReactNode;
 }) {
   const content = (
-    <SettingsMenuRowBody icon={Icon} title={title} subtitle={subtitle} />
+    <SettingsMenuRowBody
+      icon={Icon}
+      title={title}
+      subtitle={subtitle}
+      trailing={trailing}
+    />
   );
 
   if (href) {
@@ -412,6 +420,54 @@ export function OrderHistorySummaryRow({
         </span>
       </div>
     </button>
+  );
+}
+
+export function AppointmentPreviewCard({
+  serviceName,
+  startAt,
+  status,
+  locale,
+  labels,
+  canCancel,
+  onCancel,
+}: {
+  serviceName: string;
+  startAt: string;
+  status: string;
+  locale: CustomerLocale;
+  labels: ReturnType<typeof getCustomerLabels>;
+  canCancel: boolean;
+  onCancel?: () => void;
+}) {
+  return (
+    <div className={`${orderCardShell} space-y-1.5`}>
+      <p className="text-[16px] font-extrabold leading-tight text-bakery-ink">
+        {serviceName}
+      </p>
+      <p className="text-[14px] font-semibold text-bakery-muted">
+        {formatAppointmentDateTime(startAt, locale)}
+      </p>
+      {status === "CANCELLED" ? (
+        <p className="text-[12px] font-bold text-bakery-muted">
+          {labels.appointmentCancelled}
+        </p>
+      ) : null}
+      {canCancel && onCancel ? (
+        <button
+          type="button"
+          onClick={onCancel}
+          className="mt-1 inline-flex min-h-8 items-center justify-center rounded-[12px] border border-bakery-primary bg-transparent px-3 py-1.5 text-[12px] font-extrabold text-bakery-ink transition hover:bg-bakery-cream-light/80 active:scale-[0.98]"
+        >
+          {labels.cancelAppointment}
+        </button>
+      ) : status !== "CANCELLED" &&
+        new Date(startAt).getTime() > Date.now() ? (
+        <p className="text-[11px] font-semibold text-bakery-muted">
+          {labels.cancelAppointmentBlocked}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

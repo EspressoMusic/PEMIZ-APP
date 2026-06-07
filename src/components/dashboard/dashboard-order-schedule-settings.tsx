@@ -18,10 +18,12 @@ export function DashboardOrderScheduleSettings({
   initialEnabled,
   initialScheduleJson,
   previewOnly = false,
+  mode = "store",
 }: {
   initialEnabled: boolean;
   initialScheduleJson: string | null;
   previewOnly?: boolean;
+  mode?: "store" | "appointments";
 }) {
   const initial = useMemo(
     () => parseOrderSchedule(initialScheduleJson, initialEnabled),
@@ -35,6 +37,22 @@ export function DashboardOrderScheduleSettings({
   const [error, setError] = useState("");
   const { labels, locale } = useAppLocale();
   const dayNames = getOrderDayFullNames(locale);
+  const isAppointments = mode === "appointments";
+  const toggleTitle = isAppointments
+    ? labels.workingDays
+    : labels.orderScheduleLimitTitle;
+  const saveLabel = isAppointments
+    ? labels.saveWorkingDaysSettings
+    : labels.saveOrderSettings;
+  const dayToggleHint = isAppointments
+    ? labels.workingDayToggleHint
+    : labels.dayToggleHint;
+  const needOpenDayError = isAppointments
+    ? labels.workingDaysNeedOpenDay
+    : labels.scheduleNeedOpenDay;
+  const pickDaysHint = isAppointments
+    ? labels.workingDaysPickHint
+    : labels.schedulePickDaysHint;
 
   function handleToggle(next: boolean) {
     setError("");
@@ -72,7 +90,7 @@ export function DashboardOrderScheduleSettings({
 
     const openSlots = daySlots.filter((s) => s.open);
     if (enabled && openSlots.length === 0) {
-      setError(labels.scheduleNeedOpenDay);
+      setError(needOpenDayError);
       return;
     }
 
@@ -125,12 +143,12 @@ export function DashboardOrderScheduleSettings({
       <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-4">
         <div className="dashboard-action-square flex w-full items-center justify-between gap-3 rounded-[22px] px-3 py-3.5 text-start">
           <span className="min-w-0 text-[15px] font-extrabold leading-snug text-bakery-ink">
-            {labels.orderScheduleLimitTitle}
+            {toggleTitle}
           </span>
           <Toggle
             enabled={enabled}
             onChange={handleToggle}
-            ariaLabel={labels.orderScheduleLimitTitle}
+            ariaLabel={toggleTitle}
           />
         </div>
 
@@ -155,7 +173,7 @@ export function DashboardOrderScheduleSettings({
                       className={`w-full text-center text-[15px] font-extrabold transition ${
                         slot.open ? "text-bakery-ink" : "text-bakery-muted line-through"
                       }`}
-                      title={labels.dayToggleHint}
+                      title={dayToggleHint}
                     >
                       {dayNames[slot.day]}
                     </button>
@@ -197,7 +215,7 @@ export function DashboardOrderScheduleSettings({
         {enabled && !previewOnly && (
           <DashboardHelpText>
             <p className="text-[12px] font-semibold text-bakery-muted">
-              {labels.schedulePickDaysHint}
+              {pickDaysHint}
             </p>
           </DashboardHelpText>
         )}
@@ -217,7 +235,7 @@ export function DashboardOrderScheduleSettings({
             disabled={saving}
             onClick={save}
           >
-            {saving ? labels.saving : labels.saveOrderSettings}
+            {saving ? labels.saving : saveLabel}
           </Button>
         )}
       </div>

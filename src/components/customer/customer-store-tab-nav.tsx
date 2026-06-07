@@ -21,20 +21,24 @@ export function CustomerStoreTabNav({
   active,
   onSelect,
   ordersBadge,
+  hideDeals = false,
 }: {
   labels: CustomerLabels;
   active: CustomerMainTab;
   onSelect: (tab: CustomerMainTab) => void;
   ordersBadge?: number;
+  hideDeals?: boolean;
 }) {
+  const tabs = hideDeals ? TABS.filter((tab) => tab.id !== "deals") : TABS;
+
   return (
     <nav
-      className="customer-bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/25 bg-bakery-card"
+      className="customer-bottom-nav pointer-events-auto fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/25 bg-bakery-card"
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
       aria-label={labels.store}
     >
       <div className="mx-auto flex w-full max-w-[360px] gap-1 px-2 pt-2">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <TabNavButton
             key={tab.id}
             active={active === tab.id}

@@ -21,14 +21,37 @@ function storageKey(slug: string) {
   return `linky-customer-prefs-${slug}`;
 }
 
-export function loadCustomerPreferences(slug: string): CustomerPreferences {
-  if (typeof window === "undefined") return DEFAULTS;
+export function resolveCustomerLocale(
+  slug: string,
+  ownerLocale: CustomerLocale
+): CustomerLocale {
+  if (typeof window === "undefined") return ownerLocale;
   try {
     const raw = localStorage.getItem(storageKey(slug));
-    if (!raw) return DEFAULTS;
+    if (!raw) return ownerLocale;
+    const parsed = JSON.parse(raw) as Partial<CustomerPreferences>;
+    if (parsed.locale === "he" || parsed.locale === "en") return parsed.locale;
+    return ownerLocale;
+  } catch {
+    return ownerLocale;
+  }
+}
+
+export function loadCustomerPreferences(
+  slug: string,
+  ownerLocale: CustomerLocale = "en"
+): CustomerPreferences {
+  if (typeof window === "undefined") {
+    return { ...DEFAULTS, locale: ownerLocale };
+  }
+  try {
+    const raw = localStorage.getItem(storageKey(slug));
+    if (!raw) {
+      return { ...DEFAULTS, locale: ownerLocale };
+    }
     const parsed = JSON.parse(raw) as Partial<CustomerPreferences>;
     return {
-      locale: parsed.locale === "he" ? "he" : "en",
+      locale: resolveCustomerLocale(slug, ownerLocale),
       theme: parseStoreTheme(parsed.theme),
       textScale:
         parsed.textScale === "110" || parsed.textScale === "125"
@@ -36,7 +59,7 @@ export function loadCustomerPreferences(slug: string): CustomerPreferences {
           : "100",
     };
   } catch {
-    return DEFAULTS;
+    return { ...DEFAULTS, locale: ownerLocale };
   }
 }
 

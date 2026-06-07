@@ -71,7 +71,7 @@ export function DashboardCustomerProfileModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-center"
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label={profile.customerName}

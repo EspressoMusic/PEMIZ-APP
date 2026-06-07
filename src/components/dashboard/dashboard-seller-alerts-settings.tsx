@@ -43,11 +43,20 @@ function AlertToggleRow({
 export function DashboardSellerAlertsSettings({
   initial = DEFAULT_SELLER_ALERTS,
   previewOnly = false,
+  businessType = "STORE",
 }: {
   initial?: SellerAlertsSettings;
   previewOnly?: boolean;
+  businessType?: "STORE" | "APPOINTMENTS";
 }) {
   const { labels } = useAppLocale();
+  const isAppointments = businessType === "APPOINTMENTS";
+  const newBookingAlertLabel = isAppointments
+    ? labels.alertOnNewAppointment
+    : labels.alertOnNewOrder;
+  const capacityAlertLabel = isAppointments
+    ? labels.alertOnAllSlotsFull
+    : labels.alertOnLowStock;
   const [settings, setSettings] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -127,13 +136,13 @@ export function DashboardSellerAlertsSettings({
               onChange={(onChat) => patch({ onChat })}
             />
             <AlertToggleRow
-              label={labels.alertOnNewOrder}
+              label={newBookingAlertLabel}
               enabled={settings.onNewOrder}
               disabled={optionsDisabled}
               onChange={(onNewOrder) => patch({ onNewOrder })}
             />
             <AlertToggleRow
-              label={labels.alertOnLowStock}
+              label={capacityAlertLabel}
               enabled={settings.onLowStock}
               disabled={optionsDisabled}
               onChange={(onLowStock) => patch({ onLowStock })}

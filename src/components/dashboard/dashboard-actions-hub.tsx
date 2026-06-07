@@ -7,6 +7,7 @@ import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-s
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardCustomersHubGrid } from "@/components/dashboard/dashboard-customers-hub";
 import { DashboardStoreSettingsHubPanel } from "@/components/dashboard/dashboard-store-settings-hub";
+import { DashboardAppointmentsSettingsHubPanel } from "@/components/dashboard/dashboard-appointments-settings-hub";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardActionsHub({
@@ -22,6 +23,7 @@ export function DashboardActionsHub({
   const [customersOpen, setCustomersOpen] = useState(false);
   const [storeOpen, setStoreOpen] = useState(false);
   const showStoreHub = businessType === "STORE";
+  const showAppointmentsHub = businessType === "APPOINTMENTS";
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden py-3 text-center sm:py-4">
@@ -33,7 +35,7 @@ export function DashboardActionsHub({
               icon={Users}
               label={labels.customers}
             />
-            {showStoreHub ? (
+            {showStoreHub || showAppointmentsHub ? (
               <DashboardActionSquare
                 onClick={() => setStoreOpen(true)}
                 icon={Store}
@@ -54,6 +56,7 @@ export function DashboardActionsHub({
             <DashboardActionsSettingsGroup
               basePath={basePath}
               previewOnly={previewOnly}
+              businessType={businessType}
             />
           </ul>
         </div>
@@ -69,7 +72,7 @@ export function DashboardActionsHub({
         <DashboardCustomersHubGrid basePath={basePath} />
       </DashboardActionSheet>
 
-      {showStoreHub && (
+      {showStoreHub ? (
         <DashboardActionSheet
           open={storeOpen}
           onClose={() => setStoreOpen(false)}
@@ -80,7 +83,19 @@ export function DashboardActionsHub({
         >
           <DashboardStoreSettingsHubPanel basePath={basePath} embedded />
         </DashboardActionSheet>
-      )}
+      ) : null}
+      {showAppointmentsHub ? (
+        <DashboardActionSheet
+          open={storeOpen}
+          onClose={() => setStoreOpen(false)}
+          ariaLabel={labels.store}
+          placement="top"
+          showBackButton
+          backButtonLabel={labels.backToActions}
+        >
+          <DashboardAppointmentsSettingsHubPanel basePath={basePath} embedded />
+        </DashboardActionSheet>
+      ) : null}
     </div>
   );
 }

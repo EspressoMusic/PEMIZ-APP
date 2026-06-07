@@ -1,0 +1,2 @@
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "serviceDurationMinutes" INTEGER;
+ALTER TABLE "Business" ADD COLUMN IF NOT EXISTS "appointmentBookingByDay" BOOLEAN NOT NULL DEFAULT false;

@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ClipboardList, History } from "lucide-react";
 import {
   Button,
   Input,
   Panel,
-  Badge,
   PageTitle,
 } from "@/components/ui";
 import {
@@ -15,13 +14,57 @@ import {
   type DashboardOrderView,
 } from "@/components/dashboard/dashboard-order-card";
 import {
-  customerProfileInitial,
+  DashboardAppointmentCard,
+  type DashboardAppointmentView,
+} from "@/components/dashboard/dashboard-appointment-card";
+import {
+  type CustomerProfileInput,
   useDashboardCustomerProfile,
 } from "@/components/dashboard/dashboard-customer-profile";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { getDashboardLabels, type AppLocale } from "@/lib/app-locale";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
+import { splitSellerAppointments } from "@/lib/seller-appointment-history";
 export { ProductsManager } from "@/components/dashboard/products-manager";
+
+const appointmentsListClassName =
+  "no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
+
+function AppointmentsList({
+  appointments,
+  emptyMessage,
+  onHide,
+  bookingByDay = false,
+}: {
+  appointments: DashboardAppointmentView[];
+  emptyMessage: string;
+  onHide?: (appointmentId: string) => void;
+  bookingByDay?: boolean;
+}) {
+  if (appointments.length === 0) {
+    return (
+      <p className="py-4 text-center text-[14px] font-semibold text-bakery-muted">
+        {emptyMessage}
+      </p>
+    );
+  }
+
+  return (
+    <ul className="space-y-2">
+      {appointments.map((appointment) => (
+        <li key={appointment.id}>
+          <DashboardAppointmentCard
+            appointment={appointment}
+            onHide={
+              onHide ? () => onHide(appointment.id) : undefined
+            }
+            bookingByDay={bookingByDay}
+          />
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function orderStatusLabel(status: string, locale: AppLocale): string {
   const labels = getDashboardLabels(locale);
@@ -333,17 +376,21 @@ export function OrdersManager({
   );
 }
 
-export function SlotsManager() {
+export function SlotsManager({
+  previewOnly = false,
+  initialSlots = [],
+}: {
+  previewOnly?: boolean;
+  initialSlots?: {
+    id: string;
+    startAt: string;
+    endAt: string;
+    maxBookings: number;
+    appointments: unknown[];
+  }[];
+} = {}) {
   const { labels, formatDateTime } = useAppLocale();
-  const [slots, setSlots] = useState<
-    {
-      id: string;
-      startAt: string;
-      endAt: string;
-      maxBookings: number;
-      appointments: unknown[];
-    }[]
-  >([]);
+  const [slots, setSlots] = useState(initialSlots);
 
   async function load() {
     const res = await fetch("/api/dashboard/slots");
@@ -352,11 +399,19 @@ export function SlotsManager() {
   }
 
   useEffect(() => {
+    if (previewOnly) {
+      setSlots(initialSlots);
+      return;
+    }
     load();
-  }, []);
+  }, [previewOnly, initialSlots]);
 
   async function add(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (previewOnly) {
+      e.currentTarget.reset();
+      return;
+    }
     const fd = new FormData(e.currentTarget);
     const start = new Date(fd.get("startAt") as string);
     const end = new Date(fd.get("endAt") as string);
@@ -374,6 +429,10 @@ export function SlotsManager() {
   }
 
   async function remove(id: string) {
+    if (previewOnly) {
+      setSlots((prev) => prev.filter((s) => s.id !== id));
+      return;
+    }
     await fetch(`/api/dashboard/slots/${id}`, { method: "DELETE" });
     load();
   }
@@ -425,86 +484,207 @@ export function SlotsManager() {
   );
 }
 
-export function AppointmentsManager() {
-  const { labels, formatDateTime } = useAppLocale();
-  const { openCustomer, modal: customerModal } = useDashboardCustomerProfile();
-  const [items, setItems] = useState<
-    {
-      id: string;
-      customerName: string;
-      customerPhone: string;
-      status: string;
-      slot: { startAt: string; endAt: string };
-    }[]
-  >([]);
+export function AppointmentsManager({
+  framed = true,
+  previewOnly = false,
+  initialAppointments = [],
+  initialBookingByDay = false,
+}: {
+  framed?: boolean;
+  previewOnly?: boolean;
+  initialAppointments?: DashboardAppointmentView[];
+  initialBookingByDay?: boolean;
+} = {}) {
+  const { labels } = useAppLocale();
+  const [items, setItems] = useState(initialAppointments);
+  const [bookingByDay, setBookingByDay] = useState(initialBookingByDay);
+  const [activeOpen, setActiveOpen] = useState(true);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   async function load() {
-    const res = await fetch("/api/dashboard/appointments");
-    const data = await res.json();
-    if (res.ok) setItems(data.appointments);
+    const [apptsRes, calendarRes] = await Promise.all([
+      fetch("/api/dashboard/appointments"),
+      fetch("/api/dashboard/appointment-calendar"),
+    ]);
+    const apptsData = await apptsRes.json().catch(() => ({}));
+    const calendarData = await calendarRes.json().catch(() => ({}));
+    if (apptsRes.ok) setItems(apptsData.appointments);
+    if (calendarRes.ok) {
+      setBookingByDay(
+        Boolean(
+          (calendarData as { config?: { bookingByDay?: boolean } }).config
+            ?.bookingByDay
+        )
+      );
+    }
   }
 
   useEffect(() => {
-    load();
+    if (previewOnly) {
+      setItems(initialAppointments);
+      setBookingByDay(initialBookingByDay);
+      return;
+    }
+    void load();
+  }, [previewOnly, initialAppointments, initialBookingByDay]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
   }, []);
 
-  async function setStatus(appointmentId: string, status: string) {
+  const { active, history } = useMemo(
+    () => splitSellerAppointments(items, nowMs),
+    [items, nowMs]
+  );
+
+  async function hideAppointment(appointmentId: string) {
+    if (previewOnly) {
+      setItems((prev) =>
+        prev.map((appointment) =>
+          appointment.id === appointmentId
+            ? {
+                ...appointment,
+                sellerHiddenAt: new Date().toISOString(),
+              }
+            : appointment
+        )
+      );
+      return;
+    }
+
     await fetch("/api/dashboard/appointments", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ appointmentId, status }),
+      body: JSON.stringify({ appointmentId, hide: true }),
     });
-    load();
+    void load();
+  }
+
+  const panels = (
+    <>
+      <AppointmentsList
+        appointments={active}
+        emptyMessage={labels.noActiveAppointments}
+        onHide={hideAppointment}
+        bookingByDay={bookingByDay}
+      />
+      <AppointmentsList
+        appointments={history}
+        emptyMessage={labels.noAppointmentHistory}
+        bookingByDay={bookingByDay}
+      />
+    </>
+  );
+
+  if (!framed) {
+    return <div className="space-y-4 text-center">{panels}</div>;
   }
 
   return (
-    <div className="space-y-4">
-      <PageTitle>{labels.orders}</PageTitle>
-      {items.map((a) => (
-        <Panel key={a.id}>
-          <div className="flex items-start gap-3">
-            <button
-              type="button"
-              onClick={() =>
-                openCustomer({
-                  customerName: a.customerName,
-                  customerPhone: a.customerPhone,
-                  fallbackDate: a.slot.startAt,
-                })
-              }
-              className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-bakery-border/35 bg-bakery-on-primary text-[18px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)] transition hover:opacity-90 active:scale-[0.98]"
-              aria-label={`${labels.customer}: ${a.customerName}`}
-            >
-              {customerProfileInitial(a.customerName, labels.anonymousCustomer)}
-            </button>
-            <div className="min-w-0 flex-1">
-              <p className="text-[17px] font-extrabold">{a.customerName}</p>
-              <p className="text-[14px]" dir="ltr">
-                {a.customerPhone}
-              </p>
-              <p className="text-[14px] text-bakery-muted" dir="ltr">
-                {formatDateTime(a.slot.startAt)}
-              </p>
-              <Badge>{a.status}</Badge>
-              <div className="mt-2 flex gap-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => setStatus(a.id, "CONFIRMED")}
-                >
-                  {labels.confirmOrder}
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={() => setStatus(a.id, "CANCELLED")}
-                >
-                  {labels.cancelOrder}
-                </Button>
-              </div>
-            </div>
+    <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
+      {previewOnly && (
+        <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
+          תצוגה מקדימה — התורים הם דמו לבדיקה, השינויים לא נשמרים בשרת
+        </p>
+      )}
+
+      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+        <button
+          type="button"
+          onClick={() => setActiveOpen((open) => !open)}
+          aria-expanded={activeOpen}
+          aria-controls="dashboard-active-appointments-list"
+          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
+            activeOpen ? "bakery-float-tile--active" : ""
+          }`}
+        >
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <ClipboardList className="h-6 w-6" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+            {labels.activeAppointments}
+            {active.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({active.length})
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
+              activeOpen ? "rotate-180" : ""
+            }`}
+            strokeWidth={2.5}
+            aria-hidden
+          />
+        </button>
+
+        {activeOpen && (
+          <div
+            id="dashboard-active-appointments-list"
+            className={appointmentsListClassName}
+            role="region"
+            aria-label={labels.activeAppointments}
+          >
+            <AppointmentsList
+              appointments={active}
+              emptyMessage={labels.noActiveAppointments}
+              onHide={hideAppointment}
+              bookingByDay={bookingByDay}
+            />
           </div>
-        </Panel>
-      ))}
-      {customerModal}
+        )}
+      </div>
+
+      <div className="dashboard-card bakery-float-panel mt-auto min-h-0 shrink-0 rounded-[32px] p-3">
+        <button
+          type="button"
+          onClick={() => setHistoryOpen((open) => !open)}
+          aria-expanded={historyOpen}
+          aria-controls="dashboard-appointment-history-list"
+          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
+            historyOpen ? "bakery-float-tile--active" : ""
+          }`}
+        >
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <History className="h-6 w-6" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+            {labels.appointmentHistory}
+            {history.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({history.length})
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
+              historyOpen ? "rotate-180" : ""
+            }`}
+            strokeWidth={2.5}
+            aria-hidden
+          />
+        </button>
+
+        {historyOpen && (
+          <div
+            id="dashboard-appointment-history-list"
+            className={appointmentsListClassName}
+            role="region"
+            aria-label={labels.appointmentHistory}
+          >
+            <AppointmentsList
+              appointments={history}
+              emptyMessage={labels.noAppointmentHistory}
+              bookingByDay={bookingByDay}
+            />
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

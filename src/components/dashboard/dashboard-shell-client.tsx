@@ -14,7 +14,6 @@ import {
   DASHBOARD_MOBILE_STACK,
   DASHBOARD_PAGE_ROOT,
   DASHBOARD_SCROLL_MAIN,
-  DASHBOARD_VIEWPORT_HEIGHT,
 } from "@/components/dashboard/dashboard-panel-frame";
 
 function DashboardPwaInstallBanner() {
@@ -40,6 +39,10 @@ function isSellerAppRoute(pathname: string, basePath: string) {
   );
 }
 
+function isDashboardHomeRoute(pathname: string, basePath: string) {
+  return pathname === basePath || pathname === `${basePath}/`;
+}
+
 export function DashboardShellClient({
   children,
   businessType,
@@ -55,6 +58,7 @@ export function DashboardShellClient({
 }) {
   const pathname = usePathname();
   const inSellerApp = isSellerAppRoute(pathname, basePath);
+  const isHomeRoute = isDashboardHomeRoute(pathname, basePath);
 
   useEffect(() => {
     if (!inSellerApp) return;
@@ -71,13 +75,17 @@ export function DashboardShellClient({
         <DashboardUiPreferencesProvider>
           <div className="dashboard-surface flex h-full min-h-0 w-full flex-col overflow-hidden">
             <div
-              className={`min-w-0 overflow-hidden ${DASHBOARD_VIEWPORT_HEIGHT} ${
-                inSellerApp ? "" : "pb-[calc(76px+env(safe-area-inset-bottom))]"
-              }`}
+              className={`min-h-0 min-w-0 flex-1 overflow-hidden pb-[calc(76px+max(8px,env(safe-area-inset-bottom)))]`}
             >
-              <div className={`${DASHBOARD_MOBILE_STACK} ${DASHBOARD_PAGE_ROOT}`}>
+              <div
+                className={`${DASHBOARD_MOBILE_STACK} ${DASHBOARD_PAGE_ROOT} min-h-0 flex-1`}
+              >
                 <div
-                  className={`${DASHBOARD_SCROLL_MAIN} pb-[max(1rem,env(safe-area-inset-bottom))]`}
+                  className={`no-scrollbar min-h-0 flex-1 overscroll-contain ${
+                    isHomeRoute
+                      ? "flex flex-col overflow-hidden pb-0"
+                      : `${DASHBOARD_SCROLL_MAIN} pb-[max(1rem,env(safe-area-inset-bottom))]`
+                  }`}
                 >
                   {children}
                 </div>

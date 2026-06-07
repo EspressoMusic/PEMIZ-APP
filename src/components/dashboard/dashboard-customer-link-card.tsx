@@ -31,10 +31,12 @@ export function DashboardCustomerLinkCard({
   url,
   previewHref,
   variant = "compact",
+  dense = false,
 }: {
   url: string;
   previewHref?: string;
   variant?: "compact" | "settingsBar";
+  dense?: boolean;
 }) {
   const { labels } = useAppLocale();
   const [open, setOpen] = useState(false);
@@ -183,22 +185,40 @@ export function DashboardCustomerLinkCard({
 
   return (
     <>
-      <div className="dashboard-home-header">
-        <div className="dashboard-home-header__inner px-3 py-3.5 text-center">
+      <div
+        className={
+          dense
+            ? "dashboard-home-header dashboard-home-header--compact"
+            : "dashboard-home-header"
+        }
+      >
+        <div
+          className={`dashboard-home-header__inner text-center ${
+            dense ? "px-2.5 py-2" : "px-3 py-3.5"
+          }`}
+        >
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="dashboard-home-store-link"
+            className={
+              dense
+                ? "dashboard-home-store-link dashboard-home-store-link--compact"
+                : "dashboard-home-store-link"
+            }
             aria-label={labels.storeLinkBarLabel}
           >
-            <span className="block min-w-0 truncate text-[19px] font-extrabold sm:text-[20px]">
+            <span
+              className={`block min-w-0 truncate font-extrabold ${
+                dense ? "text-[17px] sm:text-[18px]" : "text-[19px] sm:text-[20px]"
+              }`}
+            >
               {labels.storeLinkBarLabel}
             </span>
           </button>
         </div>
       </div>
 
-      {previewHref && (
+      {previewHref && !dense && (
         <DashboardHelpText>
           <Link
             href={previewHref}

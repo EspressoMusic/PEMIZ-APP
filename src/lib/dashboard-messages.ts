@@ -13,6 +13,18 @@ export type DashboardLabels = {
   orders: string;
   deals: string;
   limits: string;
+  services: string;
+  appointments: string;
+  appointmentSlots: string;
+  appointmentCalendar: string;
+  appointmentGapMinutes: string;
+  appointmentDurationMinutes: string;
+  appointmentBookingHours: string;
+  appointmentBookingFrom: string;
+  appointmentBookingUntil: string;
+  saveAppointmentCalendar: string;
+  appointmentCalendarSaved: string;
+  workingDays: string;
   settings: string;
   alerts: string;
   installApp: string;
@@ -60,6 +72,8 @@ export type DashboardLabels = {
   alertOnChatMessage: string;
   alertOnNewOrder: string;
   alertOnLowStock: string;
+  alertOnNewAppointment: string;
+  alertOnAllSlotsFull: string;
   notificationTitle: string;
   notificationEmpty: string;
   notificationTypeInquiry: string;
@@ -110,8 +124,12 @@ export type DashboardLabels = {
   previewSavedHint: string;
   activeOrders: string;
   orderHistory: string;
+  activeAppointments: string;
+  appointmentHistory: string;
   noActiveOrders: string;
   noOrderHistory: string;
+  noActiveAppointments: string;
+  noAppointmentHistory: string;
   noOrders: string;
   noOrdersYet: string;
   total: string;
@@ -148,12 +166,56 @@ export type DashboardLabels = {
   hide: string;
   enableOrderLimit: string;
   orderScheduleLimitTitle: string;
+  appointmentCancelLimitTitle: string;
+  appointmentCancelUnitLabel: string;
+  appointmentCancelByHours: string;
+  appointmentCancelByDays: string;
+  appointmentCancelHoursBefore: string;
+  appointmentCancelDaysBefore: string;
+  saveAppointmentCancelSettings: string;
+  appointmentCancelSaved: string;
+  saveWorkingDaysSettings: string;
+  workingDayToggleHint: string;
+  workingDaysNeedOpenDay: string;
+  workingDaysPickHint: string;
+  homeCalendarPrevMonth: string;
+  homeCalendarNextMonth: string;
+  homeCalendarFullDayHint: string;
+  homeCalendarDayTitle: string;
+  homeCalendarNoAppointmentsDay: string;
+  homeCalendarDaySlots: string;
+  homeCalendarNoSlotsDay: string;
+  homeCalendarSlotOpen: string;
+  homeCalendarSlotFull: string;
+  homeUpcomingAppointments: string;
+  homeNoUpcomingAppointments: string;
+  appointmentSlotTime: string;
+  appointmentToday: string;
+  appointmentTomorrow: string;
+  appointmentService: string;
+  appointmentCustomerNote: string;
+  openCustomerDetails: string;
+  appointmentPending: string;
+  appointmentConfirmed: string;
+  appointmentCancelled: string;
   saveOrderSettings: string;
   whichDays: string;
   whichHours: string;
   fromHour: string;
   toHour: string;
   addProduct: string;
+  addService: string;
+  noProductsYet: string;
+  noServicesYet: string;
+  productAddedTitle: string;
+  productAddedDetail: string;
+  serviceAddedTitle: string;
+  serviceAddedDetail: string;
+  serviceDurationMinutes: string;
+  serviceDurationRequired: string;
+  appointmentBookingByDay: string;
+  appointmentBookingByDayHint: string;
+  appointmentCalendarUpdated: string;
   messageSent: string;
   dayToggleHint: string;
   scheduleNeedOpenDay: string;
@@ -331,6 +393,18 @@ const HE: DashboardLabels = {
   orders: "הזמנות",
   deals: "דילים",
   limits: "הגבלות",
+  services: "שירותים",
+  appointments: "תורים",
+  appointmentSlots: "משבצות תורים",
+  appointmentCalendar: "יומן",
+  appointmentGapMinutes: "רווח בין פגישות (דקות)",
+  appointmentDurationMinutes: "משך כל פגישה (דקות)",
+  appointmentBookingHours: "שעות לקביעת תורים",
+  appointmentBookingFrom: "משעה",
+  appointmentBookingUntil: "עד שעה",
+  saveAppointmentCalendar: "שמור ועדכן יומן",
+  appointmentCalendarSaved: "נשמר — היומן עודכן אוטומטית",
+  workingDays: "ימי עבודה",
   settings: "הגדרות",
   accountAndLink: "חשבון וקישור לחנות",
   extras: "פרטים נוספים",
@@ -371,8 +445,12 @@ const HE: DashboardLabels = {
   previewSavedHint: "נשמר בתצוגה — בדשבורד האמיתי לחץ שמור לאחר ההתחברות",
   activeOrders: "הזמנות פעילות",
   orderHistory: "היסטוריה",
+  activeAppointments: "תורים",
+  appointmentHistory: "היסטוריית תורים",
   noActiveOrders: "אין הזמנות פעילות",
   noOrderHistory: "אין הזמנות בהיסטוריה",
+  noActiveAppointments: "אין תורים פעילים",
+  noAppointmentHistory: "אין תורים בהיסטוריה",
   noOrders: "אין הזמנות.",
   noOrdersYet: "אין הזמנות עדיין.",
   total: "סה״כ",
@@ -409,12 +487,56 @@ const HE: DashboardLabels = {
   hide: "הסתר",
   enableOrderLimit: "הגבל מתי לקוחות יכולים להזמין",
   orderScheduleLimitTitle: "הגבלת שעות וימי הזמנה",
+  appointmentCancelLimitTitle: "עד מתי אפשר לבטל תור",
+  appointmentCancelUnitLabel: "בחרו לפי שעות או ימים לפני התור",
+  appointmentCancelByHours: "שעות לפני",
+  appointmentCancelByDays: "ימים לפני",
+  appointmentCancelHoursBefore: "כמה שעות לפני התור",
+  appointmentCancelDaysBefore: "כמה ימים לפני התור",
+  saveAppointmentCancelSettings: "שמור מדיניות ביטול",
+  appointmentCancelSaved: "נשמר — מדיניות הביטול פעילה ללקוחות",
+  saveWorkingDaysSettings: "שמור ימי עבודה",
+  workingDayToggleHint: "לחיצה — פתוח/סגור לתורים",
+  workingDaysNeedOpenDay: "יש להשאיר לפחות יום אחד פתוח לתורים",
+  workingDaysPickHint: "לחיצה על שם היום — פתוח או סגור לתורים",
+  homeCalendarPrevMonth: "חודש קודם",
+  homeCalendarNextMonth: "חודש הבא",
+  homeCalendarFullDayHint: "יום מלא — כל התורים נתפסו",
+  homeCalendarDayTitle: "תורים ביום",
+  homeCalendarNoAppointmentsDay: "אין תורים ביום זה",
+  homeCalendarDaySlots: "שעות ביומן",
+  homeCalendarNoSlotsDay: "אין שעות ביום זה",
+  homeCalendarSlotOpen: "פנוי",
+  homeCalendarSlotFull: "מלא",
+  homeUpcomingAppointments: "פגישות קרובות",
+  homeNoUpcomingAppointments: "אין פגישות קרובות",
+  appointmentSlotTime: "שעת הפגישה",
+  appointmentToday: "היום",
+  appointmentTomorrow: "מחר",
+  appointmentService: "שירות",
+  appointmentCustomerNote: "הערה",
+  openCustomerDetails: "פתיחת פרטי לקוח",
+  appointmentPending: "ממתין לאישור",
+  appointmentConfirmed: "אושר",
+  appointmentCancelled: "בוטל",
   saveOrderSettings: "שמור הגדרות הזמנה",
   whichDays: "איזה ימים",
   whichHours: "איזה שעות",
   fromHour: "משעה",
   toHour: "עד שעה",
   addProduct: "הוסף מוצר",
+  addService: "הוסף שירות",
+  noProductsYet: "אין מוצרים עדיין",
+  noServicesYet: "אין שירותים עדיין",
+  productAddedTitle: "המוצר נוסף בהצלחה!",
+  productAddedDetail: "הלקוחות יכולים לראות אותו בעמוד החנות",
+  serviceAddedTitle: "השירות נוסף בהצלחה!",
+  serviceAddedDetail: "הלקוחות יוכלו לבחור אותו בקביעת תור",
+  serviceDurationMinutes: "משך השירות (דקות)",
+  serviceDurationRequired: "יש להזין משך שירות (לפחות 15 דקות)",
+  appointmentBookingByDay: "הזמנה לפי ימים בלבד",
+  appointmentBookingByDayHint: "הלקוח יבחר יום בלבד — בלי שעות. הקיבולת ביומן מתעדכנת אוטומטית.",
+  appointmentCalendarUpdated: "היומן עודכן",
   messageSent: "נשמר — ההגבלה פעילה ללקוחות",
   dayToggleHint: "לחיצה — פתוח/סגור להזמנות",
   scheduleNeedOpenDay: "יש להשאיר לפחות יום אחד פתוח להזמנות",
@@ -610,6 +732,8 @@ const HE: DashboardLabels = {
   alertOnChatMessage: "התראה על פנייה בצ'אט",
   alertOnNewOrder: "התראה על הזמנה חדשה",
   alertOnLowStock: "התראה כשהמלאי עומד להיגמר",
+  alertOnNewAppointment: "התראה על תור חדש",
+  alertOnAllSlotsFull: "התראה שכל התורים נתפסו",
   notificationTitle: "התראות",
   notificationEmpty: "אין התראות חדשות",
   notificationTypeInquiry: "פנייה רגילה",
@@ -662,6 +786,18 @@ const EN: DashboardLabels = {
   orders: "Orders",
   deals: "Deals",
   limits: "Limits",
+  services: "Services",
+  appointments: "Appointments",
+  appointmentSlots: "Time slots",
+  appointmentCalendar: "Calendar",
+  appointmentGapMinutes: "Gap between appointments (minutes)",
+  appointmentDurationMinutes: "Appointment length (minutes)",
+  appointmentBookingHours: "Booking hours",
+  appointmentBookingFrom: "From",
+  appointmentBookingUntil: "Until",
+  saveAppointmentCalendar: "Save & update calendar",
+  appointmentCalendarSaved: "Saved — calendar updated automatically",
+  workingDays: "Working days",
   settings: "Settings",
   accountAndLink: "Account & store link",
   extras: "More details",
@@ -702,8 +838,12 @@ const EN: DashboardLabels = {
   previewSavedHint: "Saved in preview — sign in and tap Save in the live dashboard",
   activeOrders: "Active orders",
   orderHistory: "History",
+  activeAppointments: "Appointments",
+  appointmentHistory: "Appointment history",
   noActiveOrders: "No active orders",
   noOrderHistory: "No orders in history",
+  noActiveAppointments: "No active appointments",
+  noAppointmentHistory: "No appointments in history",
   noOrders: "No orders.",
   noOrdersYet: "No orders yet.",
   total: "Total",
@@ -740,12 +880,56 @@ const EN: DashboardLabels = {
   hide: "Hide",
   enableOrderLimit: "Limit when customers can order",
   orderScheduleLimitTitle: "Order hours & days limit",
+  appointmentCancelLimitTitle: "When customers can cancel",
+  appointmentCancelUnitLabel: "Choose hours or days before the appointment",
+  appointmentCancelByHours: "Hours before",
+  appointmentCancelByDays: "Days before",
+  appointmentCancelHoursBefore: "How many hours before",
+  appointmentCancelDaysBefore: "How many days before",
+  saveAppointmentCancelSettings: "Save cancellation policy",
+  appointmentCancelSaved: "Saved — cancellation policy applies to customers",
+  saveWorkingDaysSettings: "Save working days",
+  workingDayToggleHint: "Tap — open or closed for appointments",
+  workingDaysNeedOpenDay: "Keep at least one day open for appointments",
+  workingDaysPickHint: "Tap the day name to open or close it for appointments",
+  homeCalendarPrevMonth: "Previous month",
+  homeCalendarNextMonth: "Next month",
+  homeCalendarFullDayHint: "Fully booked day",
+  homeCalendarDayTitle: "Appointments on this day",
+  homeCalendarNoAppointmentsDay: "No appointments on this day",
+  homeCalendarDaySlots: "Calendar times",
+  homeCalendarNoSlotsDay: "No times on this day",
+  homeCalendarSlotOpen: "Open",
+  homeCalendarSlotFull: "Full",
+  homeUpcomingAppointments: "Upcoming appointments",
+  homeNoUpcomingAppointments: "No upcoming appointments",
+  appointmentSlotTime: "Appointment time",
+  appointmentToday: "Today",
+  appointmentTomorrow: "Tomorrow",
+  appointmentService: "Service",
+  appointmentCustomerNote: "Note",
+  openCustomerDetails: "Open customer details",
+  appointmentPending: "Pending",
+  appointmentConfirmed: "Confirmed",
+  appointmentCancelled: "Cancelled",
   saveOrderSettings: "Save order settings",
   whichDays: "Which days",
   whichHours: "Which hours",
   fromHour: "From",
   toHour: "Until",
   addProduct: "Add product",
+  addService: "Add service",
+  noProductsYet: "No products yet",
+  noServicesYet: "No services yet",
+  productAddedTitle: "Product added!",
+  productAddedDetail: "Customers can see it in your store",
+  serviceAddedTitle: "Service added!",
+  serviceAddedDetail: "Customers can choose it when booking",
+  serviceDurationMinutes: "Service length (minutes)",
+  serviceDurationRequired: "Enter service length (at least 15 minutes)",
+  appointmentBookingByDay: "Book by day only",
+  appointmentBookingByDayHint: "Customers pick a day only — no times. Calendar capacity updates automatically.",
+  appointmentCalendarUpdated: "Calendar updated",
   messageSent: "Saved — limits apply to customers",
   dayToggleHint: "Tap — open or closed for orders",
   scheduleNeedOpenDay: "Keep at least one day open for orders",
@@ -941,6 +1125,8 @@ const EN: DashboardLabels = {
   alertOnChatMessage: "Alert on chat message",
   alertOnNewOrder: "Alert on new order",
   alertOnLowStock: "Alert when stock is low",
+  alertOnNewAppointment: "Alert on new appointment",
+  alertOnAllSlotsFull: "Alert when all slots are full",
   notificationTitle: "Notifications",
   notificationEmpty: "No new notifications",
   notificationTypeInquiry: "Customer inquiry",

@@ -13,7 +13,7 @@ import {
   Settings,
   Smartphone,
 } from "lucide-react";
-import { Button, Input, Textarea, Panel } from "@/components/ui";
+import { Button, Input, Textarea } from "@/components/ui";
 import {
   loadCustomerPreferences,
   saveCustomerPreferences,
@@ -50,6 +50,7 @@ import {
   HubEmptyText,
   OrderHistorySummaryRow,
   OrderPreviewCard,
+  AppointmentPreviewCard,
   type OrderPreviewLine,
 } from "./customer-ui";
 import {
@@ -65,6 +66,25 @@ import {
   type CustomerOrderHistoryEntry,
 } from "@/lib/customer-order-history";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
+import {
+  CustomerAppointmentCalendar,
+  type AppointmentSlot,
+} from "./customer-appointment-calendar";
+import { CustomerAppointmentDayModal } from "./customer-appointment-day-modal";
+import { CustomerAppointmentOpenSlotsPanel } from "./customer-appointment-open-slots-panel";
+import { CustomerAppointmentReminderRow } from "./customer-appointment-reminder-row";
+import { CustomerAppointmentBookingModal } from "./customer-appointment-booking-modal";
+import {
+  appendCustomerAppointmentHistory,
+  buildAppointmentNotes,
+  loadCustomerAppointmentHistory,
+  updateCustomerAppointmentHistory,
+  type CustomerAppointmentEntry,
+} from "@/lib/customer-appointment-history";
+import {
+  canCustomerCancelAppointment,
+  parseAppointmentCancelPolicy,
+} from "@/lib/appointment-cancel-policy";
 import { CustomerCenterModal } from "./customer-center-modal";
 import type { ContactView } from "./customer-contact-modal";
 
@@ -87,6 +107,7 @@ import {
   CUSTOMER_MOBILE_STACK,
   CUSTOMER_PAGE_ROOT,
   CUSTOMER_SCROLL_MAIN,
+  CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME,
   CUSTOMER_VIEWPORT_HEIGHT,
 } from "./customer-store-frame";
 import { normalizePhone } from "@/lib/phone";
@@ -185,6 +206,9 @@ export function CustomerStoreApp({
     storeLocale?: string;
     storePolicy?: string | null;
     storeTerms?: string | null;
+    orderScheduleEnabled?: boolean;
+    orderSchedule?: string | null;
+    appointmentBookingByDay?: boolean;
     storeBroadcast?: string | null;
     storeBroadcastAt?: string | null;
     demoOrders?: {
@@ -196,6 +220,10 @@ export function CustomerStoreApp({
   platformLegalDocs?: PlatformLegalDocPayload[];
 }) {
   const isAppointments = business.type === "APPOINTMENTS";
+  const isDevAppointments = business.slug === "demo-appointments";
+  const appointmentCancelPolicy = parseAppointmentCancelPolicy(
+    business.storeTerms
+  );
   const [mainTab, setMainTab] = useState<CustomerMainTab>("home");
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactView, setContactView] = useState<ContactView>("menu");
@@ -237,10 +265,22 @@ export function CustomerStoreApp({
   );
   const [myInquiries, setMyInquiries] = useState<MyInquiry[]>([]);
   const [inquirySent, setInquirySent] = useState(false);
-  const [locale, setLocale] = useState<CustomerLocale>("en");
+  const [localAppointments, setLocalAppointments] = useState<
+    CustomerAppointmentEntry[]
+  >([]);
+  const [dayViewOpen, setDayViewOpen] = useState(false);
+  const [dayViewKey, setDayViewKey] = useState<string | null>(null);
+  const [dayViewSlots, setDayViewSlots] = useState<AppointmentSlot[]>([]);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [bookingDay, setBookingDay] = useState<string | null>(null);
+  const [bookingSlots, setBookingSlots] = useState<AppointmentSlot[]>([]);
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
+  const [bookingError, setBookingError] = useState("");
+  const [appointmentSuccessOpen, setAppointmentSuccessOpen] = useState(false);
   const ownerTheme = parseStoreTheme(business.storeTheme);
   const ownerLocale: CustomerLocale =
     business.storeLocale === "en" ? "en" : "he";
+  const [locale, setLocale] = useState<CustomerLocale>(ownerLocale);
   const [displayTheme, setDisplayTheme] =
     useState<CustomerDisplayTheme>(ownerTheme);
   const [textScale, setTextScale] = useState<CustomerTextScale>("100");
@@ -248,8 +288,16 @@ export function CustomerStoreApp({
   const labels = useMemo(() => getCustomerLabels(locale), [locale]);
 
   useEffect(() => {
+    document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  useEffect(() => {
     setLocalOrderHistory(loadCustomerOrderHistory(business.slug));
     setCartDeals(pendingDealsToSnapshots(loadPendingDeals(business.slug)));
+    setLocalAppointments(loadCustomerAppointmentHistory(business.slug));
   }, [business.slug]);
 
   const syncPendingDeals = useCallback(() => {
@@ -270,11 +318,11 @@ export function CustomerStoreApp({
     if (saved) setCustomerName(saved);
     const savedPhone = localStorage.getItem(inquiryPhoneKey(business.slug));
     if (savedPhone) setOrderPhone(savedPhone);
-    const prefs = loadCustomerPreferences(business.slug);
+    const prefs = loadCustomerPreferences(business.slug, ownerLocale);
     const hasPrefs =
       typeof window !== "undefined" &&
       !!localStorage.getItem(`linky-customer-prefs-${business.slug}`);
-    setLocale(hasPrefs ? prefs.locale : ownerLocale);
+    setLocale(prefs.locale);
     setTextScale(prefs.textScale);
     setDisplayTheme(hasPrefs ? prefs.theme : ownerTheme);
   }, [business.slug, ownerTheme, ownerLocale]);
@@ -417,6 +465,10 @@ export function CustomerStoreApp({
   useEffect(() => {
     if (mainTab !== "settings") setSettingsExpanded(false);
   }, [mainTab]);
+
+  useEffect(() => {
+    if (isAppointments && mainTab === "deals") setMainTab("home");
+  }, [isAppointments, mainTab]);
 
   function updatePreferences(
     patch: Partial<{
@@ -678,25 +730,145 @@ export function CustomerStoreApp({
     e.currentTarget.reset();
   }
 
-  async function bookSlot(e: React.FormEvent<HTMLFormElement>, slotId: string) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    await fetch(`/api/public/${business.slug}/appointments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        slotId,
-        customerName: fd.get("customerName"),
-        customerPhone: fd.get("customerPhone"),
-        notes: fd.get("notes"),
-      }),
-    });
+  const myAppointments = useMemo(() => {
+    const phone = normalizePhone(orderPhone);
+    if (!phone) return localAppointments;
+    return localAppointments.filter(
+      (a) => normalizePhone(a.customerPhone) === phone
+    );
+  }, [localAppointments, orderPhone]);
+
+  const activeAppointments = useMemo(
+    () =>
+      myAppointments.filter(
+        (a) =>
+          a.status !== "CANCELLED" && new Date(a.startAt).getTime() > Date.now()
+      ),
+    [myAppointments]
+  );
+
+  const pastAppointments = useMemo(
+    () =>
+      myAppointments.filter(
+        (a) =>
+          a.status === "CANCELLED" ||
+          new Date(a.startAt).getTime() <= Date.now()
+      ),
+    [myAppointments]
+  );
+
+  async function submitAppointmentBooking(payload: {
+    slotId: string;
+    name: string;
+    phone: string;
+    serviceName: string;
+    notes: string;
+  }) {
+    setBookingSubmitting(true);
+    setBookingError("");
+    const slot = business.slots.find((s) => s.id === payload.slotId);
+    if (!slot) {
+      setBookingError(labels.unavailable);
+      setBookingSubmitting(false);
+      return;
+    }
+
+    const phone = normalizePhone(payload.phone);
+    const notes = buildAppointmentNotes(
+      payload.serviceName,
+      payload.notes,
+      locale
+    );
+
+    try {
+      let entry: CustomerAppointmentEntry;
+
+      if (isDevAppointments) {
+        entry = {
+          id: `local-${Date.now()}`,
+          slotId: payload.slotId,
+          startAt: slot.startAt,
+          endAt: slot.endAt,
+          serviceName: payload.serviceName,
+          customerName: payload.name.trim(),
+          customerPhone: phone,
+          notes,
+          status: "CONFIRMED",
+          bookedAt: new Date().toISOString(),
+        };
+      } else {
+        const res = await fetch(`/api/public/${business.slug}/appointments`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            slotId: payload.slotId,
+            customerName: payload.name,
+            customerPhone: phone,
+            serviceName: payload.serviceName,
+            notes: payload.notes,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setBookingError(
+            typeof data.error === "string" ? data.error : labels.unavailable
+          );
+          return;
+        }
+        entry = data.appointment as CustomerAppointmentEntry;
+      }
+
+      setCustomerName(payload.name.trim());
+      setOrderPhone(phone);
+      localStorage.setItem(`linky-customer-${business.slug}`, payload.name.trim());
+      localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+
+      const next = appendCustomerAppointmentHistory(business.slug, entry);
+      setLocalAppointments(next);
+      setBookingModalOpen(false);
+      setBookingDay(null);
+      setBookingSlots([]);
+      setAppointmentSuccessOpen(true);
+      setMainTab("orders");
+      setActiveOrdersOpen(true);
+    } finally {
+      setBookingSubmitting(false);
+    }
   }
 
-  const availableSlots = business.slots.filter(
-    (s) =>
-      s.appointments.length < s.maxBookings &&
-      new Date(s.startAt) > new Date()
+  async function cancelMyAppointment(appointmentId: string) {
+    const appt = localAppointments.find((a) => a.id === appointmentId);
+    if (!appt) return;
+    if (
+      !canCustomerCancelAppointment(
+        appt.startAt,
+        appointmentCancelPolicy,
+        appt.status
+      )
+    ) {
+      return;
+    }
+
+    if (!isDevAppointments) {
+      const res = await fetch(`/api/public/${business.slug}/appointments`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          appointmentId,
+          customerPhone: appt.customerPhone,
+        }),
+      });
+      if (!res.ok) return;
+    }
+
+    const next = updateCustomerAppointmentHistory(business.slug, appointmentId, {
+      status: "CANCELLED",
+    });
+    setLocalAppointments(next);
+  }
+
+  const futureSlots = business.slots.filter(
+    (s) => new Date(s.startAt) > new Date()
   );
 
   const cartItemCount = activeOrderCount;
@@ -828,38 +1000,66 @@ export function CustomerStoreApp({
 
     switch (mainTab) {
       case "home":
-        return (
-          <div className="space-y-4 pb-2">
-            {isAppointments ? (
-              availableSlots.length === 0 ? (
-                <EmptyStateCard message={labels.noSlots} />
-              ) : (
-                <div className="grid grid-cols-1 gap-4">
-                  {availableSlots.map((s) => (
-                    <Panel key={s.id}>
-                      <p className="font-extrabold text-bakery-ink">
-                        {new Date(s.startAt).toLocaleString("en-GB")}
-                      </p>
-                      <form
-                        onSubmit={(e) => bookSlot(e, s.id)}
-                        className="mt-3 space-y-2"
-                      >
-                        <Input name="customerName" label={labels.name} required />
-                        <Input name="customerPhone" label={labels.phone} required />
-                        <Textarea name="notes" label={labels.notes} rows={2} />
-                        <Button type="submit" variant="square" className="w-full">
-                          {labels.book}
-                        </Button>
-                      </form>
-                    </Panel>
-                  ))}
-                </div>
-              )
-            ) : (
-              <div className="p-1">
-                {renderProductGrid()}
+        return isAppointments ? (
+          futureSlots.length === 0 ? (
+            <div className="px-3 pt-3">
+              <EmptyStateCard message={labels.noSlots} />
+            </div>
+          ) : (
+            <div
+              className={`grid min-h-0 flex-1 grid-rows-[minmax(0,10fr)_minmax(0,7fr)_auto] gap-2 overflow-hidden px-3 ${
+                showSellerNoticeBanner ? "pt-2" : "pt-1"
+              }`}
+            >
+              <div className="flex min-h-0 flex-col overflow-hidden">
+                <CustomerAppointmentCalendar
+                  slots={business.slots}
+                  locale={locale}
+                  labels={labels}
+                  orderScheduleEnabled={business.orderScheduleEnabled ?? false}
+                  orderSchedule={business.orderSchedule ?? null}
+                  bookingByDay={business.appointmentBookingByDay ?? false}
+                  highlightedDay={
+                    dayViewOpen
+                      ? dayViewKey
+                      : bookingModalOpen
+                        ? bookingDay
+                        : null
+                  }
+                  homeLayout
+                  onDayOpen={(dateKey, daySlots) => {
+                    setDayViewKey(dateKey);
+                    setDayViewSlots(daySlots);
+                    setDayViewOpen(true);
+                  }}
+                />
               </div>
-            )}
+              <CustomerAppointmentOpenSlotsPanel
+                slots={business.slots}
+                locale={locale}
+                labels={labels}
+                bookingByDay={business.appointmentBookingByDay ?? false}
+                onSelect={(dateKey, openSlots) => {
+                  setBookingDay(dateKey);
+                  setBookingSlots(openSlots);
+                  setBookingError("");
+                  setBookingModalOpen(true);
+                }}
+              />
+              <div className="shrink-0 pb-2">
+                <CustomerAppointmentReminderRow
+                  businessSlug={business.slug}
+                  slots={business.slots}
+                  labels={labels}
+                  customerPhone={orderPhone}
+                  onNeedPhone={() => setProfileModalOpen(true)}
+                />
+              </div>
+            </div>
+          )
+        ) : (
+          <div className="space-y-4 p-1 pb-2">
+            {renderProductGrid()}
           </div>
         );
 
@@ -867,7 +1067,63 @@ export function CustomerStoreApp({
         return (
           <div className="space-y-4 pb-2">
             {isAppointments ? (
-              <EmptyStateCard message={labels.noMyAppts} />
+              <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
+                <SettingsCollapsibleSection
+                  title={labels.myAppointments}
+                  icon={Receipt}
+                  expanded={activeOrdersOpen}
+                  onToggle={() => setActiveOrdersOpen((open) => !open)}
+                >
+                  {activeAppointments.length === 0 ? (
+                    <HubEmptyText>{labels.noActiveAppts}</HubEmptyText>
+                  ) : (
+                    <ul className="space-y-2">
+                      {activeAppointments.map((appt) => (
+                        <li key={appt.id}>
+                          <AppointmentPreviewCard
+                            serviceName={appt.serviceName}
+                            startAt={appt.startAt}
+                            status={appt.status}
+                            locale={locale}
+                            labels={labels}
+                            canCancel={canCustomerCancelAppointment(
+                              appt.startAt,
+                              appointmentCancelPolicy,
+                              appt.status
+                            )}
+                            onCancel={() => void cancelMyAppointment(appt.id)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </SettingsCollapsibleSection>
+                <SettingsCollapsibleSection
+                  title={labels.appointmentHistory}
+                  icon={History}
+                  expanded={historyOrdersOpen}
+                  onToggle={() => setHistoryOrdersOpen((open) => !open)}
+                >
+                  {pastAppointments.length === 0 ? (
+                    <HubEmptyText>{labels.noMyAppts}</HubEmptyText>
+                  ) : (
+                    <ul className="space-y-2">
+                      {pastAppointments.map((appt) => (
+                        <li key={appt.id}>
+                          <AppointmentPreviewCard
+                            serviceName={appt.serviceName}
+                            startAt={appt.startAt}
+                            status={appt.status}
+                            locale={locale}
+                            labels={labels}
+                            canCancel={false}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </SettingsCollapsibleSection>
+              </div>
             ) : (
               <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
                 <SettingsCollapsibleSection
@@ -1018,7 +1274,15 @@ export function CustomerStoreApp({
               />
             </div>
           )}
-          <main className={CUSTOMER_SCROLL_MAIN}>{renderMainContent()}</main>
+          <main
+            className={
+              isAppointments && mainTab === "home" && !unavailable
+                ? CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME
+                : CUSTOMER_SCROLL_MAIN
+            }
+          >
+            {renderMainContent()}
+          </main>
         </div>
       </div>
 
@@ -1028,6 +1292,7 @@ export function CustomerStoreApp({
           active={mainTab}
           onSelect={setMainTab}
           ordersBadge={isAppointments ? undefined : cartItemCount}
+          hideDeals={isAppointments}
         />
       )}
 
@@ -1174,6 +1439,61 @@ export function CustomerStoreApp({
         closeAriaLabel={labels.close}
       />
       )}
+
+      {appointmentSuccessOpen && (
+        <CelebrationModal
+          open
+          onClose={() => setAppointmentSuccessOpen(false)}
+          title={labels.appointmentBookedTitle}
+          detail={labels.appointmentBookedDetail}
+          buttonLabel={labels.great}
+          closeAriaLabel={labels.close}
+        />
+      )}
+
+      <CustomerAppointmentDayModal
+        open={dayViewOpen}
+        onClose={() => {
+          setDayViewOpen(false);
+          setDayViewKey(null);
+          setDayViewSlots([]);
+        }}
+        dateKey={dayViewKey}
+        slots={dayViewSlots}
+        locale={locale}
+        labels={labels}
+        orderScheduleEnabled={business.orderScheduleEnabled ?? false}
+        orderSchedule={business.orderSchedule ?? null}
+        bookingByDay={business.appointmentBookingByDay ?? false}
+        onBook={(dateKey, slotsForBooking) => {
+          setBookingDay(dateKey);
+          setBookingSlots(slotsForBooking);
+          setBookingError("");
+          setBookingModalOpen(true);
+        }}
+      />
+
+      <CustomerAppointmentBookingModal
+        open={bookingModalOpen}
+        onClose={() => {
+          setBookingModalOpen(false);
+          setBookingDay(null);
+          setBookingSlots([]);
+          setBookingError("");
+        }}
+        dateKey={bookingDay}
+        slots={bookingSlots}
+        services={business.products.map((p) => ({ id: p.id, name: p.name }))}
+        bookingByDay={business.appointmentBookingByDay ?? false}
+        locale={locale}
+        labels={labels}
+        storeTheme={displayTheme}
+        initialName={customerName}
+        initialPhone={orderPhone}
+        submitting={bookingSubmitting}
+        error={bookingError}
+        onSubmit={submitAppointmentBooking}
+      />
 
       <CustomerCenterModal
         open={historyDetailOrder !== null}

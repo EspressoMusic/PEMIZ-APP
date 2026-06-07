@@ -29,6 +29,7 @@ type Product = {
   price: number;
   salePrice?: number | null;
   stock?: number | null;
+  serviceDurationMinutes?: number | null;
   description?: string | null;
   imageUrl?: string | null;
   isActive: boolean;
@@ -41,6 +42,7 @@ function toPreviewProducts(
     price: number;
     salePrice?: number | null;
     stock?: number | null;
+    serviceDurationMinutes?: number | null;
     description?: string | null;
     imageUrl?: string | null;
     isActive?: boolean;
@@ -52,6 +54,7 @@ function toPreviewProducts(
     price: p.price,
     salePrice: p.salePrice ?? null,
     stock: p.stock ?? null,
+    serviceDurationMinutes: p.serviceDurationMinutes ?? null,
     description: p.description ?? null,
     imageUrl: p.imageUrl ?? null,
     isActive: p.isActive ?? true,
@@ -165,6 +168,8 @@ const ProductCard = memo(function ProductCard({
   onHide,
   onDelete,
   onStockSave,
+  showStock,
+  showDuration,
 }: {
   product: Product;
   labels: ReturnType<typeof useAppLocale>["labels"];
@@ -172,6 +177,8 @@ const ProductCard = memo(function ProductCard({
   onHide: () => void;
   onDelete: () => void;
   onStockSave: (stock: number | null) => void | Promise<void>;
+  showStock: boolean;
+  showDuration: boolean;
 }) {
   return (
     <SquareCard className="bakery-float-tile overflow-hidden rounded-[14px] p-0 transition">
@@ -216,11 +223,18 @@ const ProductCard = memo(function ProductCard({
             {formatMoney(p.price)}
           </p>
         )}
-        <ProductStockEdit
-          stock={p.stock}
-          labels={labels}
-          onSave={onStockSave}
-        />
+        {showDuration && p.serviceDurationMinutes ? (
+          <p className="text-[10px] font-bold text-bakery-muted" dir="ltr">
+            {p.serviceDurationMinutes} min
+          </p>
+        ) : null}
+        {showStock ? (
+          <ProductStockEdit
+            stock={p.stock}
+            labels={labels}
+            onSave={onStockSave}
+          />
+        ) : null}
         <div className="mt-0.5 grid grid-cols-2 gap-1.5 border-t border-bakery-border/25 pt-1.5">
           <button
             type="button"
@@ -245,11 +259,17 @@ const ProductCard = memo(function ProductCard({
 export function ProductsManager({
   previewOnly = false,
   initialProducts,
+  mode = "products",
 }: {
   previewOnly?: boolean;
   initialProducts?: Parameters<typeof toPreviewProducts>[0];
+  mode?: "products" | "services";
 } = {}) {
   const { labels, formatMoney, locale } = useAppLocale();
+  const isServices = mode === "services";
+  const addLabel = isServices ? labels.addService : labels.addProduct;
+  const listLabel = isServices ? labels.services : labels.products;
+  const emptyLabel = isServices ? labels.noServicesYet : labels.noProductsYet;
   const formRef = useRef<HTMLFormElement>(null);
 
   const [products, setProducts] = useState<Product[]>(() =>
@@ -289,6 +309,17 @@ export function ProductsManager({
 
     if (!name || Number.isNaN(price)) return;
 
+    let serviceDurationMinutes: number | null = null;
+    if (isServices) {
+      const durationRaw = String(fd.get("serviceDurationMinutes") ?? "").trim();
+      const parsedDuration = Number(durationRaw);
+      if (!durationRaw || Number.isNaN(parsedDuration) || parsedDuration < 15) {
+        setError(labels.serviceDurationRequired);
+        return;
+      }
+      serviceDurationMinutes = Math.round(parsedDuration);
+    }
+
     if (discountOpen) {
       if (!saleRaw || Number.isNaN(salePrice!)) {
         setError(labels.productDiscountRequired);
@@ -312,7 +343,7 @@ export function ProductsManager({
     }
 
     let stock: number | null = null;
-    if (stockOpen) {
+    if (!isServices && stockOpen) {
       const stockRaw = String(fd.get("stock") ?? "").trim();
       if (!stockRaw) {
         setError(labels.productStockRequired);
@@ -337,15 +368,18 @@ export function ProductsManager({
               ? salePrice
               : null,
           stock,
+          serviceDurationMinutes,
           description: String(fd.get("description") ?? "") || null,
-          imageUrl: imageData,
+          imageUrl: isServices ? null : imageData,
           isActive: true,
         },
         ...prev,
       ]);
       formRef.current?.reset();
-      setImagePreview(null);
-      setImageData(null);
+      if (!isServices) {
+        setImagePreview(null);
+        setImageData(null);
+      }
       setDiscountOpen(false);
       setStockOpen(false);
       setAddFormOpen(false);
@@ -367,7 +401,8 @@ export function ProductsManager({
             ? salePrice
             : null,
         stock,
-        imageUrl: imageData || undefined,
+        serviceDurationMinutes: serviceDurationMinutes ?? undefined,
+        imageUrl: isServices ? undefined : imageData || undefined,
       }),
     });
     setAdding(false);
@@ -381,8 +416,10 @@ export function ProductsManager({
       setProducts((prev) => [data.product as Product, ...prev]);
     }
     formRef.current?.reset();
-    setImagePreview(null);
-    setImageData(null);
+    if (!isServices) {
+      setImagePreview(null);
+      setImageData(null);
+    }
     setDiscountOpen(false);
     setStockOpen(false);
     setAddFormOpen(false);
@@ -488,7 +525,7 @@ export function ProductsManager({
               <Plus className="h-6 w-6" strokeWidth={1.75} />
             </span>
             <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-              {labels.addProduct}
+              {addLabel}
             </span>
             <ChevronDown
               className="h-5 w-5 shrink-0 text-bakery-muted"
@@ -499,7 +536,7 @@ export function ProductsManager({
         ) : (
           <>
             <h2 className="mb-2 text-center text-[15px] font-extrabold text-bakery-ink">
-              {labels.addProduct}
+              {addLabel}
             </h2>
             <form
               ref={formRef}
@@ -516,15 +553,30 @@ export function ProductsManager({
                 dir="ltr"
               />
               <Input name="description" label={labels.productDescription} />
-              <ProductImageField
-                compact
-                preview={imagePreview}
-                onChange={(url) => {
-                  setImagePreview(url);
-                  setImageData(url);
-                }}
-                onError={setError}
-              />
+              {isServices ? (
+                <Input
+                  name="serviceDurationMinutes"
+                  label={labels.serviceDurationMinutes}
+                  type="number"
+                  min={15}
+                  max={480}
+                  step={15}
+                  defaultValue={60}
+                  required
+                  dir="ltr"
+                />
+              ) : null}
+              {!isServices ? (
+                <ProductImageField
+                  compact
+                  preview={imagePreview}
+                  onChange={(url) => {
+                    setImagePreview(url);
+                    setImageData(url);
+                  }}
+                  onError={setError}
+                />
+              ) : null}
               <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2.5 text-start">
                 <span className="text-[14px] font-bold text-bakery-ink">
                   {labels.productDiscount}
@@ -558,28 +610,32 @@ export function ProductsManager({
                   />
                 </>
               )}
-              <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2.5 text-start">
-                <span className="text-[14px] font-bold text-bakery-ink">
-                  {labels.productStock}
-                </span>
-                <Toggle
-                  enabled={stockOpen}
-                  onChange={setStockOpen}
-                  ariaLabel={labels.productStock}
-                />
-              </div>
-              {stockOpen && (
-                <Input
-                  name="stock"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  dir="ltr"
-                  required
-                  onChange={(e) => {
-                    e.target.value = e.target.value.replace(/\D/g, "");
-                  }}
-                />
+              {!isServices && (
+                <>
+                  <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2.5 text-start">
+                    <span className="text-[14px] font-bold text-bakery-ink">
+                      {labels.productStock}
+                    </span>
+                    <Toggle
+                      enabled={stockOpen}
+                      onChange={setStockOpen}
+                      ariaLabel={labels.productStock}
+                    />
+                  </div>
+                  {stockOpen && (
+                    <Input
+                      name="stock"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      dir="ltr"
+                      required
+                      onChange={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
+                    />
+                  )}
+                </>
               )}
               <Button
                 type="submit"
@@ -587,7 +643,7 @@ export function ProductsManager({
                 className="w-full min-h-[44px] rounded-full font-extrabold"
                 disabled={adding}
               >
-                {adding ? labels.adding : labels.addProduct}
+                {adding ? labels.adding : addLabel}
               </Button>
             </form>
             <button
@@ -623,7 +679,7 @@ export function ProductsManager({
             <Package className="h-6 w-6" strokeWidth={1.75} />
           </span>
           <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {labels.products}
+            {listLabel}
             {products.length > 0 && (
               <span className="font-semibold text-bakery-muted">
                 {" "}
@@ -645,11 +701,11 @@ export function ProductsManager({
             id="dashboard-products-list"
             className="no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]"
             role="region"
-            aria-label={labels.products}
+            aria-label={listLabel}
           >
             {products.length === 0 ? (
               <p className="py-6 text-center text-[14px] text-bakery-muted">
-                {locale === "he" ? "אין מוצרים עדיין" : "No products yet"}
+                {emptyLabel}
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-2">
@@ -662,6 +718,8 @@ export function ProductsManager({
                     onHide={() => void setProductActive(p.id, p.isActive)}
                     onDelete={() => void deleteProduct(p.id, p.name)}
                     onStockSave={(stock) => updateProductStock(p.id, stock)}
+                    showStock={!isServices}
+                    showDuration={isServices}
                   />
                 ))}
               </div>
@@ -676,6 +734,13 @@ export function ProductsManager({
         open={successOpen}
         productName={successName}
         onClose={() => setSuccessOpen(false)}
+        title={
+          isServices ? labels.serviceAddedTitle : labels.productAddedTitle
+        }
+        detail={
+          isServices ? labels.serviceAddedDetail : labels.productAddedDetail
+        }
+        closeAriaLabel={labels.close}
       />
     </div>
   );

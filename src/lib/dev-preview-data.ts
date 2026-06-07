@@ -1,5 +1,9 @@
 /** Mock data for /dev/* previews — no database required */
 
+import {
+  defaultDaySlots,
+  orderScheduleToJson,
+} from "@/lib/order-schedule";
 import type { StoreChatMessageDto } from "@/lib/store-chat";
 import type { SellerChatThread } from "@/lib/seller-chat-threads";
 
@@ -438,3 +442,228 @@ export const DEV_STORE_BUSINESS = {
     ],
   },
 };
+
+export const DEV_APPOINTMENTS_BUSINESS = {
+  slug: "demo-appointments",
+  name: "סטודיו יופי (תצוגה)",
+  description: "תורים לטיפולי פנים, עיצוב שיער ומניקור.",
+  type: "APPOINTMENTS" as const,
+  products: [
+    {
+      id: "svc-1",
+      name: "טיפול פנים",
+      description: "ניקוי עמוק ולחות",
+      imageUrl: null,
+      price: 180,
+      salePrice: null,
+      stock: null,
+      serviceDurationMinutes: 90,
+    },
+    {
+      id: "svc-2",
+      name: "תספורת גברים",
+      description: null,
+      imageUrl: null,
+      price: 90,
+      salePrice: 75,
+      stock: null,
+      serviceDurationMinutes: 45,
+    },
+  ],
+  deals: [],
+  slots: [] as {
+    id: string;
+    startAt: string;
+    endAt: string;
+    maxBookings: number;
+    appointments: unknown[];
+  }[],
+  faqItems: [
+    {
+      id: "faq-appt-1",
+      question: "איך מבטלים תור?",
+      answer: "עד 24 שעות לפני המועד — דרך צ'אט או טלפון.",
+    },
+    {
+      id: "faq-appt-2",
+      question: "האם יש חניה?",
+      answer: "כן, חניה חינם ללקוחות במגרש הסמוך.",
+    },
+  ],
+  storeUrl: "http://localhost:3000/dev/customer-appointments",
+  storeBroadcast: "תור נוח ביום ראשון — מקומות אחרונים!",
+  storeBroadcastAt: "2026-06-01T10:00:00.000Z",
+  storeBroadcastHistory: [
+    {
+      message: "תור נוח ביום ראשון — מקומות אחרונים!",
+      sentAt: "2026-06-01T10:00:00.000Z",
+    },
+  ],
+  storeTheme: "calm",
+  storeLocale: "he" as const,
+  storePolicy: "תורים בימים א׳–ה׳. איחור מעל 10 דקות עלול לבטל את התור.",
+  storeTerms: "ביטול תור עד 24 שעות לפני המועד ללא חיוב.",
+  appointmentSlotGapMinutes: 15,
+  appointmentSlotDurationMinutes: 60,
+  appointmentBookingStart: "09:00",
+  appointmentBookingEnd: "18:00",
+  appointmentBookingByDay: false,
+  orderScheduleEnabled: true,
+  orderSchedule: orderScheduleToJson(
+    defaultDaySlots().map((slot) => ({
+      ...slot,
+      open: slot.day <= 4,
+    }))
+  ),
+};
+
+export const DEV_APPOINTMENTS_SELLER_BASE = "/dev/seller-appointments";
+
+export const DEV_APPOINTMENTS_SELLER_SHELL = {
+  businessType: "APPOINTMENTS" as const,
+  basePath: DEV_APPOINTMENTS_SELLER_BASE,
+  storeLocale: DEV_APPOINTMENTS_BUSINESS.storeLocale,
+  storeTheme: DEV_APPOINTMENTS_BUSINESS.storeTheme,
+};
+
+export const DEV_APPOINTMENTS_OWNER_NAME = "מיה";
+
+function devAppointmentSlotIso(daysAhead: number, hour: number, minute = 0) {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() + daysAhead);
+  start.setHours(hour, minute, 0, 0);
+  return start.toISOString();
+}
+
+function devAppointmentSlotEnd(iso: string, minutes: number) {
+  return new Date(new Date(iso).getTime() + minutes * 60_000).toISOString();
+}
+
+/** תורים לדמו — תאריכים יחסיים להיום כדי שהיומן תמיד יציג ימים פנויים/תפוסים */
+export function getDevAppointmentsBusiness() {
+  const day1 = devAppointmentSlotIso(1, 10);
+  const day1b = devAppointmentSlotIso(1, 14);
+  const day2 = devAppointmentSlotIso(2, 11);
+  const dayFull = devAppointmentSlotIso(3, 9);
+  const dayFull2 = devAppointmentSlotIso(5, 15);
+
+  return {
+    ...DEV_APPOINTMENTS_BUSINESS,
+    slots: [
+      {
+        id: "slot-1",
+        startAt: day1,
+        endAt: devAppointmentSlotEnd(day1, 60),
+        maxBookings: 2,
+        appointments: [{ id: "appt-1" }],
+      },
+      {
+        id: "slot-2",
+        startAt: day1b,
+        endAt: devAppointmentSlotEnd(day1b, 60),
+        maxBookings: 3,
+        appointments: [],
+      },
+      {
+        id: "slot-3",
+        startAt: day2,
+        endAt: devAppointmentSlotEnd(day2, 60),
+        maxBookings: 1,
+        appointments: [],
+      },
+      {
+        id: "slot-full-1",
+        startAt: dayFull,
+        endAt: devAppointmentSlotEnd(dayFull, 60),
+        maxBookings: 2,
+        appointments: [{ id: "appt-f1" }, { id: "appt-f2" }],
+      },
+      {
+        id: "slot-full-2",
+        startAt: dayFull2,
+        endAt: devAppointmentSlotEnd(dayFull2, 60),
+        maxBookings: 1,
+        appointments: [{ id: "appt-f3" }],
+      },
+    ],
+  };
+}
+
+export function getDevPreviewAppointmentsSeller() {
+  const biz = getDevAppointmentsBusiness();
+  const [slotA, slotB, , slotFull1, slotFull2] = biz.slots;
+  const pastSlot = devAppointmentSlotIso(-3, 10);
+  return [
+    {
+      id: "appt-seller-1",
+      customerName: "יעל כהן",
+      customerPhone: "0501234567",
+      status: "CONFIRMED",
+      notes: "שירות: תספורת\nרוצה תספורת קצרה",
+      slot: {
+        startAt: slotA.startAt,
+        endAt: slotA.endAt,
+      },
+    },
+    {
+      id: "appt-seller-2",
+      customerName: "דני לוי",
+      customerPhone: "0529876543",
+      status: "CONFIRMED",
+      slot: {
+        startAt: slotB.startAt,
+        endAt: slotB.endAt,
+      },
+    },
+    {
+      id: "appt-f1",
+      customerName: "רון שטרן",
+      customerPhone: "0541112222",
+      status: "CONFIRMED",
+      slot: {
+        startAt: slotFull1.startAt,
+        endAt: slotFull1.endAt,
+      },
+    },
+    {
+      id: "appt-f2",
+      customerName: "נועה ברק",
+      customerPhone: "0534445566",
+      status: "CONFIRMED",
+      slot: {
+        startAt: slotFull1.startAt,
+        endAt: slotFull1.endAt,
+      },
+    },
+    {
+      id: "appt-f3",
+      customerName: "איתי מזרחי",
+      customerPhone: "0587778899",
+      status: "CONFIRMED",
+      slot: {
+        startAt: slotFull2.startAt,
+        endAt: slotFull2.endAt,
+      },
+    },
+    {
+      id: "appt-history-1",
+      customerName: "מיכל אברהם",
+      customerPhone: "0523334455",
+      status: "CONFIRMED",
+      slot: {
+        startAt: pastSlot,
+        endAt: devAppointmentSlotEnd(pastSlot, 60),
+      },
+    },
+  ];
+}
+
+export function getDevSellerHomeCalendarPreview() {
+  const biz = getDevAppointmentsBusiness();
+  return {
+    slots: biz.slots,
+    appointments: getDevPreviewAppointmentsSeller(),
+    bookingByDay: DEV_APPOINTMENTS_BUSINESS.appointmentBookingByDay ?? false,
+  };
+}

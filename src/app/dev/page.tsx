@@ -35,10 +35,16 @@ export default function DevPreviewPage() {
           href="/dev/seller"
           className="rounded-xl bg-bakery-primary px-4 py-3 text-center text-sm font-bold text-bakery-on-primary"
         >
-          פתח דשבורד מוכר (תצוגה)
+          דשבורד מוכר — חנות מוצרים
+        </Link>
+        <Link
+          href="/dev/seller-appointments"
+          className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
+        >
+          דשבורד מוכר — חנות פגישות
         </Link>
         <p className="text-xs text-bakery-muted">
-          /login לא יעבוד מקומית בלי סיסמת Supabase ב-.env.local
+          חנות פגישות וחנות מוצרים נפרדות — הגדרות שונות לכל סוג. /login דורש Supabase ב-.env.local
         </p>
       </section>
 
@@ -49,6 +55,12 @@ export default function DevPreviewPage() {
           className="rounded-xl bg-bakery-primary px-4 py-3 text-center text-sm font-bold text-bakery-on-primary"
         >
           פתח חנות לקוח (תצוגה)
+        </Link>
+        <Link
+          href="/dev/customer-appointments"
+          className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
+        >
+          פתח עסק תורים (תצוגה)
         </Link>
         {storeHref && (
           <Link

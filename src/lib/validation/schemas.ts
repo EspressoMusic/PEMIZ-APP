@@ -36,6 +36,7 @@ export const productCreateSchema = z.object({
   salePrice: z.number().positive().max(1_000_000).optional().nullable(),
   imageUrl: z.string().max(2048).optional(),
   stock: z.number().int().min(0).max(1_000_000).optional().nullable(),
+  serviceDurationMinutes: z.number().int().min(15).max(480).optional().nullable(),
 });
 
 export const productPatchSchema = z.object({
@@ -46,6 +47,7 @@ export const productPatchSchema = z.object({
   isActive: z.boolean().optional(),
   imageUrl: z.string().max(2048).nullable().optional(),
   stock: z.number().int().min(0).max(1_000_000).nullable().optional(),
+  serviceDurationMinutes: z.number().int().min(15).max(480).nullable().optional(),
 });
 
 export const publicChatPostSchema = z.object({

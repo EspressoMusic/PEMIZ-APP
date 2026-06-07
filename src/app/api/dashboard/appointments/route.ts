@@ -14,16 +14,21 @@ export async function GET() {
   return jsonOk({ appointments });
 }
 
-const statusSchema = z.object({
-  appointmentId: z.string(),
-  status: z.enum(["PENDING", "CONFIRMED", "CANCELLED"]),
-});
+const patchSchema = z
+  .object({
+    appointmentId: z.string(),
+    status: z.enum(["PENDING", "CONFIRMED", "CANCELLED"]).optional(),
+    hide: z.literal(true).optional(),
+  })
+  .refine((data) => data.status !== undefined || data.hide === true, {
+    message: "Missing update",
+  });
 
 export async function PATCH(req: Request) {
   const ctx = await requireBusinessOwner();
   if (!ctx.ok) return ctx.response;
   const body = await req.json().catch(() => null);
-  const parsed = statusSchema.safeParse(body);
+  const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
   const appt = await prisma.appointment.findFirst({
@@ -33,7 +38,13 @@ export async function PATCH(req: Request) {
 
   const updated = await prisma.appointment.update({
     where: { id: appt.id },
-    data: { status: parsed.data.status },
+    data: {
+      ...(parsed.data.status !== undefined
+        ? { status: parsed.data.status }
+        : {}),
+      ...(parsed.data.hide === true ? { sellerHiddenAt: new Date() } : {}),
+    },
+    include: { slot: true },
   });
   return jsonOk({ appointment: updated });
 }

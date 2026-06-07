@@ -12,7 +12,9 @@ export default async function SettingsAccountPage() {
 
   return (
     <div className="space-y-4">
-      {b?.type === "STORE" && <DashboardSettingsBackLink />}
+      {(b?.type === "STORE" || b?.type === "APPOINTMENTS") && (
+        <DashboardSettingsBackLink />
+      )}
       <DashboardSettingsView
         ownerName={user.name}
         email={user.email}

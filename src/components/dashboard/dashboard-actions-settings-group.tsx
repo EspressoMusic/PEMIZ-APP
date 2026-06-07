@@ -9,9 +9,11 @@ import { DashboardStoreStylePicker } from "@/components/dashboard/dashboard-stor
 export function DashboardActionsSettingsGroup({
   basePath = "/dashboard",
   previewOnly = false,
+  businessType = "STORE",
 }: {
   basePath?: string;
   previewOnly?: boolean;
+  businessType?: string;
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
@@ -47,11 +49,13 @@ export function DashboardActionsSettingsGroup({
           id="dashboard-settings-items"
           className="space-y-2 text-start"
         >
-          <DashboardActionRow
-            href={`${basePath}/stats/sales`}
-            icon={TrendingUp}
-            title={labels.salesAndProfit}
-          />
+          {businessType === "STORE" ? (
+            <DashboardActionRow
+              href={`${basePath}/stats/sales`}
+              icon={TrendingUp}
+              title={labels.salesAndProfit}
+            />
+          ) : null}
           <DashboardStoreStylePicker previewOnly={previewOnly} />
           <DashboardActionRow
             href={`${basePath}/settings/alerts`}

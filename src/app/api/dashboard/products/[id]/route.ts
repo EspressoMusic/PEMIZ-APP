@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-import { requireStoreOwner } from "@/lib/dashboard-auth";
+import { requireCatalogOwner } from "@/lib/dashboard-catalog-auth";
+import { regenerateAppointmentCalendar } from "@/lib/appointment-calendar-regenerate";
 import { isValidProductImageUrlForSave } from "@/lib/product-image";
 import { publicCatalogImageUrl } from "@/lib/public-image-url";
 import { findOwnedProduct } from "@/lib/security/ownership";
@@ -10,7 +11,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const ctx = await requireStoreOwner();
+  const ctx = await requireCatalogOwner();
   if (!ctx.ok) return ctx.response;
   const { id } = await params;
   const body = await req.json().catch(() => null);
@@ -39,6 +40,11 @@ export async function PATCH(
     where: { id, businessId: ctx.user.business.id },
     data,
   });
+
+  if (ctx.user.business.type === "APPOINTMENTS") {
+    await regenerateAppointmentCalendar(ctx.user.business.id);
+  }
+
   return jsonOk({
     product: {
       ...product,
@@ -51,7 +57,7 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const ctx = await requireStoreOwner();
+  const ctx = await requireCatalogOwner();
   if (!ctx.ok) return ctx.response;
   const { id } = await params;
 
@@ -61,5 +67,10 @@ export async function DELETE(
   await prisma.product.delete({
     where: { id, businessId: ctx.user.business.id },
   });
+
+  if (ctx.user.business.type === "APPOINTMENTS") {
+    await regenerateAppointmentCalendar(ctx.user.business.id);
+  }
+
   return jsonOk({ ok: true });
 }

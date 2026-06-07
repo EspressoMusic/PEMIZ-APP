@@ -96,12 +96,6 @@ export function CustomerSellerNoticeBanner({
             )}
           </span>
           <span className="flex shrink-0 items-center gap-1.5">
-            {unread && (
-              <span
-                className="h-2.5 w-2.5 rounded-full bg-bakery-error ring-2 ring-[#faf4e6]"
-                aria-hidden
-              />
-            )}
             <ChevronDown
               className={`h-5 w-5 text-bakery-muted transition-transform ${
                 expanded ? "rotate-180" : ""

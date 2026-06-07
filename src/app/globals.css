@@ -1220,6 +1220,19 @@ html:not([data-store-theme="dark"])
   box-shadow: 0 2px 8px rgba(78, 52, 46, 0.08);
 }
 
+.dashboard-home-header--compact {
+  border-radius: 18px;
+  padding: 0.25rem;
+}
+
+.dashboard-home-header--appointments {
+  padding: 0.4375rem;
+}
+
+.dashboard-home-header--appointments .dashboard-home-header__inner {
+  min-height: 3.25rem;
+}
+
 .dashboard-home-header__inner {
   border: 1.5px solid rgba(78, 52, 46, 0.12);
   border-radius: 18px;
@@ -1292,6 +1305,10 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   border-radius: 9999px;
   background: #a65d5d;
   box-shadow: 0 0 0 2px var(--bakery-prep-cream);
+}
+
+.dashboard-home-store-link--compact {
+  min-height: 2.25rem;
 }
 
 .dashboard-home-store-link {
@@ -1513,6 +1530,11 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   .dashboard-water-gauge--bar .dashboard-water-gauge__bubble {
     animation: none !important;
   }
+}
+
+.confetti-layer,
+.confetti-layer * {
+  pointer-events: none !important;
 }
 
 .confetti-piece {

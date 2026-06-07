@@ -378,7 +378,7 @@ export function FaqManager({
     <div
       className={`${DASHBOARD_PAGE_ROOT} flex min-h-0 flex-1 flex-col gap-2`}
     >
-      <DashboardPanelFrame className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden !p-3">
+      <DashboardPanelFrame className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden !border-[3px] !border-[#5C4A3E]/22 !p-3">
         <div className="shrink-0 space-y-2">
           <DashboardHeading className="!text-[18px] sm:!text-[19px]">
             {labels.faq}

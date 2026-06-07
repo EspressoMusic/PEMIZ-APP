@@ -281,3 +281,21 @@ export function formatOrderScheduleSummary(
 
 export const ORDER_SCHEDULE_CLOSED_MESSAGE =
   "כרגע אי אפשר להזמין. החנות מקבלת הזמנות רק בימים ובשעות שהוגדרו.";
+
+export function weekdayFromDateKey(dateKey: string): number {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  return new Date(y, m - 1, d).getDay();
+}
+
+/** האם המוכר עובד ביום לוח שנה (לפי יום בשבוע בהגדרות) */
+export function isSellerWorkingDay(
+  dateKey: string,
+  enabled: boolean,
+  json: string | null | undefined
+): boolean {
+  if (!enabled) return true;
+  const schedule = parseOrderSchedule(json, true);
+  const weekday = weekdayFromDateKey(dateKey);
+  const slot = schedule.daySlots.find((s) => s.day === weekday);
+  return slot?.open ?? false;
+}

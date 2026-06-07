@@ -74,6 +74,9 @@ export default async function PublicBusinessPage({
         storeLocale: business.storeLocale,
         storePolicy: business.storePolicy,
         storeTerms: business.storeTerms,
+        orderScheduleEnabled: business.orderScheduleEnabled ?? false,
+        orderSchedule: business.orderSchedule ?? null,
+        appointmentBookingByDay: business.appointmentBookingByDay ?? false,
         storeBroadcast: business.storeBroadcast,
         storeBroadcastAt: business.storeBroadcastAt?.toISOString() ?? null,
       }}

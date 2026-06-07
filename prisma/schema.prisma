@@ -72,6 +72,11 @@ model Business {
   storeBroadcastHistory  String?
   orderScheduleEnabled   Boolean  @default(false)
   orderSchedule          String?
+  appointmentSlotGapMinutes      Int    @default(15)
+  appointmentSlotDurationMinutes Int    @default(60)
+  appointmentBookingStart        String  @default("09:00")
+  appointmentBookingEnd          String  @default("18:00")
+  appointmentBookingByDay        Boolean @default(false)
   sellerAlertsEnabled    Boolean  @default(false)
   sellerAlertOnInquiry   Boolean  @default(true)
   sellerAlertOnChat      Boolean  @default(true)
@@ -115,8 +120,9 @@ model Product {
   imageUrl    String?
   price       Float
   salePrice   Float?
-  stock       Int?
-  isActive    Boolean     @default(true)
+  stock                  Int?
+  serviceDurationMinutes Int?
+  isActive               Boolean     @default(true)
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
   dealsAsA    StoreDeal[]       @relation("DealProductA")
@@ -214,9 +220,10 @@ model Appointment {
   slot          AppointmentSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
   customerName  String
   customerPhone String
-  notes         String?
-  status        String          @default("PENDING")
-  createdAt     DateTime        @default(now())
+  notes           String?
+  status          String          @default("CONFIRMED")
+  sellerHiddenAt  DateTime?
+  createdAt       DateTime        @default(now())
 
   @@index([businessId])
   @@index([slotId])

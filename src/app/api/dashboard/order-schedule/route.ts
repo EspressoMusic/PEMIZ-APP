@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-import { requireStoreOwner } from "@/lib/dashboard-auth";
+import { requireCatalogOwner } from "@/lib/dashboard-catalog-auth";
+import { regenerateAppointmentCalendar } from "@/lib/appointment-calendar-regenerate";
 import {
   defaultDaySlots,
   normalizeTimeInput,
@@ -78,7 +79,7 @@ function normalizeSlotsFromBody(data: z.infer<typeof schema>): OrderDaySlot[] {
 }
 
 export async function PATCH(req: Request) {
-  const ctx = await requireStoreOwner();
+  const ctx = await requireCatalogOwner();
   if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);
@@ -95,13 +96,16 @@ export async function PATCH(req: Request) {
   const summary = scheduleFromDaySlots(daySlots);
 
   try {
-    await prisma.business.update({
+    const updated = await prisma.business.update({
       where: { id: ctx.user.business.id },
       data: {
         orderScheduleEnabled: parsed.data.enabled,
         orderSchedule: scheduleJson,
       },
     });
+    if (updated.type === "APPOINTMENTS") {
+      await regenerateAppointmentCalendar(updated.id);
+    }
   } catch (e) {
     console.error("order-schedule update failed", e);
     return jsonError(

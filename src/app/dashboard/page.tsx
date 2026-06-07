@@ -26,6 +26,7 @@ export default async function DashboardPage() {
       <DashboardHomeView
         ownerName={user.name}
         businessSlug={b.slug}
+        businessType={b.type}
         customerLink={publicBusinessUrl(b.slug)}
         previewHref={`/b/${b.slug}`}
         showPrepSummary={b.type === "STORE"}
