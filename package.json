@@ -7,6 +7,7 @@
     "dev:vercel": "npx vercel env run -- next dev",
     "build": "prisma generate && next build",
     "db:migrate": "prisma migrate deploy",
+    "migrate": "dotenv -e .env.local -- prisma migrate deploy",
     "start": "next start",
     "lint": "eslint",
     "db:push": "dotenv -e .env.local -- prisma db push",
