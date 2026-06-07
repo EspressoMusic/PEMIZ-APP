@@ -792,7 +792,7 @@ export function CustomerStoreApp({
       return <EmptyStateCard message={labels.noDeals} />;
     }
     return (
-      <div className="grid min-w-0 grid-cols-1 items-stretch gap-4">
+      <div className="grid min-w-0 grid-cols-1 items-stretch justify-items-center gap-3">
         {activeDeals.map((d) => (
           <DealCard
             key={d.id}
@@ -1067,7 +1067,6 @@ export function CustomerStoreApp({
         copy={{
           title: labels.installApp,
           panelTitle: labels.installAppPanelTitle,
-          panelSubtitle: labels.installAppPanelSubtitle,
           installedTitle: labels.installAppInstalledTitle,
           installedHint: labels.installAppInstalledHint,
           installButton: labels.installAppButton,

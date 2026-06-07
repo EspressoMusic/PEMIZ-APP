@@ -144,15 +144,15 @@ export function DashboardOrderScheduleSettings({
               {daySlots.map((slot) => (
                 <li
                   key={slot.day}
-                  className={`rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/80 px-3 py-2.5 transition ${
+                  className={`overflow-hidden rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/80 px-2.5 py-2.5 transition ${
                     slot.open ? "" : "opacity-40"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 flex-col items-stretch gap-2">
                     <button
                       type="button"
                       onClick={() => toggleDayOpen(slot.day)}
-                      className={`min-w-0 shrink-0 text-start text-[15px] font-extrabold transition ${
+                      className={`w-full text-center text-[15px] font-extrabold transition ${
                         slot.open ? "text-bakery-ink" : "text-bakery-muted line-through"
                       }`}
                       title={labels.dayToggleHint}
@@ -160,7 +160,7 @@ export function DashboardOrderScheduleSettings({
                       {dayNames[slot.day]}
                     </button>
                     <div
-                      className="flex shrink-0 items-center gap-1.5"
+                      className="flex min-w-0 items-center justify-center gap-1.5"
                       dir="ltr"
                     >
                       <input
@@ -171,9 +171,9 @@ export function DashboardOrderScheduleSettings({
                           updateDayTime(slot.day, "startTime", e.target.value)
                         }
                         aria-label={`${dayNames[slot.day]} ${labels.fromHour}`}
-                        className="bakery-field w-[5.5rem] rounded-xl border border-bakery-border/32 bg-bakery-input px-2 py-2 text-[13px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
+                        className="bakery-field min-w-0 max-w-[42%] flex-1 rounded-[10px] border border-bakery-border/32 bg-bakery-input px-1.5 py-2 text-[13px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
                       />
-                      <span className="text-[13px] font-bold text-bakery-muted">
+                      <span className="shrink-0 text-[13px] font-bold text-bakery-muted">
                         –
                       </span>
                       <input
@@ -184,7 +184,7 @@ export function DashboardOrderScheduleSettings({
                           updateDayTime(slot.day, "endTime", e.target.value)
                         }
                         aria-label={`${dayNames[slot.day]} ${labels.toHour}`}
-                        className="bakery-field w-[5.5rem] rounded-xl border border-bakery-border/32 bg-bakery-input px-2 py-2 text-[13px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
+                        className="bakery-field min-w-0 max-w-[42%] flex-1 rounded-[10px] border border-bakery-border/32 bg-bakery-input px-1.5 py-2 text-[13px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
                   </div>

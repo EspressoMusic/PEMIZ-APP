@@ -99,8 +99,6 @@ const EN = {
   installApp: "Install app",
   installAppSub: "Quick access to this store from your home screen",
   installAppPanelTitle: "Install on your device",
-  installAppPanelSubtitle:
-    "Open this store like an app — browse, order, and chat without the browser bar.",
   installAppInstalledTitle: "Store installed",
   installAppInstalledHint: "Open the store anytime from your home screen.",
   installAppButton: "Install",
@@ -211,8 +209,6 @@ const HE: typeof EN = {
   installApp: "התקנת אפליקציה",
   installAppSub: "גישה מהירה לחנות מהמסך הראשי",
   installAppPanelTitle: "התקנה במכשיר",
-  installAppPanelSubtitle:
-    "פתחו את החנות כמו אפליקציה — קנייה, הזמנות וצ'אט בלי סרגל הדפדפן.",
   installAppInstalledTitle: "החנות מותקנת",
   installAppInstalledHint: "אפשר לפתוח את החנות מהמסך הראשי בכל עת.",
   installAppButton: "התקנה",

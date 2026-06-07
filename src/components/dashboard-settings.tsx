@@ -15,6 +15,7 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 type Props = {
   ownerName: string;
   email: string;
+  phone?: string | null;
   businessName?: string;
   isActive: boolean;
   storeUrl?: string;
@@ -25,6 +26,7 @@ type Props = {
 export function DashboardSettingsView({
   ownerName,
   email,
+  phone,
   businessName,
   isActive,
   storeUrl,
@@ -60,6 +62,14 @@ export function DashboardSettingsView({
                   {businessName ? (
                     <p className="text-[13px] text-bakery-muted">{businessName}</p>
                   ) : null}
+                  <div className="mt-2 flex flex-col items-center gap-1">
+                    <p className="text-[11px] font-bold text-bakery-muted">
+                      {labels.storeStatus}
+                    </p>
+                    <Badge tone={isActive ? "success" : "danger"}>
+                      {isActive ? labels.storeActive : labels.storeInactive}
+                    </Badge>
+                  </div>
                 </div>
               </div>
             }
@@ -71,30 +81,35 @@ export function DashboardSettingsView({
             panel={
               <>
                 <p className="text-[12px] font-bold text-bakery-muted">
-                  {labels.email}
+                  {labels.accountDetails}
                 </p>
-                <p
-                  className="mt-1 font-mono text-[14px] text-bakery-ink"
-                  dir="ltr"
-                >
-                  {email}
-                </p>
-              </>
-            }
-          />
-        </DashboardSettingsTile>
-
-        <DashboardSettingsTile>
-          <DashboardSettingsTileRow
-            panel={
-              <>
-                <p className="text-[12px] font-bold text-bakery-muted">
-                  {labels.storeStatus}
-                </p>
-                <div className="mt-1 flex justify-center">
-                  <Badge tone={isActive ? "success" : "danger"}>
-                    {isActive ? labels.storeActive : labels.storeInactive}
-                  </Badge>
+                <div className="mt-2 space-y-2">
+                  <div>
+                    <p className="text-[11px] font-bold text-bakery-muted">
+                      {labels.email}
+                    </p>
+                    <p
+                      className="mt-0.5 font-mono text-[14px] text-bakery-ink"
+                      dir="ltr"
+                    >
+                      {email}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-bakery-muted">
+                      {labels.phone}
+                    </p>
+                    <p
+                      className={`mt-0.5 text-[14px] ${
+                        phone?.trim()
+                          ? "font-mono text-bakery-ink"
+                          : "font-semibold text-bakery-muted"
+                      }`}
+                      dir="ltr"
+                    >
+                      {phone?.trim() || labels.phoneNotSet}
+                    </p>
+                  </div>
                 </div>
               </>
             }

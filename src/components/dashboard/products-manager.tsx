@@ -18,7 +18,7 @@ import { ProductImageField } from "@/components/product-image-field";
 import { ProductSuccessModal } from "@/components/product-success-modal";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
-import { formatStockLabel } from "@/lib/product-stock";
+import { formatStockLabel, parseStockInput } from "@/lib/product-stock";
 import { ChevronDown, Package, Plus } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
@@ -58,18 +58,120 @@ function toPreviewProducts(
   }));
 }
 
+function ProductStockEdit({
+  stock,
+  labels,
+  onSave,
+}: {
+  stock: number | null | undefined;
+  labels: ReturnType<typeof useAppLocale>["labels"];
+  onSave: (stock: number | null) => void | Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [tracked, setTracked] = useState(stock != null);
+  const [draft, setDraft] = useState(stock != null ? String(stock) : "");
+  const [error, setError] = useState("");
+
+  function close() {
+    setOpen(false);
+    setError("");
+  }
+
+  async function save() {
+    setError("");
+    let next: number | null = null;
+    if (tracked) {
+      const parsed = parseStockInput(draft);
+      if (parsed == null) {
+        setError(labels.productStockInvalid);
+        return;
+      }
+      next = parsed;
+    }
+    await onSave(next);
+    close();
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        className="text-[10px] font-semibold leading-snug text-bakery-muted underline-offset-2 transition hover:text-bakery-ink hover:underline"
+        onClick={() => {
+          setTracked(stock != null);
+          setDraft(stock != null ? String(stock) : "");
+          setError("");
+          setOpen(true);
+        }}
+      >
+        {formatStockLabel(stock)}
+      </button>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5 rounded-[10px] border border-bakery-border/30 bg-bakery-card/70 p-1.5 text-start">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[10px] font-bold text-bakery-ink">
+          {labels.productStock}
+        </span>
+        <Toggle
+          enabled={tracked}
+          onChange={setTracked}
+          ariaLabel={labels.productStock}
+        />
+      </div>
+      {tracked && (
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={draft}
+          onChange={(e) =>
+            setDraft(e.target.value.replace(/\D/g, ""))
+          }
+          dir="ltr"
+          className="bakery-field w-full rounded-[10px] border border-bakery-border/32 bg-bakery-input px-2 py-1.5 text-[12px] text-bakery-ink outline-none"
+          aria-label={labels.productStock}
+        />
+      )}
+      {error ? (
+        <p className="text-[10px] font-semibold text-bakery-error">{error}</p>
+      ) : null}
+      <div className="grid grid-cols-2 gap-1">
+        <button
+          type="button"
+          className="rounded-[8px] bg-bakery-primary px-1 py-1 text-[10px] font-bold text-bakery-on-primary"
+          onClick={() => void save()}
+        >
+          {labels.save}
+        </button>
+        <button
+          type="button"
+          className="rounded-[8px] border border-bakery-border/35 bg-bakery-card px-1 py-1 text-[10px] font-bold text-bakery-ink"
+          onClick={close}
+        >
+          {labels.cancel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const ProductCard = memo(function ProductCard({
   product: p,
   labels,
   formatMoney,
   onHide,
   onDelete,
+  onStockSave,
 }: {
   product: Product;
   labels: ReturnType<typeof useAppLocale>["labels"];
   formatMoney: (n: number) => string;
   onHide: () => void;
   onDelete: () => void;
+  onStockSave: (stock: number | null) => void | Promise<void>;
 }) {
   return (
     <SquareCard className="bakery-float-tile overflow-hidden rounded-[14px] p-0 transition">
@@ -114,9 +216,11 @@ const ProductCard = memo(function ProductCard({
             {formatMoney(p.price)}
           </p>
         )}
-        <p className="text-[10px] font-semibold leading-snug text-bakery-muted">
-          {formatStockLabel(p.stock)}
-        </p>
+        <ProductStockEdit
+          stock={p.stock}
+          labels={labels}
+          onSave={onStockSave}
+        />
         <div className="mt-0.5 grid grid-cols-2 gap-1.5 border-t border-bakery-border/25 pt-1.5">
           <button
             type="button"
@@ -214,8 +318,8 @@ export function ProductsManager({
         setError(labels.productStockRequired);
         return;
       }
-      const parsedStock = parseInt(stockRaw, 10);
-      if (Number.isNaN(parsedStock) || parsedStock < 0) {
+      const parsedStock = parseStockInput(stockRaw);
+      if (parsedStock == null) {
         setError(labels.productStockInvalid);
         return;
       }
@@ -305,6 +409,33 @@ export function ProductsManager({
       if (!res.ok) void load();
     },
     [previewOnly, load]
+  );
+
+  const updateProductStock = useCallback(
+    async (id: string, stock: number | null) => {
+      if (previewOnly) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, stock } : p))
+        );
+        return;
+      }
+
+      const prev = products;
+      setProducts((list) =>
+        list.map((p) => (p.id === id ? { ...p, stock } : p))
+      );
+      const res = await fetch(`/api/dashboard/products/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stock }),
+      });
+      if (!res.ok) {
+        setProducts(prev);
+        const d = await res.json().catch(() => ({}));
+        setError((d as { error?: string }).error ?? labels.saveError);
+      }
+    },
+    [previewOnly, products, labels.saveError]
   );
 
   const deleteProduct = useCallback(
@@ -440,11 +571,14 @@ export function ProductsManager({
               {stockOpen && (
                 <Input
                   name="stock"
-                  type="number"
-                  step="1"
-                  min={0}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   dir="ltr"
                   required
+                  onChange={(e) => {
+                    e.target.value = e.target.value.replace(/\D/g, "");
+                  }}
                 />
               )}
               <Button
@@ -527,6 +661,7 @@ export function ProductsManager({
                     formatMoney={formatMoney}
                     onHide={() => void setProductActive(p.id, p.isActive)}
                     onDelete={() => void deleteProduct(p.id, p.name)}
+                    onStockSave={(stock) => updateProductStock(p.id, stock)}
                   />
                 ))}
               </div>

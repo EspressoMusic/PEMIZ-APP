@@ -246,6 +246,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 .customer-center-modal__panel {
   background-color: #faf4e6;
   color: var(--bakery-ink, #3a2f26);
+  border: 3px solid rgba(92, 74, 62, 0.22);
 }
 
 .customer-center-modal__header,
@@ -850,6 +851,14 @@ html:not([data-store-theme="dark"])
   box-shadow: 0 12px 36px rgba(78, 52, 46, 0.18);
 }
 
+/* מודלים ב-portal (מחוץ לעץ .dashboard-surface של הדשבורד) */
+html:not([data-store-theme="dark"]) .dashboard-modal-card {
+  background: #e6d5b8;
+  border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
+  border-radius: 32px;
+  box-shadow: 0 12px 36px rgba(78, 52, 46, 0.18);
+}
+
 /* ריבועי פעולות — גם במודלים (portal מחוץ ל-.dashboard-surface) */
 html:not([data-store-theme="dark"])
   :is(.dashboard-share-tile, .dashboard-action-square) {
@@ -1058,6 +1067,19 @@ html:not([data-store-theme="dark"]) .dashboard-inquiry-reply {
   padding: 0.625rem 0.75rem;
 }
 
+html:not([data-store-theme="dark"]) .dashboard-inquiry-reply-field {
+  border: 1.5px solid rgba(78, 52, 46, 0.12);
+  border-radius: 10px;
+  background: #f2ebe0;
+  box-shadow: inset 0 1px 3px rgba(78, 52, 46, 0.05);
+}
+
+html:not([data-store-theme="dark"]) .dashboard-inquiry-reply-field:focus {
+  outline: 2px solid rgba(93, 64, 55, 0.28);
+  outline-offset: 2px;
+  border-color: rgba(78, 52, 46, 0.18);
+}
+
 html:not([data-store-theme="dark"]) .dashboard-inquiry-cta {
   display: flex;
   width: 100%;
@@ -1108,6 +1130,44 @@ html:not([data-store-theme="dark"]) .dashboard-inquiry-expanded {
   padding: 0 0.25rem 0.25rem;
 }
 
+html:not([data-store-theme="dark"]) .dashboard-notification-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  min-height: 3.25rem;
+  border: 1.5px solid rgba(78, 52, 46, 0.18);
+  border-radius: 14px;
+  background: #f2ebe0;
+  padding: 0.5rem 0.625rem;
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.06);
+}
+
+html:not([data-store-theme="dark"]) .dashboard-notification-bar__type {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.75rem;
+  border-radius: 10px;
+  background: #e6d5b8;
+  border: 1px solid rgba(78, 52, 46, 0.12);
+  padding: 0.25rem 0.375rem;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #4e342e;
+}
+
+html:not([data-store-theme="dark"]) .dashboard-notification-bar__body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-inline-start: 0.125rem;
+}
+
 /* כפתורים תמיד כהים יותר מהרקע שמאחוריהם (לא כמו bg-bakery-square על אותו גוון) */
 html:not([data-store-theme="dark"])
   :is(.dashboard-surface, .auth-surface)
@@ -1147,8 +1207,9 @@ html:not([data-store-theme="dark"])
 }
 
 .dashboard-modal-backdrop {
-  background: rgba(58, 47, 38, 0.52);
-  backdrop-filter: blur(3px);
+  background: rgba(58, 47, 38, 0.58);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .dashboard-home-header {

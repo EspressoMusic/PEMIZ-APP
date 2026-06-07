@@ -99,7 +99,7 @@ export function CustomerCenterModal({
         aria-label={closeLabel}
       />
       <div
-        className={`customer-store-root ${themeClass} customer-center-modal__panel relative flex max-h-[min(88dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] border border-bakery-border/30 shadow-[0_12px_40px_rgba(58,47,38,0.2)] ${panelClassName}`}
+        className={`customer-store-root ${themeClass} customer-center-modal__panel relative flex max-h-[min(88dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] shadow-[0_12px_40px_rgba(58,47,38,0.2)] ${panelClassName}`}
       >
         {header ??
           (title ? (

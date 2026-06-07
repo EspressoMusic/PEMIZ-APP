@@ -17,6 +17,7 @@ export default function DevSellerPreviewPage() {
           <DashboardHomeView
             ownerName={DEV_STORE_OWNER_NAME}
             businessSlug="demo-store"
+            basePath="/dev/seller"
             customerLink="/b/demo-store"
             previewHref="/dev/customer"
             showPrepSummary

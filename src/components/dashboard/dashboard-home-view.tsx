@@ -17,6 +17,7 @@ export function DashboardHomeView({
   showPrepSummary,
   prepRefreshFromApi = false,
   businessSlug,
+  basePath = "/dashboard",
   inquiriesHref = "/dashboard/customers/inquiries",
   inquiryBellPreview = false,
 }: {
@@ -27,6 +28,7 @@ export function DashboardHomeView({
   showPrepSummary?: boolean;
   prepRefreshFromApi?: boolean;
   businessSlug: string;
+  basePath?: string;
   inquiriesHref?: string;
   inquiryBellPreview?: boolean;
 }) {
@@ -44,9 +46,10 @@ export function DashboardHomeView({
                 {labels.hello}, {ownerName.trim()}!
               </h1>
             ) : null}
-            <div className="absolute end-3 top-1/2 -translate-y-1/2">
+            <div className="absolute end-3 inset-y-0 flex items-center">
               <DashboardInquiryBell
                 businessSlug={businessSlug}
+                basePath={basePath}
                 inquiriesHref={inquiriesHref}
                 previewOnly={inquiryBellPreview}
               />

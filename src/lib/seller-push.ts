@@ -1,7 +1,8 @@
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
+import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
 
-export const LOW_STOCK_THRESHOLD = 5;
+export { LOW_STOCK_THRESHOLD };
 
 export type SellerPushKind = "new_order" | "inquiry" | "chat" | "low_stock";
 

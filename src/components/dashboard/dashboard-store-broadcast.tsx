@@ -93,7 +93,7 @@ function BroadcastComposeModal({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center p-4 sm:items-center"
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label={labels.customerMessage}

@@ -24,7 +24,7 @@ function StoreTermsButton({
       <button
         type="button"
         onClick={onClick}
-        className="w-full overflow-hidden rounded-full border border-bakery-border/35 bg-[#E6D5B8] px-5 py-3.5 text-center shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99]"
+        className="w-full overflow-hidden rounded-full border-[3px] border-[#5C4A3E]/22 bg-[#E6D5B8] px-5 py-3.5 text-center shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99]"
       >
         <span className="text-[16px] font-extrabold leading-snug text-bakery-primary">
           {title}
@@ -107,7 +107,7 @@ export function CustomerFaqSheet({
                     const expanded = expandedId === item.id;
                     return (
                       <li key={item.id}>
-                        <div className="overflow-hidden rounded-[22px] bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
+                        <div className="overflow-hidden rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
                           <button
                             type="button"
                             onClick={() =>

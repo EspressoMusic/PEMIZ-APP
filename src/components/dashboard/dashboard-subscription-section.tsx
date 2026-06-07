@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, Crown } from "lucide-react";
+import { Crown } from "lucide-react";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import {
   DashboardSettingsTile,
@@ -72,7 +72,7 @@ export function DashboardSubscriptionSection({
                 {labels.subscription}
               </p>
             }
-            action={
+            leading={
               <span
                 className={`${DASHBOARD_SETTINGS_ACTION} w-10 border border-bakery-border/35 bg-bakery-card/60 text-bakery-primary`}
                 aria-hidden
@@ -90,6 +90,7 @@ export function DashboardSubscriptionSection({
         title={labels.subscriptionPlansTitle}
         ariaLabel={labels.subscriptionPlansTitle}
         placement="center"
+        showBackButton
       >
         <div className="space-y-4 text-center">
           <p className="text-[14px] font-semibold leading-relaxed text-bakery-muted">
@@ -107,7 +108,7 @@ export function DashboardSubscriptionSection({
               return (
                 <div
                   key={plan.id}
-                  className="rounded-[22px] border border-bakery-border/40 bg-bakery-card/80 px-4 py-4 text-center"
+                  className="rounded-[22px] border border-bakery-border/40 bg-[#F2EBE0] px-4 py-4 text-center"
                 >
                   <p className="text-[18px] font-extrabold text-bakery-ink">
                     {title}
@@ -143,15 +144,6 @@ export function DashboardSubscriptionSection({
           {message ? (
             <p className="text-[13px] font-semibold text-bakery-muted">{message}</p>
           ) : null}
-
-          <button
-            type="button"
-            className="inline-flex min-h-[44px] items-center gap-1 text-[14px] font-bold text-bakery-primary"
-            onClick={() => setOpen(false)}
-          >
-            <ChevronLeft className="h-5 w-5 rtl:rotate-180" aria-hidden />
-            {labels.back}
-          </button>
         </div>
       </DashboardActionSheet>
     </>

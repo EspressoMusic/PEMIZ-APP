@@ -81,6 +81,8 @@ export function DashboardStoreStylePicker({
         open={open}
         onClose={() => setOpen(false)}
         ariaLabel={labels.styleColorLanguage}
+        placement="top"
+        showBackButton
       >
         <div className="space-y-4">
           <p className="text-center text-[14px] font-bold text-bakery-ink">

@@ -802,42 +802,42 @@ export function DealCard({
   return (
     <>
       <article
-        className={`flex min-h-[17rem] min-w-0 flex-col gap-3.5 overflow-hidden rounded-[20px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-4 shadow-[0_3px_12px_rgba(58,47,38,0.12)] transition-opacity duration-300 ${
+        className={`mx-auto flex w-full max-w-[17.5rem] min-w-0 flex-col gap-2 overflow-hidden rounded-[16px] border-[1.5px] border-[#5C4A3E]/25 bg-bakery-square p-3 shadow-[0_2px_8px_rgba(58,47,38,0.1)] transition-opacity duration-300 ${
           faded ? "opacity-45 saturate-[0.65]" : ""
         }`}
       >
-        <div className="relative flex min-h-[2.75rem] items-center justify-center px-9">
-          <h3 className="line-clamp-2 w-full text-center text-[18px] font-extrabold leading-[1.2] text-bakery-ink">
+        <div className="relative flex min-h-[2.25rem] items-center justify-center px-7">
+          <h3 className="line-clamp-2 w-full text-center text-[15px] font-extrabold leading-[1.2] text-bakery-ink">
             {name}
           </h3>
           <button
             type="button"
             onClick={() => setInfoOpen(true)}
-            className="absolute end-0 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/95 text-bakery-primary shadow-[0_1px_4px_rgba(58,47,38,0.12)] transition active:scale-95"
+            className="absolute end-0 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/95 text-bakery-primary shadow-[0_1px_3px_rgba(58,47,38,0.1)] transition active:scale-95"
             aria-label={labels.productInfo}
           >
-            <Info className="h-3.5 w-3.5" strokeWidth={2.5} />
+            <Info className="h-3 w-3" strokeWidth={2.5} />
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col gap-2.5">
+        <div className="flex flex-col gap-1.5">
           {products.map((p) => {
             const qty = Math.max(1, p.quantity ?? 1);
             return (
               <div
                 key={p.id ?? p.name}
-                className="flex min-h-[3.75rem] min-w-0 items-center gap-3 rounded-[14px] border border-bakery-border/35 bg-bakery-card px-3 py-2.5 shadow-[0_3px_10px_rgba(58,47,38,0.12)]"
+                className="flex min-h-[2.75rem] min-w-0 items-center gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-card px-2 py-1.5 shadow-[0_2px_6px_rgba(58,47,38,0.1)]"
               >
-                <div className="h-14 w-[5.25rem] shrink-0 overflow-hidden rounded-[10px] bg-bakery-on-primary">
+                <div className="h-10 w-14 shrink-0 overflow-hidden rounded-[8px] bg-bakery-on-primary">
                   <ProductThumb
                     imageUrl={p.imageUrl}
                     className="h-full w-full object-cover"
                   />
                 </div>
-                <p className="min-w-0 flex-1 truncate text-start text-[14px] font-bold leading-tight text-bakery-ink">
+                <p className="min-w-0 flex-1 truncate text-start text-[12px] font-bold leading-tight text-bakery-ink">
                   {p.name}
                 </p>
-                <span className="shrink-0 text-[15px] font-extrabold leading-none text-bakery-primary tabular-nums">
+                <span className="shrink-0 text-[13px] font-extrabold leading-none text-bakery-primary tabular-nums">
                   ×{qty}
                 </span>
               </div>
@@ -845,18 +845,18 @@ export function DealCard({
           })}
         </div>
 
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center gap-0.5">
           {originalTotal > dealPrice && (
-            <p className="text-center text-[16px] font-semibold leading-none text-bakery-muted line-through tabular-nums">
+            <p className="text-center text-[13px] font-semibold leading-none text-bakery-muted line-through tabular-nums">
               {formatCustomerMoney(originalTotal, locale)}
             </p>
           )}
-          <p className="text-center text-[22px] font-extrabold leading-none text-bakery-sale tabular-nums">
+          <p className="text-center text-[18px] font-extrabold leading-none text-bakery-sale tabular-nums">
             {formatCustomerMoney(dealPrice, locale)}
           </p>
         </div>
 
-        <p className="text-center text-[12px] font-semibold leading-snug text-bakery-muted">
+        <p className="text-center text-[11px] font-semibold leading-snug text-bakery-muted">
           {validUntilLabel}
         </p>
 
@@ -864,7 +864,7 @@ export function DealCard({
           type="button"
           onClick={onRedeem}
           disabled={redeemDisabled || faded}
-          className="mx-auto min-h-[40px] w-full max-w-[11rem] rounded-full bg-bakery-primary px-5 py-2 text-[13px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
+          className="mx-auto min-h-[34px] w-full max-w-[9rem] rounded-full bg-bakery-primary px-4 py-1.5 text-[12px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
         >
           {faded
             ? labels.dealRedeemed

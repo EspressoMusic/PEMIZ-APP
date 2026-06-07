@@ -1,7 +1,6 @@
 "use client";
 
 import { Download, Share, Smartphone } from "lucide-react";
-import { Button } from "@/components/ui";
 import { usePwa } from "@/components/pwa/pwa-context";
 
 type InstallCopy = {
@@ -17,8 +16,15 @@ type InstallCopy = {
   desktopHint: string;
 };
 
+const installTapClass =
+  "w-full cursor-pointer text-start transition active:scale-[0.99] hover:opacity-95";
+
 export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
-  const { installed, canInstall, isIos, install } = usePwa();
+  const { installed, canInstall, isIos, tryAddToHomeScreen } = usePwa();
+
+  function handleTap() {
+    void tryAddToHomeScreen();
+  }
 
   if (installed) {
     return (
@@ -32,44 +38,70 @@ export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-[22px] border border-bakery-border/40 bg-bakery-card/80 px-4 py-4 text-center">
+    <div className="space-y-4 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <button
+        type="button"
+        onClick={handleTap}
+        className={`${installTapClass} rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/80 px-4 py-4 text-center`}
+      >
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-[16px] bg-bakery-square/70">
           <Smartphone className="h-7 w-7 text-bakery-primary" strokeWidth={1.75} />
         </div>
         <p className="text-[17px] font-extrabold text-bakery-ink">{copy.title}</p>
-        <p className="mt-1 text-[13px] font-semibold leading-relaxed text-bakery-muted">
-          {copy.subtitle}
-        </p>
-      </div>
+        {copy.subtitle.trim() ? (
+          <p className="mt-1 text-[13px] font-semibold leading-relaxed text-bakery-muted">
+            {copy.subtitle}
+          </p>
+        ) : null}
+        {canInstall ? (
+          <p className="mt-2 inline-flex items-center justify-center gap-1.5 text-[14px] font-extrabold text-bakery-primary">
+            <Download className="h-4 w-4" strokeWidth={2} />
+            {copy.installButton}
+          </p>
+        ) : null}
+      </button>
 
       {canInstall ? (
-        <Button
+        <button
           type="button"
-          className="w-full gap-2"
-          onClick={() => void install()}
+          onClick={handleTap}
+          className={`${installTapClass} flex min-h-[44px] items-center justify-center gap-2 rounded-full border-[3px] border-[#5C4A3E]/22 bg-bakery-primary px-4 py-2.5 text-center text-[14px] font-extrabold text-bakery-on-primary shadow-[var(--shadow-bakery-btn)]`}
         >
           <Download className="h-5 w-5" strokeWidth={2} />
           {copy.installButton}
-        </Button>
+        </button>
       ) : isIos ? (
-        <ol className="space-y-2 rounded-[22px] border border-bakery-border/35 bg-bakery-card/60 px-4 py-4 text-start text-[14px] font-semibold leading-relaxed text-bakery-ink">
-          <li className="flex gap-2">
-            <Share className="mt-0.5 h-4 w-4 shrink-0 text-bakery-primary" />
-            <span>{copy.iosStep1}</span>
-          </li>
-          <li>{copy.iosStep2}</li>
-          <li>{copy.iosStep3}</li>
-        </ol>
+        <button
+          type="button"
+          onClick={handleTap}
+          className={`${installTapClass} rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/60 px-4 py-4`}
+        >
+          <ol className="space-y-2 text-[14px] font-semibold leading-relaxed text-bakery-ink">
+            <li className="flex gap-2">
+              <Share className="mt-0.5 h-4 w-4 shrink-0 text-bakery-primary" />
+              <span>{copy.iosStep1}</span>
+            </li>
+            <li>{copy.iosStep2}</li>
+            <li>{copy.iosStep3}</li>
+          </ol>
+        </button>
       ) : (
-        <p className="rounded-[18px] border border-bakery-border/30 bg-bakery-card/50 px-4 py-3 text-center text-[13px] font-semibold leading-relaxed text-bakery-muted">
+        <button
+          type="button"
+          onClick={handleTap}
+          className={`${installTapClass} rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/50 px-4 py-3 text-center text-[13px] font-semibold leading-relaxed text-bakery-muted`}
+        >
           {copy.androidHint}
-        </p>
+        </button>
       )}
 
-      <p className="text-center text-[12px] font-medium leading-relaxed text-bakery-muted">
+      <button
+        type="button"
+        onClick={handleTap}
+        className={`${installTapClass} rounded-[14px] px-2 py-1 text-center text-[12px] font-medium leading-relaxed text-bakery-muted`}
+      >
         {copy.desktopHint}
-      </p>
+      </button>
     </div>
   );
 }

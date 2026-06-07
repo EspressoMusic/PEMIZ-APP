@@ -60,6 +60,17 @@ export type DashboardLabels = {
   alertOnChatMessage: string;
   alertOnNewOrder: string;
   alertOnLowStock: string;
+  notificationTitle: string;
+  notificationEmpty: string;
+  notificationTypeInquiry: string;
+  notificationTypeChat: string;
+  notificationTypeOrder: string;
+  notificationTypeLowStock: string;
+  notificationBackToList: string;
+  notificationOpenOrders: string;
+  notificationOpenProducts: string;
+  notificationStockOut: string;
+  notificationStockLeft: string;
   accountAndLink: string;
   extras: string;
   customers: string;
@@ -251,7 +262,10 @@ export type DashboardLabels = {
   periodSummaryMonth: string;
   periodSummaryYear: string;
   ownerAccount: string;
+  accountDetails: string;
   email: string;
+  phone: string;
+  phoneNotSet: string;
   storeStatus: string;
   storeActive: string;
   storeInactive: string;
@@ -289,6 +303,7 @@ export type DashboardLabels = {
   customerOrderCount: string;
   customerLastOrder: string;
   sendCustomerMessage: string;
+  openCustomerMessageComposer: string;
   callCustomer: string;
   customerMessagePlaceholder: string;
   customerMessageInvalidPhone: string;
@@ -508,12 +523,16 @@ const HE: DashboardLabels = {
   periodMonth: "חודשי",
   periodYear: "שנתי",
   sendCustomerMessage: "שלח באפליקציה",
+  openCustomerMessageComposer: "שלח הודעה",
   sendCustomerWhatsApp: "שלח בוואטסאפ",
   periodSummaryWeek: "7 הימים האחרונים",
   periodSummaryMonth: "30 הימים האחרונים",
   periodSummaryYear: "12 החודשים האחרונים",
   ownerAccount: "חשבון בעלים",
+  accountDetails: "פרטים",
   email: "אימייל",
+  phone: "טלפון",
+  phoneNotSet: "לא הוגדר",
   storeStatus: "סטטוס חנות",
   storeActive: "פעילה — לקוחות יכולים להיכנס",
   storeInactive: "מושבתת",
@@ -591,6 +610,17 @@ const HE: DashboardLabels = {
   alertOnChatMessage: "התראה על פנייה בצ'אט",
   alertOnNewOrder: "התראה על הזמנה חדשה",
   alertOnLowStock: "התראה כשהמלאי עומד להיגמר",
+  notificationTitle: "התראות",
+  notificationEmpty: "אין התראות חדשות",
+  notificationTypeInquiry: "פנייה רגילה",
+  notificationTypeChat: "פנייה בצ'אט",
+  notificationTypeOrder: "הזמנה חדשה",
+  notificationTypeLowStock: "מלאי נמוך",
+  notificationBackToList: "חזרה להתראות",
+  notificationOpenOrders: "צפה בהזמנות",
+  notificationOpenProducts: "לניהול מוצרים",
+  notificationStockOut: "אזל מהמלאי",
+  notificationStockLeft: "נשארו {n}",
   customerPreview: "תצוגת לקוח →",
   broadcastMessage: "תוכן ההודעה",
   broadcastPlaceholder: "לדוגמה: מבצע סוף שבוע — 10% על כל המוצרים!",
@@ -825,12 +855,16 @@ const EN: DashboardLabels = {
   periodMonth: "Monthly",
   periodYear: "Yearly",
   sendCustomerMessage: "Send in app",
+  openCustomerMessageComposer: "Send message",
   sendCustomerWhatsApp: "Send on WhatsApp",
   periodSummaryWeek: "Last 7 days",
   periodSummaryMonth: "Last 30 days",
   periodSummaryYear: "Last 12 months",
   ownerAccount: "Owner account",
+  accountDetails: "Details",
   email: "Email",
+  phone: "Phone",
+  phoneNotSet: "Not set",
   storeStatus: "Store status",
   storeActive: "Live — customers can visit",
   storeInactive: "Disabled",
@@ -907,6 +941,17 @@ const EN: DashboardLabels = {
   alertOnChatMessage: "Alert on chat message",
   alertOnNewOrder: "Alert on new order",
   alertOnLowStock: "Alert when stock is low",
+  notificationTitle: "Notifications",
+  notificationEmpty: "No new notifications",
+  notificationTypeInquiry: "Customer inquiry",
+  notificationTypeChat: "Chat message",
+  notificationTypeOrder: "New order",
+  notificationTypeLowStock: "Low stock",
+  notificationBackToList: "Back to notifications",
+  notificationOpenOrders: "View orders",
+  notificationOpenProducts: "Manage products",
+  notificationStockOut: "Out of stock",
+  notificationStockLeft: "{n} left",
   customerPreview: "Customer preview →",
   broadcastMessage: "Message",
   broadcastPlaceholder: "e.g. Weekend sale — 10% off everything!",

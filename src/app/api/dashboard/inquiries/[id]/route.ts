@@ -33,3 +33,21 @@ export async function PATCH(
 
   return jsonOk({ inquiry });
 }
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx.response;
+
+  const { id } = await params;
+  const existing = await findOwnedInquiry(ctx.user.business.id, id);
+  if (!existing) return jsonError("פנייה לא נמצאה", 404);
+
+  await prisma.inquiry.delete({
+    where: { id, businessId: ctx.user.business.id },
+  });
+
+  return jsonOk({ ok: true });
+}

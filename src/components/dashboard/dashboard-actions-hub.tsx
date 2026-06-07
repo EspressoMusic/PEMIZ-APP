@@ -25,7 +25,7 @@ export function DashboardActionsHub({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden py-3 text-center sm:py-4">
-      <div className="flex min-h-0 flex-1 flex-col justify-start gap-3 overflow-y-auto overflow-x-hidden">
+      <div className="no-scrollbar flex min-h-0 flex-1 flex-col justify-start gap-3 overflow-y-auto overflow-x-hidden pb-2">
         <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <div className="grid grid-cols-2 gap-2">
             <DashboardActionSquare
@@ -49,7 +49,7 @@ export function DashboardActionsHub({
           </div>
         </div>
 
-        <div className="dashboard-card bakery-float-panel min-h-0 rounded-[32px] p-3">
+        <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <ul className="space-y-2 text-start">
             <DashboardActionsSettingsGroup
               basePath={basePath}

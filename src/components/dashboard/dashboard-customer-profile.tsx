@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { X } from "lucide-react";
-import { Alert, Button, Textarea } from "@/components/ui";
+import { createPortal } from "react-dom";
+import { MessageSquare, Phone, X } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
 import {
@@ -10,11 +10,25 @@ import {
   type CustomerProfile,
 } from "@/lib/store-customers";
 import { buildWhatsAppChatUrl, normalizePhone } from "@/lib/phone";
-import { appendDevStoreChat } from "@/lib/customer-chat-storage";
-import type { StoreChatMessageDto } from "@/lib/store-chat";
 
 export const CUSTOMER_DETAIL_BAR =
-  "overflow-hidden rounded-[12px] border-[1.2px] border-bakery-border/35 bg-bakery-input p-4 shadow-[var(--shadow-bakery-card)]";
+  "overflow-hidden rounded-[12px] border-[1.2px] border-bakery-border/35 bg-[#F2EBE0] p-4 shadow-[var(--shadow-bakery-card)]";
+
+const CONTACT_ICON_BTN =
+  "flex h-12 w-12 items-center justify-center rounded-full text-bakery-primary transition hover:bg-bakery-card/40 active:scale-95";
+
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  );
+}
 
 export function customerProfileInitial(
   name: string,
@@ -34,20 +48,11 @@ export type CustomerProfileInput = {
 export function DashboardCustomerProfileModal({
   profile,
   onClose,
-  previewOnly = false,
-  businessSlug = "demo-store",
-  businessName = "",
 }: {
   profile: CustomerProfile;
   onClose: () => void;
-  previewOnly?: boolean;
-  businessSlug?: string;
-  businessName?: string;
 }) {
   const { labels, formatDayDate } = useAppLocale();
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -56,72 +61,17 @@ export function DashboardCustomerProfileModal({
     };
   }, []);
 
-  async function sendInAppMessage() {
-    setError("");
-    const trimmed = message.trim();
-    if (!trimmed) {
-      setError(labels.broadcastWriteMessage);
-      return;
-    }
+  const phoneDigits = profile.customerPhone.replace(/\s/g, "");
+  const telHref = `tel:${phoneDigits}`;
+  const smsHref = `sms:${phoneDigits}`;
+  const whatsappHref = buildWhatsAppChatUrl(profile.customerPhone);
+  const phoneValid = normalizePhone(profile.customerPhone).length >= 9;
 
-    setSending(true);
-    try {
-      if (previewOnly) {
-        const msg: StoreChatMessageDto = {
-          id: `dev-seller-${Date.now()}`,
-          channel: "SELLER",
-          customerPhone: normalizePhone(profile.customerPhone),
-          customerName: profile.customerName,
-          authorRole: "SELLER",
-          body: trimmed,
-          createdAt: new Date().toISOString(),
-        };
-        appendDevStoreChat(businessSlug, "SELLER", msg);
-        onClose();
-        return;
-      }
+  if (typeof document === "undefined") return null;
 
-      const res = await fetch("/api/dashboard/store-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerPhone: profile.customerPhone,
-          body: trimmed,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.error ?? labels.networkError);
-        return;
-      }
-      onClose();
-    } catch {
-      setError(labels.networkError);
-    } finally {
-      setSending(false);
-    }
-  }
-
-  function sendWhatsApp() {
-    setError("");
-    const trimmed = message.trim();
-    const url = buildWhatsAppChatUrl(
-      profile.customerPhone,
-      trimmed || undefined
-    );
-    if (!url) {
-      setError(labels.customerMessageInvalidPhone);
-      return;
-    }
-
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-
-  const telHref = `tel:${profile.customerPhone.replace(/\s/g, "")}`;
-
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center p-4 sm:items-center"
+      className="fixed inset-0 z-[80] flex items-end justify-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-center"
       role="dialog"
       aria-modal="true"
       aria-label={profile.customerName}
@@ -132,7 +82,7 @@ export function DashboardCustomerProfileModal({
         onClick={onClose}
         aria-label={labels.close}
       />
-      <div className="dashboard-card bakery-float-panel relative w-full max-w-md overflow-hidden rounded-[32px] p-3">
+      <div className="dashboard-surface dashboard-card relative w-full max-w-md overflow-hidden rounded-[32px] border-[1.2px] border-bakery-border/35 bg-[#E6D5B8] p-3 shadow-[var(--shadow-bakery-panel)]">
         <button
           type="button"
           onClick={onClose}
@@ -206,50 +156,46 @@ export function DashboardCustomerProfileModal({
             </section>
           )}
 
-          <section className={`${CUSTOMER_DETAIL_BAR} text-start`}>
-            <a
-              href={telHref}
-              className="dashboard-inquiry-cta mb-3 block text-center no-underline"
-            >
-              {labels.callCustomer}
-            </a>
-            {error && (
-              <div className="mb-3">
-                <Alert variant="error">{error}</Alert>
-              </div>
-            )}
-            <Textarea
-              label={labels.broadcastMessage}
-              rows={4}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder={labels.customerMessagePlaceholder}
-              maxLength={500}
-              className="min-h-[110px] !rounded-[12px] resize-none bg-bakery-card"
-            />
-            <div className="mt-3 flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="primary"
-                className="w-full min-h-[48px] rounded-full font-extrabold"
-                disabled={sending}
-                onClick={() => void sendInAppMessage()}
+          <section className={CUSTOMER_DETAIL_BAR}>
+            <div className="flex items-center justify-center gap-8">
+              <a
+                href={phoneValid ? telHref : undefined}
+                aria-label={labels.callCustomer}
+                className={`${CONTACT_ICON_BTN} ${phoneValid ? "" : "pointer-events-none opacity-40"}`}
               >
-                {sending ? labels.sending : labels.sendCustomerMessage}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                className="w-full min-h-[48px] rounded-full font-extrabold"
-                onClick={sendWhatsApp}
+                <Phone className="h-6 w-6" strokeWidth={2.25} />
+              </a>
+              <a
+                href={phoneValid ? smsHref : undefined}
+                aria-label={labels.openCustomerMessageComposer}
+                className={`${CONTACT_ICON_BTN} ${phoneValid ? "" : "pointer-events-none opacity-40"}`}
               >
-                {labels.sendCustomerWhatsApp}
-              </Button>
+                <MessageSquare className="h-6 w-6" strokeWidth={2.25} />
+              </a>
+              {whatsappHref ? (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={labels.sendCustomerWhatsApp}
+                  className={CONTACT_ICON_BTN}
+                >
+                  <WhatsAppIcon className="h-6 w-6" />
+                </a>
+              ) : (
+                <span
+                  className={`${CONTACT_ICON_BTN} opacity-40`}
+                  aria-hidden
+                >
+                  <WhatsAppIcon className="h-6 w-6" />
+                </span>
+              )}
             </div>
           </section>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -313,13 +259,7 @@ export function useDashboardCustomerProfile(options?: {
   const closeCustomer = useCallback(() => setProfile(null), []);
 
   const modal: ReactNode = profile ? (
-    <DashboardCustomerProfileModal
-      profile={profile}
-      onClose={closeCustomer}
-      previewOnly={options?.previewOnly}
-      businessSlug={options?.businessSlug}
-      businessName={options?.businessName}
-    />
+    <DashboardCustomerProfileModal profile={profile} onClose={closeCustomer} />
   ) : null;
 
   return { openCustomer, closeCustomer, modal };

@@ -13,7 +13,6 @@ type Props = {
   copy: {
     title: string;
     panelTitle: string;
-    panelSubtitle: string;
     installedTitle: string;
     installedHint: string;
     installButton: string;
@@ -39,11 +38,12 @@ export function CustomerInstallAppSheet({
       locale={locale}
       storeTheme={storeTheme}
       title={copy.title}
+      panelClassName="customer-profile-modal-panel"
     >
       <PwaInstallPanel
         copy={{
           title: copy.panelTitle,
-          subtitle: copy.panelSubtitle,
+          subtitle: "",
           installedTitle: copy.installedTitle,
           installedHint: copy.installedHint,
           installButton: copy.installButton,

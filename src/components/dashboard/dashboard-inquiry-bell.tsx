@@ -1,104 +1,544 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Bell, X } from "lucide-react";
-import { DEV_PREVIEW_INQUIRIES, DEV_PREVIEW_ORDERS } from "@/lib/dev-preview-data";
+import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
+import { ArrowRight, Bell, Send, X } from "lucide-react";
+import { Alert, Textarea } from "@/components/ui";
+import {
+  DEV_PREVIEW_ORDERS,
+  DEV_PREVIEW_SELLER_CHAT,
+} from "@/lib/dev-preview-data";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   customerProfileInitial,
   useDashboardCustomerProfile,
 } from "@/components/dashboard/dashboard-customer-profile";
+import {
+  buildDevDashboardNotifications,
+  notificationKindLabel,
+  type DashboardNotification,
+} from "@/lib/dashboard-notifications-client";
+import type { StoreChatMessageDto } from "@/lib/store-chat";
+import {
+  appendDevStoreChat,
+  filterDevSellerChat,
+  loadDevStoreChat,
+} from "@/lib/customer-chat-storage";
+import { normalizePhone } from "@/lib/phone";
+import { chatMessagesEqual } from "@/lib/store-chat-query";
 
-type InquiryRow = {
-  id: string;
-  customerName: string;
-  message: string;
-  customerPhone?: string | null;
-  sellerReply?: string | null;
-  createdAt: string;
-};
-
-function seenStorageKey(slug: string) {
-  return `linky-inquiries-seen-at-${slug}`;
-}
-
-function getLastSeenAt(slug: string): string {
-  if (typeof window === "undefined") return "";
-  return localStorage.getItem(seenStorageKey(slug)) ?? "";
-}
-
-function markInquiriesSeen(slug: string) {
-  localStorage.setItem(seenStorageKey(slug), new Date().toISOString());
+function formatChatTime(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(
+    locale === "he" ? "he-IL" : "en-GB",
+    { hour: "2-digit", minute: "2-digit" }
+  );
 }
 
 export function DashboardInquiryBell({
   businessSlug,
-  inquiriesHref,
+  basePath = "/dashboard",
   previewOnly = false,
 }: {
   businessSlug: string;
-  inquiriesHref: string;
+  inquiriesHref?: string;
+  basePath?: string;
   previewOnly?: boolean;
 }) {
-  const { labels, formatDateTime } = useAppLocale();
+  const { labels, formatDateTime, locale } = useAppLocale();
   const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
     previewOnly,
     previewOrders: previewOnly ? DEV_PREVIEW_ORDERS : undefined,
+    businessSlug,
   });
-  const [items, setItems] = useState<InquiryRow[]>([]);
-  const [lastSeenAt, setLastSeenAt] = useState("");
+
+  const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState<DashboardNotification | null>(null);
+
+  const [replyDraft, setReplyDraft] = useState("");
+  const [replyError, setReplyError] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
+
+  const [chatMessages, setChatMessages] = useState<StoreChatMessageDto[]>([]);
+  const [chatDraft, setChatDraft] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState("");
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+
   const load = useCallback(async () => {
     if (previewOnly) {
-      setItems(
-        DEV_PREVIEW_INQUIRIES.map((row) => ({
-          id: row.id,
-          customerName: row.customerName,
-          message: row.message,
-          customerPhone: row.customerPhone,
-          sellerReply: row.sellerReply,
-          createdAt: row.createdAt,
-        }))
-      );
+      setNotifications(buildDevDashboardNotifications(labels));
       return;
     }
-    const res = await fetch("/api/dashboard/inquiries");
+    const res = await fetch("/api/dashboard/notifications");
     const data = await res.json();
-    if (res.ok) setItems(data.inquiries ?? []);
-  }, [previewOnly]);
+    if (res.ok) setNotifications(data.notifications ?? []);
+  }, [previewOnly, labels]);
 
   useEffect(() => {
-    setLastSeenAt(getLastSeenAt(businessSlug));
     void load();
-  }, [businessSlug, load]);
+  }, [load]);
 
-  useVisibilityInterval(() => void load(), 300_000, 600_000);
+  useVisibilityInterval(() => void load(), 60_000, 120_000);
 
-  const pending = useMemo(
-    () => items.filter((q) => !q.sellerReply),
-    [items]
-  );
-
-  const newPending = useMemo(() => {
-    if (!lastSeenAt) return pending;
-    const seen = new Date(lastSeenAt).getTime();
-    return pending.filter((q) => new Date(q.createdAt).getTime() > seen);
-  }, [pending, lastSeenAt]);
-
-  const hasNew = newPending.length > 0;
-  const hasPending = pending.length > 0;
+  const hasAlerts = notifications.length > 0;
 
   function openPanel() {
     setOpen(true);
-    markInquiriesSeen(businessSlug);
-    setLastSeenAt(getLastSeenAt(businessSlug));
+    setActive(null);
+    setReplyDraft("");
+    setReplyError("");
+    setChatDraft("");
+    setChatError("");
+    void load();
   }
 
   function closePanel() {
     setOpen(false);
+    setActive(null);
+    setReplyDraft("");
+    setReplyError("");
+    setChatMessages([]);
+    setChatDraft("");
+    setChatError("");
   }
+
+  function openNotification(item: DashboardNotification) {
+    setActive(item);
+    setReplyDraft("");
+    setReplyError("");
+    setChatDraft("");
+    setChatError("");
+    if (item.kind === "chat" && item.customerPhone) {
+      void loadChatMessages(item.customerPhone);
+    }
+  }
+
+  function backToList() {
+    setActive(null);
+    setReplyDraft("");
+    setReplyError("");
+    setChatMessages([]);
+    setChatDraft("");
+    setChatError("");
+    void load();
+  }
+
+  async function dismissInquiry(inquiryId: string) {
+    if (previewOnly) {
+      setNotifications((prev) =>
+        prev.filter((n) => n.inquiryId !== inquiryId)
+      );
+      if (active?.inquiryId === inquiryId) backToList();
+      return;
+    }
+    const res = await fetch(`/api/dashboard/inquiries/${inquiryId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) return;
+    setNotifications((prev) =>
+      prev.filter((n) => n.inquiryId !== inquiryId)
+    );
+    if (active?.inquiryId === inquiryId) backToList();
+  }
+
+  async function sendInquiryReply() {
+    if (!active?.inquiryId) return;
+    setReplyError("");
+    const text = replyDraft.trim();
+    if (!text) {
+      setReplyError(labels.replyRequired);
+      return;
+    }
+    setSendingReply(true);
+    try {
+      if (previewOnly) {
+        setNotifications((prev) =>
+          prev.filter((n) => n.inquiryId !== active.inquiryId)
+        );
+        backToList();
+        return;
+      }
+      const res = await fetch(`/api/dashboard/inquiries/${active.inquiryId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sellerReply: text }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setReplyError((data as { error?: string }).error ?? labels.networkError);
+        return;
+      }
+      backToList();
+    } catch {
+      setReplyError(labels.networkError);
+    } finally {
+      setSendingReply(false);
+    }
+  }
+
+  const loadChatMessages = useCallback(
+    async (phone: string) => {
+      setChatError("");
+      if (previewOnly) {
+        const stored = loadDevStoreChat(businessSlug, "SELLER");
+        const seed = stored.length > 0 ? stored : DEV_PREVIEW_SELLER_CHAT;
+        setChatMessages(filterDevSellerChat(seed, phone));
+        return;
+      }
+      setChatLoading(true);
+      try {
+        const res = await fetch(
+          `/api/dashboard/store-chat?phone=${encodeURIComponent(phone)}`
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          setChatError((data as { error?: string }).error ?? labels.networkError);
+          return;
+        }
+        const incoming = (data.messages ?? []) as StoreChatMessageDto[];
+        setChatMessages((prev) =>
+          chatMessagesEqual(prev, incoming) ? prev : incoming
+        );
+      } catch {
+        setChatError(labels.networkError);
+      } finally {
+        setChatLoading(false);
+      }
+    },
+    [previewOnly, businessSlug, labels.networkError]
+  );
+
+  async function sendChatReply() {
+    const phone = active?.customerPhone;
+    if (!phone) return;
+    const text = chatDraft.trim();
+    if (!text) return;
+    setChatError("");
+
+    if (previewOnly) {
+      const msg: StoreChatMessageDto = {
+        id: `dev-seller-${Date.now()}`,
+        channel: "SELLER",
+        customerPhone: normalizePhone(phone),
+        customerName: active.customerName ?? labels.anonymousCustomer,
+        authorRole: "SELLER",
+        body: text,
+        createdAt: new Date().toISOString(),
+      };
+      appendDevStoreChat(businessSlug, "SELLER", msg);
+      setChatDraft("");
+      void loadChatMessages(phone);
+      setNotifications((prev) =>
+        prev.filter((n) => n.id !== active.id)
+      );
+      return;
+    }
+
+    const res = await fetch("/api/dashboard/store-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customerPhone: phone, body: text }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setChatError((data as { error?: string }).error ?? labels.networkError);
+      return;
+    }
+    setChatDraft("");
+    void loadChatMessages(phone);
+    void load();
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    const el = chatScrollRef.current;
+    if (!el || chatMessages.length === 0) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "auto" });
+  }, [chatMessages]);
+
+  function renderNotificationBar(item: DashboardNotification) {
+    return (
+      <button
+        key={item.id}
+        type="button"
+        onClick={() => openNotification(item)}
+        className="dashboard-notification-bar w-full text-start transition hover:opacity-95 active:scale-[0.99]"
+      >
+        <span className="dashboard-notification-bar__type">
+          {notificationKindLabel(item.kind, labels)}
+        </span>
+        <span className="dashboard-notification-bar__body">
+          <span className="block truncate text-[13px] font-extrabold text-bakery-ink">
+            {item.subtitle}
+          </span>
+          {item.message ? (
+            <span className="mt-0.5 block truncate text-[11px] font-semibold text-bakery-muted">
+              {item.message}
+            </span>
+          ) : null}
+        </span>
+      </button>
+    );
+  }
+
+  function renderDetail() {
+    if (!active) return null;
+
+    return (
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="shrink-0 border-b border-bakery-border/20 px-4 py-2.5">
+          <button
+            type="button"
+            onClick={backToList}
+            className="inline-flex items-center gap-1 text-[14px] font-bold text-bakery-ink"
+          >
+            <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
+            {labels.notificationBackToList}
+          </button>
+          <p className="mt-2 text-center text-[15px] font-extrabold text-bakery-ink">
+            {notificationKindLabel(active.kind, labels)}
+          </p>
+          <p className="text-center text-[13px] font-semibold text-bakery-muted">
+            {active.subtitle}
+          </p>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+          {active.kind === "inquiry" && (
+            <div className="space-y-3">
+              {active.customerPhone ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    openCustomer({
+                      customerName: active.customerName!,
+                      customerPhone: active.customerPhone!,
+                      fallbackDate: active.createdAt,
+                    })
+                  }
+                  className="mx-auto flex items-center gap-2"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[12px] border border-bakery-border/35 bg-bakery-on-primary text-[16px] font-extrabold text-bakery-primary">
+                    {customerProfileInitial(
+                      active.customerName ?? "",
+                      labels.anonymousCustomer
+                    )}
+                  </span>
+                </button>
+              ) : null}
+              <p className="whitespace-pre-wrap rounded-[12px] border border-bakery-border/30 bg-[#F2EBE0] p-3 text-[14px] leading-snug text-bakery-ink">
+                {active.message}
+              </p>
+              <p className="text-center text-[11px] text-bakery-muted">
+                {formatDateTime(active.createdAt)}
+              </p>
+              <Textarea
+                label={labels.yourReply}
+                labelClassName="block w-full text-center text-[13px] font-extrabold"
+                rows={3}
+                value={replyDraft}
+                onChange={(e) => setReplyDraft(e.target.value)}
+                placeholder={labels.replyToCustomer}
+                className="dashboard-inquiry-reply-field min-h-[88px] resize-y text-[13px] !rounded-[10px]"
+              />
+              {replyError ? <Alert variant="error">{replyError}</Alert> : null}
+              <div className="flex flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  className="dashboard-inquiry-cta min-w-[7.5rem]"
+                  disabled={sendingReply}
+                  onClick={() => void sendInquiryReply()}
+                >
+                  {sendingReply ? labels.sending : labels.sendReply}
+                </button>
+                {active.inquiryId ? (
+                  <button
+                    type="button"
+                    className="dashboard-inquiry-cta dashboard-inquiry-cta--ghost min-w-[5.5rem]"
+                    onClick={() => void dismissInquiry(active.inquiryId!)}
+                  >
+                    {labels.close}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          )}
+
+          {active.kind === "chat" && active.customerPhone && (
+            <div className="customer-wa-chat flex min-h-[min(42dvh,360px)] flex-col overflow-hidden rounded-[16px] border border-bakery-border/30">
+              <div
+                ref={chatScrollRef}
+                className="customer-wa-chat__messages min-h-0 flex-1"
+              >
+                {chatLoading && chatMessages.length === 0 ? (
+                  <p className="py-8 text-center text-[14px] text-bakery-muted">
+                    {labels.chatLoading}
+                  </p>
+                ) : chatMessages.length === 0 ? (
+                  <p className="py-8 text-center text-[14px] text-bakery-muted">
+                    {labels.chatEmpty}
+                  </p>
+                ) : (
+                  chatMessages.map((m) => {
+                    const mine = m.authorRole === "SELLER";
+                    return (
+                      <div
+                        key={m.id}
+                        className={`customer-wa-chat__row ${mine ? "customer-wa-chat__row--out" : "customer-wa-chat__row--in"}`}
+                      >
+                        <div
+                          className={`customer-wa-chat__bubble ${mine ? "customer-wa-chat__bubble--out" : "customer-wa-chat__bubble--in"}`}
+                        >
+                          <p className="customer-wa-chat__text">{m.body}</p>
+                          <p className="customer-wa-chat__time">
+                            {formatChatTime(m.createdAt, locale)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+              {chatError ? (
+                <p className="bg-bakery-cream-light px-3 py-1.5 text-center text-[12px] font-semibold text-bakery-error">
+                  {chatError}
+                </p>
+              ) : null}
+              <div className="customer-wa-chat__composer">
+                <textarea
+                  className="customer-wa-chat__input"
+                  rows={1}
+                  value={chatDraft}
+                  onChange={(e) => setChatDraft(e.target.value)}
+                  placeholder={labels.chatPlaceholder}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      void sendChatReply();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="customer-wa-chat__send"
+                  onClick={() => void sendChatReply()}
+                  disabled={!chatDraft.trim()}
+                  aria-label={labels.send}
+                >
+                  <Send className="h-5 w-5 rtl:scale-x-[-1]" strokeWidth={2} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {active.kind === "new_order" && (
+            <div className="space-y-3 text-center">
+              <p className="rounded-[12px] border border-bakery-border/30 bg-[#F2EBE0] p-3 text-[14px] font-semibold text-bakery-ink">
+                {active.message}
+              </p>
+              <p className="text-[11px] text-bakery-muted">
+                {formatDateTime(active.createdAt)}
+              </p>
+              <Link
+                href={`${basePath}/settings/orders`}
+                onClick={closePanel}
+                className="dashboard-inquiry-cta inline-flex min-w-[10rem] no-underline"
+              >
+                {labels.notificationOpenOrders}
+              </Link>
+            </div>
+          )}
+
+          {active.kind === "low_stock" && (
+            <div className="space-y-3 text-center">
+              <p className="text-[16px] font-extrabold text-bakery-ink">
+                {active.productName}
+              </p>
+              <p className="rounded-[12px] border border-bakery-border/30 bg-[#F2EBE0] p-3 text-[14px] font-semibold text-bakery-ink">
+                {active.message}
+              </p>
+              <Link
+                href={`${basePath}/settings/products`}
+                onClick={closePanel}
+                className="dashboard-inquiry-cta inline-flex min-w-[10rem] no-underline"
+              >
+                {labels.notificationOpenProducts}
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const panel = open ? (
+    <div
+      className="dashboard-surface fixed inset-0 z-[80] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={labels.notificationTitle}
+    >
+      <button
+        type="button"
+        className="dashboard-modal-backdrop absolute inset-0 z-0"
+        onClick={closePanel}
+        aria-label={labels.close}
+      />
+      <div className="dashboard-card dashboard-modal-card relative z-10 flex max-h-[min(85dvh,560px)] w-full max-w-md flex-col overflow-hidden">
+        <div className="relative shrink-0 border-b border-bakery-border/25 px-4 py-3">
+          <button
+            type="button"
+            onClick={closePanel}
+            className="absolute end-2 top-2 rounded-full p-2 text-bakery-muted hover:bg-bakery-primary/10"
+            aria-label={labels.close}
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <div className="px-10 text-center">
+            <h2 className="text-[18px] font-extrabold text-bakery-ink">
+              {labels.notificationTitle}
+            </h2>
+            {!active && (
+              <p className="text-[13px] font-semibold text-bakery-muted">
+                {hasAlerts
+                  ? String(notifications.length)
+                  : labels.notificationEmpty}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {active ? (
+          renderDetail()
+        ) : (
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+            {notifications.length === 0 ? (
+              <p className="py-8 text-center text-[14px] text-bakery-muted">
+                {labels.notificationEmpty}
+              </p>
+            ) : (
+              <ul className="mx-auto flex w-full max-w-[240px] flex-col gap-2">
+                {notifications.map((item) => (
+                  <li key={item.id}>{renderNotificationBar(item)}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  ) : null;
 
   return (
     <>
@@ -106,152 +546,21 @@ export function DashboardInquiryBell({
         type="button"
         onClick={openPanel}
         className={`bakery-icon-tile relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] transition ${
-          hasPending ? "animate-bell-wiggle" : ""
+          hasAlerts ? "animate-bell-wiggle" : ""
         }`}
         aria-label={
-          hasPending
-            ? hasNew
-              ? `${labels.inquiryUpdates} (${newPending.length})`
-              : `${labels.customerInquiries} (${pending.length})`
-            : labels.customerInquiries
+          hasAlerts
+            ? `${labels.notificationTitle} (${notifications.length})`
+            : labels.notificationTitle
         }
       >
         <Bell className="h-6 w-6" strokeWidth={2} />
-        {hasPending && (
-          <span className="dashboard-inquiry-dot" aria-hidden />
-        )}
+        {hasAlerts && <span className="dashboard-inquiry-dot" aria-hidden />}
       </button>
 
-      {open && (
-        <div
-          className="fixed inset-0 z-[80] flex items-end justify-center p-4 sm:items-center"
-          role="dialog"
-          aria-modal="true"
-          aria-label={labels.inquiryUpdates}
-        >
-          <button
-            type="button"
-            className="dashboard-modal-backdrop absolute inset-0"
-            onClick={closePanel}
-            aria-label={labels.close}
-          />
-          <div className="dashboard-modal-card relative max-h-[min(85dvh,560px)] w-full max-w-md overflow-hidden">
-            <div className="relative border-b border-bakery-border/25 px-4 py-3">
-              <button
-                type="button"
-                onClick={closePanel}
-                className="absolute end-2 top-2 rounded-full p-2 text-bakery-muted hover:bg-bakery-primary/10"
-                aria-label={labels.close}
-              >
-                <X className="h-6 w-6" />
-              </button>
-              <div className="px-10 text-center">
-                <h2 className="text-[18px] font-extrabold text-bakery-ink">
-                  {labels.customerInquiries}
-                </h2>
-                <p className="text-[13px] font-semibold text-bakery-muted">
-                  {hasNew
-                    ? `${newPending.length} ${labels.inquiryUpdates}`
-                    : pending.length > 0
-                      ? `${pending.length} ${labels.inquiriesPending}`
-                      : labels.noNewInquiries}
-                </p>
-              </div>
-            </div>
-
-            <ul className="max-h-[50dvh] space-y-3 overflow-y-auto px-4 py-4">
-              {pending.length === 0 ? (
-                <li className="py-6 text-center text-[14px] text-bakery-muted">
-                  {labels.noNewInquiries}
-                </li>
-              ) : (
-                pending.map((q) => {
-                  const isNew =
-                    !lastSeenAt ||
-                    new Date(q.createdAt).getTime() >
-                      new Date(lastSeenAt).getTime();
-                  return (
-                    <li
-                      key={q.id}
-                      className={`rounded-[18px] border p-3 text-start ${
-                        isNew
-                          ? "border-bakery-error/35 bg-bakery-cream-light"
-                          : "border-bakery-border/25 bg-bakery-cream-light"
-                      }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        {q.customerPhone ? (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              openCustomer({
-                                customerName: q.customerName,
-                                customerPhone: q.customerPhone!,
-                                fallbackDate: q.createdAt,
-                              })
-                            }
-                            className="relative shrink-0"
-                            aria-label={`${labels.customer}: ${q.customerName}`}
-                          >
-                            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[12px] border border-bakery-border/35 bg-bakery-on-primary text-[16px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)]">
-                              {customerProfileInitial(
-                                q.customerName,
-                                labels.anonymousCustomer
-                              )}
-                            </span>
-                            {isNew && (
-                              <span
-                                className="dashboard-inquiry-pending-dot"
-                                aria-label={labels.pending}
-                              />
-                            )}
-                          </button>
-                        ) : null}
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-[16px] font-extrabold text-bakery-ink">
-                              {q.customerName}
-                            </p>
-                            {isNew && !q.customerPhone && (
-                              <span className="shrink-0 rounded-full bg-bakery-error px-2 py-0.5 text-[10px] font-bold text-white">
-                                {labels.pending}
-                              </span>
-                            )}
-                          </div>
-                          {q.customerPhone && (
-                            <p
-                              className="mt-0.5 text-[13px] text-bakery-muted"
-                              dir="ltr"
-                            >
-                              {q.customerPhone}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <p className="mt-2 whitespace-pre-wrap text-[14px] leading-snug text-bakery-ink">
-                        {q.message}
-                      </p>
-                      <p className="mt-1 text-[11px] text-bakery-muted">
-                        {formatDateTime(q.createdAt)}
-                      </p>
-                    </li>
-                  );
-                })
-              )}
-            </ul>
-
-            <div className="border-t border-bakery-border/20 px-4 py-3">
-              <Link
-                href={inquiriesHref}
-                onClick={closePanel}
-                className="dashboard-elevated-btn flex min-h-[48px] w-full items-center justify-center rounded-[18px] border text-[15px] font-extrabold text-bakery-ink transition active:scale-[0.99]"
-              >
-                {labels.answerCustomer}
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+      {typeof document !== "undefined" && panel
+        ? createPortal(panel, document.body)
+        : null}
       {customerModal}
     </>
   );

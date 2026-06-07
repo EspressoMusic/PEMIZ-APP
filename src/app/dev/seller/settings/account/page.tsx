@@ -14,6 +14,7 @@ export default function DevSellerSettingsAccountPage() {
             <DashboardSettingsView
               ownerName="בעל חנות (תצוגה)"
               email="demo@linky.local"
+              phone="050-1234567"
               businessName="המאפייה שלי (תצוגה)"
               isActive
               storeUrl="/b/demo-store"

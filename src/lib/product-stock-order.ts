@@ -35,11 +35,17 @@ export async function reserveStockAndCreateOrder(
       where: { id: item.productId },
       select: { stock: true },
     });
-    if (product?.stock != null) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
-      });
+    if (product?.stock == null) continue;
+
+    const updated = await tx.product.updateMany({
+      where: {
+        id: item.productId,
+        stock: { gte: item.quantity },
+      },
+      data: { stock: { decrement: item.quantity } },
+    });
+    if (updated.count === 0) {
+      throw new OrderStockError(OUT_OF_STOCK_MESSAGE);
     }
   }
 

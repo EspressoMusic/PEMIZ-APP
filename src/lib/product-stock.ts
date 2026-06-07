@@ -18,10 +18,22 @@ export function formatStockLabel(stock: number | null | undefined): string {
 
 export const OUT_OF_STOCK_MESSAGE = "המוצר אזל מהמלאי";
 
+/** Max units per product line in a single order (matches public orders API). */
+const ORDER_LINE_QTY_CAP = 50;
+
 export function maxOrderQuantity(
   stock: number | null | undefined,
-  cap = 20
+  cap = ORDER_LINE_QTY_CAP
 ): number {
   if (stock == null) return cap;
   return Math.min(cap, Math.max(0, stock));
+}
+
+export function parseStockInput(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  if (!/^\d+$/.test(trimmed)) return null;
+  const value = parseInt(trimmed, 10);
+  if (Number.isNaN(value) || value < 0) return null;
+  return value;
 }

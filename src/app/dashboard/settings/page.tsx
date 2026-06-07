@@ -14,6 +14,7 @@ export default async function SettingsPage() {
       <DashboardSettingsView
         ownerName={user.name}
         email={user.email}
+        phone={user.phone}
         businessName={b?.name}
         isActive={b?.isActive ?? false}
         storeUrl={b ? publicBusinessUrl(b.slug) : undefined}

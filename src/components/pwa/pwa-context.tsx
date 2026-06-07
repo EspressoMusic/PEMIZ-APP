@@ -14,11 +14,19 @@ import {
   isStandalonePwa,
 } from "@/lib/pwa";
 
+export type PwaInstallOutcome =
+  | "accepted"
+  | "dismissed"
+  | "shared"
+  | "unavailable";
+
 type PwaContextValue = {
   installed: boolean;
   canInstall: boolean;
   isIos: boolean;
   install: () => Promise<"accepted" | "dismissed" | "unavailable">;
+  /** Native install prompt when available; iOS opens Share sheet as fallback. */
+  tryAddToHomeScreen: () => Promise<PwaInstallOutcome>;
 };
 
 const PwaContext = createContext<PwaContextValue | null>(null);
@@ -62,14 +70,35 @@ export function PwaProvider({ children }: { children: ReactNode }) {
     return choice.outcome;
   }, [deferredPrompt]);
 
+  const tryAddToHomeScreen = useCallback(async (): Promise<PwaInstallOutcome> => {
+    if (installed) return "accepted";
+    if (deferredPrompt) {
+      const outcome = await install();
+      return outcome === "unavailable" ? "unavailable" : outcome;
+    }
+    if (isIos && typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title: document.title,
+          url: window.location.href,
+        });
+        return "shared";
+      } catch {
+        return "dismissed";
+      }
+    }
+    return "unavailable";
+  }, [installed, deferredPrompt, isIos, install]);
+
   const value = useMemo<PwaContextValue>(
     () => ({
       installed,
       canInstall: Boolean(deferredPrompt),
       isIos,
       install,
+      tryAddToHomeScreen,
     }),
-    [installed, deferredPrompt, isIos, install]
+    [installed, deferredPrompt, isIos, install, tryAddToHomeScreen]
   );
 
   return <PwaContext.Provider value={value}>{children}</PwaContext.Provider>;

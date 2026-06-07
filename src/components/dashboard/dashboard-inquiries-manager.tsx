@@ -157,7 +157,7 @@ function InquiryCard({
                 rows={3}
                 value={replyDraft}
                 onChange={(e) => onDraftChange(e.target.value)}
-                className="dashboard-broadcast-field min-h-[88px] resize-y text-[13px]"
+                className="dashboard-inquiry-reply-field min-h-[88px] resize-y text-[13px] !rounded-[10px]"
               />
               <div className="flex flex-wrap justify-center gap-2">
                 <button
