@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { sellerAlertsFromBusiness } from "@/lib/seller-alerts";
+import { parseBusinessType } from "@/lib/types";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DashboardSellerAlertsSettings } from "@/components/dashboard/dashboard-seller-alerts-settings";
 
