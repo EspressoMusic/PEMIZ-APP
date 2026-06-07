@@ -4,6 +4,7 @@ import { publicBusinessUrl } from "@/lib/business";
 import { Alert } from "@/components/ui";
 import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
 import { getPrepSummaryForBusiness } from "@/lib/dashboard-prep-summary";
+import { parseBusinessType } from "@/lib/types";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -26,7 +27,7 @@ export default async function DashboardPage() {
       <DashboardHomeView
         ownerName={user.name}
         businessSlug={b.slug}
-        businessType={b.type}
+        businessType={parseBusinessType(b.type)}
         customerLink={publicBusinessUrl(b.slug)}
         previewHref={`/b/${b.slug}`}
         showPrepSummary={b.type === "STORE"}

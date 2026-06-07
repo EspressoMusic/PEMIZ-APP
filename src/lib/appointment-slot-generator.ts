@@ -41,11 +41,13 @@ export function clampAppointmentCalendarConfig(
   input: Partial<AppointmentCalendarConfig>
 ): AppointmentCalendarConfig {
   const bookingStart =
-    normalizeTimeInput(input.bookingStart) ??
-    DEFAULT_APPOINTMENT_CALENDAR.bookingStart;
+    (input.bookingStart != null
+      ? normalizeTimeInput(input.bookingStart)
+      : null) ?? DEFAULT_APPOINTMENT_CALENDAR.bookingStart;
   const bookingEnd =
-    normalizeTimeInput(input.bookingEnd) ??
-    DEFAULT_APPOINTMENT_CALENDAR.bookingEnd;
+    (input.bookingEnd != null
+      ? normalizeTimeInput(input.bookingEnd)
+      : null) ?? DEFAULT_APPOINTMENT_CALENDAR.bookingEnd;
 
   return {
     gapMinutes: Math.min(180, Math.max(0, Math.round(input.gapMinutes ?? 15))),
