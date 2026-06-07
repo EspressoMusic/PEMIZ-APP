@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button, Input, Textarea, Alert } from "@/components/ui";
+import { CelebrationModal } from "@/components/celebration-modal";
 import {
   DashboardHeading,
   DashboardPanelFrame,
@@ -210,6 +211,9 @@ export function FaqManager({
   const [adding, setAdding] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const [savingLegal, setSavingLegal] = useState<"policy" | "terms" | null>(null);
+  const [faqSuccessOpen, setFaqSuccessOpen] = useState(false);
+  const [faqSuccessQuestion, setFaqSuccessQuestion] = useState("");
+  const addLockRef = useRef(false);
 
   const [policyDraft, setPolicyDraft] = useState(initialPolicy);
 
@@ -285,43 +289,55 @@ export function FaqManager({
 
   async function add(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (adding || addLockRef.current) return;
+
+    addLockRef.current = true;
     setError("");
     setAdding(true);
-    const fd = new FormData(e.currentTarget);
+
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     const question = String(fd.get("question") ?? "").trim();
     const answer = String(fd.get("answer") ?? "").trim();
 
-    if (previewOnly) {
-      setItems((prev) => [
-        ...prev,
-        {
-          id: `preview-${Date.now()}`,
-          question,
-          answer,
-          isActive: true,
-          sortOrder: prev.length,
-        },
-      ]);
-      e.currentTarget.reset();
-      setAdding(false);
-      setAddModalOpen(false);
-      return;
-    }
+    try {
+      if (previewOnly) {
+        setItems((prev) => [
+          ...prev,
+          {
+            id: `preview-${Date.now()}`,
+            question,
+            answer,
+            isActive: true,
+            sortOrder: prev.length,
+          },
+        ]);
+        form.reset();
+        setAddModalOpen(false);
+        setFaqSuccessQuestion(question);
+        setFaqSuccessOpen(true);
+        return;
+      }
 
-    const res = await fetch("/api/dashboard/faq", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question, answer }),
-    });
-    const data = await res.json();
-    setAdding(false);
-    if (!res.ok) {
-      setError(data.error ?? labels.saveError);
-      return;
+      const res = await fetch("/api/dashboard/faq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, answer }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? labels.saveError);
+        return;
+      }
+      form.reset();
+      setAddModalOpen(false);
+      setFaqSuccessQuestion(question);
+      setFaqSuccessOpen(true);
+      await load();
+    } finally {
+      setAdding(false);
+      addLockRef.current = false;
     }
-    e.currentTarget.reset();
-    setAddModalOpen(false);
-    load();
   }
 
   async function saveEdit(e: React.FormEvent<HTMLFormElement>, id: string) {
@@ -485,7 +501,10 @@ export function FaqManager({
         title={labels.faqAddQuestion}
         closeLabel={labels.close}
         editLabel={labels.edit}
-        onClose={() => setAddModalOpen(false)}
+        onClose={() => {
+          if (adding) return;
+          setAddModalOpen(false);
+        }}
         footer={
           <Button
             type="submit"
@@ -493,6 +512,7 @@ export function FaqManager({
             variant="primary"
             className="w-full min-h-[48px] rounded-full font-extrabold"
             disabled={adding}
+            aria-busy={adding}
           >
             {adding ? labels.adding : labels.addQuestion}
           </Button>
@@ -574,6 +594,16 @@ export function FaqManager({
           </form>
         </EditorModal>
       )}
+
+      <CelebrationModal
+        open={faqSuccessOpen}
+        onClose={() => setFaqSuccessOpen(false)}
+        title={labels.faqPublishedTitle}
+        subtitle={faqSuccessQuestion || undefined}
+        detail={labels.faqPublishedDetail}
+        buttonLabel={labels.celebrationOk}
+        closeAriaLabel={labels.close}
+      />
     </div>
   );
 }

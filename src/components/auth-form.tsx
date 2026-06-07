@@ -50,6 +50,10 @@ export function AuthForm({
       };
 
       if (!res.ok) {
+        if (res.status >= 500 && data.error) {
+          setError(data.error);
+          return;
+        }
         setError(
           data.error ??
             (res.status === 401
@@ -57,7 +61,7 @@ export function AuthForm({
                 ? "לא הצלחנו להתחבר — בדוק אימייל וסיסמה"
                 : "לא הצלחנו ליצור חשבון"
               : res.status >= 500
-                ? "השרת לא זמין כרגע — נסה שוב בעוד רגע"
+                ? "יש תקלה טכנית זמנית במערכת. נסה שוב מאוחר יותר."
                 : "משהו השתבש — נסה שוב")
         );
         return;

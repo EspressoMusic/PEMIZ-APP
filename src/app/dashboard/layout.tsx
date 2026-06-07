@@ -3,13 +3,32 @@ import { getCurrentUser } from "@/lib/auth";
 import { studioConsolePath } from "@/lib/studio-access";
 import { activateLegacyPendingBusiness } from "@/lib/business";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { ServiceUnavailableNotice } from "@/components/service-unavailable-notice";
+import { recordSystemIncident } from "@/lib/system-incidents";
+import { formatServerError } from "@/lib/server-errors";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
+  let user;
+  try {
+    user = await getCurrentUser();
+  } catch (error) {
+    const detail = formatServerError(error);
+    recordSystemIncident({
+      context: "dashboard:layout",
+      publicMessage: detail.publicMessage,
+      developerMessage: detail.developerMessage,
+      error,
+    });
+    return (
+      <div className="dashboard-surface bakery-frame-bg h-dvh overflow-hidden">
+        <ServiceUnavailableNotice />
+      </div>
+    );
+  }
   if (!user) redirect("/login");
   if (!user.business) {
     if (user.role === "ADMIN") {

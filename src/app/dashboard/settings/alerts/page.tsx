@@ -17,7 +17,7 @@ export default async function SettingsAlertsPage() {
       <DashboardSettingsBackLink />
       <DashboardSellerAlertsSettings
         initial={sellerAlertsFromBusiness(user.business)}
-        businessType={user.business.type}
+        businessType={parseBusinessType(user.business.type)}
       />
     </div>
   );

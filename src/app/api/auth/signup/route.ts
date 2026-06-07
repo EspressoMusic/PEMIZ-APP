@@ -3,9 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import type { Role } from "@/lib/types";
 import { isSignupEnabled } from "@/lib/platform-config";
-import { jsonError, jsonOk } from "@/lib/api";
+import { jsonError, jsonInfrastructureError, jsonOk, jsonServerError } from "@/lib/api";
 import { isDatabaseConfigured, databaseConfigHint } from "@/lib/db-env";
-import { prismaErrorResponse } from "@/lib/prisma-errors";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { safeUserSelect } from "@/lib/security/user-select";
 import { signupSchema, zodFirstError } from "@/lib/validation/schemas";
@@ -25,7 +24,10 @@ export async function POST(req: Request) {
   }
 
   if (!isDatabaseConfigured()) {
-    return jsonError(`מסד הנתונים לא מוגדר. ${databaseConfigHint()}`, 503);
+    return jsonInfrastructureError(
+      `Database not configured. ${databaseConfigHint()}`,
+      "auth:signup"
+    );
   }
 
   const email = parsed.data.email.toLowerCase();
@@ -63,8 +65,6 @@ export async function POST(req: Request) {
 
     return jsonOk({ userId: user.id, email: user.email });
   } catch (error) {
-    console.error("signup failed", error);
-    const { message, status } = prismaErrorResponse(error);
-    return jsonError(message, status);
+    return jsonServerError(error, "auth:signup");
   }
 }

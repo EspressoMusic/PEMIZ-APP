@@ -43,6 +43,15 @@ type PendingOwner = {
   createdAt: string;
 };
 
+type SystemIncidentRow = {
+  id: string;
+  at: string;
+  context: string;
+  publicMessage: string;
+  developerMessage: string;
+  stack?: string;
+};
+
 function DetailBox({
   title,
   children,
@@ -89,6 +98,8 @@ export function MasterPanel() {
   const [platformLoading, setPlatformLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [incidents, setIncidents] = useState<SystemIncidentRow[]>([]);
+  const [incidentsOpen, setIncidentsOpen] = useState(true);
 
   async function checkAuth() {
     const res = await fetch("/api/master/status");
@@ -106,6 +117,18 @@ export function MasterPanel() {
       return;
     }
     setAuthenticated(false);
+  }
+
+  async function loadIncidents() {
+    const res = await fetch("/api/admin/incidents");
+    if (!res.ok) return;
+    const data = await res.json();
+    setIncidents(data.incidents ?? []);
+  }
+
+  async function clearIncidents() {
+    const res = await fetch("/api/admin/incidents", { method: "DELETE" });
+    if (res.ok) setIncidents([]);
   }
 
   async function loadBusinesses() {
@@ -148,7 +171,16 @@ export function MasterPanel() {
   }, []);
 
   useEffect(() => {
-    if (authenticated) loadBusinesses();
+    if (authenticated) {
+      void loadBusinesses();
+      void loadIncidents();
+    }
+  }, [authenticated]);
+
+  useEffect(() => {
+    if (!authenticated) return;
+    const timer = window.setInterval(() => void loadIncidents(), 20_000);
+    return () => window.clearInterval(timer);
   }, [authenticated]);
 
   async function logout() {
@@ -169,10 +201,13 @@ export function MasterPanel() {
   async function removeStore(id: string, name: string) {
     if (!confirm(`למחוק את החנות "${name}"? פעולה זו בלתי הפיכה.`)) return;
     const res = await fetch(`/api/admin/businesses/${id}`, { method: "DELETE" });
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
     if (res.ok) {
       if (expandedId === id) setExpandedId(null);
       loadBusinesses();
+      return;
     }
+    alert(data.error ?? "לא ניתן למחוק את החנות. נסו שוב או בדקו תקלות מערכת בפאנל.");
   }
 
   const sortedBusinesses = useMemo(() => {
@@ -267,6 +302,59 @@ export function MasterPanel() {
             <p className="mt-2 text-[13px] font-semibold text-bakery-muted">
               {filteredStores.length} חנויות · {filteredPendingOwners.length} חשבונות בלי חנות
             </p>
+          )}
+        </Panel>
+
+        <Panel className={incidents.length > 0 ? "!border-bakery-error/35" : ""}>
+          <button
+            type="button"
+            onClick={() => setIncidentsOpen((open) => !open)}
+            className="flex w-full items-center justify-between gap-3 text-start"
+          >
+            <div>
+              <p className="text-[16px] font-extrabold text-bakery-ink">
+                תקלות מערכת (למתכנת בלבד)
+              </p>
+              <p className="mt-1 text-[13px] text-bakery-muted">
+                {incidents.length > 0
+                  ? `${incidents.length} תקלות אחרונות — הלקוחות רואים רק הודעה כללית`
+                  : "אין תקלות מתועדות כרגע"}
+              </p>
+            </div>
+            <ChevronDown
+              className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform ${
+                incidentsOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {incidentsOpen && incidents.length > 0 && (
+            <div className="mt-4 space-y-3">
+              {incidents.map((incident) => (
+                <div
+                  key={incident.id}
+                  className="rounded-[16px] border border-bakery-error/25 bg-bakery-cream-light/80 p-3 text-start"
+                >
+                  <p className="text-[12px] font-bold text-bakery-muted">
+                    {new Date(incident.at).toLocaleString("he-IL")} · {incident.context}
+                  </p>
+                  <p className="mt-2 text-[13px] font-semibold text-bakery-ink">
+                    מה שהמשתמש ראה: {incident.publicMessage}
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap font-mono text-[12px] leading-relaxed text-bakery-error">
+                    {incident.developerMessage}
+                  </p>
+                  {incident.stack ? (
+                    <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap rounded-[10px] bg-bakery-ink/5 p-2 font-mono text-[11px] text-bakery-muted">
+                      {incident.stack}
+                    </pre>
+                  ) : null}
+                </div>
+              ))}
+              <Button variant="ghost" onClick={clearIncidents} className="w-full">
+                נקה רשימת תקלות
+              </Button>
+            </div>
           )}
         </Panel>
 

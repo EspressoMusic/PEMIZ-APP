@@ -8,6 +8,9 @@ import { getDealLines } from "@/lib/store-deal";
 import { PublicStorefront } from "@/components/public-storefront";
 import { getAllPlatformLegalDocuments } from "@/lib/legal/platform-legal";
 import { publicCatalogImageUrl } from "@/lib/public-image-url";
+import { ServiceUnavailableNotice } from "@/components/service-unavailable-notice";
+import { recordSystemIncident } from "@/lib/system-incidents";
+import { formatServerError } from "@/lib/server-errors";
 
 export default async function PublicBusinessPage({
   params,
@@ -15,7 +18,23 @@ export default async function PublicBusinessPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const business = await getBusinessBySlug(slug);
+  let business;
+  try {
+    business = await getBusinessBySlug(slug);
+  } catch (error) {
+    const detail = formatServerError(error);
+    recordSystemIncident({
+      context: `storefront:${slug}`,
+      publicMessage: detail.publicMessage,
+      developerMessage: detail.developerMessage,
+      error,
+    });
+    return (
+      <div className="bakery-frame-bg h-dvh overflow-hidden">
+        <ServiceUnavailableNotice />
+      </div>
+    );
+  }
   if (!business) notFound();
 
   const unavailable = !isBusinessAcceptingCustomers(business);

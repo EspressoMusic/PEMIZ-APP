@@ -9,11 +9,13 @@ export function ProductImageField({
   preview,
   onChange,
   onError,
+  onUploadingChange,
   compact = false,
 }: {
   preview: string | null;
   onChange: (imageUrl: string | null) => void;
   onError: (msg: string) => void;
+  onUploadingChange?: (uploading: boolean) => void;
   compact?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
@@ -24,6 +26,7 @@ export function ProductImageField({
   async function handleFile(file: File | null) {
     if (!file) return;
     setUploading(true);
+    onUploadingChange?.(true);
     try {
       const url = await uploadProductImageFile(file, locale);
       onChange(url);
@@ -31,6 +34,7 @@ export function ProductImageField({
       onError(e instanceof Error ? e.message : labels.productImageReadError);
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
     }
   }
 
@@ -97,7 +101,7 @@ export function ProductImageField({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={(e) => void handleFile(e.target.files?.[0] ?? null)}
       />

@@ -1,14 +1,7 @@
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { notifySellerInquiry } from "@/lib/seller-push";
-const schema = z.object({
-  customerName: z.string().min(2).max(80),
-  customerPhone: z.string().max(20).optional(),
-  customerEmail: z.string().email().optional().or(z.literal("")),
-  subject: z.string().min(2).max(120),
-  message: z.string().min(5).max(2000),
-});
+import { publicInquirySchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function POST(
   req: Request,
@@ -23,8 +16,8 @@ export async function POST(
   if (!business.isActive) return jsonError("This business is currently unavailable.", 403);
 
   const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) return jsonError("נתונים לא תקינים");
+  const parsed = publicInquirySchema.safeParse(body);
+  if (!parsed.success) return jsonError(zodFirstError(parsed));
 
   const inquiry = await prisma.inquiry.create({
     data: {

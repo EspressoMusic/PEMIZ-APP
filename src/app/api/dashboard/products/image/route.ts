@@ -2,6 +2,7 @@ import { jsonError, jsonOk } from "@/lib/api";
 import { requireStoreOwner } from "@/lib/dashboard-auth";
 import { storeProductImage } from "@/lib/product-image-storage";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { recordSystemIncident } from "@/lib/system-incidents";
 import { isAllowedImageMime, maxImageBytes } from "@/lib/upload-image";
 
 export async function POST(req: Request) {
@@ -38,6 +39,12 @@ export async function POST(req: Request) {
       );
     }
     if (msg.startsWith("SUPABASE_UPLOAD:")) {
+      recordSystemIncident({
+        context: "dashboard:product-image",
+        publicMessage: "שגיאה בהעלאה ל-Storage",
+        developerMessage: msg,
+        error: e,
+      });
       return jsonError("שגיאה בהעלאה ל-Storage", 502);
     }
     return jsonError("שגיאה בשמירת התמונה", 500);

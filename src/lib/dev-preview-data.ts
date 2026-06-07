@@ -300,32 +300,40 @@ export const DEV_PREVIEW_PRODUCTS = [
     stock: 8,
     isActive: false,
   },
+  {
+    id: "demo-p7",
+    name: "רוגלך",
+    description: null,
+    imageUrl: null,
+    price: 22,
+    salePrice: null,
+    stock: 10,
+    isActive: false,
+  },
+  {
+    id: "demo-p8",
+    name: "בצלווא",
+    description: null,
+    imageUrl: null,
+    price: 16,
+    salePrice: null,
+    stock: null,
+    isActive: false,
+  },
 ];
+
+export function devPreviewCustomerProducts() {
+  return DEV_PREVIEW_PRODUCTS.filter((product) => product.isActive).map(
+    ({ isActive: _isActive, ...product }) => product
+  );
+}
 
 export const DEV_STORE_BUSINESS = {
   slug: "demo-store",
   name: "המאפייה שלי (תצוגה)",
   description: null,
   type: "STORE" as const,
-  products: [
-    {
-      id: "1",
-      name: "עוגת שוקולד",
-      description: "עוגה עשירה",
-      imageUrl: null,
-      price: 120,
-      salePrice: 99,
-      stock: 5,
-    },
-    {
-      id: "2",
-      name: "קרואסון",
-      description: null,
-      imageUrl: null,
-      price: 18,
-      stock: null,
-    },
-  ],
+  products: devPreviewCustomerProducts(),
   deals: [
     {
       id: "deal-active",

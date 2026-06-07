@@ -64,7 +64,7 @@ export function groupPrepLinesByCustomer(
   return [...map.values()].sort((a, b) => b.totalQuantity - a.totalQuantity);
 }
 
-const PREP_STATUSES = ["PENDING", "CONFIRMED"] as const;
+const PREP_STATUSES = ["PENDING"] as const;
 
 export async function getPrepSummaryForBusiness(
   businessId: string

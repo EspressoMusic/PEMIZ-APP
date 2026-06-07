@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { hasPlatformAdminAccess } from "@/lib/admin-access";
-import { jsonError, jsonOk } from "@/lib/api";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api";
+import { deleteBusinessById } from "@/lib/delete-business";
 
 const patchSchema = z.object({
   isActive: z.boolean(),
@@ -44,6 +45,10 @@ export async function DELETE(
   const existing = await prisma.business.findUnique({ where: { id } });
   if (!existing) return jsonError("חנות לא נמצאה", 404);
 
-  await prisma.business.delete({ where: { id } });
-  return jsonOk({ deleted: true });
+  try {
+    await deleteBusinessById(id);
+    return jsonOk({ deleted: true });
+  } catch (error) {
+    return jsonServerError(error, "admin:businesses:delete");
+  }
 }

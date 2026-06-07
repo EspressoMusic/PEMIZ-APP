@@ -15,6 +15,7 @@ import {
   Toggle,
 } from "@/components/ui";
 import { ProductImageField } from "@/components/product-image-field";
+import { uploadProductImageFile } from "@/lib/product-image";
 import { ProductSuccessModal } from "@/components/product-success-modal";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
@@ -164,22 +165,45 @@ function ProductStockEdit({
 const ProductCard = memo(function ProductCard({
   product: p,
   labels,
+  locale,
   formatMoney,
   onHide,
   onDelete,
   onStockSave,
+  onImageUpload,
   showStock,
   showDuration,
+  previewOnly,
 }: {
   product: Product;
   labels: ReturnType<typeof useAppLocale>["labels"];
+  locale: ReturnType<typeof useAppLocale>["locale"];
   formatMoney: (n: number) => string;
   onHide: () => void;
   onDelete: () => void;
   onStockSave: (stock: number | null) => void | Promise<void>;
+  onImageUpload?: (url: string) => void | Promise<void>;
   showStock: boolean;
   showDuration: boolean;
+  previewOnly?: boolean;
 }) {
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+
+  async function pickProductImage(file: File | null) {
+    if (!file || !onImageUpload || previewOnly) return;
+    setImageUploading(true);
+    try {
+      const url = await uploadProductImageFile(file, locale);
+      await onImageUpload(url);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : labels.productImageReadError);
+    } finally {
+      setImageUploading(false);
+      if (imageInputRef.current) imageInputRef.current.value = "";
+    }
+  }
+
   return (
     <SquareCard className="bakery-float-tile overflow-hidden rounded-[14px] p-0 transition">
       {p.imageUrl ? (
@@ -191,6 +215,31 @@ const ProductCard = memo(function ProductCard({
           loading="lazy"
           decoding="async"
         />
+      ) : onImageUpload ? (
+        <>
+          <button
+            type="button"
+            onClick={() => !imageUploading && imageInputRef.current?.click()}
+            disabled={imageUploading}
+            className="flex h-[5.75rem] w-full flex-col items-center justify-center gap-0.5 bg-bakery-card text-bakery-ink transition hover:bg-bakery-cream-light active:scale-[0.98]"
+          >
+            <span className="text-2xl leading-none" aria-hidden>
+              {imageUploading ? "…" : "🧁"}
+            </span>
+            <span className="px-1 text-[10px] font-bold leading-tight">
+              {imageUploading
+                ? labels.productImageUploading
+                : labels.productImageUpload}
+            </span>
+          </button>
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={(e) => void pickProductImage(e.target.files?.[0] ?? null)}
+          />
+        </>
       ) : (
         <div className="flex h-[5.75rem] items-center justify-center bg-bakery-card text-3xl">
           🧁
@@ -275,9 +324,11 @@ export function ProductsManager({
   const [products, setProducts] = useState<Product[]>(() =>
     previewOnly && initialProducts ? toPreviewProducts(initialProducts) : []
   );
+  const visibleToCustomerCount = products.filter((p) => p.isActive).length;
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [adding, setAdding] = useState(false);
   const [discountOpen, setDiscountOpen] = useState(false);
   const [stockOpen, setStockOpen] = useState(false);
@@ -308,6 +359,11 @@ export function ProductsManager({
     const maxDiscountRaw = String(fd.get("maxDiscount") ?? "").trim();
 
     if (!name || Number.isNaN(price)) return;
+
+    if (!isServices && imageUploading) {
+      setError(labels.productImageUploading);
+      return;
+    }
 
     let serviceDurationMinutes: number | null = null;
     if (isServices) {
@@ -448,6 +504,41 @@ export function ProductsManager({
     [previewOnly, load]
   );
 
+  const updateProductImage = useCallback(
+    async (id: string, imageUrl: string) => {
+      if (previewOnly) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, imageUrl } : p))
+        );
+        return;
+      }
+
+      const prev = products;
+      setProducts((list) =>
+        list.map((p) => (p.id === id ? { ...p, imageUrl } : p))
+      );
+      const res = await fetch(`/api/dashboard/products/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setProducts(prev);
+        setError((data as { error?: string }).error ?? labels.saveError);
+        return;
+      }
+      if ((data as { product?: Product }).product) {
+        setProducts((list) =>
+          list.map((p) =>
+            p.id === id ? ((data as { product: Product }).product as Product) : p
+          )
+        );
+      }
+    },
+    [previewOnly, products, labels.saveError]
+  );
+
   const updateProductStock = useCallback(
     async (id: string, stock: number | null) => {
       if (previewOnly) {
@@ -575,6 +666,7 @@ export function ProductsManager({
                     setImageData(url);
                   }}
                   onError={setError}
+                  onUploadingChange={setImageUploading}
                 />
               ) : null}
               <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2.5 text-start">
@@ -641,9 +733,13 @@ export function ProductsManager({
                 type="submit"
                 variant="primary"
                 className="w-full min-h-[44px] rounded-full font-extrabold"
-                disabled={adding}
+                disabled={adding || imageUploading}
               >
-                {adding ? labels.adding : addLabel}
+                {imageUploading
+                  ? labels.productImageUploading
+                  : adding
+                    ? labels.adding
+                    : addLabel}
               </Button>
             </form>
             <button
@@ -683,7 +779,7 @@ export function ProductsManager({
             {products.length > 0 && (
               <span className="font-semibold text-bakery-muted">
                 {" "}
-                ({products.length})
+                ({visibleToCustomerCount}/{products.length})
               </span>
             )}
           </span>
@@ -714,10 +810,17 @@ export function ProductsManager({
                     key={p.id}
                     product={p}
                     labels={labels}
+                    locale={locale}
                     formatMoney={formatMoney}
+                    previewOnly={previewOnly}
                     onHide={() => void setProductActive(p.id, p.isActive)}
                     onDelete={() => void deleteProduct(p.id, p.name)}
                     onStockSave={(stock) => updateProductStock(p.id, stock)}
+                    onImageUpload={
+                      isServices
+                        ? undefined
+                        : (url) => updateProductImage(p.id, url)
+                    }
                     showStock={!isServices}
                     showDuration={isServices}
                   />

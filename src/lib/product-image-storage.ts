@@ -7,6 +7,24 @@ import {
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "products");
 
+function supabaseConfig():
+  | { base: string; key: string; bucket: string }
+  | null {
+  const base = (
+    process.env.SUPABASE_URL ??
+    process.env.NEXT_PUBLIC_SUPABASE_URL ??
+    ""
+  ).replace(/\/$/, "");
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.SUPABASE_SECRET_KEY ??
+    "";
+  const bucket = process.env.SUPABASE_PRODUCT_IMAGE_BUCKET ?? "product-images";
+
+  if (!base || !key) return null;
+  return { base, key, bucket };
+}
+
 export async function storeProductImage(
   businessId: string,
   buffer: Buffer,
@@ -19,10 +37,18 @@ export async function storeProductImage(
   const filename = generateRandomImageFilename(mime);
   const objectPath = `${businessId}/${filename}`;
 
-  const supabaseUrl = await trySupabaseUpload(objectPath, buffer, mime);
-  if (supabaseUrl) return supabaseUrl;
-
-  if (process.env.VERCEL === "1") {
+  const config = supabaseConfig();
+  if (config) {
+    try {
+      return await uploadToSupabase(config, objectPath, buffer, mime);
+    } catch (e) {
+      if (process.env.VERCEL === "1") throw e;
+      console.warn(
+        "[product-image] Supabase upload failed, using local storage:",
+        e instanceof Error ? e.message : e
+      );
+    }
+  } else if (process.env.VERCEL === "1") {
     throw new Error("SUPABASE_REQUIRED");
   }
 
@@ -32,23 +58,24 @@ export async function storeProductImage(
   return `/uploads/products/${objectPath}`;
 }
 
-async function trySupabaseUpload(
+async function uploadToSupabase(
+  config: { base: string; key: string; bucket: string },
   objectPath: string,
   buffer: Buffer,
   contentType: string
-): Promise<string | null> {
-  const base = process.env.SUPABASE_URL?.replace(/\/$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const bucket = process.env.SUPABASE_PRODUCT_IMAGE_BUCKET ?? "product-images";
-
-  if (!base || !key) return null;
+): Promise<string> {
+  const encodedPath = objectPath
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
 
   const res = await fetch(
-    `${base}/storage/v1/object/${bucket}/${objectPath}`,
+    `${config.base}/storage/v1/object/${config.bucket}/${encodedPath}`,
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${key}`,
+        Authorization: `Bearer ${config.key}`,
+        apikey: config.key,
         "Content-Type": contentType,
         "x-upsert": "true",
       },
@@ -61,5 +88,5 @@ async function trySupabaseUpload(
     throw new Error(`SUPABASE_UPLOAD:${res.status}:${text.slice(0, 200)}`);
   }
 
-  return `${base}/storage/v1/object/public/${bucket}/${objectPath}`;
+  return `${config.base}/storage/v1/object/public/${config.bucket}/${encodedPath}`;
 }

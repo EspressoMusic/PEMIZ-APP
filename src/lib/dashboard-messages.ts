@@ -271,6 +271,9 @@ export type DashboardLabels = {
   answerPlaceholder: string;
   faqStorePolicy: string;
   faqHiddenFromCustomers: string;
+  faqPublishedTitle: string;
+  faqPublishedDetail: string;
+  celebrationOk: string;
   confirmDeleteFaq: string;
   confirmDeleteDeal: string;
   productName: string;
@@ -595,6 +598,9 @@ const HE: DashboardLabels = {
   answerPlaceholder: "לדוגמה: א׳–ה׳ 08:00–20:00",
   faqStorePolicy: "מדיניות החנות",
   faqHiddenFromCustomers: "מוסתר מלקוחות",
+  faqPublishedTitle: "השאלה פורסמה בהצלחה!",
+  faqPublishedDetail: "הלקוחות יראו אותה בעמוד החנות",
+  celebrationOk: "מעולה",
   confirmDeleteFaq: "למחוק שאלה זו?",
   confirmDeleteDeal: "למחוק את הדיל?",
   productName: "שם",
@@ -989,6 +995,9 @@ const EN: DashboardLabels = {
   answerPlaceholder: "e.g. Mon–Fri 8:00 AM–8:00 PM",
   faqStorePolicy: "Store policy",
   faqHiddenFromCustomers: "Hidden from customers",
+  faqPublishedTitle: "Question published!",
+  faqPublishedDetail: "Customers will see it on your store page",
+  celebrationOk: "Great",
   confirmDeleteFaq: "Delete this question?",
   confirmDeleteDeal: "Delete this deal?",
   productName: "Name",

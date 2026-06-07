@@ -82,10 +82,7 @@ export function DashboardOrderCard({
   const createdShort = order.createdAt
     ? formatDateTime(order.createdAt)
     : null;
-  const showActions =
-    onStatusChange &&
-    order.status !== "CANCELLED" &&
-    order.status !== "COMPLETED";
+  const showActions = onStatusChange && order.status === "PENDING";
 
   return (
     <div className="w-full">

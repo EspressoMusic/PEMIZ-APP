@@ -77,7 +77,8 @@ function orderStatusLabel(status: string, locale: AppLocale): string {
   return map[status] ?? status;
 }
 
-const ACTIVE_ORDER_STATUSES = new Set(["PENDING", "CONFIRMED"]);
+/** רק ממתין דורש פעולה; אושר/הושלם/בוטל — בהיסטוריה */
+const ACTIVE_ORDER_STATUSES = new Set(["PENDING"]);
 
 function isActiveOrderStatus(status: string) {
   return ACTIVE_ORDER_STATUSES.has(status);

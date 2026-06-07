@@ -2,10 +2,9 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import type { Role } from "@/lib/types";
-import { jsonError, jsonOk } from "@/lib/api";
+import { jsonError, jsonInfrastructureError, jsonOk, jsonServerError } from "@/lib/api";
 import { studioConsolePath } from "@/lib/studio-access";
 import { databaseConfigHint, isDatabaseConfigured } from "@/lib/db-env";
-import { prismaErrorResponse } from "@/lib/prisma-errors";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { safeUserWithPasswordSelect } from "@/lib/security/user-select";
 import { loginSchema, zodFirstError } from "@/lib/validation/schemas";
@@ -21,7 +20,10 @@ export async function POST(req: Request) {
   }
 
   if (!isDatabaseConfigured()) {
-    return jsonError(`מסד הנתונים לא מוגדר. ${databaseConfigHint()}`, 503);
+    return jsonInfrastructureError(
+      `Database not configured. ${databaseConfigHint()}`,
+      "auth:login"
+    );
   }
 
   const email = parsed.data.email.toLowerCase();
@@ -59,8 +61,6 @@ export async function POST(req: Request) {
       redirectTo: consolePath,
     });
   } catch (error) {
-    console.error("login failed", error);
-    const { message, status } = prismaErrorResponse(error);
-    return jsonError(message, status);
+    return jsonServerError(error, "auth:login");
   }
 }

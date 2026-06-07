@@ -264,7 +264,10 @@ export function CustomerStoreApp({
     null
   );
   const [myInquiries, setMyInquiries] = useState<MyInquiry[]>([]);
-  const [inquirySent, setInquirySent] = useState(false);
+  const [inquirySubmitting, setInquirySubmitting] = useState(false);
+  const [inquirySubmitError, setInquirySubmitError] = useState("");
+  const [inquirySuccessOpen, setInquirySuccessOpen] = useState(false);
+  const inquirySubmitLockRef = useRef(false);
   const [localAppointments, setLocalAppointments] = useState<
     CustomerAppointmentEntry[]
   >([]);
@@ -704,30 +707,63 @@ export function CustomerStoreApp({
     setActiveOrdersOpen(true);
   }
 
+  const hasPendingInquiry = useMemo(
+    () => myInquiries.some((inq) => !inq.sellerReply),
+    [myInquiries]
+  );
+
   async function sendInquiry(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
+    if (inquirySubmitting || inquirySubmitLockRef.current || hasPendingInquiry) {
+      return;
+    }
+
+    inquirySubmitLockRef.current = true;
+    setInquirySubmitting(true);
+    setInquirySubmitError("");
+
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     const phone = String(fd.get("customerPhone") ?? "").trim();
-    const res = await fetch(`/api/public/${business.slug}/inquiries`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerName: fd.get("customerName"),
-        customerPhone: phone,
-        subject: fd.get("subject"),
-        message: fd.get("message"),
-      }),
-    });
-    if (res.ok) {
+
+    try {
+      const res = await fetch(`/api/public/${business.slug}/inquiries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: fd.get("customerName"),
+          customerPhone: phone,
+          subject: fd.get("subject"),
+          message: fd.get("message"),
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setInquirySubmitError(
+          (data as { error?: string }).error ?? labels.inquirySubmitError
+        );
+        return;
+      }
+
+      const name = String(fd.get("customerName") ?? "").trim();
+      if (name.length >= 2) {
+        setCustomerName(name);
+        localStorage.setItem(`linky-customer-${business.slug}`, name);
+      }
       if (phone) {
         localStorage.setItem(inquiryPhoneKey(business.slug), phone);
         setOrderPhone(phone);
         await loadMyInquiries(phone);
       }
-      setInquirySent(true);
-      setTimeout(() => setInquirySent(false), 3000);
+      form.reset();
+      setInquirySuccessOpen(true);
+    } catch {
+      setInquirySubmitError(labels.inquirySubmitError);
+    } finally {
+      setInquirySubmitting(false);
+      inquirySubmitLockRef.current = false;
     }
-    e.currentTarget.reset();
   }
 
   const myAppointments = useMemo(() => {
@@ -1357,7 +1393,9 @@ export function CustomerStoreApp({
         customerPhone={orderPhone}
         isDevPreview={business.slug === "demo-store"}
         myInquiries={myInquiries}
-        inquirySent={inquirySent}
+        inquirySubmitting={inquirySubmitting}
+        inquirySubmitError={inquirySubmitError}
+        hasPendingInquiry={hasPendingInquiry}
         onSubmitInquiry={sendInquiry}
       />
       )}
@@ -1521,6 +1559,15 @@ export function CustomerStoreApp({
           </div>
         ) : null}
       </CustomerCenterModal>
+
+      <CelebrationModal
+        open={inquirySuccessOpen}
+        onClose={() => setInquirySuccessOpen(false)}
+        title={labels.inquirySentTitle}
+        detail={labels.inquirySentDetail}
+        buttonLabel={labels.sellerNoticeGotIt}
+        closeAriaLabel={locale === "he" ? "סגור" : "Close"}
+      />
     </div>
   );
 }

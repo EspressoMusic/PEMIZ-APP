@@ -50,11 +50,31 @@ export const productPatchSchema = z.object({
   serviceDurationMinutes: z.number().int().min(15).max(480).nullable().optional(),
 });
 
+export const publicInquirySchema = z.object({
+  customerName: z
+    .string()
+    .trim()
+    .min(2, "שם: לפחות 2 תווים")
+    .max(80, "שם ארוך מדי"),
+  customerPhone: z.string().max(20).optional(),
+  customerEmail: z.string().email("אימייל לא תקין").optional().or(z.literal("")),
+  subject: z
+    .string()
+    .trim()
+    .min(2, "נושא: לפחות 2 תווים")
+    .max(120, "נושא ארוך מדי"),
+  message: z
+    .string()
+    .trim()
+    .min(5, "פירוט הפנייה: לפחות 5 תווים")
+    .max(2000, "ההודעה ארוכה מדי"),
+});
+
 export const publicChatPostSchema = z.object({
   channel: z.literal("SELLER"),
-  customerName: z.string().trim().min(2).max(80),
+  customerName: z.string().trim().min(2, "שם: לפחות 2 תווים").max(80),
   customerPhone: z.string().max(20),
-  body: z.string().trim().min(1).max(2000),
+  body: z.string().trim().min(1, "נא לכתוב הודעה").max(2000),
 });
 
 export const sellerPrivateChatReplySchema = z.object({
