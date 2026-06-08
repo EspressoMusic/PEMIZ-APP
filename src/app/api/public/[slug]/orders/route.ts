@@ -21,6 +21,7 @@ import {
   notifyLowStockAfterOrder,
   notifySellerNewOrder,
 } from "@/lib/seller-push";
+import { storePanelsFromBusiness } from "@/lib/store-panels-visible";
 
 function afterOrderPlaced(
   businessId: string,
@@ -60,12 +61,10 @@ export async function POST(
   if (!business.isActive) return jsonError("This business is currently unavailable.", 403);
   if (business.type !== "STORE") return jsonError("עסק זה אינו מקבל הזמנות", 400);
 
-  if (
-    !isWithinOrderSchedule(
-      business.orderScheduleEnabled,
-      business.orderSchedule
-    )
-  ) {
+  const panels = storePanelsFromBusiness(business);
+  const scheduleEnabled =
+    panels.orderLimits && (business.orderScheduleEnabled ?? false);
+  if (!isWithinOrderSchedule(scheduleEnabled, business.orderSchedule)) {
     return jsonError(ORDER_SCHEDULE_CLOSED_MESSAGE, 403);
   }
 
@@ -79,6 +78,7 @@ export async function POST(
   let orderItems: { productId: string; quantity: number; priceAtOrder: number }[] = [];
 
   if (parsed.data.dealId) {
+    if (!panels.deals) return jsonError("מבצעים לא זמינים בחנות זו", 403);
     const deal = await prisma.storeDeal.findFirst({
       where: {
         id: parsed.data.dealId,

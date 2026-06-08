@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
 const tileClassName =
-  "dashboard-action-square relative flex aspect-square w-full min-w-0 max-w-full flex-col items-center justify-center gap-3 self-center rounded-[24px] px-2 py-4 text-center sm:gap-3.5 sm:px-3 sm:py-5";
+  "dashboard-action-square dashboard-action-row relative flex aspect-square w-full min-w-0 max-w-full flex-col items-center justify-center gap-3 self-center rounded-[22px] px-2 py-4 text-center transition sm:gap-3.5 sm:px-3 sm:py-5";
 
 function DashboardActionSquareContent({
   icon: Icon,

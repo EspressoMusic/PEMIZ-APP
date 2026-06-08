@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
+import { isStorePanelEnabled } from "@/lib/store-panels-visible";
 
 export async function GET(
   _req: Request,
@@ -12,11 +13,15 @@ export async function GET(
       isActive: true,
       storeBroadcast: true,
       storeBroadcastAt: true,
+      storePanelsVisible: true,
     },
   });
 
   if (!business) return jsonError("עסק לא נמצא", 404);
   if (!business.isActive) return jsonError("עסק לא זמין", 403);
+  if (!isStorePanelEnabled(business, "broadcast")) {
+    return jsonOk({ message: null, sentAt: null });
+  }
 
   if (!business.storeBroadcast?.trim()) {
     return jsonOk({ message: null, sentAt: null });

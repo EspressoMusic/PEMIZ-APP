@@ -8,19 +8,16 @@ import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sh
 import { DashboardCustomersHubGrid } from "@/components/dashboard/dashboard-customers-hub";
 import { DashboardStoreSettingsHubPanel } from "@/components/dashboard/dashboard-store-settings-hub";
 import { DashboardAppointmentsSettingsHubPanel } from "@/components/dashboard/dashboard-appointments-settings-hub";
-import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardActionsHub({
   businessType,
   basePath = "/dashboard",
   previewOnly = false,
-  previewCustomerOrders = [],
 }: {
   businessType: string;
   basePath?: string;
   previewOnly?: boolean;
-  previewCustomerOrders?: DashboardOrderView[];
 }) {
   const { labels } = useAppLocale();
   const [customersOpen, setCustomersOpen] = useState(false);
@@ -60,7 +57,6 @@ export function DashboardActionsHub({
               basePath={basePath}
               previewOnly={previewOnly}
               businessType={businessType}
-              previewCustomerOrders={previewCustomerOrders}
             />
           </ul>
         </div>

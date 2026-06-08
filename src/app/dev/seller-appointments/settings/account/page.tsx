@@ -1,7 +1,11 @@
 import { DashboardSettingsView } from "@/components/dashboard-settings";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DevAppointmentsSellerShell } from "@/components/dashboard/dev-appointments-seller-shell";
-import { DEV_APPOINTMENTS_BUSINESS, DEV_APPOINTMENTS_SELLER_BASE } from "@/lib/dev-preview-data";
+import {
+  DEV_APPOINTMENTS_BUSINESS,
+  DEV_APPOINTMENTS_SELLER_BASE,
+  getDevPreviewCustomerOrdersFromAppointments,
+} from "@/lib/dev-preview-data";
 
 export default function DevSellerAppointmentsAccountPage() {
   return (
@@ -14,9 +18,11 @@ export default function DevSellerAppointmentsAccountPage() {
           phone="050-1234567"
           businessName={DEV_APPOINTMENTS_BUSINESS.name}
           isActive
-          storeUrl="/dev/customer-appointments"
-          previewSlug="demo-appointments"
           previewOnly
+          businessType="APPOINTMENTS"
+          basePath={DEV_APPOINTMENTS_SELLER_BASE}
+          showQuickActionRows
+          previewCustomerOrders={getDevPreviewCustomerOrdersFromAppointments()}
         />
       </div>
     </DevAppointmentsSellerShell>

@@ -76,7 +76,7 @@ export function ProductImageField({
             void handleFile(e.dataTransfer.files[0] ?? null);
           }}
           className={`flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed transition ${
-            compact ? "gap-1 px-3 py-4" : "gap-2 px-4 py-8"
+            compact ? "gap-1 px-3 py-3" : "gap-2 px-4 py-8"
           } ${
             dragOver
               ? "border-bakery-primary bg-bakery-primary/8"

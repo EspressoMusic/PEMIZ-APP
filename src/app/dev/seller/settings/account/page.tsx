@@ -1,4 +1,4 @@
-import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
+import { DEV_PREVIEW_ORDERS, DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardSettingsView } from "@/components/dashboard-settings";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
@@ -17,9 +17,10 @@ export default function DevSellerSettingsAccountPage() {
               phone="050-1234567"
               businessName="המאפייה שלי (תצוגה)"
               isActive
-              storeUrl="/b/demo-store"
-              previewSlug="demo-store"
               previewOnly
+              basePath="/dev/seller"
+              showQuickActionRows
+              previewCustomerOrders={DEV_PREVIEW_ORDERS}
             />
           </div>
         </DashboardShell>

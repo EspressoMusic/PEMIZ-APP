@@ -10,6 +10,7 @@ import {
 } from "@/lib/store-chat-query";
 import { publicChatPostSchema, zodFirstError } from "@/lib/validation/schemas";
 import { notifySellerChat } from "@/lib/seller-push";
+import { isStorePanelEnabled } from "@/lib/store-panels-visible";
 
 export async function GET(
   req: Request,
@@ -26,10 +27,13 @@ export async function GET(
 
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
-    select: { id: true, isActive: true },
+    select: { id: true, isActive: true, storePanelsVisible: true },
   });
   if (!business) return jsonError("עסק לא נמצא", 404);
   if (!business.isActive) return jsonError("עסק לא זמין", 403);
+  if (!isStorePanelEnabled(business, "chat")) {
+    return jsonError("צ'אט לא זמין בחנות זו", 403);
+  }
 
   if (viewerPhone.length < 9) return jsonError("מספר טלפון לא תקין");
 
@@ -58,10 +62,13 @@ export async function POST(
   const { slug } = await params;
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
-    select: { id: true, isActive: true },
+    select: { id: true, isActive: true, storePanelsVisible: true },
   });
   if (!business) return jsonError("עסק לא נמצא", 404);
   if (!business.isActive) return jsonError("עסק לא זמין", 403);
+  if (!isStorePanelEnabled(business, "chat")) {
+    return jsonError("צ'אט לא זמין בחנות זו", 403);
+  }
 
   const body = await req.json().catch(() => null);
   const parsed = publicChatPostSchema.safeParse(body);

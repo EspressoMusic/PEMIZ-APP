@@ -11,6 +11,7 @@ import { publicCatalogImageUrl } from "@/lib/public-image-url";
 import { ServiceUnavailableNotice } from "@/components/service-unavailable-notice";
 import { recordSystemIncident } from "@/lib/system-incidents";
 import { formatServerError } from "@/lib/server-errors";
+import { storePanelsFromBusiness } from "@/lib/store-panels-visible";
 
 export default async function PublicBusinessPage({
   params,
@@ -99,6 +100,7 @@ export default async function PublicBusinessPage({
         appointmentBookingByDay: business.appointmentBookingByDay ?? false,
         storeBroadcast: business.storeBroadcast,
         storeBroadcastAt: business.storeBroadcastAt?.toISOString() ?? null,
+        storePanelsVisible: storePanelsFromBusiness(business),
       }}
       unavailable={unavailable}
       platformLegalDocs={platformLegalDocs}

@@ -64,6 +64,8 @@ export function CustomerContactModal({
   inquirySubmitting = false,
   inquirySubmitError = "",
   hasPendingInquiry = false,
+  hideChat = false,
+  hideInquiries = false,
   onSubmitInquiry,
 }: {
   open: boolean;
@@ -81,6 +83,8 @@ export function CustomerContactModal({
   inquirySubmitting?: boolean;
   inquirySubmitError?: string;
   hasPendingInquiry?: boolean;
+  hideChat?: boolean;
+  hideInquiries?: boolean;
   onSubmitInquiry: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   const [contactName, setContactName] = useState(customerName);
@@ -261,20 +265,26 @@ export function CustomerContactModal({
   }
 
   function renderMenu() {
-    return (
-      <div className="space-y-2 px-4 py-4">
+    const rows = [
+      !hideInquiries ? (
         <SettingsMenuRow
+          key="inquiry"
           icon={FileText}
           title={labels.contactOptionInquiry}
           onClick={() => onViewChange("inquiry")}
         />
+      ) : null,
+      !hideChat ? (
         <SettingsMenuRow
+          key="chat"
           icon={MessageCircle}
           title={labels.contactOptionSellerChat}
           onClick={() => onViewChange("seller-chat")}
         />
-      </div>
-    );
+      ) : null,
+    ].filter(Boolean);
+
+    return <div className="space-y-2 px-4 py-4">{rows}</div>;
   }
 
   function renderInquiry() {

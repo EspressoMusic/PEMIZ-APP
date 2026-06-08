@@ -93,6 +93,14 @@ export type DashboardLabels = {
   notificationStockOut: string;
   notificationStockLeft: string;
   accountAndLink: string;
+  storePanelsTitle: string;
+  storePanelDeals: string;
+  storePanelBroadcast: string;
+  storePanelChat: string;
+  storePanelInquiries: string;
+  storePanelFaq: string;
+  storePanelOrderLimits: string;
+  storePanelsSaveFailed: string;
   extras: string;
   customers: string;
   customerMessage: string;
@@ -333,6 +341,10 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipAddServiceBody: string;
   sellerGuideWelcomeTipCalendarTitle: string;
   sellerGuideWelcomeTipCalendarBody: string;
+  sellerGuideWelcomeTipDealsTitle: string;
+  sellerGuideWelcomeTipDealsBody: string;
+  sellerGuideWelcomeTipLimitsTitle: string;
+  sellerGuideWelcomeTipLimitsBody: string;
   liveTourIntroTitle: string;
   liveTourIntroBody: string;
   liveTourIntroTitleAppointments: string;
@@ -425,6 +437,7 @@ export type DashboardLabels = {
   periodSummaryMonth: string;
   periodSummaryYear: string;
   ownerAccount: string;
+  sellerDetails: string;
   accountDetails: string;
   email: string;
   phone: string;
@@ -509,6 +522,14 @@ const HE: DashboardLabels = {
   workingDays: "ימי עבודה",
   settings: "הגדרות",
   accountAndLink: "חשבון וקישור לחנות",
+  storePanelsTitle: "מה יופיע באתר הלקוחות",
+  storePanelDeals: "מבצעים (דילים)",
+  storePanelBroadcast: "הודעות והתראות ללקוחות",
+  storePanelChat: "צ'אט",
+  storePanelInquiries: "פניות",
+  storePanelFaq: "שאלות נפוצות",
+  storePanelOrderLimits: "הגבלות הזמנה (שעות פעילות)",
+  storePanelsSaveFailed: "שמירת ההגדרות נכשלה",
   extras: "פרטים נוספים",
   customers: "לקוחות",
   customerMessage: "הודעה ללקוחות",
@@ -709,11 +730,11 @@ const HE: DashboardLabels = {
   faqPublishedTitle: "השאלה פורסמה בהצלחה!",
   faqPublishedDetail: "הלקוחות יראו אותה בעמוד החנות",
   celebrationOk: "מעולה",
-  sellerGuideTitle: "ברוך הבא ללינקי!",
+  sellerGuideTitle: "מדריך קצר — בוא נתחיל!",
   sellerGuideIntro:
-    "הנה שלושה דברים שכדאי לדעת כדי להתחיל לנהל את העסק:",
+    "חמישה דברים פשוטים. ככה מנהלים את החנות — קרא בקצרה:",
   sellerGuideIntroAppointments:
-    "הנה שלושה דברים שכדאי לדעת כדי להתחיל לנהל את עסק התורים:",
+    "שלושה דברים פשוטים. ככה מנהלים את עסק התורים — קרא בקצרה:",
   sellerGuideStepNavTitle: "1. הניווט בתחתית המסך",
   sellerGuideStepNavBody:
     "יש שני כפתורים קבועים: בית — סיכום יומי וקישור ללקוחות. פעולות — כל ניהול העסק.",
@@ -750,26 +771,32 @@ const HE: DashboardLabels = {
   sellerGuideSkip: "דלג",
   sellerGuideNext: "הבא",
   sellerGuideBack: "חזרה",
-  sellerGuideFinish: "הבנתי, בואו נתחיל",
+  sellerGuideFinish: "יופי, הבנתי!",
   sellerGuideAddProduct: "הוסף מוצר ראשון",
   sellerGuideAddService: "הוסף שירות ראשון",
   sellerGuideAddCalendar: "הגדר יומן ומשבצות",
   sellerGuideStepCounter: "שלב {current} מתוך {total}",
-  sellerGuideWelcomeTipAddProductTitle: "הוספת מוצר",
+  sellerGuideWelcomeTipAddProductTitle: "איך מוסיפים מוצר?",
   sellerGuideWelcomeTipAddProductBody:
-    "פעולות (בתחתית) → החנות → מוצרים → «הוסף מוצר».",
-  sellerGuideWelcomeTipOrdersTitle: "הזמנות",
+    "למטה לוחצים פעולות ← חנות ← מוצרים ← הוסף מוצר. שמים שם, מחיר ותמונה — ושומרים.",
+  sellerGuideWelcomeTipOrdersTitle: "איפה רואים הזמנות ומאשרים?",
   sellerGuideWelcomeTipOrdersBody:
-    "פעולות → החנות → הזמנות. בבית תראו גם סיכום יומי של ההזמנות.",
-  sellerGuideWelcomeTipCustomersTitle: "מענה ללקוחות",
+    "פעולות ← חנות ← הזמנות. לוחצים על שם הלקוח, רואים מה הוא קנה, ולוחצים אשר.",
+  sellerGuideWelcomeTipCustomersTitle: "איך עונים ללקוח?",
   sellerGuideWelcomeTipCustomersBody:
-    "פעולות → לקוחות — פניות, צ'אט והודעות לכל הלקוחות.",
-  sellerGuideWelcomeTipAddServiceTitle: "הוספת שירות",
+    "פעולות ← לקוחות ← פניות לקוחות. שם יש צ'אט ופניות — פותחים ועונים.",
+  sellerGuideWelcomeTipAddServiceTitle: "איך מוסיפים שירות?",
   sellerGuideWelcomeTipAddServiceBody:
-    "פעולות (בתחתית) → החנות → שירותים → «הוסף שירות».",
-  sellerGuideWelcomeTipCalendarTitle: "תורים ויומן",
+    "למטה לוחצים פעולות ← חנות ← שירותים ← הוסף שירות. שמים שם ומחיר — ושומרים.",
+  sellerGuideWelcomeTipCalendarTitle: "איפה רואים תורים?",
   sellerGuideWelcomeTipCalendarBody:
-    "בבית — יומן חודשי. בפעולות → החנות — הגדרות תורים, משבצות והגבלות.",
+    "בבית רואים יומן. בפעולות ← חנות אפשר לפתוח משבצות ולראות מי קבע תור.",
+  sellerGuideWelcomeTipDealsTitle: "איך מוסיפים דיל?",
+  sellerGuideWelcomeTipDealsBody:
+    "פעולות ← חנות ← דילים והגבלות ← דילים ← הוסף דיל. בוחרים מוצרים, מחיר ותוקף — ומפרסמים.",
+  sellerGuideWelcomeTipLimitsTitle: "איך מגדירים הגבלות?",
+  sellerGuideWelcomeTipLimitsBody:
+    "פעולות ← חנות ← דילים והגבלות ← הגבלות. מגדירים שעות וימים שבהם הלקוחות יכולים להזמין.",
   liveTourIntroTitle: "בואו נוסיף את המוצר הראשון",
   liveTourIntroBody:
     "נסיור קצר על המסך האמיתי — נלווה אותך שלב-אחר-שלב עד שהמוצר נשמר בחנות.",
@@ -868,6 +895,7 @@ const HE: DashboardLabels = {
   periodSummaryMonth: "30 הימים האחרונים",
   periodSummaryYear: "12 החודשים האחרונים",
   ownerAccount: "חשבון בעלים",
+  sellerDetails: "פרטי המוכר",
   accountDetails: "פרטים",
   email: "אימייל",
   phone: "טלפון",
@@ -1025,6 +1053,14 @@ const EN: DashboardLabels = {
   workingDays: "Working days",
   settings: "Settings",
   accountAndLink: "Account & store link",
+  storePanelsTitle: "What customers see on your store",
+  storePanelDeals: "Deals",
+  storePanelBroadcast: "Messages & alerts to customers",
+  storePanelChat: "Chat",
+  storePanelInquiries: "Inquiries",
+  storePanelFaq: "FAQ",
+  storePanelOrderLimits: "Order limits (opening hours)",
+  storePanelsSaveFailed: "Could not save panel settings",
   extras: "More details",
   customers: "Customers",
   customerMessage: "Message customers",
@@ -1226,11 +1262,11 @@ const EN: DashboardLabels = {
   faqPublishedTitle: "Question published!",
   faqPublishedDetail: "Customers will see it on your store page",
   celebrationOk: "Great",
-  sellerGuideTitle: "Welcome to Linky!",
+  sellerGuideTitle: "Quick guide — let's go!",
   sellerGuideIntro:
-    "Here are three things to know to get started managing your business:",
+    "Five simple steps to run your store — read this first:",
   sellerGuideIntroAppointments:
-    "Here are three things to know to get started with your appointments business:",
+    "Three simple steps to run appointments — read this first:",
   sellerGuideStepNavTitle: "1. Bottom navigation",
   sellerGuideStepNavBody:
     "Two fixed buttons: Home — daily summary and your customer link. Actions — everything you manage.",
@@ -1267,26 +1303,32 @@ const EN: DashboardLabels = {
   sellerGuideSkip: "Skip",
   sellerGuideNext: "Next",
   sellerGuideBack: "Back",
-  sellerGuideFinish: "Got it, let's go",
+  sellerGuideFinish: "Got it!",
   sellerGuideAddProduct: "Add first product",
   sellerGuideAddService: "Add first service",
   sellerGuideAddCalendar: "Set up calendar & slots",
   sellerGuideStepCounter: "Step {current} of {total}",
-  sellerGuideWelcomeTipAddProductTitle: "Add a product",
+  sellerGuideWelcomeTipAddProductTitle: "How do I add a product?",
   sellerGuideWelcomeTipAddProductBody:
-    "Actions (bottom bar) → Store → Products → Add product.",
-  sellerGuideWelcomeTipOrdersTitle: "Orders",
+    "Tap Actions at the bottom → Store → Products → Add product. Enter name, price, and photo — then save.",
+  sellerGuideWelcomeTipOrdersTitle: "Where are orders? How do I approve?",
   sellerGuideWelcomeTipOrdersBody:
-    "Actions → Store → Orders. On Home you'll also see a daily summary.",
-  sellerGuideWelcomeTipCustomersTitle: "Customer messages",
+    "Actions → Store → Orders. Tap the customer's name, see what they ordered, then tap Confirm.",
+  sellerGuideWelcomeTipCustomersTitle: "How do I reply to a customer?",
   sellerGuideWelcomeTipCustomersBody:
-    "Actions → Customers — inquiries, chat, and broadcast messages.",
-  sellerGuideWelcomeTipAddServiceTitle: "Add a service",
+    "Actions → Customers → Customer inquiries. Open Chat or Inquiries and reply.",
+  sellerGuideWelcomeTipAddServiceTitle: "How do I add a service?",
   sellerGuideWelcomeTipAddServiceBody:
-    "Actions (bottom bar) → Store → Services → Add service.",
-  sellerGuideWelcomeTipCalendarTitle: "Appointments & calendar",
+    "Tap Actions → Store → Services → Add service. Enter name and price — then save.",
+  sellerGuideWelcomeTipCalendarTitle: "Where do I see appointments?",
   sellerGuideWelcomeTipCalendarBody:
-    "Home — monthly calendar. Actions → Store — appointment settings, slots, and limits.",
+    "Home shows your calendar. In Actions → Store you can open slots and see who booked.",
+  sellerGuideWelcomeTipDealsTitle: "How do I add a deal?",
+  sellerGuideWelcomeTipDealsBody:
+    "Actions → Store → Deals & limits → Deals → Add deal. Pick products, price, and expiry — then publish.",
+  sellerGuideWelcomeTipLimitsTitle: "How do I set order limits?",
+  sellerGuideWelcomeTipLimitsBody:
+    "Actions → Store → Deals & limits → Limits. Set the hours and days when customers can order.",
   liveTourIntroTitle: "Let's add your first product",
   liveTourIntroBody:
     "A quick hands-on tour — we'll walk you through the real screens until your product is saved.",
@@ -1385,6 +1427,7 @@ const EN: DashboardLabels = {
   periodSummaryMonth: "Last 30 days",
   periodSummaryYear: "Last 12 months",
   ownerAccount: "Owner account",
+  sellerDetails: "Seller details",
   accountDetails: "Details",
   email: "Email",
   phone: "Phone",

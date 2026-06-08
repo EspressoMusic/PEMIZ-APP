@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import {
-  Bell,
   CalendarClock,
   ChevronDown,
   Clock,
   History,
   Settings,
-  Smartphone,
   TrendingUp,
   User,
 } from "lucide-react";
@@ -17,20 +15,16 @@ import {
   DASHBOARD_ACTION_ROW_CLASS,
   DashboardActionRow,
 } from "@/components/dashboard/dashboard-action-row";
-import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
-import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
 import { DashboardStoreStylePicker } from "@/components/dashboard/dashboard-store-style-picker";
 
 export function DashboardActionsSettingsGroup({
   basePath = "/dashboard",
   previewOnly = false,
   businessType = "STORE",
-  previewCustomerOrders = [],
 }: {
   basePath?: string;
   previewOnly?: boolean;
   businessType?: string;
-  previewCustomerOrders?: DashboardOrderView[];
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
@@ -73,16 +67,6 @@ export function DashboardActionsSettingsGroup({
             ) : null}
             <DashboardStoreStylePicker previewOnly={previewOnly} />
             <DashboardActionRow
-              href={`${basePath}/settings/alerts`}
-              icon={Bell}
-              title={labels.alerts}
-            />
-            <DashboardActionRow
-              href={`${basePath}/settings/app`}
-              icon={Smartphone}
-              title={labels.installApp}
-            />
-            <DashboardActionRow
               href={`${basePath}/settings/account`}
               icon={User}
               title={labels.accountAndLink}
@@ -106,11 +90,6 @@ export function DashboardActionsSettingsGroup({
                 />
               </>
             ) : null}
-            <DashboardStoreCustomers
-              embedded
-              previewOnly={previewOnly}
-              previewOrders={previewCustomerOrders}
-            />
           </ul>
         </div>
       )}

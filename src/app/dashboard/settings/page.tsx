@@ -3,7 +3,6 @@ import { getCurrentUser } from "@/lib/auth";
 import { DashboardStoreSettingsHub } from "@/components/dashboard/dashboard-store-settings-hub";
 import { DashboardAppointmentsSettingsHub } from "@/components/dashboard/dashboard-appointments-settings-hub";
 import { DashboardSettingsView } from "@/components/dashboard-settings";
-import { publicBusinessUrl } from "@/lib/business";
 
 export default async function SettingsPage() {
   const user = await getCurrentUser();
@@ -24,8 +23,6 @@ export default async function SettingsPage() {
         phone={user.phone}
         businessName={b.name}
         isActive={b.isActive ?? false}
-        storeUrl={publicBusinessUrl(b.slug)}
-        previewSlug={b.slug}
       />
     );
   }

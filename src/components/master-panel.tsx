@@ -6,6 +6,11 @@ import { ChevronDown, Search } from "lucide-react";
 import { Button, Panel, Badge, PageTitle } from "@/components/ui";
 import { MasterLoginGate } from "@/components/master-login-gate";
 import { WebShell } from "@/components/web-shell";
+import {
+  BUSINESS_TRIAL_DAYS,
+  getBusinessTrialStatus,
+  type BusinessTrialStatus,
+} from "@/lib/business-trial";
 
 type BusinessRow = {
   id: string;
@@ -16,6 +21,8 @@ type BusinessRow = {
   isActive: boolean;
   approvedAt: string | null;
   createdAt: string;
+  subscriptionActiveAt: string | null;
+  subscriptionPlan: string | null;
   termsAcceptedAt: string | null;
   publicUrl: string;
   owner: {
@@ -81,6 +88,57 @@ function matchesStoreQuery(b: BusinessRow, query: string) {
   );
 }
 
+function trialStatusForBusiness(b: BusinessRow, now: number): BusinessTrialStatus {
+  return getBusinessTrialStatus(
+    {
+      createdAt: new Date(b.createdAt),
+      subscriptionActiveAt: b.subscriptionActiveAt
+        ? new Date(b.subscriptionActiveAt)
+        : null,
+    },
+    now
+  );
+}
+
+function trialBadgeMeta(status: BusinessTrialStatus) {
+  if (status.hasSubscription) {
+    return { label: "מנוי פעיל", tone: "success" as const };
+  }
+  if (status.expired) {
+    return { label: "ניסיון נגמר", tone: "danger" as const };
+  }
+  if (status.daysRemaining <= 7) {
+    return {
+      label: `${status.daysRemaining} ימים לסיום`,
+      tone: "warning" as const,
+    };
+  }
+  return {
+    label: `${status.daysRemaining} ימים לסיום`,
+    tone: "default" as const,
+  };
+}
+
+function formatTrialCountdown(status: BusinessTrialStatus): string {
+  if (status.hasSubscription) {
+    return "מנוי פעיל — החנות לא תיעצר בגלל תקופת הניסיון.";
+  }
+  if (status.expired) {
+    return "תקופת הניסיון נגמרה — החנות אמורה להיעצר ללקוחות.";
+  }
+  const parts: string[] = [];
+  if (status.daysRemaining > 0) parts.push(`${status.daysRemaining} ימים`);
+  if (status.hoursRemaining > 0) parts.push(`${status.hoursRemaining} שעות`);
+  if (
+    status.daysRemaining === 0 &&
+    status.hoursRemaining === 0 &&
+    status.minutesRemaining > 0
+  ) {
+    parts.push(`${status.minutesRemaining} דקות`);
+  }
+  return parts.length > 0 ? `נותרו ${parts.join(" ו-")}` : "פחות מדקה";
+}
+
 function matchesOwnerQuery(u: PendingOwner, query: string) {
   const s = query.trim().toLowerCase();
   if (!s) return true;
@@ -100,6 +158,13 @@ export function MasterPanel() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [incidents, setIncidents] = useState<SystemIncidentRow[]>([]);
   const [incidentsOpen, setIncidentsOpen] = useState(true);
+  const [trialClock, setTrialClock] = useState(0);
+
+  useEffect(() => {
+    if (!authenticated) return;
+    const id = window.setInterval(() => setTrialClock((tick) => tick + 1), 60_000);
+    return () => window.clearInterval(id);
+  }, [authenticated]);
 
   async function checkAuth() {
     const res = await fetch("/api/master/status");
@@ -252,6 +317,16 @@ export function MasterPanel() {
 
   const activeCount = businesses.filter((b) => b.isActive).length;
   const pendingApproval = businesses.filter((b) => !b.isActive && !b.approvedAt);
+  const trialNow = Date.now();
+  void trialClock;
+  const trialsEndingSoon = businesses.filter((b) => {
+    const trial = trialStatusForBusiness(b, trialNow);
+    return !trial.hasSubscription && !trial.expired && trial.daysRemaining <= 7;
+  }).length;
+  const trialsExpired = businesses.filter((b) => {
+    const trial = trialStatusForBusiness(b, trialNow);
+    return !trial.hasSubscription && trial.expired;
+  }).length;
 
   function storeStatus(b: BusinessRow) {
     if (b.isActive) return { label: "פעיל", tone: "success" as const };
@@ -406,6 +481,15 @@ export function MasterPanel() {
               </>
             )}
           </p>
+          <p className="mt-2 text-[14px] text-bakery-ink">
+            ניסיון {BUSINESS_TRIAL_DAYS} יום:{" "}
+            <span className="font-extrabold text-bakery-sale">
+              {trialsEndingSoon}
+            </span>{" "}
+            נגמרות בשבוע הקרוב ·{" "}
+            <span className="font-extrabold text-bakery-error">{trialsExpired}</span>{" "}
+            כבר נגמרו
+          </p>
         </Panel>
 
         {filteredPendingOwners.map((u) => (
@@ -439,6 +523,8 @@ export function MasterPanel() {
 
         {filteredStores.map((b) => {
           const status = storeStatus(b);
+          const trial = trialStatusForBusiness(b, trialNow);
+          const trialBadge = trialBadgeMeta(trial);
           const expanded = expandedId === b.id;
           const suspendLabel = approveLabel(b);
           const isSuspendAction = b.isActive;
@@ -461,6 +547,7 @@ export function MasterPanel() {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-[17px] font-extrabold text-bakery-ink">{b.name}</p>
                     <Badge tone={status.tone}>{status.label}</Badge>
+                    <Badge tone={trialBadge.tone}>{trialBadge.label}</Badge>
                     <Badge>{b.type === "STORE" ? "חנות" : "תורים"}</Badge>
                   </div>
                   <p
@@ -514,6 +601,32 @@ export function MasterPanel() {
                       </p>
                     </DetailBox>
                   </div>
+
+                  <DetailBox title={`ניסיון ${BUSINESS_TRIAL_DAYS} יום`}>
+                    <p className="text-[15px] font-extrabold text-bakery-ink">
+                      {formatTrialCountdown(trial)}
+                    </p>
+                    {!trial.hasSubscription ? (
+                      <p className="mt-1 text-bakery-muted">
+                        <span className="font-bold text-bakery-ink">
+                          החנות נעצרת:
+                        </span>{" "}
+                        {trial.trialEndsAt.toLocaleString("he-IL")}
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-bakery-muted">
+                        מנוי מאז{" "}
+                        {b.subscriptionActiveAt
+                          ? new Date(b.subscriptionActiveAt).toLocaleString("he-IL")
+                          : "—"}
+                        {b.subscriptionPlan ? ` · ${b.subscriptionPlan}` : ""}
+                      </p>
+                    )}
+                    <p className="mt-1 text-[13px] text-bakery-muted">
+                      הספירה מתחילה ממועד פתיחת החנות (
+                      {new Date(b.createdAt).toLocaleDateString("he-IL")})
+                    </p>
+                  </DetailBox>
 
                   <DetailBox title="נתונים">
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

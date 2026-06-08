@@ -67,6 +67,10 @@ import {
   type CustomerOrderHistoryEntry,
 } from "@/lib/customer-order-history";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
+import {
+  DEFAULT_STORE_PANELS_VISIBLE,
+  type StorePanelsVisible,
+} from "@/lib/store-panels-visible";
 import type { AppointmentSlot } from "./customer-appointment-calendar";
 import {
   APPOINTMENTS_HOME_BG,
@@ -214,6 +218,7 @@ export function CustomerStoreApp({
     appointmentBookingByDay?: boolean;
     storeBroadcast?: string | null;
     storeBroadcastAt?: string | null;
+    storePanelsVisible?: StorePanelsVisible;
     demoOrders?: {
       active: DemoOrderPreview[];
       history: DemoOrderPreview[];
@@ -224,6 +229,10 @@ export function CustomerStoreApp({
 }) {
   const isAppointments = business.type === "APPOINTMENTS";
   const isDevAppointments = business.slug === "demo-appointments";
+  const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
+  const effectiveOrderScheduleEnabled =
+    panels.orderLimits && (business.orderScheduleEnabled ?? false);
+  const showContactSeller = panels.chat || panels.inquiries;
   const appointmentCancelPolicy = parseAppointmentCancelPolicy(
     business.storeTerms
   );
@@ -355,7 +364,7 @@ export function CustomerStoreApp({
   }
 
   useEffect(() => {
-    if (unavailable) return;
+    if (unavailable || !panels.broadcast) return;
 
     async function checkBroadcast() {
       let message: string | null = business.storeBroadcast ?? null;
@@ -392,7 +401,13 @@ export function CustomerStoreApp({
     }
 
     checkBroadcast();
-  }, [business.slug, business.storeBroadcast, business.storeBroadcastAt, unavailable]);
+  }, [
+    business.slug,
+    business.storeBroadcast,
+    business.storeBroadcastAt,
+    unavailable,
+    panels.broadcast,
+  ]);
 
   const loadMyInquiries = useCallback(
     async (phoneRaw: string) => {
@@ -460,7 +475,9 @@ export function CustomerStoreApp({
   }
 
   const showSellerNoticeBanner =
-    mainTab === "home" && sellerNoticeMessage.trim().length > 0;
+    panels.broadcast &&
+    mainTab === "home" &&
+    sellerNoticeMessage.trim().length > 0;
 
   useEffect(() => {
     if (mainTab !== "home") {
@@ -473,8 +490,10 @@ export function CustomerStoreApp({
   }, [mainTab]);
 
   useEffect(() => {
-    if (isAppointments && mainTab === "deals") setMainTab("home");
-  }, [isAppointments, mainTab]);
+    if ((isAppointments || !panels.deals) && mainTab === "deals") {
+      setMainTab("home");
+    }
+  }, [isAppointments, panels.deals, mainTab]);
 
   function updatePreferences(
     patch: Partial<{
@@ -1209,16 +1228,20 @@ export function CustomerStoreApp({
         return (
           <div className="space-y-4 pb-2">
             <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
-              <SettingsMenuRow
-                icon={HelpCircle}
-                title={labels.faq}
-                onClick={() => setFaqOpen(true)}
-              />
-              <SettingsMenuRow
-                icon={MessagesSquare}
-                title={labels.contactSeller}
-                onClick={openContactModal}
-              />
+              {panels.faq ? (
+                <SettingsMenuRow
+                  icon={HelpCircle}
+                  title={labels.faq}
+                  onClick={() => setFaqOpen(true)}
+                />
+              ) : null}
+              {showContactSeller ? (
+                <SettingsMenuRow
+                  icon={MessagesSquare}
+                  title={labels.contactSeller}
+                  onClick={openContactModal}
+                />
+              ) : null}
               <SettingsCollapsibleSection
                 title={labels.settings}
                 icon={Settings}
@@ -1304,7 +1327,7 @@ export function CustomerStoreApp({
           active={mainTab}
           onSelect={setMainTab}
           ordersBadge={isAppointments ? undefined : cartItemCount}
-          hideDeals={isAppointments}
+          hideDeals={isAppointments || !panels.deals}
           phoneColumn={isAppointments}
           isAppointments={isAppointments}
         />
@@ -1405,6 +1428,8 @@ export function CustomerStoreApp({
         inquirySubmitting={inquirySubmitting}
         inquirySubmitError={inquirySubmitError}
         hasPendingInquiry={hasPendingInquiry}
+        hideChat={!panels.chat}
+        hideInquiries={!panels.inquiries}
         onSubmitInquiry={sendInquiry}
       />
       )}
@@ -1504,7 +1529,7 @@ export function CustomerStoreApp({
         slots={business.slots}
         locale={locale}
         labels={labels}
-        orderScheduleEnabled={business.orderScheduleEnabled ?? false}
+        orderScheduleEnabled={effectiveOrderScheduleEnabled}
         orderSchedule={business.orderSchedule ?? null}
         bookingByDay={business.appointmentBookingByDay ?? false}
         businessSlug={business.slug}

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { notifySellerInquiry } from "@/lib/seller-push";
 import { publicInquirySchema, zodFirstError } from "@/lib/validation/schemas";
+import { isStorePanelEnabled } from "@/lib/store-panels-visible";
 
 export async function POST(
   req: Request,
@@ -14,6 +15,9 @@ export async function POST(
 
   if (!business) return jsonError("עסק לא נמצא", 404);
   if (!business.isActive) return jsonError("This business is currently unavailable.", 403);
+  if (!isStorePanelEnabled(business, "inquiries")) {
+    return jsonError("פניות לא זמינות בחנות זו", 403);
+  }
 
   const body = await req.json().catch(() => null);
   const parsed = publicInquirySchema.safeParse(body);

@@ -693,18 +693,18 @@ html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-
     0 12px 28px rgba(58, 47, 38, 0.1);
 }
 
-/* Modals: slightly darker cream than main action panels */
+/* Modals: light cream panel (brighter than action tiles) */
 .bakery-action-sheet-panel {
   background: linear-gradient(
     180deg,
-    var(--bakery-cream) 0%,
-    var(--bakery-cream-sheet) 100%
+    var(--bakery-cream-light) 0%,
+    var(--bakery-cream) 100%
   );
   border: 1px solid rgba(235, 225, 210, 0.9);
   box-shadow:
-    inset 0 1px 0 rgba(244, 235, 220, 0.85),
-    0 3px 0 rgba(58, 47, 38, 0.05),
-    0 12px 28px rgba(58, 47, 38, 0.12);
+    inset 0 1px 0 rgba(250, 244, 230, 0.9),
+    0 3px 0 rgba(58, 47, 38, 0.04),
+    0 12px 28px rgba(58, 47, 38, 0.1);
 }
 
 /* Seller dashboard — warm login-screen aesthetic (calm theme) */
@@ -914,10 +914,10 @@ html:not([data-store-theme="dark"]) .dashboard-action-row.dashboard-action-squar
 
 html:not([data-store-theme="dark"])
   :is(.dashboard-card.bakery-action-sheet-panel, .dashboard-card.dashboard-modal-card) {
-  background: #e6d5b8;
-  border: 1.5px solid rgba(78, 52, 46, 0.24);
+  background: #faf6f0;
+  border: 1.5px solid rgba(78, 52, 46, 0.16);
   border-radius: 32px;
-  box-shadow: 0 12px 36px rgba(78, 52, 46, 0.18);
+  box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
 }
 
 html:not([data-store-theme="dark"]) .dashboard-broadcast-form {
@@ -1225,6 +1225,21 @@ html:not([data-store-theme="dark"])
   background: rgba(58, 47, 38, 0.58);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+}
+
+.dashboard-action-sheet-backdrop {
+  background: rgba(249, 244, 235, 0.72);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.dashboard-action-sheet-body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dashboard-action-sheet-body::-webkit-scrollbar {
+  display: none;
 }
 
 .dashboard-home-header {

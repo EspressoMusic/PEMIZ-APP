@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { publicBusinessUrl } from "@/lib/business";
+import { storePanelsFromBusiness } from "@/lib/store-panels-visible";
 import { DashboardSettingsView } from "@/components/dashboard-settings";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
 
@@ -21,8 +21,9 @@ export default async function SettingsAccountPage() {
         phone={user.phone}
         businessName={b?.name}
         isActive={b?.isActive ?? false}
-        storeUrl={b ? publicBusinessUrl(b.slug) : undefined}
-        previewSlug={b?.slug}
+        businessType={b?.type}
+        initialStorePanels={storePanelsFromBusiness(b)}
+        showQuickActionRows
       />
     </div>
   );

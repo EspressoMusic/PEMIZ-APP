@@ -1,10 +1,18 @@
 "use client";
 
-import { User, LogOut, CircleAlert } from "lucide-react";
-import { Badge, PageTitle } from "@/components/ui";
-import { DashboardCustomerLinkCard } from "@/components/dashboard/dashboard-customer-link-card";
+import { Bell, LogOut, CircleAlert, Smartphone } from "lucide-react";
+import { PageTitle } from "@/components/ui";
+import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
 import { DashboardDeleteStoreSection } from "@/components/dashboard/dashboard-delete-store-section";
+import { DashboardSellerDetailsCard } from "@/components/dashboard/dashboard-seller-details-card";
+import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
+import { DashboardStorePanelsSettings } from "@/components/dashboard/dashboard-store-panels-settings";
 import { DashboardSubscriptionSection } from "@/components/dashboard/dashboard-subscription-section";
+import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
+import {
+  DEFAULT_STORE_PANELS_VISIBLE,
+  type StorePanelsVisible,
+} from "@/lib/store-panels-visible";
 import {
   DashboardSettingsTile,
   DashboardSettingsTileRow,
@@ -18,9 +26,12 @@ type Props = {
   phone?: string | null;
   businessName?: string;
   isActive: boolean;
-  storeUrl?: string;
-  previewSlug?: string;
   previewOnly?: boolean;
+  businessType?: string;
+  initialStorePanels?: StorePanelsVisible;
+  basePath?: string;
+  showQuickActionRows?: boolean;
+  previewCustomerOrders?: DashboardOrderView[];
 };
 
 export function DashboardSettingsView({
@@ -29,92 +40,30 @@ export function DashboardSettingsView({
   phone,
   businessName,
   isActive,
-  storeUrl,
-  previewSlug,
   previewOnly = false,
+  businessType = "STORE",
+  initialStorePanels = DEFAULT_STORE_PANELS_VISIBLE,
+  basePath = "/dashboard",
+  showQuickActionRows = false,
+  previewCustomerOrders = [],
 }: Props) {
   const { labels } = useAppLocale();
-  const initial = ownerName.trim().charAt(0) || "?";
+  const showStoreQuickLinks =
+    showQuickActionRows &&
+    (businessType === "STORE" || businessType === "APPOINTMENTS");
 
   return (
     <div className="space-y-6 pb-2">
-      <PageTitle>{labels.settings}</PageTitle>
+      {!showQuickActionRows ? <PageTitle>{labels.settings}</PageTitle> : null}
 
       <div className="space-y-2">
-        <DashboardSettingsTile>
-          <DashboardSettingsTileRow
-            panel={
-              <div className="flex items-center justify-center gap-3">
-                <div
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-bakery-border/35 bg-bakery-on-primary text-[18px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)]"
-                  aria-hidden
-                >
-                  {initial}
-                </div>
-                <div className="min-w-0 text-center">
-                  <p className="flex items-center justify-center gap-2 text-[12px] font-bold text-bakery-muted">
-                    <User className="h-3.5 w-3.5" strokeWidth={2.25} />
-                    {labels.ownerAccount}
-                  </p>
-                  <p className="mt-0.5 text-[16px] font-extrabold leading-tight text-bakery-ink">
-                    {ownerName}
-                  </p>
-                  {businessName ? (
-                    <p className="text-[13px] text-bakery-muted">{businessName}</p>
-                  ) : null}
-                  <div className="mt-2 flex flex-col items-center gap-1">
-                    <p className="text-[11px] font-bold text-bakery-muted">
-                      {labels.storeStatus}
-                    </p>
-                    <Badge tone={isActive ? "success" : "danger"}>
-                      {isActive ? labels.storeActive : labels.storeInactive}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            }
-          />
-        </DashboardSettingsTile>
-
-        <DashboardSettingsTile>
-          <DashboardSettingsTileRow
-            panel={
-              <>
-                <p className="text-[12px] font-bold text-bakery-muted">
-                  {labels.accountDetails}
-                </p>
-                <div className="mt-2 space-y-2">
-                  <div>
-                    <p className="text-[11px] font-bold text-bakery-muted">
-                      {labels.email}
-                    </p>
-                    <p
-                      className="mt-0.5 font-mono text-[14px] text-bakery-ink"
-                      dir="ltr"
-                    >
-                      {email}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-bakery-muted">
-                      {labels.phone}
-                    </p>
-                    <p
-                      className={`mt-0.5 text-[14px] ${
-                        phone?.trim()
-                          ? "font-mono text-bakery-ink"
-                          : "font-semibold text-bakery-muted"
-                      }`}
-                      dir="ltr"
-                    >
-                      {phone?.trim() || labels.phoneNotSet}
-                    </p>
-                  </div>
-                </div>
-              </>
-            }
-          />
-        </DashboardSettingsTile>
+        <DashboardSellerDetailsCard
+          ownerName={ownerName}
+          email={email}
+          phone={phone}
+          businessName={businessName}
+          isActive={isActive}
+        />
 
         {!isActive && (
           <div className="flex flex-col items-center gap-2 rounded-[22px] border border-bakery-sale/25 bg-bakery-sale/8 px-3 py-2.5 text-center text-[13px] leading-[1.45] text-bakery-ink sm:flex-row sm:justify-center">
@@ -123,13 +72,48 @@ export function DashboardSettingsView({
           </div>
         )}
 
-        {storeUrl ? (
-          <DashboardCustomerLinkCard
-            variant="settingsBar"
-            url={storeUrl}
-            previewHref={previewSlug ? `/b/${previewSlug}` : undefined}
-          />
+        {showStoreQuickLinks ? (
+          <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+            <ul className="space-y-2">
+              <DashboardStoreCustomers
+                embedded
+                previewOnly={previewOnly}
+                previewOrders={previewCustomerOrders}
+              />
+              <DashboardActionRow
+                href={`${basePath}/settings/alerts`}
+                icon={Bell}
+                title={labels.alerts}
+              />
+              <DashboardActionRow
+                href={`${basePath}/settings/app`}
+                icon={Smartphone}
+                title={labels.installApp}
+              />
+            </ul>
+          </div>
         ) : null}
+
+        {(businessType === "STORE" || businessType === "APPOINTMENTS") && (
+          <DashboardSettingsTile>
+            <DashboardSettingsTileRow
+              panel={
+                <>
+                  <p className="text-[15px] font-extrabold text-bakery-ink">
+                    {labels.storePanelsTitle}
+                  </p>
+                  <div className="mt-3">
+                    <DashboardStorePanelsSettings
+                      initial={initialStorePanels}
+                      previewOnly={previewOnly}
+                      businessType={businessType}
+                    />
+                  </div>
+                </>
+              }
+            />
+          </DashboardSettingsTile>
+        )}
 
         <DashboardSubscriptionSection previewOnly={previewOnly} />
 
