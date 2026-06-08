@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { CelebrationModal } from "@/components/celebration-modal";
+import { ProductImageField } from "@/components/product-image-field";
 import { Button, Input, Badge, Alert } from "@/components/ui";
 import { ChevronDown, Gift, Package, Plus, Tags, X, Pencil } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -25,6 +26,7 @@ type DealLineSelection = {
 type Deal = {
   id: string;
   name: string;
+  imageUrl?: string | null;
   dealPrice: number;
   validUntil: string;
   isActive: boolean;
@@ -73,6 +75,7 @@ function customDateFromIso(iso: string) {
 
 export function DealsManager() {
   const dealFormRef = useRef<HTMLFormElement>(null);
+  const savingRef = useRef(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [dealError, setDealError] = useState("");
@@ -85,7 +88,6 @@ export function DealsManager() {
     []
   );
   const [quantityEditorId, setQuantityEditorId] = useState<string | null>(null);
-  const [showDealProductPicker, setShowDealProductPicker] = useState(false);
   const { labels, locale, formatMoney, formatDateTime } = useAppLocale();
   const dealValidityOptions = useMemo(
     () => [
@@ -97,8 +99,11 @@ export function DealsManager() {
     ],
     [labels, locale]
   );
+  const [dealImageUrl, setDealImageUrl] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [confirmDraft, setConfirmDraft] = useState<{
     name: string;
+    imageUrl: string | null;
     dealPrice: number;
     validUntil: string;
     validityLabel: string;
@@ -122,6 +127,11 @@ export function DealsManager() {
     load();
   }, []);
 
+  const activeProducts = products.filter((p) => p.isActive);
+  const pickerProducts = activeProducts.filter(
+    (p) => getDealLineQuantity(p.id) === 0
+  );
+
   function resetWizard() {
     setWizardStep(null);
     setEditingDealId(null);
@@ -130,8 +140,10 @@ export function DealsManager() {
     setCustomValidDate("");
     setDealSelectedLines([]);
     setQuantityEditorId(null);
-    setShowDealProductPicker(false);
+    setDealImageUrl(null);
+    setImageUploading(false);
     setConfirmDraft(null);
+    savingRef.current = false;
     dealFormRef.current?.reset();
   }
 
@@ -155,7 +167,7 @@ export function DealsManager() {
     setQuantityEditorId(null);
     setDealValidityMode("custom");
     setCustomValidDate(customDateFromIso(deal.validUntil));
-    setShowDealProductPicker(false);
+    setDealImageUrl(deal.imageUrl ?? null);
     setConfirmDraft(null);
     setWizardStep("form");
     requestAnimationFrame(() => {
@@ -188,13 +200,7 @@ export function DealsManager() {
       return;
     }
     setDealError("");
-    setDealSelectedLines((lines) => {
-      const next = [...lines, { productId, quantity: 1 }];
-      if (next.length >= MAX_DEAL_PRODUCT_LINES) {
-        setShowDealProductPicker(false);
-      }
-      return next;
-    });
+    setDealSelectedLines((lines) => [...lines, { productId, quantity: 1 }]);
     setQuantityEditorId(productId);
   }
 
@@ -264,6 +270,7 @@ export function DealsManager() {
 
     setConfirmDraft({
       name,
+      imageUrl: dealImageUrl,
       dealPrice,
       validUntil: until.iso,
       validityLabel,
@@ -272,12 +279,14 @@ export function DealsManager() {
   }
 
   async function confirmAndSave() {
-    if (!confirmDraft) return;
+    if (!confirmDraft || savingRef.current) return;
+    savingRef.current = true;
     setDealError("");
     setSaving(true);
 
     const payload = {
       name: confirmDraft.name,
+      imageUrl: confirmDraft.imageUrl,
       items: dealSelectedLines.map((line) => ({
         productId: line.productId,
         quantity: line.quantity,
@@ -286,32 +295,36 @@ export function DealsManager() {
       validUntil: confirmDraft.validUntil,
     };
 
-    const res = editingDealId
-      ? await fetch(`/api/dashboard/deals/${editingDealId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-      : await fetch("/api/dashboard/deals", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+    try {
+      const res = editingDealId
+        ? await fetch(`/api/dashboard/deals/${editingDealId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : await fetch("/api/dashboard/deals", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
 
-    setSaving(false);
-    if (!res.ok) {
-      const d = await res.json();
-      setDealError(d.error ?? labels.dealSaveFailed);
-      setWizardStep("form");
-      return;
-    }
-    const createdNew = !editingDealId;
-    const savedName = confirmDraft.name;
-    resetWizard();
-    load();
-    if (createdNew) {
-      setDealSuccessName(savedName);
-      setDealSuccessOpen(true);
+      if (!res.ok) {
+        const d = await res.json();
+        setDealError(d.error ?? labels.dealSaveFailed);
+        setWizardStep("form");
+        return;
+      }
+      const createdNew = !editingDealId;
+      const savedName = confirmDraft.name;
+      resetWizard();
+      await load();
+      if (createdNew) {
+        setDealSuccessName(savedName);
+        setDealSuccessOpen(true);
+      }
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
   }
 
@@ -322,10 +335,6 @@ export function DealsManager() {
     load();
   }
 
-  const activeProducts = products.filter((p) => p.isActive);
-  const pickerProducts = activeProducts.filter(
-    (p) => getDealLineQuantity(p.id) === 0
-  );
   const selectedDealLines = dealSelectedLines
     .map((line) => {
       const product = products.find((p) => p.id === line.productId);
@@ -374,52 +383,68 @@ export function DealsManager() {
               {dealError && <Alert variant="error">{dealError}</Alert>}
               <Input name="name" label={labels.dealName} required />
 
+              <div className="space-y-2 text-start">
+                <span className="block text-[14px] font-bold text-bakery-ink">
+                  {labels.dealImage}
+                </span>
+                <ProductImageField
+                  preview={dealImageUrl}
+                  onChange={setDealImageUrl}
+                  onError={setDealError}
+                  onUploadingChange={setImageUploading}
+                  compact
+                />
+              </div>
+
               <div className="space-y-3 text-start">
                 <span className="block text-[14px] font-bold text-bakery-ink">
                   {labels.products}
                 </span>
-                {dealSelectedLines.length < MAX_DEAL_PRODUCT_LINES &&
+                {activeProducts.length === 0 ? (
+                  <p className="rounded-[14px] border border-bakery-border/35 bg-bakery-input/80 px-3 py-3 text-[13px] font-semibold leading-snug text-bakery-muted">
+                    {labels.dealNoActiveProducts}
+                  </p>
+                ) : (
+                  dealSelectedLines.length < MAX_DEAL_PRODUCT_LINES &&
                   pickerProducts.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setShowDealProductPicker((v) => !v)}
-                    aria-expanded={showDealProductPicker}
-                    className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-                      showDealProductPicker ? "bakery-float-tile--active" : ""
-                    }`}
-                  >
-                    <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-                      <Plus className="h-6 w-6" strokeWidth={1.75} />
-                    </span>
-                    <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-                      {labels.addProduct}
-                    </span>
-                    <ChevronDown
-                      className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-                        showDealProductPicker ? "rotate-180" : ""
-                      }`}
-                      strokeWidth={2.5}
-                      aria-hidden
-                    />
-                  </button>
-                )}
-
-                {showDealProductPicker && pickerProducts.length > 0 && (
-                  <div className="no-scrollbar max-h-[min(40vh,220px)] overflow-y-auto overscroll-contain rounded-[14px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]">
-                    <ul className="space-y-1">
-                      {pickerProducts.map((p) => (
-                        <li key={p.id}>
-                          <button
-                            type="button"
-                            onClick={() => pickProductForDeal(p.id)}
-                            className="flex w-full rounded-[12px] px-3 py-2.5 text-start text-[14px] font-extrabold leading-snug text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.99]"
-                          >
-                            {p.name}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                    <div className="no-scrollbar max-h-[min(40vh,220px)] overflow-y-auto overscroll-contain rounded-[14px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]">
+                      <p className="mb-1.5 px-1 text-[12px] font-bold text-bakery-muted">
+                        {labels.addProduct}
+                      </p>
+                      <ul className="space-y-1">
+                        {pickerProducts.map((p) => (
+                          <li key={p.id}>
+                            <button
+                              type="button"
+                              onClick={() => pickProductForDeal(p.id)}
+                              className="flex w-full items-center gap-2.5 rounded-[12px] px-3 py-2.5 text-start text-[14px] font-extrabold leading-snug text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.99]"
+                            >
+                              {p.imageUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={p.imageUrl}
+                                  alt=""
+                                  className="h-9 w-9 shrink-0 rounded-[8px] object-cover"
+                                />
+                              ) : (
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-bakery-card">
+                                  <Package
+                                    className="h-4 w-4 text-bakery-muted"
+                                    strokeWidth={1.5}
+                                  />
+                                </span>
+                              )}
+                              <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                              <Plus
+                                className="h-4 w-4 shrink-0 text-bakery-primary"
+                                strokeWidth={2.5}
+                              />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
                 )}
 
                 {dealSelectedLines.length > 0 && (
@@ -558,7 +583,11 @@ export function DealsManager() {
                 type="submit"
                 variant="primary"
                 className="w-full min-h-[44px] rounded-full font-extrabold"
-                disabled={dealSelectedLines.length < 1}
+                disabled={
+                  dealSelectedLines.length < 1 ||
+                  imageUploading ||
+                  activeProducts.length === 0
+                }
               >
                 {labels.continueToConfirm}
               </Button>
@@ -571,6 +600,14 @@ export function DealsManager() {
                 {labels.confirmBeforeSave}
               </p>
               <div className="bakery-float-tile space-y-2 rounded-[18px] p-4 text-start">
+                {confirmDraft.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={confirmDraft.imageUrl}
+                    alt=""
+                    className="mx-auto aspect-[4/3] w-full max-w-[200px] rounded-[14px] object-cover"
+                  />
+                )}
                 <p className="text-[16px] font-extrabold text-bakery-ink">
                   {confirmDraft.name}
                 </p>
@@ -741,7 +778,7 @@ export function DealsManager() {
       <CelebrationModal
         open={dealSuccessOpen}
         onClose={() => setDealSuccessOpen(false)}
-        title="הדיל נוסף בהצלחה!"
+        title={labels.dealPublishedSuccess}
         subtitle={dealSuccessName || undefined}
         detail="הלקוחות יכולים לממש אותו בעמוד החנות"
         buttonLabel="מעולה"

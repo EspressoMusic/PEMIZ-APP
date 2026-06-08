@@ -63,6 +63,7 @@ export default async function PublicBusinessPage({
           return {
             id: d.id,
             name: d.name,
+            imageUrl: publicCatalogImageUrl(d.imageUrl),
             dealPrice: d.dealPrice,
             validUntil: d.validUntil.toISOString(),
             products: lines.map((line) => ({

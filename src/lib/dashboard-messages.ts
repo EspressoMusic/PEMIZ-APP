@@ -404,6 +404,9 @@ export type DashboardLabels = {
   dealPickDate: string;
   dealDateFuture: string;
   dealSaveFailed: string;
+  dealPublishedSuccess: string;
+  dealNoActiveProducts: string;
+  dealImage: string;
   periodOneDay: string;
   periodOneWeek: string;
   periodTwoWeeks: string;
@@ -841,6 +844,9 @@ const HE: DashboardLabels = {
   dealPickDate: "יש לבחור תאריך",
   dealDateFuture: "תאריך התוקף חייב להיות בעתיד",
   dealSaveFailed: "שמירה נשחלה",
+  dealPublishedSuccess: "הדיל פורסם בהצלחה!",
+  dealNoActiveProducts: "אין מוצרים פעילים — הוסף מוצרים בדף המוצרים לפני יצירת דיל",
+  dealImage: "תמונת דיל",
   periodOneDay: "יום",
   periodOneWeek: "שבוע",
   periodTwoWeeks: "שבועיים",
@@ -1355,6 +1361,9 @@ const EN: DashboardLabels = {
   dealPickDate: "Pick a date",
   dealDateFuture: "Expiry date must be in the future",
   dealSaveFailed: "Could not save",
+  dealPublishedSuccess: "Deal published successfully!",
+  dealNoActiveProducts: "No active products — add products before creating a deal",
+  dealImage: "Deal image",
   periodOneDay: "1 day",
   periodOneWeek: "1 week",
   periodTwoWeeks: "2 weeks",

@@ -826,6 +826,7 @@ type DealProduct = {
 
 export function DealCard({
   name,
+  imageUrl,
   dealPrice,
   validUntil,
   products,
@@ -837,6 +838,7 @@ export function DealCard({
   faded,
 }: {
   name: string;
+  imageUrl?: string | null;
   dealPrice: number;
   validUntil: string;
   products: DealProduct[];
@@ -862,6 +864,15 @@ export function DealCard({
           faded ? "opacity-45 saturate-[0.65]" : ""
         }`}
       >
+        {imageUrl ? (
+          <div className="overflow-hidden rounded-[12px] border border-bakery-border/35 bg-bakery-card">
+            <ProductThumb
+              imageUrl={imageUrl}
+              className="aspect-[4/3] w-full object-cover"
+            />
+          </div>
+        ) : null}
+
         <div className="relative flex min-h-[2.25rem] items-center justify-center px-7">
           <h3 className="line-clamp-2 w-full text-center text-[15px] font-extrabold leading-[1.2] text-bakery-ink">
             {name}

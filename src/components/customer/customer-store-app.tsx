@@ -148,6 +148,7 @@ type Product = {
 type StoreDeal = {
   id: string;
   name: string;
+  imageUrl?: string | null;
   dealPrice: number;
   validUntil: string;
   products: {
@@ -1007,6 +1008,7 @@ export function CustomerStoreApp({
           <DealCard
             key={d.id}
             name={d.name}
+            imageUrl={d.imageUrl}
             dealPrice={d.dealPrice}
             validUntil={d.validUntil}
             products={d.products}

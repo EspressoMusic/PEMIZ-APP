@@ -141,6 +141,7 @@ model StoreDeal {
   businessId  String
   business    Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
   name        String
+  imageUrl    String?
   productAId  String?
   productBId  String?
   productA    Product?          @relation("DealProductA", fields: [productAId], references: [id])

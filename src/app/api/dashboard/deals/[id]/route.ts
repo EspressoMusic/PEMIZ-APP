@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireStoreOwner } from "@/lib/dashboard-auth";
 import { findOwnedDeal } from "@/lib/security/ownership";
+import { isValidProductImageUrlForSave } from "@/lib/product-image";
+import { publicCatalogImageUrl } from "@/lib/public-image-url";
 import { getDealProducts, MAX_DEAL_PRODUCT_LINES } from "@/lib/store-deal";
 
 const dealItemSchema = z.object({
@@ -13,6 +15,7 @@ const dealItemSchema = z.object({
 const patchSchema = z.object({
   isActive: z.boolean().optional(),
   name: z.string().min(1).max(120).optional(),
+  imageUrl: z.string().max(2048).nullable().optional(),
   items: z
     .array(dealItemSchema)
     .min(1)
@@ -39,6 +42,13 @@ export async function PATCH(
   const body = await req.json().catch(() => null);
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
+
+  if (
+    parsed.data.imageUrl &&
+    !isValidProductImageUrlForSave(parsed.data.imageUrl)
+  ) {
+    return jsonError("תמונה לא תקינה — העלה מחדש דרך שדה התמונה");
+  }
 
   const existing = await findOwnedDeal(ctx.user.business.id, id);
   if (!existing) return jsonError("דיל לא נמצא", 404);
@@ -81,6 +91,9 @@ export async function PATCH(
           isActive: parsed.data.isActive,
         }),
         ...(parsed.data.name !== undefined && { name: parsed.data.name }),
+        ...(parsed.data.imageUrl !== undefined && {
+          imageUrl: parsed.data.imageUrl,
+        }),
         ...(parsed.data.dealPrice !== undefined && {
           dealPrice: parsed.data.dealPrice,
         }),
@@ -92,7 +105,13 @@ export async function PATCH(
     });
   });
 
-  return jsonOk({ deal: { ...deal, products: getDealProducts(deal) } });
+  return jsonOk({
+    deal: {
+      ...deal,
+      imageUrl: publicCatalogImageUrl(deal.imageUrl),
+      products: getDealProducts(deal),
+    },
+  });
 }
 
 export async function DELETE(

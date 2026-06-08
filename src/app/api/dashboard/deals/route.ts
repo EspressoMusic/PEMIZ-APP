@@ -2,6 +2,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireStoreOwner } from "@/lib/dashboard-auth";
+import { isValidProductImageUrlForSave } from "@/lib/product-image";
+import { publicCatalogImageUrl } from "@/lib/public-image-url";
 import { getDealProducts, MAX_DEAL_PRODUCT_LINES } from "@/lib/store-deal";
 
 const dealItemSchema = z.object({
@@ -11,6 +13,7 @@ const dealItemSchema = z.object({
 
 const schema = z.object({
   name: z.string().min(1).max(120),
+  imageUrl: z.string().max(2048).nullable().optional(),
   items: z.array(dealItemSchema).min(1).max(MAX_DEAL_PRODUCT_LINES),
   dealPrice: z.number().positive(),
   validUntil: z.string().datetime(),
@@ -24,10 +27,16 @@ const dealInclude = {
 };
 
 function serializeDeal(
-  deal: Parameters<typeof getDealProducts>[0] & Record<string, unknown>
+  deal: Parameters<typeof getDealProducts>[0] & {
+    imageUrl?: string | null;
+  } & Record<string, unknown>
 ) {
   const products = getDealProducts(deal);
-  return { ...deal, products };
+  return {
+    ...deal,
+    imageUrl: publicCatalogImageUrl(deal.imageUrl ?? null),
+    products,
+  };
 }
 
 export async function GET() {
@@ -49,7 +58,12 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
-  const productIds = parsed.data.items.map((item) => item.productId);
+  const { imageUrl, ...dealData } = parsed.data;
+  if (imageUrl && !isValidProductImageUrlForSave(imageUrl)) {
+    return jsonError("תמונה לא תקינה — העלה מחדש דרך שדה התמונה");
+  }
+
+  const productIds = dealData.items.map((item) => item.productId);
   const uniqueIds = [...new Set(productIds)];
   if (uniqueIds.length !== productIds.length) {
     return jsonError("אותו מוצר לא יכול להופיע פעמיים בדיל");
@@ -69,11 +83,12 @@ export async function POST(req: Request) {
   const deal = await prisma.storeDeal.create({
     data: {
       businessId: ctx.user.business.id,
-      name: parsed.data.name,
-      dealPrice: parsed.data.dealPrice,
-      validUntil: new Date(parsed.data.validUntil),
+      name: dealData.name,
+      imageUrl: imageUrl ?? null,
+      dealPrice: dealData.dealPrice,
+      validUntil: new Date(dealData.validUntil),
       items: {
-        create: parsed.data.items.map((item, sortOrder) => ({
+        create: dealData.items.map((item, sortOrder) => ({
           productId: item.productId,
           quantity: item.quantity,
           sortOrder,
