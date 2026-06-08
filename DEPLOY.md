@@ -52,6 +52,9 @@
 npx vercel --prod
 ```
 
+**מיגרציות:** בכל build ב-Vercel רצות אוטומטית (`prisma migrate deploy` לפני `next build`).  
+חובה ש־`POSTGRES_URL_NON_POOLING` (חיבור ישיר, פורט 5432) יהיה מוגדר ב-Environment Variables — Prisma משתמש בו למיגרציות.
+
 ### שלב ד — אחרי שיש כתובת לאתר
 
 1. העתק את ה-URL (למשל `https://linky-xxxxx.vercel.app`)
@@ -70,7 +73,7 @@ npx vercel --prod
 
 ```bash
 npm install
-npm run db:migrate
+npm run migrate
 npm run db:seed
 npm run dev
 ```
