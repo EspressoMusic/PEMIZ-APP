@@ -84,7 +84,7 @@ model Business {
   sellerAlertOnChat      Boolean  @default(true)
   sellerAlertOnNewOrder  Boolean  @default(true)
   sellerAlertOnLowStock  Boolean  @default(true)
-  /** JSON: which customer-store panels are visible (see store-panels-visible.ts). */
+  // JSON: which customer-store panels are visible (see store-panels-visible.ts).
   storePanelsVisible     String?
   isActive               Boolean  @default(false)
   approvedAt      DateTime?
