@@ -43,6 +43,20 @@ export default function DevPreviewPage() {
         >
           דשבורד מוכר — חנות פגישות
         </Link>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link
+            href="/dev/guide"
+            className="flex-1 rounded-xl border border-bakery-border/60 px-4 py-2.5 text-center text-xs font-bold text-bakery-ink"
+          >
+            מדריך הרשמה — מוצרים
+          </Link>
+          <Link
+            href="/dev/guide/appointments"
+            className="flex-1 rounded-xl border border-bakery-border/60 px-4 py-2.5 text-center text-xs font-bold text-bakery-ink"
+          >
+            מדריך הרשמה — פגישות
+          </Link>
+        </div>
         <p className="text-xs text-bakery-muted">
           חנות פגישות וחנות מוצרים נפרדות — הגדרות שונות לכל סוג. /login דורש Supabase ב-.env.local
         </p>

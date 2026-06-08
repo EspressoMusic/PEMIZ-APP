@@ -43,6 +43,7 @@ export function DashboardHomeView({
     slots: CalendarSlot[];
     appointments: SellerHomeAppointment[];
     bookingByDay?: boolean;
+    referenceNowMs?: number;
   };
 }) {
   const { labels } = useAppLocale();
@@ -82,6 +83,7 @@ export function DashboardHomeView({
                 basePath={basePath}
                 inquiriesHref={inquiriesHref}
                 previewOnly={inquiryBellPreview}
+                businessType={businessType}
               />
             </div>
           </div>
@@ -102,6 +104,7 @@ export function DashboardHomeView({
               initialSlots={appointmentsCalendarPreview?.slots}
               initialAppointments={appointmentsCalendarPreview?.appointments}
               initialBookingByDay={appointmentsCalendarPreview?.bookingByDay}
+              initialReferenceNowMs={appointmentsCalendarPreview?.referenceNowMs}
             />
           </div>
         ) : showPrepSummary && prepProducts ? (

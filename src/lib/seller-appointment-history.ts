@@ -1,4 +1,5 @@
-export const SELLER_APPOINTMENT_HISTORY_DELAY_MS = 24 * 60 * 60 * 1000;
+/** Minutes after slot start before the appointment leaves the home/upcoming list. */
+export const SELLER_APPOINTMENT_HISTORY_DELAY_MS = 15 * 60 * 1000;
 
 export type SellerAppointmentLike = {
   id: string;

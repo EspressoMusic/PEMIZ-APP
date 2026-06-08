@@ -10,6 +10,7 @@ export default function DevSellerSettingsProductsPage() {
   return (
     <DashboardShell
       businessType="STORE"
+      businessId="dev-preview"
       basePath="/dev/seller"
       storeLocale={DEV_STORE_BUSINESS.storeLocale}
       storeTheme={DEV_STORE_BUSINESS.storeTheme}

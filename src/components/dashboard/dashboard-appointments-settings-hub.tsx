@@ -4,14 +4,8 @@ import {
   DASHBOARD_PAGE_ROOT,
   DASHBOARD_SCROLL_MAIN,
 } from "@/components/dashboard/dashboard-panel-frame";
-import {
-  Package,
-  Clock,
-  ClipboardList,
-  CalendarClock,
-  ChevronLeft,
-} from "lucide-react";
-import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-square";
+import { Package, ClipboardList, ChevronLeft, History } from "lucide-react";
+import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 
@@ -48,27 +42,38 @@ export function DashboardAppointmentsSettingsHubGrid({
   const { labels } = useAppLocale();
 
   return (
-    <div className="grid grid-cols-2 gap-2">
-      <DashboardActionSquare
+    <ul className="space-y-2 text-start">
+      <DashboardActionRow
         href={`${basePath}/settings/products`}
         icon={Package}
-        label={labels.services}
+        title={labels.services}
       />
-      <DashboardActionSquare
+      <DashboardActionRow
         href={`${basePath}/settings/appointments`}
         icon={ClipboardList}
-        label={labels.appointments}
+        title={labels.appointments}
       />
-      <DashboardActionSquare
-        href={`${basePath}/settings/slots`}
-        icon={CalendarClock}
-        label={labels.appointmentCalendar}
+      <DashboardActionRow
+        href={`${basePath}/settings/appointments/history`}
+        icon={History}
+        title={labels.appointmentHistory}
       />
-      <DashboardActionSquare
-        href={`${basePath}/settings/limits`}
-        icon={Clock}
-        label={labels.limits}
-      />
+    </ul>
+  );
+}
+
+function DashboardAppointmentsSettingsHubBody({
+  basePath,
+  embedded = false,
+}: {
+  basePath: string;
+  embedded?: boolean;
+}) {
+  const grid = <DashboardAppointmentsSettingsHubGrid basePath={basePath} />;
+  if (embedded) return grid;
+  return (
+    <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+      {grid}
     </div>
   );
 }
@@ -81,7 +86,7 @@ export function DashboardAppointmentsSettingsHubPanel({
   embedded?: boolean;
 }) {
   if (embedded) {
-    return <DashboardAppointmentsSettingsHubGrid basePath={basePath} />;
+    return <DashboardAppointmentsSettingsHubBody basePath={basePath} embedded />;
   }
 
   return (
@@ -89,9 +94,7 @@ export function DashboardAppointmentsSettingsHubPanel({
       <div className="px-1 text-start">
         <DashboardAppointmentsSettingsHubBack basePath={basePath} />
       </div>
-      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
-        <DashboardAppointmentsSettingsHubGrid basePath={basePath} />
-      </div>
+      <DashboardAppointmentsSettingsHubBody basePath={basePath} />
     </>
   );
 }

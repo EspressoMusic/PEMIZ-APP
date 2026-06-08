@@ -13,6 +13,7 @@ export type DashboardLabels = {
   orders: string;
   deals: string;
   limits: string;
+  dealsAndLimits: string;
   services: string;
   appointments: string;
   appointmentSlots: string;
@@ -66,6 +67,10 @@ export type DashboardLabels = {
   subscriptionUltimateFeature1: string;
   subscriptionUltimateFeature2: string;
   subscriptionUltimateFeature3: string;
+  trialExpiredTitle: string;
+  trialExpiredHint: string;
+  trialExpiredEndedOn: string;
+  subscriptionPayMonthly: string;
   alertsEnableTitle: string;
   alertsEnableHint: string;
   alertOnCustomerInquiry: string;
@@ -79,9 +84,11 @@ export type DashboardLabels = {
   notificationTypeInquiry: string;
   notificationTypeChat: string;
   notificationTypeOrder: string;
+  notificationTypeAppointment: string;
   notificationTypeLowStock: string;
   notificationBackToList: string;
   notificationOpenOrders: string;
+  notificationOpenAppointments: string;
   notificationOpenProducts: string;
   notificationStockOut: string;
   notificationStockLeft: string;
@@ -90,6 +97,8 @@ export type DashboardLabels = {
   customers: string;
   customerMessage: string;
   customerInquiries: string;
+  customerInquiriesChat: string;
+  customerInquiriesInbox: string;
   sellerChatTitle: string;
   sellerChatHint: string;
   sellerChatEmpty: string;
@@ -183,12 +192,19 @@ export type DashboardLabels = {
   homeCalendarFullDayHint: string;
   homeCalendarDayTitle: string;
   homeCalendarNoAppointmentsDay: string;
+  homeCalendarBookedAppointments: string;
+  homeCalendarOpenAppointments: string;
   homeCalendarDaySlots: string;
   homeCalendarNoSlotsDay: string;
   homeCalendarSlotOpen: string;
   homeCalendarSlotFull: string;
   homeUpcomingAppointments: string;
   homeNoUpcomingAppointments: string;
+  homeOpenCalendar: string;
+  homeCalendarTitle: string;
+  homeCalendarQuickBook: string;
+  sellerWalkInCustomer: string;
+  sellerSelfBooking: string;
   appointmentSlotTime: string;
   appointmentToday: string;
   appointmentTomorrow: string;
@@ -274,6 +290,85 @@ export type DashboardLabels = {
   faqPublishedTitle: string;
   faqPublishedDetail: string;
   celebrationOk: string;
+  sellerGuideTitle: string;
+  sellerGuideIntro: string;
+  sellerGuideIntroAppointments: string;
+  sellerGuideStepNavTitle: string;
+  sellerGuideStepNavBody: string;
+  sellerGuideStepNavBodyAppointments: string;
+  sellerGuideStepHomeCalendarTitle: string;
+  sellerGuideStepHomeCalendarBody: string;
+  sellerGuideCalendarTapHint: string;
+  sellerGuideStepActionsTitle: string;
+  sellerGuideStepActionsBody: string;
+  sellerGuideStepCustomersTitle: string;
+  sellerGuideStepCustomersBody: string;
+  sellerGuideStepStoreTitle: string;
+  sellerGuideStepStoreTitleAppointments: string;
+  sellerGuideStepStoreBody: string;
+  sellerGuideStepStoreAppointmentsBody: string;
+  sellerGuideStepLinkTitle: string;
+  sellerGuideStepLinkTitleAppointments: string;
+  sellerGuideStepLinkBody: string;
+  sellerGuideStepLinkBodyAppointments: string;
+  sellerGuideStepDoneTitle: string;
+  sellerGuideStepDoneBody: string;
+  sellerGuideStepDoneAppointmentsBody: string;
+  sellerGuidePath: string;
+  sellerGuideSkip: string;
+  sellerGuideNext: string;
+  sellerGuideBack: string;
+  sellerGuideFinish: string;
+  sellerGuideAddProduct: string;
+  sellerGuideAddService: string;
+  sellerGuideAddCalendar: string;
+  sellerGuideStepCounter: string;
+  sellerGuideWelcomeTipAddProductTitle: string;
+  sellerGuideWelcomeTipAddProductBody: string;
+  sellerGuideWelcomeTipOrdersTitle: string;
+  sellerGuideWelcomeTipOrdersBody: string;
+  sellerGuideWelcomeTipCustomersTitle: string;
+  sellerGuideWelcomeTipCustomersBody: string;
+  sellerGuideWelcomeTipAddServiceTitle: string;
+  sellerGuideWelcomeTipAddServiceBody: string;
+  sellerGuideWelcomeTipCalendarTitle: string;
+  sellerGuideWelcomeTipCalendarBody: string;
+  liveTourIntroTitle: string;
+  liveTourIntroBody: string;
+  liveTourIntroTitleAppointments: string;
+  liveTourIntroBodyAppointments: string;
+  liveTourStart: string;
+  liveTourNavActionsTitle: string;
+  liveTourNavActionsBody: string;
+  liveTourHubStoreTitle: string;
+  liveTourHubStoreBody: string;
+  liveTourHubStoreAppointmentsBody: string;
+  liveTourHubProductsTitle: string;
+  liveTourHubProductsBody: string;
+  liveTourHubServicesTitle: string;
+  liveTourHubServicesBody: string;
+  liveTourAddProductTitle: string;
+  liveTourAddProductBody: string;
+  liveTourAddServiceTitle: string;
+  liveTourAddServiceBody: string;
+  liveTourProductNameTitle: string;
+  liveTourProductNameBody: string;
+  liveTourProductPriceTitle: string;
+  liveTourProductPriceBody: string;
+  liveTourProductSubmitTitle: string;
+  liveTourProductSubmitBody: string;
+  liveTourServiceNameTitle: string;
+  liveTourServiceNameBody: string;
+  liveTourServicePriceTitle: string;
+  liveTourServicePriceBody: string;
+  liveTourServiceSubmitTitle: string;
+  liveTourServiceSubmitBody: string;
+  liveTourCompleteTitle: string;
+  liveTourCompleteBody: string;
+  liveTourCompleteBodyAppointments: string;
+  liveTourTapHighlight: string;
+  liveTourFillHighlight: string;
+  liveTourSaveHighlight: string;
   confirmDeleteFaq: string;
   confirmDeleteDeal: string;
   productName: string;
@@ -396,6 +491,7 @@ const HE: DashboardLabels = {
   orders: "הזמנות",
   deals: "דילים",
   limits: "הגבלות",
+  dealsAndLimits: "דילים והגבלות",
   services: "שירותים",
   appointments: "תורים",
   appointmentSlots: "משבצות תורים",
@@ -414,6 +510,8 @@ const HE: DashboardLabels = {
   customers: "לקוחות",
   customerMessage: "הודעה ללקוחות",
   customerInquiries: "פניות לקוחות",
+  customerInquiriesChat: "צ'אט",
+  customerInquiriesInbox: "פניות",
   sellerChatTitle: "צ'אט עם לקוחות",
   sellerChatHint: "בחר שיחה והגב כשמתאים לך",
   sellerChatEmpty: "אין הודעות צ'אט מלקוחות עדיין",
@@ -507,12 +605,19 @@ const HE: DashboardLabels = {
   homeCalendarFullDayHint: "יום מלא — כל התורים נתפסו",
   homeCalendarDayTitle: "תורים ביום",
   homeCalendarNoAppointmentsDay: "אין תורים ביום זה",
+  homeCalendarBookedAppointments: "תורים תפוסים",
+  homeCalendarOpenAppointments: "תורים פנויים",
   homeCalendarDaySlots: "שעות ביומן",
   homeCalendarNoSlotsDay: "אין שעות ביום זה",
   homeCalendarSlotOpen: "פנוי",
   homeCalendarSlotFull: "מלא",
   homeUpcomingAppointments: "פגישות קרובות",
   homeNoUpcomingAppointments: "אין פגישות קרובות",
+  homeOpenCalendar: "פתיחת יומן",
+  homeCalendarTitle: "יומן",
+  homeCalendarQuickBook: "שבץ תור",
+  sellerWalkInCustomer: "לקוח",
+  sellerSelfBooking: "שיבוץ מוכר",
   appointmentSlotTime: "שעת הפגישה",
   appointmentToday: "היום",
   appointmentTomorrow: "מחר",
@@ -601,6 +706,106 @@ const HE: DashboardLabels = {
   faqPublishedTitle: "השאלה פורסמה בהצלחה!",
   faqPublishedDetail: "הלקוחות יראו אותה בעמוד החנות",
   celebrationOk: "מעולה",
+  sellerGuideTitle: "ברוך הבא ללינקי!",
+  sellerGuideIntro:
+    "הנה שלושה דברים שכדאי לדעת כדי להתחיל לנהל את העסק:",
+  sellerGuideIntroAppointments:
+    "הנה שלושה דברים שכדאי לדעת כדי להתחיל לנהל את עסק התורים:",
+  sellerGuideStepNavTitle: "1. הניווט בתחתית המסך",
+  sellerGuideStepNavBody:
+    "יש שני כפתורים קבועים: בית — סיכום יומי וקישור ללקוחות. פעולות — כל ניהול העסק.",
+  sellerGuideStepNavBodyAppointments:
+    "יש שני כפתורים קבועים: בית — יומן התורים וקישור ללקוחות. פעולות — הגדרות העסק ותקשורת.",
+  sellerGuideStepHomeCalendarTitle: "2. יומן התורים בבית",
+  sellerGuideStepHomeCalendarBody:
+    "בבית תראה יומן חודשי עם הימים שפתוחים לקביעה. לחץ על יום כדי לראות את כל הפגישות באותו יום.",
+  sellerGuideCalendarTapHint: "לחץ על יום לצפייה בפגישות",
+  sellerGuideStepActionsTitle: "2. מסך הפעולות",
+  sellerGuideStepActionsBody:
+    "לחץ פעולות בתחתית. שם תמצא שני ריבועים גדולים — לקוחות והחנות. זה מרכז השליטה שלך.",
+  sellerGuideStepCustomersTitle: "3. לקוחות",
+  sellerGuideStepCustomersBody:
+    "בפעולות לחץ לקוחות. שם מטפלים בפניות, צ'אט, הודעות לכל הלקוחות ושאלות נפוצות.",
+  sellerGuideStepStoreTitle: "4. החנות",
+  sellerGuideStepStoreTitleAppointments: "5. הגדרות העסק",
+  sellerGuideStepStoreBody:
+    "בפעולות לחץ החנות. שם מוסיפים מוצרים, עוקבים אחרי הזמנות, מגדירים דילים והגבלות.",
+  sellerGuideStepStoreAppointmentsBody:
+    "בפעולות לחץ החנות. שם מגדירים שירותים, הגדרות תורים, יומן ומשבצות, והגבלות.",
+  sellerGuideStepLinkTitle: "5. קישור ללקוחות",
+  sellerGuideStepLinkTitleAppointments: "6. קישור ללקוחות",
+  sellerGuideStepLinkBody:
+    "חזור לבית (בתחתית). העתק או שתף את קישור החנות — זה מה שלקוחות פותחים כדי להזמין.",
+  sellerGuideStepLinkBodyAppointments:
+    "חזור לבית (בתחתית). העתק או שתף את הקישור — הלקוחות פותחים אותו כדי לקבוע תור.",
+  sellerGuideStepDoneTitle: "מוכנים להתחיל!",
+  sellerGuideStepDoneBody:
+    "הצעד הראשון: הוסף לפחות מוצר אחד עם תמונה ומחיר. אחר כך שתף את הקישור.",
+  sellerGuideStepDoneAppointmentsBody:
+    "הצעד הראשון: הוסף שירות אחד לפחות והגדר משבצות תורים. אחר כך שתף את הקישור.",
+  sellerGuidePath: "מסלול",
+  sellerGuideSkip: "דלג",
+  sellerGuideNext: "הבא",
+  sellerGuideBack: "חזרה",
+  sellerGuideFinish: "הבנתי, בואו נתחיל",
+  sellerGuideAddProduct: "הוסף מוצר ראשון",
+  sellerGuideAddService: "הוסף שירות ראשון",
+  sellerGuideAddCalendar: "הגדר יומן ומשבצות",
+  sellerGuideStepCounter: "שלב {current} מתוך {total}",
+  sellerGuideWelcomeTipAddProductTitle: "הוספת מוצר",
+  sellerGuideWelcomeTipAddProductBody:
+    "פעולות (בתחתית) → החנות → מוצרים → «הוסף מוצר».",
+  sellerGuideWelcomeTipOrdersTitle: "הזמנות",
+  sellerGuideWelcomeTipOrdersBody:
+    "פעולות → החנות → הזמנות. בבית תראו גם סיכום יומי של ההזמנות.",
+  sellerGuideWelcomeTipCustomersTitle: "מענה ללקוחות",
+  sellerGuideWelcomeTipCustomersBody:
+    "פעולות → לקוחות — פניות, צ'אט והודעות לכל הלקוחות.",
+  sellerGuideWelcomeTipAddServiceTitle: "הוספת שירות",
+  sellerGuideWelcomeTipAddServiceBody:
+    "פעולות (בתחתית) → החנות → שירותים → «הוסף שירות».",
+  sellerGuideWelcomeTipCalendarTitle: "תורים ויומן",
+  sellerGuideWelcomeTipCalendarBody:
+    "בבית — יומן חודשי. בפעולות → החנות — הגדרות תורים, משבצות והגבלות.",
+  liveTourIntroTitle: "בואו נוסיף את המוצר הראשון",
+  liveTourIntroBody:
+    "נסיור קצר על המסך האמיתי — נלווה אותך שלב-אחר-שלב עד שהמוצר נשמר בחנות.",
+  liveTourIntroTitleAppointments: "בואו נוסיף את השירות הראשון",
+  liveTourIntroBodyAppointments:
+    "נסיור קצר על המסך האמיתי — נלווה אותך עד שהשירות נשמר בעסק.",
+  liveTourStart: "התחילו סיור מודרך",
+  liveTourNavActionsTitle: "לחצו «פעולות»",
+  liveTourNavActionsBody: "בתחתית המסך — כאן נכנסים לכל ניהול העסק.",
+  liveTourHubStoreTitle: "לחצו «החנות»",
+  liveTourHubStoreBody: "כאן מגדירים מוצרים, הזמנות, דילים והגבלות.",
+  liveTourHubStoreAppointmentsBody: "כאן מגדירים שירותים, תורים, יומן והגבלות.",
+  liveTourHubProductsTitle: "לחצו «מוצרים»",
+  liveTourHubProductsBody: "נכנסים לרשימת המוצרים ולהוספת מוצר חדש.",
+  liveTourHubServicesTitle: "לחצו «שירותים»",
+  liveTourHubServicesBody: "נכנסים להגדרת השירותים שאפשר לקבוע אליהם תור.",
+  liveTourAddProductTitle: "לחצו «הוסף מוצר»",
+  liveTourAddProductBody: "נפתח טופס — ממלאים יחד את הפרטים הבאים.",
+  liveTourAddServiceTitle: "לחצו «הוסף שירות»",
+  liveTourAddServiceBody: "נפתח טופס — ממלאים יחד את פרטי השירות.",
+  liveTourProductNameTitle: "שם המוצר",
+  liveTourProductNameBody: "הקלידו שם — לדוגמה: עוגת שוקולד, לחם מחמצת…",
+  liveTourProductPriceTitle: "מחיר",
+  liveTourProductPriceBody: "הקלידו מחיר בשקלים (לדוגמה: 45).",
+  liveTourProductSubmitTitle: "שמירת המוצר",
+  liveTourProductSubmitBody: "לחצו שוב על «הוסף מוצר» בתחתית הטופס כדי לשמור.",
+  liveTourServiceNameTitle: "שם השירות",
+  liveTourServiceNameBody: "הקלידו שם — לדוגמה: ייעוץ, תספורת, פגישת היכרות…",
+  liveTourServicePriceTitle: "מחיר השירות",
+  liveTourServicePriceBody: "הקלידו מחיר בשקלים.",
+  liveTourServiceSubmitTitle: "שמירת השירות",
+  liveTourServiceSubmitBody: "לחצו «הוסף שירות» בתחתית הטופס כדי לשמור.",
+  liveTourCompleteTitle: "מעולה — המוצר נוסף!",
+  liveTourCompleteBody: "המוצר הראשון בחנות. עכשיו אפשר לשתף את הקישור ללקוחות ממסך הבית.",
+  liveTourCompleteBodyAppointments:
+    "השירות הראשון מוכן. עכשיו הגדירו משבצות ביומן ושתפו את הקישור.",
+  liveTourTapHighlight: "לחצו על האזור המודגש",
+  liveTourFillHighlight: "מלאו בשדה המודגש",
+  liveTourSaveHighlight: "שמרו בלחיצה על הכפתור המודגש",
   confirmDeleteFaq: "למחוק שאלה זו?",
   confirmDeleteDeal: "למחוק את הדיל?",
   productName: "שם",
@@ -732,6 +937,11 @@ const HE: DashboardLabels = {
   subscriptionUltimateFeature1: "כל מה שבפרימיום",
   subscriptionUltimateFeature2: "תמיכה מועדפת ועדיפות",
   subscriptionUltimateFeature3: "הרחבות מתקדמות לעסק",
+  trialExpiredTitle: "נגמרה תקופת הניסיון",
+  trialExpiredHint:
+    "כדי להמשיך להשתמש בחנות יש לבחור מנוי חודשי. לא ניתן לפתוח חנות חדשה עם אותו המייל לפני התשלום.",
+  trialExpiredEndedOn: "תקופת הניסיון הסתיימה ב־",
+  subscriptionPayMonthly: "שלם מנוי חודשי",
   alertsEnableTitle: "הפעלת התראות",
   alertsEnableHint: "בחרו על אילו אירועים תרצו לקבל התראה",
   alertOnCustomerInquiry: "התראה על פניית לקוח",
@@ -745,9 +955,11 @@ const HE: DashboardLabels = {
   notificationTypeInquiry: "פנייה רגילה",
   notificationTypeChat: "פנייה בצ'אט",
   notificationTypeOrder: "הזמנה חדשה",
+  notificationTypeAppointment: "תור חדש",
   notificationTypeLowStock: "מלאי נמוך",
   notificationBackToList: "חזרה להתראות",
   notificationOpenOrders: "צפה בהזמנות",
+  notificationOpenAppointments: "צפה בתורים",
   notificationOpenProducts: "לניהול מוצרים",
   notificationStockOut: "אזל מהמלאי",
   notificationStockLeft: "נשארו {n}",
@@ -792,6 +1004,7 @@ const EN: DashboardLabels = {
   orders: "Orders",
   deals: "Deals",
   limits: "Limits",
+  dealsAndLimits: "Deals & limits",
   services: "Services",
   appointments: "Appointments",
   appointmentSlots: "Time slots",
@@ -810,6 +1023,8 @@ const EN: DashboardLabels = {
   customers: "Customers",
   customerMessage: "Message customers",
   customerInquiries: "Customer inquiries",
+  customerInquiriesChat: "Chat",
+  customerInquiriesInbox: "Inquiries",
   sellerChatTitle: "Customer chat",
   sellerChatHint: "Pick a conversation and reply when you can",
   sellerChatEmpty: "No customer chat messages yet",
@@ -903,12 +1118,19 @@ const EN: DashboardLabels = {
   homeCalendarFullDayHint: "Fully booked day",
   homeCalendarDayTitle: "Appointments on this day",
   homeCalendarNoAppointmentsDay: "No appointments on this day",
+  homeCalendarBookedAppointments: "Booked appointments",
+  homeCalendarOpenAppointments: "Open appointments",
   homeCalendarDaySlots: "Calendar times",
   homeCalendarNoSlotsDay: "No times on this day",
   homeCalendarSlotOpen: "Open",
   homeCalendarSlotFull: "Full",
   homeUpcomingAppointments: "Upcoming appointments",
   homeNoUpcomingAppointments: "No upcoming appointments",
+  homeOpenCalendar: "Open calendar",
+  homeCalendarTitle: "Calendar",
+  homeCalendarQuickBook: "Book slot",
+  sellerWalkInCustomer: "Customer",
+  sellerSelfBooking: "Seller booking",
   appointmentSlotTime: "Appointment time",
   appointmentToday: "Today",
   appointmentTomorrow: "Tomorrow",
@@ -998,6 +1220,106 @@ const EN: DashboardLabels = {
   faqPublishedTitle: "Question published!",
   faqPublishedDetail: "Customers will see it on your store page",
   celebrationOk: "Great",
+  sellerGuideTitle: "Welcome to Linky!",
+  sellerGuideIntro:
+    "Here are three things to know to get started managing your business:",
+  sellerGuideIntroAppointments:
+    "Here are three things to know to get started with your appointments business:",
+  sellerGuideStepNavTitle: "1. Bottom navigation",
+  sellerGuideStepNavBody:
+    "Two fixed buttons: Home — daily summary and your customer link. Actions — everything you manage.",
+  sellerGuideStepNavBodyAppointments:
+    "Two fixed buttons: Home — your booking calendar and customer link. Actions — business settings and communication.",
+  sellerGuideStepHomeCalendarTitle: "2. Home calendar",
+  sellerGuideStepHomeCalendarBody:
+    "On Home you'll see a monthly calendar with open booking days. Tap a day to view all appointments that day.",
+  sellerGuideCalendarTapHint: "Tap a day to view appointments",
+  sellerGuideStepActionsTitle: "2. Actions screen",
+  sellerGuideStepActionsBody:
+    "Tap Actions at the bottom. You'll see two big tiles — Customers and Store. That's your control center.",
+  sellerGuideStepCustomersTitle: "3. Customers",
+  sellerGuideStepCustomersBody:
+    "In Actions tap Customers. Handle inquiries, chat, broadcasts, and FAQ there.",
+  sellerGuideStepStoreTitle: "4. Store",
+  sellerGuideStepStoreTitleAppointments: "5. Business settings",
+  sellerGuideStepStoreBody:
+    "In Actions tap Store. Add products, track orders, set deals and limits.",
+  sellerGuideStepStoreAppointmentsBody:
+    "In Actions tap Store. Set up services, appointment settings, calendar & slots, and limits.",
+  sellerGuideStepLinkTitle: "5. Customer link",
+  sellerGuideStepLinkTitleAppointments: "6. Customer link",
+  sellerGuideStepLinkBody:
+    "Go back to Home (bottom bar). Copy or share your store link — that's what customers open to order.",
+  sellerGuideStepLinkBodyAppointments:
+    "Go back to Home (bottom bar). Copy or share your link — customers open it to book an appointment.",
+  sellerGuideStepDoneTitle: "You're ready!",
+  sellerGuideStepDoneBody:
+    "First step: add at least one product with a photo and price. Then share your link.",
+  sellerGuideStepDoneAppointmentsBody:
+    "First step: add at least one service and set time slots. Then share your link.",
+  sellerGuidePath: "Path",
+  sellerGuideSkip: "Skip",
+  sellerGuideNext: "Next",
+  sellerGuideBack: "Back",
+  sellerGuideFinish: "Got it, let's go",
+  sellerGuideAddProduct: "Add first product",
+  sellerGuideAddService: "Add first service",
+  sellerGuideAddCalendar: "Set up calendar & slots",
+  sellerGuideStepCounter: "Step {current} of {total}",
+  sellerGuideWelcomeTipAddProductTitle: "Add a product",
+  sellerGuideWelcomeTipAddProductBody:
+    "Actions (bottom bar) → Store → Products → Add product.",
+  sellerGuideWelcomeTipOrdersTitle: "Orders",
+  sellerGuideWelcomeTipOrdersBody:
+    "Actions → Store → Orders. On Home you'll also see a daily summary.",
+  sellerGuideWelcomeTipCustomersTitle: "Customer messages",
+  sellerGuideWelcomeTipCustomersBody:
+    "Actions → Customers — inquiries, chat, and broadcast messages.",
+  sellerGuideWelcomeTipAddServiceTitle: "Add a service",
+  sellerGuideWelcomeTipAddServiceBody:
+    "Actions (bottom bar) → Store → Services → Add service.",
+  sellerGuideWelcomeTipCalendarTitle: "Appointments & calendar",
+  sellerGuideWelcomeTipCalendarBody:
+    "Home — monthly calendar. Actions → Store — appointment settings, slots, and limits.",
+  liveTourIntroTitle: "Let's add your first product",
+  liveTourIntroBody:
+    "A quick hands-on tour — we'll walk you through the real screens until your product is saved.",
+  liveTourIntroTitleAppointments: "Let's add your first service",
+  liveTourIntroBodyAppointments:
+    "A quick hands-on tour — we'll walk you through until your service is saved.",
+  liveTourStart: "Start guided tour",
+  liveTourNavActionsTitle: "Tap Actions",
+  liveTourNavActionsBody: "At the bottom of the screen — your business control center.",
+  liveTourHubStoreTitle: "Tap Store",
+  liveTourHubStoreBody: "Products, orders, deals, and limits live here.",
+  liveTourHubStoreAppointmentsBody: "Services, appointments, calendar, and limits live here.",
+  liveTourHubProductsTitle: "Tap Products",
+  liveTourHubProductsBody: "Open the product list and add a new item.",
+  liveTourHubServicesTitle: "Tap Services",
+  liveTourHubServicesBody: "Open the services customers can book.",
+  liveTourAddProductTitle: "Tap Add product",
+  liveTourAddProductBody: "The form opens — we'll fill it in together.",
+  liveTourAddServiceTitle: "Tap Add service",
+  liveTourAddServiceBody: "The form opens — we'll fill in the service details.",
+  liveTourProductNameTitle: "Product name",
+  liveTourProductNameBody: "Type a name — e.g. Chocolate cake, Sourdough bread…",
+  liveTourProductPriceTitle: "Price",
+  liveTourProductPriceBody: "Enter a price in your currency (e.g. 45).",
+  liveTourProductSubmitTitle: "Save the product",
+  liveTourProductSubmitBody: "Tap Add product at the bottom of the form to save.",
+  liveTourServiceNameTitle: "Service name",
+  liveTourServiceNameBody: "Type a name — e.g. Consultation, Haircut…",
+  liveTourServicePriceTitle: "Service price",
+  liveTourServicePriceBody: "Enter the price.",
+  liveTourServiceSubmitTitle: "Save the service",
+  liveTourServiceSubmitBody: "Tap Add service at the bottom of the form to save.",
+  liveTourCompleteTitle: "Great — product added!",
+  liveTourCompleteBody: "Your first product is live. Share your store link from Home.",
+  liveTourCompleteBodyAppointments:
+    "Your first service is ready. Set up calendar slots and share your link.",
+  liveTourTapHighlight: "Tap the highlighted area",
+  liveTourFillHighlight: "Fill in the highlighted field",
+  liveTourSaveHighlight: "Save using the highlighted button",
   confirmDeleteFaq: "Delete this question?",
   confirmDeleteDeal: "Delete this deal?",
   productName: "Name",
@@ -1128,6 +1450,11 @@ const EN: DashboardLabels = {
   subscriptionUltimateFeature1: "Everything in Premium",
   subscriptionUltimateFeature2: "Priority support",
   subscriptionUltimateFeature3: "Advanced business tools",
+  trialExpiredTitle: "Trial period ended",
+  trialExpiredHint:
+    "Choose a monthly plan to keep using your store. You cannot open a new store with the same email until you subscribe.",
+  trialExpiredEndedOn: "Trial ended on ",
+  subscriptionPayMonthly: "Pay monthly subscription",
   alertsEnableTitle: "Enable alerts",
   alertsEnableHint: "Choose which events should trigger a notification",
   alertOnCustomerInquiry: "Alert on customer inquiry",
@@ -1141,9 +1468,11 @@ const EN: DashboardLabels = {
   notificationTypeInquiry: "Customer inquiry",
   notificationTypeChat: "Chat message",
   notificationTypeOrder: "New order",
+  notificationTypeAppointment: "New appointment",
   notificationTypeLowStock: "Low stock",
   notificationBackToList: "Back to notifications",
   notificationOpenOrders: "View orders",
+  notificationOpenAppointments: "View appointments",
   notificationOpenProducts: "Manage products",
   notificationStockOut: "Out of stock",
   notificationStockLeft: "{n} left",

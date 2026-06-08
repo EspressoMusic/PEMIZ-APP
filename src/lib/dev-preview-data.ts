@@ -536,6 +536,56 @@ export const DEV_APPOINTMENTS_SELLER_SHELL = {
 
 export const DEV_APPOINTMENTS_OWNER_NAME = "מיה";
 
+export const DEV_APPOINTMENTS_PREVIEW_INQUIRIES = [
+  {
+    id: "appt-inq-1",
+    customerName: "יעל כהן",
+    customerPhone: "050-1234567",
+    subject: "שינוי שעת תור",
+    message: "אפשר להזיז את התור שלי ליום חמישי בבוקר?",
+    sellerReply: null,
+    sellerReplyAt: null,
+    createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "appt-inq-2",
+    customerName: "דני לוי",
+    customerPhone: "052-9876543",
+    subject: "ביטול תור",
+    message: "צריך לבטל את התור למחר — אפשר?",
+    sellerReply: null,
+    sellerReplyAt: null,
+    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "appt-inq-3",
+    customerName: "רון שטרן",
+    customerPhone: "054-1112233",
+    subject: "שאלה על שירות",
+    message: "כמה זמן לוקח טיפול צבע מלא?",
+    sellerReply: null,
+    sellerReplyAt: null,
+    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+export const DEV_APPOINTMENTS_PREVIEW_SELLER_THREADS: SellerChatThread[] = [
+  {
+    customerPhone: "0501234567",
+    customerName: "יעל כהן",
+    lastMessage: "יש תור פנוי ליום ראשון בבוקר?",
+    lastAt: "2026-06-03T09:15:00.000Z",
+    unreadFromCustomer: true,
+  },
+  {
+    customerPhone: "0534445566",
+    customerName: "נועה ברק",
+    lastMessage: "תודה, אאשר את השעה",
+    lastAt: "2026-06-02T16:20:00.000Z",
+    unreadFromCustomer: false,
+  },
+];
+
 function devAppointmentSlotIso(daysAhead: number, hour: number, minute = 0) {
   const start = new Date();
   start.setHours(0, 0, 0, 0);
@@ -600,7 +650,13 @@ export function getDevAppointmentsBusiness() {
 
 export function getDevPreviewAppointmentsSeller() {
   const biz = getDevAppointmentsBusiness();
-  const [slotA, slotB, , slotFull1, slotFull2] = biz.slots;
+  const slotA = biz.slots[0];
+  const slotB = biz.slots[1];
+  const slotFull1 = biz.slots[3];
+  const slotFull2 = biz.slots[4];
+  if (!slotA || !slotB || !slotFull1 || !slotFull2) {
+    return [];
+  }
   const pastSlot = devAppointmentSlotIso(-3, 10);
   return [
     {
@@ -673,5 +729,24 @@ export function getDevSellerHomeCalendarPreview() {
     slots: biz.slots,
     appointments: getDevPreviewAppointmentsSeller(),
     bookingByDay: DEV_APPOINTMENTS_BUSINESS.appointmentBookingByDay ?? false,
+    /** Frozen at request time so SSR and hydration use the same "now". */
+    referenceNowMs: Date.now(),
   };
+}
+
+export function getDevPreviewCustomerOrdersFromAppointments() {
+  return getDevPreviewAppointmentsSeller().map((appt) => ({
+    id: appt.id,
+    customerName: appt.customerName,
+    customerPhone: appt.customerPhone,
+    status: appt.status,
+    statusLabel: appt.status,
+    createdAt: appt.slot.startAt,
+    items: [] as {
+      name: string;
+      quantity: number;
+      lineTotal: number;
+      imageUrl: string | null;
+    }[],
+  }));
 }

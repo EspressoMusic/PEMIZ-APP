@@ -7,6 +7,8 @@ import type { CustomerLabels } from "./customer-labels";
 import {
   APPOINTMENT_DAY_FRAME,
   APPOINTMENT_DAY_FRAME_CUSTOMER_HOME,
+  APPOINTMENT_DAY_FRAME_SQUARE,
+  APPOINTMENT_DAY_FRAME_SQUARE_LARGE,
   AppointmentCalendarPanel,
 } from "@/components/appointment-calendar-panel";
 
@@ -81,6 +83,8 @@ export function CustomerAppointmentCalendar({
   orderSchedule = null,
   bookingByDay = false,
   homeLayout = false,
+  squareDays = false,
+  squareDaysLarge = false,
 }: {
   slots: AppointmentSlot[];
   locale: CustomerLocale;
@@ -92,11 +96,19 @@ export function CustomerAppointmentCalendar({
   bookingByDay?: boolean;
   /** Smaller calendar that shares the home screen with open-slots panel. */
   homeLayout?: boolean;
+  /** Larger square day cells (customer booking modal). */
+  squareDays?: boolean;
+  /** Full-size modal calendar with maximum day squares. */
+  squareDaysLarge?: boolean;
 }) {
   const todayKey = appointmentLocalDateKey(new Date().toISOString());
   const dayFrame = homeLayout
     ? APPOINTMENT_DAY_FRAME_CUSTOMER_HOME
-    : APPOINTMENT_DAY_FRAME;
+    : squareDaysLarge
+      ? APPOINTMENT_DAY_FRAME_SQUARE_LARGE
+      : squareDays
+        ? APPOINTMENT_DAY_FRAME_SQUARE
+        : APPOINTMENT_DAY_FRAME;
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
 
   const slotsByDay = useMemo(() => {
@@ -175,16 +187,23 @@ export function CustomerAppointmentCalendar({
       weeks={weeks}
       homeCompact={homeLayout}
       homeLarge={homeLayout}
+      squareDays={squareDays && !squareDaysLarge}
+      squareDaysLarge={squareDaysLarge}
       renderDay={(cell) => {
         const dateKey = cell.dateKey!;
         const status = dayStatus(dateKey);
         const selected = highlightedDay === dateKey;
+        const isToday = dateKey === todayKey;
         return (
           <button
             key={dateKey}
             type="button"
             onClick={() => pickDay(dateKey)}
-            className={`${dayFrame} ${dayClass(status, selected)}`}
+            className={`${dayFrame} ${dayClass(status, selected)}${
+              isToday
+                ? " outline outline-[3px] outline-black outline-offset-0"
+                : ""
+            }`}
             title={
               status === "full"
                 ? labels.calendarDayFullHint

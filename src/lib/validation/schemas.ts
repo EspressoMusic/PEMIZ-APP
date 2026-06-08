@@ -14,6 +14,15 @@ export const signupSchema = z.object({
   name: z.string().trim().min(2).max(80),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(8, "סיסמה: לפחות 8 תווים").max(128),
+});
+
 export const masterLoginSchema = z.object({
   password: z.string().min(1).max(128),
 });
@@ -21,7 +30,11 @@ export const masterLoginSchema = z.object({
 export const businessCreateSchema = z.object({
   name: z.string().trim().min(2).max(100),
   description: z.string().max(500).optional(),
-  type: z.enum(["STORE", "APPOINTMENTS"]),
+  type: z
+    .enum(["STORE", "APPOINTMENTS"])
+    .refine((value) => value === "STORE", {
+      message: "מצב פגישות יהיה זמין בקרוב",
+    }),
   acceptTerms: z.literal(true),
 });
 

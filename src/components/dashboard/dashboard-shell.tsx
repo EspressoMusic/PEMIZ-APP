@@ -4,12 +4,14 @@ import { DashboardShellClient } from "@/components/dashboard/dashboard-shell-cli
 export function DashboardShell({
   children,
   businessType,
+  businessId,
   basePath = "/dashboard",
   storeLocale = "he",
   storeTheme = "calm",
 }: {
   children: ReactNode;
   businessType: string;
+  businessId?: string;
   basePath?: string;
   storeLocale?: string | null;
   storeTheme?: string | null;
@@ -17,6 +19,7 @@ export function DashboardShell({
   return (
     <DashboardShellClient
       businessType={businessType}
+      businessId={businessId ?? "dev-preview"}
       basePath={basePath}
       storeLocale={storeLocale}
       storeTheme={storeTheme}

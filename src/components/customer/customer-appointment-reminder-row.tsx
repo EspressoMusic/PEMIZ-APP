@@ -46,6 +46,45 @@ function reminderKey(slug: string) {
   return `linky-appt-reminder-${slug}`;
 }
 
+function ReminderCard({
+  labels,
+  enabled,
+  onToggle,
+}: {
+  labels: CustomerLabels;
+  enabled: boolean;
+  onToggle: (next: boolean) => void;
+}) {
+  return (
+    <div className="block w-full rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-[#E6D5B8] bakery-panel-shadow">
+      <div className="m-2">
+        <div className="rounded-[12px] bg-bakery-card px-2.5 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] border border-bakery-border/35 bg-bakery-square shadow-[0_2px_6px_rgba(58,47,38,0.08)]">
+              <BellRing
+                className="h-[18px] w-[18px] text-bakery-ink"
+                strokeWidth={1.75}
+              />
+            </span>
+            <div className="min-w-0 flex-1 text-start">
+              <p className="text-[13px] font-extrabold leading-tight text-bakery-ink">
+                {labels.appointmentReminderTitle}
+              </p>
+            </div>
+            <div className="shrink-0 origin-center scale-[0.88]">
+              <Toggle
+                enabled={enabled}
+                onChange={onToggle}
+                ariaLabel={labels.appointmentReminderTitle}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CustomerAppointmentReminderRow({
   businessSlug,
   slots,
@@ -100,36 +139,6 @@ export function CustomerAppointmentReminderRow({
   }
 
   return (
-    <div className="block w-full rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-[#E6D5B8] bakery-panel-shadow">
-      <div className="m-2">
-        <div className="rounded-[12px] bg-bakery-card px-2.5 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
-          <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] border border-bakery-border/35 bg-bakery-square shadow-[0_2px_6px_rgba(58,47,38,0.08)]">
-              <BellRing
-                className="h-[18px] w-[18px] text-bakery-ink"
-                strokeWidth={1.75}
-              />
-            </span>
-            <div className="min-w-0 flex-1 text-start">
-              <p className="text-[13px] font-extrabold leading-tight text-bakery-ink">
-                {labels.appointmentReminderTitle}
-              </p>
-              <p className="mt-0.5 text-[11px] font-semibold leading-snug text-bakery-muted">
-                {enabled
-                  ? labels.appointmentReminderActive
-                  : labels.appointmentReminderSub}
-              </p>
-            </div>
-            <div className="shrink-0 origin-center scale-[0.88]">
-              <Toggle
-                enabled={enabled}
-                onChange={setReminder}
-                ariaLabel={labels.appointmentReminderTitle}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ReminderCard labels={labels} enabled={enabled} onToggle={setReminder} />
   );
 }

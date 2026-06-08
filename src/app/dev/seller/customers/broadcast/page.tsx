@@ -1,7 +1,5 @@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardStoreBroadcast } from "@/components/dashboard/dashboard-store-broadcast";
-import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
-import { DEV_PREVIEW_ORDERS } from "@/lib/dev-preview-data";
 import { DashboardCustomersBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
 
@@ -18,10 +16,6 @@ export default function DevSellerCustomersBroadcastPage() {
               initialMessage={DEV_STORE_BUSINESS.storeBroadcast ?? ""}
               initialSentAt={DEV_STORE_BUSINESS.storeBroadcastAt ?? null}
               initialHistory={DEV_STORE_BUSINESS.storeBroadcastHistory ?? []}
-            />
-            <DashboardStoreCustomers
-              previewOnly
-              previewOrders={DEV_PREVIEW_ORDERS}
             />
           </div>
         </DashboardShell>

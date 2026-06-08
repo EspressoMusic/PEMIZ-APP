@@ -1,6 +1,11 @@
 import type { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { jsonError } from "@/lib/api";
+import {
+  syncBusinessTrialLock,
+  trialExpiredErrorMessage,
+} from "@/lib/business-subscription";
+import { isBusinessTrialExpired } from "@/lib/business-trial";
 
 type AuthUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 type UserWithBusiness = AuthUser & {
@@ -19,6 +24,15 @@ export async function requireBusinessOwner(): Promise<DashboardAuthResult> {
   if (!user.business) {
     return { ok: false, response: jsonError("אין עסק", 404) };
   }
+
+  await syncBusinessTrialLock(user.business);
+  if (isBusinessTrialExpired(user.business)) {
+    return {
+      ok: false,
+      response: jsonError(trialExpiredErrorMessage(), 402),
+    };
+  }
+
   return { ok: true, user: user as UserWithBusiness };
 }
 

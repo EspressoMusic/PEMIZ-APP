@@ -41,12 +41,12 @@ export function DashboardCustomerLinkCard({
   const { labels } = useAppLocale();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [canNativeShare, setCanNativeShare] = useState(false);
+  const [absoluteUrl, setAbsoluteUrl] = useState(url);
   const pathLabel = displayPath(url);
 
   useEffect(() => {
-    setCanNativeShare(typeof navigator !== "undefined" && !!navigator.share);
-  }, []);
+    setAbsoluteUrl(toAbsoluteUrl(url));
+  }, [url]);
 
   useEffect(() => {
     if (!open) return;
@@ -67,14 +67,20 @@ export function DashboardCustomerLinkCard({
     }
   }
 
-  async function nativeShare() {
+  async function shareUrl() {
     const link = toAbsoluteUrl(url);
-    try {
-      await navigator.share({ url: link, title: labels.shareStoreLink });
-      setOpen(false);
-    } catch {
-      /* cancelled or unsupported */
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ url: link, title: labels.shareStoreLink });
+        setOpen(false);
+        return;
+      } catch {
+        return;
+      }
     }
+
+    const whatsappShare = `https://wa.me/?text=${encodeURIComponent(link)}`;
+    window.open(whatsappShare, "_blank", "noopener,noreferrer");
   }
 
   function closeSheet() {
@@ -113,7 +119,7 @@ export function DashboardCustomerLinkCard({
             className="dashboard-share-tile truncate rounded-[9999px] px-4 py-3 text-center font-mono text-[12px] font-semibold text-bakery-ink"
             dir="ltr"
           >
-            {toAbsoluteUrl(url)}
+            {absoluteUrl}
           </p>
 
           <button
@@ -129,16 +135,14 @@ export function DashboardCustomerLinkCard({
             {copied ? labels.copied : labels.copyLink}
           </button>
 
-          {canNativeShare && (
-            <button
-              type="button"
-              onClick={() => void nativeShare()}
-              className="dashboard-share-tile flex w-full min-h-[52px] items-center justify-center gap-2 rounded-[9999px] px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition active:scale-[0.99]"
-            >
-              <Share2 className="h-5 w-5" strokeWidth={2} />
-              {labels.shareStoreLink}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => void shareUrl()}
+            className="dashboard-share-tile flex w-full min-h-[52px] items-center justify-center gap-2 rounded-[9999px] px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition active:scale-[0.99]"
+          >
+            <Share2 className="h-5 w-5" strokeWidth={2} />
+            {labels.shareStoreLink}
+          </button>
         </div>
       </div>
     </div>

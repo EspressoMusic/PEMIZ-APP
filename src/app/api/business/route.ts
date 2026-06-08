@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { generateUniqueBusinessSlug } from "@/lib/business";
+import { isBusinessTrialExpired } from "@/lib/business-trial";
+import {
+  syncBusinessTrialLock,
+  trialExpiredErrorMessage,
+} from "@/lib/business-subscription";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireBusinessOwner } from "@/lib/dashboard-auth";
 import {
@@ -12,7 +17,13 @@ import {
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return jsonError("לא מחובר", 401);
-  if (user.business) return jsonError("כבר קיים עסק לחשבון זה", 409);
+  if (user.business) {
+    await syncBusinessTrialLock(user.business);
+    if (isBusinessTrialExpired(user.business)) {
+      return jsonError(trialExpiredErrorMessage(), 402);
+    }
+    return jsonError("כבר קיים עסק לחשבון זה", 409);
+  }
 
   const body = await req.json().catch(() => null);
   const parsed = businessCreateSchema.safeParse(body);
@@ -20,6 +31,9 @@ export async function POST(req: Request) {
     const issue = parsed.error.issues[0];
     if (issue?.path[0] === "acceptTerms") {
       return jsonError("יש לאשר את תנאי השימוש ומדיניות הפרטיות");
+    }
+    if (issue?.path[0] === "type") {
+      return jsonError("מצב פגישות יהיה זמין בקרוב — בקרוב! יש למה לחכות!");
     }
     return jsonError(zodFirstError(parsed));
   }

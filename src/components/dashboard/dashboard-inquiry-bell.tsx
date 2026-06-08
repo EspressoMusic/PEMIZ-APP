@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
@@ -9,14 +9,18 @@ import { Alert, Textarea } from "@/components/ui";
 import {
   DEV_PREVIEW_ORDERS,
   DEV_PREVIEW_SELLER_CHAT,
+  getDevPreviewCustomerOrdersFromAppointments,
 } from "@/lib/dev-preview-data";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { getDashboardLabels } from "@/lib/app-locale";
 import {
   customerProfileInitial,
   useDashboardCustomerProfile,
 } from "@/components/dashboard/dashboard-customer-profile";
 import {
+  buildDevAppointmentsDashboardNotifications,
   buildDevDashboardNotifications,
+  isStoreOnlyNotificationKind,
   notificationKindLabel,
   type DashboardNotification,
 } from "@/lib/dashboard-notifications-client";
@@ -40,16 +44,28 @@ export function DashboardInquiryBell({
   businessSlug,
   basePath = "/dashboard",
   previewOnly = false,
+  businessType = "STORE",
 }: {
   businessSlug: string;
   inquiriesHref?: string;
   basePath?: string;
   previewOnly?: boolean;
+  businessType?: "STORE" | "APPOINTMENTS";
 }) {
+  const isAppointments = businessType === "APPOINTMENTS";
   const { labels, formatDateTime, locale } = useAppLocale();
+  const previewOrders = useMemo(
+    () =>
+      previewOnly
+        ? isAppointments
+          ? getDevPreviewCustomerOrdersFromAppointments()
+          : DEV_PREVIEW_ORDERS
+        : undefined,
+    [previewOnly, isAppointments]
+  );
   const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
     previewOnly,
-    previewOrders: previewOnly ? DEV_PREVIEW_ORDERS : undefined,
+    previewOrders,
     businessSlug,
   });
 
@@ -69,13 +85,24 @@ export function DashboardInquiryBell({
 
   const load = useCallback(async () => {
     if (previewOnly) {
-      setNotifications(buildDevDashboardNotifications(labels));
+      const notificationLabels = getDashboardLabels(locale);
+      setNotifications(
+        isAppointments
+          ? buildDevAppointmentsDashboardNotifications(notificationLabels)
+          : buildDevDashboardNotifications(notificationLabels)
+      );
       return;
     }
     const res = await fetch("/api/dashboard/notifications");
     const data = await res.json();
-    if (res.ok) setNotifications(data.notifications ?? []);
-  }, [previewOnly, labels]);
+    if (!res.ok) return;
+    const items: DashboardNotification[] = data.notifications ?? [];
+    setNotifications(
+      isAppointments
+        ? items.filter((item) => !isStoreOnlyNotificationKind(item.kind))
+        : items
+    );
+  }, [previewOnly, isAppointments, locale]);
 
   useEffect(() => {
     void load();
@@ -456,6 +483,44 @@ export function DashboardInquiryBell({
                 className="dashboard-inquiry-cta inline-flex min-w-[10rem] no-underline"
               >
                 {labels.notificationOpenOrders}
+              </Link>
+            </div>
+          )}
+
+          {active.kind === "new_appointment" && (
+            <div className="space-y-3 text-center">
+              {active.customerPhone ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    openCustomer({
+                      customerName: active.customerName!,
+                      customerPhone: active.customerPhone!,
+                      fallbackDate: active.createdAt,
+                    })
+                  }
+                  className="mx-auto flex items-center gap-2"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[12px] border border-bakery-border/35 bg-bakery-on-primary text-[16px] font-extrabold text-bakery-primary">
+                    {customerProfileInitial(
+                      active.customerName ?? "",
+                      labels.anonymousCustomer
+                    )}
+                  </span>
+                </button>
+              ) : null}
+              <p className="rounded-[12px] border border-bakery-border/30 bg-[#F2EBE0] p-3 text-[14px] font-semibold text-bakery-ink">
+                {active.message}
+              </p>
+              <p className="text-[11px] text-bakery-muted">
+                {formatDateTime(active.createdAt)}
+              </p>
+              <Link
+                href={`${basePath}/settings/appointments`}
+                onClick={closePanel}
+                className="dashboard-inquiry-cta inline-flex min-w-[10rem] no-underline"
+              >
+                {labels.notificationOpenAppointments}
               </Link>
             </div>
           )}

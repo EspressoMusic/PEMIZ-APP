@@ -85,7 +85,10 @@ export function CustomerAppointmentBookingModal({
         s.appointments.length < s.maxBookings &&
         new Date(s.startAt) > new Date()
     );
-    if (bookingByDay && openSlots.length > 0) {
+    if (
+      openSlots.length > 0 &&
+      (bookingByDay || openSlots.length === 1)
+    ) {
       setStep("details");
       setSlotId(openSlots[0].id);
     } else {
@@ -196,7 +199,10 @@ export function CustomerAppointmentBookingModal({
             <p className="text-center text-[15px] font-extrabold leading-snug text-bakery-ink">
               {formatDayTitle(dateKey, locale)}
               {!bookingByDay ? (
-                <span className="mt-1 block text-[14px] font-bold text-bakery-muted">
+                <span
+                  className="mt-2 block text-[26px] font-extrabold leading-none tabular-nums text-bakery-ink sm:text-[28px]"
+                  dir="ltr"
+                >
                   {formatSlotTime(selectedSlot.startAt, locale)}
                 </span>
               ) : null}

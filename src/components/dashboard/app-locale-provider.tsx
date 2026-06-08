@@ -44,12 +44,9 @@ export function AppLocaleProvider({
   children: ReactNode;
   initialLocale?: string | null;
 }) {
-  const [locale, setLocaleState] = useState<AppLocale>(() => {
-    if (typeof window === "undefined") return normalizeAppLocale(initialLocale);
-    const fromDom = document.documentElement.dataset.locale;
-    if (fromDom === "en" || fromDom === "he") return fromDom;
-    return hydrateDashboardLocale(initialLocale);
-  });
+  const [locale, setLocaleState] = useState<AppLocale>(() =>
+    normalizeAppLocale(initialLocale)
+  );
 
   const setLocale = useCallback((next: AppLocale) => {
     const normalized = normalizeAppLocale(next);
@@ -59,8 +56,15 @@ export function AppLocaleProvider({
   }, []);
 
   useLayoutEffect(() => {
-    applyDocumentLocale(locale);
-  }, [locale]);
+    const fromDom = document.documentElement.dataset.locale;
+    const hydrated =
+      fromDom === "en" || fromDom === "he"
+        ? fromDom
+        : hydrateDashboardLocale(initialLocale);
+    const normalized = normalizeAppLocale(hydrated);
+    setLocaleState(normalized);
+    applyDocumentLocale(normalized);
+  }, [initialLocale]);
 
   const value = useMemo(
     () => ({

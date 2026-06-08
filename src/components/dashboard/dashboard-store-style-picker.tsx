@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Palette } from "lucide-react";
+import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useStoreTheme } from "@/components/dashboard/store-theme-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
@@ -66,7 +67,7 @@ export function DashboardStoreStylePicker({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start"
+          className={DASHBOARD_ACTION_ROW_CLASS}
         >
           <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
             <Palette className="h-6 w-6" strokeWidth={1.75} />

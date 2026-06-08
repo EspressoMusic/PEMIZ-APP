@@ -13,6 +13,13 @@ export const CUSTOMER_PAGE_ROOT =
 export const CUSTOMER_SCROLL_MAIN =
   "relative z-10 no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-3";
 
-/** יומן תורים — ממלא את גובה המסך */
+/** יומן תורים — ממלא את גובה המסך (ניווט בתוך עמודת הטלפון) */
 export const CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME =
-  "relative z-10 no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-0 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-0";
+  "relative z-10 no-scrollbar flex h-full min-h-0 flex-1 flex-col overflow-hidden px-0 pb-0 pt-0";
+
+/** עמודת טלפון ממורכזת — רוחב קבוע 360px בדסקטופ */
+export const CUSTOMER_PHONE_COLUMN =
+  "flex h-full w-[min(100%,360px)] shrink-0 flex-col overflow-hidden shadow-[0_0_0_1px_rgba(58,47,38,0.1),0_10px_40px_rgba(58,47,38,0.14)]";
+
+/** רקע מסביב לעמודת הטלפון בדסקטופ */
+export const CUSTOMER_PHONE_DESKTOP_BACKDROP = "bg-[#F4F0E8]";

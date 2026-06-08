@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { studioConsolePath } from "@/lib/studio-access";
 import { activateLegacyPendingBusiness } from "@/lib/business";
+import { isBusinessTrialExpired } from "@/lib/business-trial";
+import { syncBusinessTrialLock } from "@/lib/business-subscription";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { ServiceUnavailableNotice } from "@/components/service-unavailable-notice";
 import { recordSystemIncident } from "@/lib/system-incidents";
@@ -38,6 +40,11 @@ export default async function DashboardLayout({
     redirect("/onboarding");
   }
 
+  const trialLock = await syncBusinessTrialLock(user.business);
+  if (trialLock.locked || isBusinessTrialExpired(user.business)) {
+    redirect("/trial-expired");
+  }
+
   if (await activateLegacyPendingBusiness(user.business.id)) {
     redirect("/dashboard");
   }
@@ -46,6 +53,7 @@ export default async function DashboardLayout({
     <div className="dashboard-surface bakery-frame-bg h-dvh overflow-hidden">
       <div className="app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-4 lg:px-[14px]">
         <DashboardShell
+          businessId={user.business.id}
           businessType={user.business.type}
           storeLocale={user.business.storeLocale}
           storeTheme={user.business.storeTheme}

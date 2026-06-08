@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { Calendar } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { CustomerLabels } from "./customer-labels";
+import { SettingsMenuSubRow } from "./customer-ui";
 import {
   appointmentLocalDateKey,
   appointmentSlotIsOpen,
@@ -46,12 +48,14 @@ export function CustomerAppointmentOpenSlotsPanel({
   labels,
   bookingByDay = false,
   onSelect,
+  onOpenCalendar,
 }: {
   slots: AppointmentSlot[];
   locale: CustomerLocale;
   labels: CustomerLabels;
   bookingByDay?: boolean;
   onSelect: (dateKey: string, openSlots: AppointmentSlot[]) => void;
+  onOpenCalendar?: () => void;
 }) {
   const openSlots = useMemo(() => {
     const list = slots
@@ -135,6 +139,15 @@ export function CustomerAppointmentOpenSlotsPanel({
           </ul>
         )}
       </div>
+      {onOpenCalendar ? (
+        <div className="shrink-0 px-2 pb-2.5 pt-0.5">
+          <SettingsMenuSubRow
+            icon={Calendar}
+            title={labels.openCalendar}
+            onClick={onOpenCalendar}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

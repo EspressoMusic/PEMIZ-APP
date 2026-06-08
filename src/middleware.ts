@@ -16,6 +16,7 @@ const protectedPrefixes = [
   "/verify-email",
   "/onboarding",
   "/pending-approval",
+  "/trial-expired",
 ];
 
 function getSecret() {

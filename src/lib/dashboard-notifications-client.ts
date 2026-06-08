@@ -1,9 +1,13 @@
 import {
+  DEV_APPOINTMENTS_PREVIEW_INQUIRIES,
+  DEV_APPOINTMENTS_PREVIEW_SELLER_THREADS,
   DEV_PREVIEW_INQUIRIES,
   DEV_PREVIEW_ORDERS,
   DEV_PREVIEW_PRODUCTS,
   DEV_PREVIEW_SELLER_THREADS,
+  getDevPreviewAppointmentsSeller,
 } from "@/lib/dev-preview-data";
+import { parseServiceFromNotes } from "@/lib/customer-appointment-history";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
 import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
 
@@ -11,6 +15,7 @@ export type DashboardNotificationKind =
   | "inquiry"
   | "chat"
   | "new_order"
+  | "new_appointment"
   | "low_stock";
 
 export type DashboardNotification = {
@@ -24,6 +29,7 @@ export type DashboardNotification = {
   customerPhone?: string | null;
   message?: string;
   orderId?: string;
+  appointmentId?: string;
   productId?: string;
   productName?: string;
   stock?: number | null;
@@ -40,6 +46,8 @@ export function notificationKindLabel(
       return labels.notificationTypeChat;
     case "new_order":
       return labels.notificationTypeOrder;
+    case "new_appointment":
+      return labels.notificationTypeAppointment;
     case "low_stock":
       return labels.notificationTypeLowStock;
     default:
@@ -122,4 +130,76 @@ export function buildDevDashboardNotifications(
   }
 
   return sortNotifications(items);
+}
+
+export function buildDevAppointmentsDashboardNotifications(
+  labels: DashboardLabels
+): DashboardNotification[] {
+  const items: DashboardNotification[] = [];
+
+  for (const row of DEV_APPOINTMENTS_PREVIEW_INQUIRIES.filter(
+    (q) => !q.sellerReply
+  )) {
+    items.push({
+      id: `inquiry:${row.id}`,
+      kind: "inquiry",
+      title: labels.notificationTypeInquiry,
+      subtitle: row.customerName,
+      createdAt: row.createdAt,
+      inquiryId: row.id,
+      customerName: row.customerName,
+      customerPhone: row.customerPhone,
+      message: row.message,
+    });
+  }
+
+  for (const thread of DEV_APPOINTMENTS_PREVIEW_SELLER_THREADS.filter(
+    (t) => t.unreadFromCustomer
+  )) {
+    items.push({
+      id: `chat:${thread.customerPhone}`,
+      kind: "chat",
+      title: labels.notificationTypeChat,
+      subtitle: thread.customerName,
+      createdAt: thread.lastAt,
+      customerName: thread.customerName,
+      customerPhone: thread.customerPhone,
+      message: thread.lastMessage,
+    });
+  }
+
+  const nowMs = Date.now();
+  for (const appt of getDevPreviewAppointmentsSeller()
+    .filter(
+      (a) =>
+        a.status !== "CANCELLED" &&
+        new Date(a.slot.startAt).getTime() >= nowMs
+    )
+    .slice(0, 4)) {
+    const service = parseServiceFromNotes(appt.notes);
+    const slotStart = new Date(appt.slot.startAt);
+    const timeLabel = slotStart.toLocaleTimeString("he-IL", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    items.push({
+      id: `appointment:${appt.id}`,
+      kind: "new_appointment",
+      title: labels.notificationTypeAppointment,
+      subtitle: appt.customerName,
+      createdAt: appt.slot.startAt,
+      appointmentId: appt.id,
+      customerName: appt.customerName,
+      customerPhone: appt.customerPhone,
+      message: service ? `${service} · ${timeLabel}` : timeLabel,
+    });
+  }
+
+  return sortNotifications(items);
+}
+
+export function isStoreOnlyNotificationKind(
+  kind: DashboardNotificationKind
+): boolean {
+  return kind === "new_order" || kind === "low_stock";
 }

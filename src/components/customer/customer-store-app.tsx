@@ -31,6 +31,7 @@ import { CustomerDisplaySheet } from "./customer-display-sheet";
 import { CustomerLegalSheet } from "./customer-legal-sheet";
 import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
 import { OrderCheckoutModal } from "./order-checkout-modal";
+import { cn } from "@/lib/utils";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import { getEffectivePrice } from "@/lib/product-price";
 import { customerThemeClass, parseStoreTheme } from "@/lib/store-themes";
@@ -66,13 +67,12 @@ import {
   type CustomerOrderHistoryEntry,
 } from "@/lib/customer-order-history";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
+import type { AppointmentSlot } from "./customer-appointment-calendar";
 import {
-  CustomerAppointmentCalendar,
-  type AppointmentSlot,
-} from "./customer-appointment-calendar";
-import { CustomerAppointmentDayModal } from "./customer-appointment-day-modal";
-import { CustomerAppointmentOpenSlotsPanel } from "./customer-appointment-open-slots-panel";
-import { CustomerAppointmentReminderRow } from "./customer-appointment-reminder-row";
+  APPOINTMENTS_HOME_BG,
+  CustomerAppointmentsHomeShell,
+} from "./customer-appointments-home-backdrop";
+import { CustomerAppointmentCalendarModal } from "./customer-appointment-calendar-modal";
 import { CustomerAppointmentBookingModal } from "./customer-appointment-booking-modal";
 import {
   appendCustomerAppointmentHistory,
@@ -107,6 +107,8 @@ import {
   CUSTOMER_MOBILE_STACK,
   CUSTOMER_PAGE_ROOT,
   CUSTOMER_SCROLL_MAIN,
+  CUSTOMER_PHONE_COLUMN,
+  CUSTOMER_PHONE_DESKTOP_BACKDROP,
   CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME,
   CUSTOMER_VIEWPORT_HEIGHT,
 } from "./customer-store-frame";
@@ -271,9 +273,7 @@ export function CustomerStoreApp({
   const [localAppointments, setLocalAppointments] = useState<
     CustomerAppointmentEntry[]
   >([]);
-  const [dayViewOpen, setDayViewOpen] = useState(false);
-  const [dayViewKey, setDayViewKey] = useState<string | null>(null);
-  const [dayViewSlots, setDayViewSlots] = useState<AppointmentSlot[]>([]);
+  const [calendarPickerOpen, setCalendarPickerOpen] = useState(false);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [bookingDay, setBookingDay] = useState<string | null>(null);
   const [bookingSlots, setBookingSlots] = useState<AppointmentSlot[]>([]);
@@ -449,11 +449,13 @@ export function CustomerStoreApp({
     setSellerNoticeExpanded(false);
   }
 
-  function toggleSellerNotice() {
-    setSellerNoticeExpanded((open) => !open);
-    if (!sellerNoticeExpanded) {
-      setSellerNoticeUnread(false);
-    }
+  function openSellerNotice() {
+    setSellerNoticeExpanded(true);
+    setSellerNoticeUnread(false);
+  }
+
+  function closeSellerNoticeModal() {
+    setSellerNoticeExpanded(false);
   }
 
   const showSellerNoticeBanner =
@@ -1037,62 +1039,38 @@ export function CustomerStoreApp({
     switch (mainTab) {
       case "home":
         return isAppointments ? (
-          futureSlots.length === 0 ? (
-            <div className="px-3 pt-3">
-              <EmptyStateCard message={labels.noSlots} />
-            </div>
-          ) : (
-            <div
-              className={`grid min-h-0 flex-1 grid-rows-[minmax(0,10fr)_minmax(0,7fr)_auto] gap-2 overflow-hidden px-3 ${
-                showSellerNoticeBanner ? "pt-2" : "pt-1"
-              }`}
-            >
-              <div className="flex min-h-0 flex-col overflow-hidden">
-                <CustomerAppointmentCalendar
-                  slots={business.slots}
-                  locale={locale}
-                  labels={labels}
-                  orderScheduleEnabled={business.orderScheduleEnabled ?? false}
-                  orderSchedule={business.orderSchedule ?? null}
-                  bookingByDay={business.appointmentBookingByDay ?? false}
-                  highlightedDay={
-                    dayViewOpen
-                      ? dayViewKey
-                      : bookingModalOpen
-                        ? bookingDay
-                        : null
-                  }
-                  homeLayout
-                  onDayOpen={(dateKey, daySlots) => {
-                    setDayViewKey(dateKey);
-                    setDayViewSlots(daySlots);
-                    setDayViewOpen(true);
-                  }}
-                />
+          <CustomerAppointmentsHomeShell>
+            <div className="w-full max-w-[340px]">
+              <div className="rounded-[22px] bg-[#5C4A3E] px-5 py-6 text-center shadow-[0_4px_14px_rgba(58,47,38,0.22)]">
+                <p className="text-[30px] font-extrabold leading-tight text-[#FAF4E6] sm:text-[34px]">
+                  {labels.hello}
+                </p>
+                <p className="mt-1.5 text-[24px] font-bold leading-snug text-[#FAF4E6] sm:text-[26px]">
+                  {labels.helloStoreName(business.name)}
+                </p>
+                {futureSlots.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setCalendarPickerOpen(true)}
+                    className="mt-5 block w-full cursor-pointer rounded-[22px] border-[1.2px] border-bakery-border/45 bg-[#E6D5B8] bakery-panel-shadow transition active:scale-[0.99]"
+                  >
+                    <div className="m-3">
+                      <div className="flex min-h-[88px] items-center justify-center rounded-[14px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card px-6 py-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
+                        <span className="text-[24px] font-extrabold leading-tight text-bakery-ink sm:text-[26px]">
+                          {labels.scheduleAppointment}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                ) : null}
               </div>
-              <CustomerAppointmentOpenSlotsPanel
-                slots={business.slots}
-                locale={locale}
-                labels={labels}
-                bookingByDay={business.appointmentBookingByDay ?? false}
-                onSelect={(dateKey, openSlots) => {
-                  setBookingDay(dateKey);
-                  setBookingSlots(openSlots);
-                  setBookingError("");
-                  setBookingModalOpen(true);
-                }}
-              />
-              <div className="shrink-0 pb-2">
-                <CustomerAppointmentReminderRow
-                  businessSlug={business.slug}
-                  slots={business.slots}
-                  labels={labels}
-                  customerPhone={orderPhone}
-                  onNeedPhone={() => setProfileModalOpen(true)}
-                />
-              </div>
+              {futureSlots.length === 0 ? (
+                <div className="mt-4">
+                  <EmptyStateCard message={labels.noSlots} />
+                </div>
+              ) : null}
             </div>
-          )
+          </CustomerAppointmentsHomeShell>
         ) : (
           <div className="space-y-4 p-1 pb-2">
             {renderProductGrid()}
@@ -1286,16 +1264,11 @@ export function CustomerStoreApp({
         ? "customer-text-scale-110"
         : "customer-text-scale-100";
 
-  return (
-    <div
-      lang={rootLang}
-      dir={rootDir}
-      className={`customer-store-root ${themeClass} ${textScaleClass} flex h-full min-h-0 w-full flex-col overflow-hidden`}
-    >
-      <DashboardConfettiBackground
-        key={productConfettiBurst}
-        active={productConfettiActive}
-      />
+  const appointmentsHomeActive =
+    isAppointments && mainTab === "home" && !unavailable;
+
+  const storeBody = (
+    <>
       <div className={CUSTOMER_VIEWPORT_HEIGHT}>
         <div className={`${CUSTOMER_MOBILE_STACK} ${CUSTOMER_PAGE_ROOT}`}>
           {!unavailable && showSellerNoticeBanner && (
@@ -1303,8 +1276,9 @@ export function CustomerStoreApp({
               <CustomerSellerNoticeBanner
                 message={sellerNoticeMessage}
                 labels={labels}
-                expanded={sellerNoticeExpanded}
-                onToggle={toggleSellerNotice}
+                open={sellerNoticeExpanded}
+                onOpen={openSellerNotice}
+                onClose={closeSellerNoticeModal}
                 onDismiss={dismissSellerNotice}
                 unread={sellerNoticeUnread}
               />
@@ -1312,7 +1286,7 @@ export function CustomerStoreApp({
           )}
           <main
             className={
-              isAppointments && mainTab === "home" && !unavailable
+              appointmentsHomeActive
                 ? CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME
                 : CUSTOMER_SCROLL_MAIN
             }
@@ -1329,7 +1303,40 @@ export function CustomerStoreApp({
           onSelect={setMainTab}
           ordersBadge={isAppointments ? undefined : cartItemCount}
           hideDeals={isAppointments}
+          phoneColumn={isAppointments}
+          isAppointments={isAppointments}
         />
+      )}
+    </>
+  );
+
+  return (
+    <div
+      lang={rootLang}
+      dir={rootDir}
+      className={`customer-store-root ${themeClass} ${textScaleClass} flex h-full min-h-0 w-full flex-col overflow-hidden`}
+    >
+      <DashboardConfettiBackground
+        key={productConfettiBurst}
+        active={productConfettiActive}
+      />
+      {isAppointments ? (
+        <div
+          className={`flex min-h-0 flex-1 justify-center ${CUSTOMER_PHONE_DESKTOP_BACKDROP}`}
+        >
+          <div
+            className={CUSTOMER_PHONE_COLUMN}
+            style={
+              appointmentsHomeActive
+                ? { backgroundColor: APPOINTMENTS_HOME_BG }
+                : undefined
+            }
+          >
+            {storeBody}
+          </div>
+        </div>
+      ) : (
+        storeBody
       )}
 
       <CustomerFaqSheet
@@ -1489,20 +1496,18 @@ export function CustomerStoreApp({
         />
       )}
 
-      <CustomerAppointmentDayModal
-        open={dayViewOpen}
-        onClose={() => {
-          setDayViewOpen(false);
-          setDayViewKey(null);
-          setDayViewSlots([]);
-        }}
-        dateKey={dayViewKey}
-        slots={dayViewSlots}
+      <CustomerAppointmentCalendarModal
+        open={calendarPickerOpen}
+        onClose={() => setCalendarPickerOpen(false)}
+        slots={business.slots}
         locale={locale}
         labels={labels}
         orderScheduleEnabled={business.orderScheduleEnabled ?? false}
         orderSchedule={business.orderSchedule ?? null}
         bookingByDay={business.appointmentBookingByDay ?? false}
+        businessSlug={business.slug}
+        customerPhone={orderPhone}
+        onNeedPhone={() => setProfileModalOpen(true)}
         onBook={(dateKey, slotsForBooking) => {
           setBookingDay(dateKey);
           setBookingSlots(slotsForBooking);

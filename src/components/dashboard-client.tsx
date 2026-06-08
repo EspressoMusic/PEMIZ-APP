@@ -34,11 +34,13 @@ function AppointmentsList({
   appointments,
   emptyMessage,
   onHide,
+  onCustomerClick,
   bookingByDay = false,
 }: {
   appointments: DashboardAppointmentView[];
   emptyMessage: string;
   onHide?: (appointmentId: string) => void;
+  onCustomerClick?: (input: CustomerProfileInput) => void;
   bookingByDay?: boolean;
 }) {
   if (appointments.length === 0) {
@@ -58,6 +60,7 @@ function AppointmentsList({
             onHide={
               onHide ? () => onHide(appointment.id) : undefined
             }
+            onCustomerClick={onCustomerClick}
             bookingByDay={bookingByDay}
           />
         </li>
@@ -490,11 +493,13 @@ export function AppointmentsManager({
   previewOnly = false,
   initialAppointments = [],
   initialBookingByDay = false,
+  historyOnly = false,
 }: {
   framed?: boolean;
   previewOnly?: boolean;
   initialAppointments?: DashboardAppointmentView[];
   initialBookingByDay?: boolean;
+  historyOnly?: boolean;
 } = {}) {
   const { labels } = useAppLocale();
   const [items, setItems] = useState(initialAppointments);
@@ -531,7 +536,7 @@ export function AppointmentsManager({
   }, [previewOnly, initialAppointments, initialBookingByDay]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNowMs(Date.now()), 60_000);
+    const timer = window.setInterval(() => setNowMs(Date.now()), 30_000);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -539,6 +544,33 @@ export function AppointmentsManager({
     () => splitSellerAppointments(items, nowMs),
     [items, nowMs]
   );
+
+  const appointmentCustomerOrders = useMemo(
+    (): DashboardOrderView[] =>
+      items.map((appt) => ({
+        id: appt.id,
+        customerName: appt.customerName,
+        customerPhone: appt.customerPhone,
+        status: appt.status,
+        statusLabel: appt.status,
+        createdAt: appt.slot.startAt,
+        items: [],
+      })),
+    [items]
+  );
+
+  const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
+    previewOnly,
+    previewOrders: previewOnly ? appointmentCustomerOrders : undefined,
+    supplementalOrderSources: previewOnly
+      ? undefined
+      : appointmentCustomerOrders.map((order) => ({
+          customerName: order.customerName,
+          customerPhone: order.customerPhone,
+          createdAt: order.createdAt,
+          status: order.status,
+        })),
+  });
 
   async function hideAppointment(appointmentId: string) {
     if (previewOnly) {
@@ -563,19 +595,58 @@ export function AppointmentsManager({
     void load();
   }
 
+  if (historyOnly) {
+    return (
+      <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
+        {previewOnly && (
+          <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
+            תצוגה מקדימה — התורים הם דמו לבדיקה, השינויים לא נשמרים בשרת
+          </p>
+        )}
+        <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+          <h2 className="pb-2 text-center text-[17px] font-extrabold text-bakery-ink">
+            {labels.appointmentHistory}
+            {history.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({history.length})
+              </span>
+            )}
+          </h2>
+          <div
+            className={appointmentsListClassName}
+            role="region"
+            aria-label={labels.appointmentHistory}
+          >
+            <AppointmentsList
+              appointments={history}
+              emptyMessage={labels.noAppointmentHistory}
+              onCustomerClick={openCustomer}
+              bookingByDay={bookingByDay}
+            />
+          </div>
+        </div>
+        {customerModal}
+      </div>
+    );
+  }
+
   const panels = (
     <>
       <AppointmentsList
         appointments={active}
         emptyMessage={labels.noActiveAppointments}
         onHide={hideAppointment}
+        onCustomerClick={openCustomer}
         bookingByDay={bookingByDay}
       />
       <AppointmentsList
         appointments={history}
         emptyMessage={labels.noAppointmentHistory}
+        onCustomerClick={openCustomer}
         bookingByDay={bookingByDay}
       />
+      {customerModal}
     </>
   );
 
@@ -633,6 +704,7 @@ export function AppointmentsManager({
               appointments={active}
               emptyMessage={labels.noActiveAppointments}
               onHide={hideAppointment}
+              onCustomerClick={openCustomer}
               bookingByDay={bookingByDay}
             />
           </div>
@@ -680,12 +752,14 @@ export function AppointmentsManager({
             <AppointmentsList
               appointments={history}
               emptyMessage={labels.noAppointmentHistory}
+              onCustomerClick={openCustomer}
               bookingByDay={bookingByDay}
             />
           </div>
         )}
       </div>
 
+      {customerModal}
     </div>
   );
 }

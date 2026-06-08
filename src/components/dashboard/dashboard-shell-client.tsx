@@ -3,6 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard-nav";
+import { SellerWelcomeGuide } from "@/components/dashboard/seller-welcome-guide";
 import { PwaInstallBanner } from "@/components/pwa/pwa-install-banner";
 import {
   AppLocaleProvider,
@@ -46,12 +47,14 @@ function isDashboardHomeRoute(pathname: string, basePath: string) {
 export function DashboardShellClient({
   children,
   businessType,
+  businessId,
   basePath = "/dashboard",
   storeLocale = "he",
   storeTheme = "calm",
 }: {
   children: ReactNode;
   businessType: string;
+  businessId: string;
   basePath?: string;
   storeLocale?: string | null;
   storeTheme?: string | null;
@@ -59,6 +62,8 @@ export function DashboardShellClient({
   const pathname = usePathname();
   const inSellerApp = isSellerAppRoute(pathname, basePath);
   const isHomeRoute = isDashboardHomeRoute(pathname, basePath);
+  const tourEnabled =
+    businessId !== "dev-preview" || businessId.startsWith("dev-guide-preview");
 
   useEffect(() => {
     if (!inSellerApp) return;
@@ -69,31 +74,45 @@ export function DashboardShellClient({
     };
   }, [inSellerApp]);
 
+  const shellBody = (
+    <div className="dashboard-surface flex h-full min-h-0 w-full flex-col overflow-hidden">
+      <div
+        className={`min-h-0 min-w-0 flex-1 overflow-hidden pb-[calc(76px+max(8px,env(safe-area-inset-bottom)))]`}
+      >
+        <div
+          className={`${DASHBOARD_MOBILE_STACK} ${DASHBOARD_PAGE_ROOT} min-h-0 flex-1`}
+        >
+          <div
+            className={`no-scrollbar min-h-0 flex-1 overscroll-contain ${
+              isHomeRoute
+                ? "flex flex-col overflow-hidden pb-0"
+                : `${DASHBOARD_SCROLL_MAIN} pb-[max(1rem,env(safe-area-inset-bottom))]`
+            }`}
+          >
+            {children}
+          </div>
+        </div>
+      </div>
+      <DashboardNav businessType={businessType} basePath={basePath} />
+      {inSellerApp ? <DashboardPwaInstallBanner /> : null}
+    </div>
+  );
+
   return (
     <AppLocaleProvider initialLocale={storeLocale}>
       <StoreThemeProvider initialTheme={storeTheme}>
         <DashboardUiPreferencesProvider>
-          <div className="dashboard-surface flex h-full min-h-0 w-full flex-col overflow-hidden">
-            <div
-              className={`min-h-0 min-w-0 flex-1 overflow-hidden pb-[calc(76px+max(8px,env(safe-area-inset-bottom)))]`}
+          {inSellerApp && tourEnabled ? (
+            <SellerWelcomeGuide
+              businessId={businessId}
+              businessType={businessType}
+              basePath={basePath}
             >
-              <div
-                className={`${DASHBOARD_MOBILE_STACK} ${DASHBOARD_PAGE_ROOT} min-h-0 flex-1`}
-              >
-                <div
-                  className={`no-scrollbar min-h-0 flex-1 overscroll-contain ${
-                    isHomeRoute
-                      ? "flex flex-col overflow-hidden pb-0"
-                      : `${DASHBOARD_SCROLL_MAIN} pb-[max(1rem,env(safe-area-inset-bottom))]`
-                  }`}
-                >
-                  {children}
-                </div>
-              </div>
-            </div>
-            <DashboardNav businessType={businessType} basePath={basePath} />
-            {inSellerApp ? <DashboardPwaInstallBanner /> : null}
-          </div>
+              {shellBody}
+            </SellerWelcomeGuide>
+          ) : (
+            shellBody
+          )}
         </DashboardUiPreferencesProvider>
       </StoreThemeProvider>
     </AppLocaleProvider>

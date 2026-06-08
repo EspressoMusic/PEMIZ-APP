@@ -14,6 +14,7 @@ export function DashboardActionSheet({
   placement = "bottom",
   showBackButton = false,
   backButtonLabel,
+  elevated = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -24,6 +25,8 @@ export function DashboardActionSheet({
   placement?: "top" | "bottom" | "center";
   showBackButton?: boolean;
   backButtonLabel?: string;
+  /** Above seller live tour overlay while highlighting items inside the sheet. */
+  elevated?: boolean;
 }) {
   const { labels } = useAppLocale();
   const closeLabel = labels.close;
@@ -47,16 +50,19 @@ export function DashboardActionSheet({
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-[80] flex p-4 ${alignClass}`}
+      className={`fixed inset-0 flex p-4 ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel ?? title ?? closeLabel}
     >
       <button
         type="button"
-        className="absolute inset-0 bg-bakery-modal-overlay"
-        onClick={onClose}
+        className={`absolute inset-0 bg-bakery-modal-overlay ${
+          elevated ? "pointer-events-none" : ""
+        }`}
+        onClick={elevated ? undefined : onClose}
         aria-label={closeLabel}
+        tabIndex={elevated ? -1 : undefined}
       />
       <div className="relative z-10 flex w-full max-w-md flex-col gap-2">
         {showBackButton && (

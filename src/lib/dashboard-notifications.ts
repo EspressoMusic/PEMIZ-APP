@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
+import { parseServiceFromNotes } from "@/lib/customer-appointment-history";
 import { buildSellerChatThreads } from "@/lib/seller-chat-threads";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
 import type { DashboardNotification } from "@/lib/dashboard-notifications-client";
+import type { BusinessType } from "@/lib/types";
 
 export type {
   DashboardNotification,
@@ -17,35 +19,58 @@ function sortNotifications(items: DashboardNotification[]) {
 
 export async function fetchDashboardNotifications(
   businessId: string,
-  labels: DashboardLabels
+  labels: DashboardLabels,
+  businessType: BusinessType = "STORE"
 ): Promise<DashboardNotification[]> {
-  const [inquiries, chatRows, orders, products] = await Promise.all([
-    prisma.inquiry.findMany({
-      where: { businessId, sellerReply: null },
-      orderBy: { createdAt: "desc" },
-      take: 30,
-    }),
-    prisma.storeChatMessage.findMany({
-      where: { businessId, channel: "SELLER" },
-      orderBy: { createdAt: "desc" },
-      take: 500,
-    }),
-    prisma.order.findMany({
-      where: { businessId, status: "PENDING" },
-      include: { items: true },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-    }),
-    prisma.product.findMany({
-      where: {
-        businessId,
-        isActive: true,
-        stock: { not: null, lte: LOW_STOCK_THRESHOLD },
-      },
-      orderBy: { name: "asc" },
-      take: 20,
-    }),
-  ]);
+  const isAppointments = businessType === "APPOINTMENTS";
+  const since = new Date(Date.now() - 72 * 60 * 60 * 1000);
+
+  const [inquiries, chatRows, orders, products, appointments] =
+    await Promise.all([
+      prisma.inquiry.findMany({
+        where: { businessId, sellerReply: null },
+        orderBy: { createdAt: "desc" },
+        take: 30,
+      }),
+      prisma.storeChatMessage.findMany({
+        where: { businessId, channel: "SELLER" },
+        orderBy: { createdAt: "desc" },
+        take: 500,
+      }),
+      isAppointments
+        ? Promise.resolve([])
+        : prisma.order.findMany({
+            where: { businessId, status: "PENDING" },
+            include: { items: true },
+            orderBy: { createdAt: "desc" },
+            take: 20,
+          }),
+      isAppointments
+        ? Promise.resolve([])
+        : prisma.product.findMany({
+            where: {
+              businessId,
+              isActive: true,
+              stock: { not: null, lte: LOW_STOCK_THRESHOLD },
+            },
+            orderBy: { name: "asc" },
+            take: 20,
+          }),
+      isAppointments
+        ? prisma.appointment.findMany({
+            where: {
+              businessId,
+              status: { not: "CANCELLED" },
+              sellerHiddenAt: null,
+              createdAt: { gte: since },
+              slot: { startAt: { gte: new Date() } },
+            },
+            include: { slot: true },
+            orderBy: { createdAt: "desc" },
+            take: 20,
+          })
+        : Promise.resolve([]),
+    ]);
 
   const items: DashboardNotification[] = [];
   const threads = buildSellerChatThreads(chatRows);
@@ -110,6 +135,26 @@ export async function fetchDashboardNotifications(
         stock <= 0
           ? labels.notificationStockOut
           : labels.notificationStockLeft.replace("{n}", String(stock)),
+    });
+  }
+
+  for (const appt of appointments) {
+    const service = parseServiceFromNotes(appt.notes);
+    const slotStart = appt.slot.startAt;
+    const timeLabel = slotStart.toLocaleTimeString("he-IL", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    items.push({
+      id: `appointment:${appt.id}`,
+      kind: "new_appointment",
+      title: labels.notificationTypeAppointment,
+      subtitle: appt.customerName,
+      createdAt: appt.createdAt.toISOString(),
+      appointmentId: appt.id,
+      customerName: appt.customerName,
+      customerPhone: appt.customerPhone,
+      message: service ? `${service} · ${timeLabel}` : timeLabel,
     });
   }
 

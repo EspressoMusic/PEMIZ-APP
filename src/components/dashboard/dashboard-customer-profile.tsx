@@ -199,9 +199,18 @@ export function DashboardCustomerProfileModal({
   );
 }
 
+type CustomerOrderSource = {
+  customerName: string;
+  customerPhone: string;
+  createdAt?: string;
+  status: string;
+};
+
 export function useDashboardCustomerProfile(options?: {
   previewOnly?: boolean;
   previewOrders?: DashboardOrderView[];
+  /** Merged with fetched orders — e.g. appointment history for profile stats. */
+  supplementalOrderSources?: CustomerOrderSource[];
   businessSlug?: string;
   businessName?: string;
 }) {
@@ -212,10 +221,7 @@ export function useDashboardCustomerProfile(options?: {
   );
 
   useEffect(() => {
-    if (options?.previewOnly) {
-      setOrders(options.previewOrders ?? []);
-      return;
-    }
+    if (options?.previewOnly) return;
 
     fetch("/api/dashboard/orders")
       .then((r) => r.json())
@@ -242,18 +248,31 @@ export function useDashboardCustomerProfile(options?: {
         );
       })
       .catch(() => {});
-  }, [options?.previewOnly, options?.previewOrders]);
+  }, [options?.previewOnly]);
+
+  const effectiveOrders = options?.previewOnly
+    ? (options.previewOrders ?? [])
+    : orders;
 
   const openCustomer = useCallback(
     (input: CustomerProfileInput) => {
+      const mergedSources: CustomerOrderSource[] = [
+        ...effectiveOrders.map((order) => ({
+          customerName: order.customerName,
+          customerPhone: order.customerPhone,
+          createdAt: order.createdAt,
+          status: order.status,
+        })),
+        ...(options?.supplementalOrderSources ?? []),
+      ];
       const resolved = resolveCustomerProfile(
-        orders,
+        mergedSources,
         input,
         labels.anonymousCustomer
       );
       if (resolved) setProfile(resolved);
     },
-    [orders, labels.anonymousCustomer]
+    [effectiveOrders, options?.supplementalOrderSources, labels.anonymousCustomer]
   );
 
   const closeCustomer = useCallback(() => setProfile(null), []);

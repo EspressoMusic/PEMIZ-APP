@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Input, Alert, Panel, PageTitle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
@@ -14,9 +15,17 @@ export function AuthForm({
   footer?: ReactNode;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const [signupConfetti, setSignupConfetti] = useState(mode === "signup");
+
+  useEffect(() => {
+    if (mode === "login" && searchParams.get("reset") === "1") {
+      setInfo("הסיסמה עודכנה — אפשר להתחבר עם הסיסמה החדשה");
+    }
+  }, [mode, searchParams]);
 
   useEffect(() => {
     if (mode !== "signup") return;
@@ -97,6 +106,11 @@ export function AuthForm({
               <Alert variant="error">{error}</Alert>
             </div>
           )}
+          {info && (
+            <div className="mb-4">
+              <Alert variant="success">{info}</Alert>
+            </div>
+          )}
           <form onSubmit={onSubmit} className="space-y-3">
             {mode === "signup" && (
               <Input name="name" label="שם מלא" required autoComplete="name" />
@@ -120,6 +134,16 @@ export function AuthForm({
               }
               dir="ltr"
             />
+            {mode === "login" ? (
+              <p className="text-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-[14px] font-bold text-bakery-primary underline-offset-2 hover:underline"
+                >
+                  שכחת סיסמה?
+                </Link>
+              </p>
+            ) : null}
             <Button type="submit" className="mt-2 w-full" disabled={loading}>
               {loading ? "רגע..." : mode === "login" ? "התחבר" : "הירשם"}
             </Button>

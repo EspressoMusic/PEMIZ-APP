@@ -246,7 +246,7 @@ export function DashboardStoreBroadcast({
 
   return (
     <div className="space-y-4 pb-2 text-center">
-      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
         <button
           type="button"
           onClick={() => setComposeOpen(true)}
@@ -263,63 +263,63 @@ export function DashboardStoreBroadcast({
             {labels.customerMessage}
           </span>
         </button>
-      </div>
 
-      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
-        <button
-          type="button"
-          onClick={() => setHistoryOpen((value) => !value)}
-          aria-expanded={historyOpen}
-          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-            historyOpen ? "bakery-float-tile--active" : ""
-          }`}
-        >
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <History className="h-6 w-6" strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {labels.broadcastHistory}
-            {history.length > 0 && (
-              <span className="font-semibold text-bakery-muted">
-                {" "}
-                ({history.length})
-              </span>
-            )}
-          </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-              historyOpen ? "rotate-180" : ""
+        <div className="mt-2 border-t border-bakery-border/25 pt-2">
+          <button
+            type="button"
+            onClick={() => setHistoryOpen((value) => !value)}
+            aria-expanded={historyOpen}
+            className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
+              historyOpen ? "bakery-float-tile--active" : ""
             }`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
-        </button>
+          >
+            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+              <History className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {labels.broadcastHistory}
+              {history.length > 0 && (
+                <span className="font-semibold text-bakery-muted">
+                  {" "}
+                  ({history.length})
+                </span>
+              )}
+            </span>
+            <ChevronDown
+              className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
+                historyOpen ? "rotate-180" : ""
+              }`}
+              strokeWidth={2.5}
+              aria-hidden
+            />
+          </button>
 
-        {historyOpen && (
-          <div className="mt-2 text-center">
-            {history.length > 0 ? (
-              <ul className="dashboard-broadcast-history-list">
-                {history.map((item) => (
-                  <BroadcastHistoryItem
-                    key={item.sentAt}
-                    item={item}
-                    expanded={expandedSentAt === item.sentAt}
-                    formatDayDate={formatDayDate}
-                    onToggle={() =>
-                      setExpandedSentAt((current) =>
-                        current === item.sentAt ? null : item.sentAt
-                      )
-                    }
-                  />
-                ))}
-              </ul>
-            ) : (
-              <p className="dashboard-broadcast-history-empty">
-                {labels.broadcastHistoryEmpty}
-              </p>
-            )}
-          </div>
-        )}
+          {historyOpen && (
+            <div className="mt-2 text-center">
+              {history.length > 0 ? (
+                <ul className="dashboard-broadcast-history-list">
+                  {history.map((item) => (
+                    <BroadcastHistoryItem
+                      key={item.sentAt}
+                      item={item}
+                      expanded={expandedSentAt === item.sentAt}
+                      formatDayDate={formatDayDate}
+                      onToggle={() =>
+                        setExpandedSentAt((current) =>
+                          current === item.sentAt ? null : item.sentAt
+                        )
+                      }
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <p className="dashboard-broadcast-history-empty">
+                  {labels.broadcastHistoryEmpty}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {composeOpen && (

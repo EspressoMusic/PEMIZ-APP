@@ -4,14 +4,8 @@ import {
   DASHBOARD_PAGE_ROOT,
   DASHBOARD_SCROLL_MAIN,
 } from "@/components/dashboard/dashboard-panel-frame";
-import {
-  Package,
-  Clock,
-  ClipboardList,
-  Gift,
-  ChevronLeft,
-} from "lucide-react";
-import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-square";
+import { Package, ClipboardList, Gift, ChevronLeft } from "lucide-react";
+import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 
@@ -48,27 +42,38 @@ export function DashboardStoreSettingsHubGrid({
   const { labels } = useAppLocale();
 
   return (
-    <div className="grid grid-cols-2 gap-2">
-      <DashboardActionSquare
-        href={`${basePath}/settings/products`}
-        icon={Package}
-        label={labels.products}
-      />
-      <DashboardActionSquare
+    <ul className="space-y-2 text-start">
+      <DashboardActionRow
         href={`${basePath}/settings/orders`}
         icon={ClipboardList}
-        label={labels.orders}
+        title={labels.orders}
       />
-      <DashboardActionSquare
-        href={`${basePath}/settings/deals`}
+      <DashboardActionRow
+        href={`${basePath}/settings/products`}
+        icon={Package}
+        title={labels.products}
+      />
+      <DashboardActionRow
+        href={`${basePath}/settings/deals-and-limits`}
         icon={Gift}
-        label={labels.deals}
+        title={labels.dealsAndLimits}
       />
-      <DashboardActionSquare
-        href={`${basePath}/settings/limits`}
-        icon={Clock}
-        label={labels.limits}
-      />
+    </ul>
+  );
+}
+
+function DashboardStoreSettingsHubBody({
+  basePath,
+  embedded = false,
+}: {
+  basePath: string;
+  embedded?: boolean;
+}) {
+  const grid = <DashboardStoreSettingsHubGrid basePath={basePath} />;
+  if (embedded) return grid;
+  return (
+    <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+      {grid}
     </div>
   );
 }
@@ -82,7 +87,7 @@ export function DashboardStoreSettingsHubPanel({
   embedded?: boolean;
 }) {
   if (embedded) {
-    return <DashboardStoreSettingsHubGrid basePath={basePath} />;
+    return <DashboardStoreSettingsHubBody basePath={basePath} embedded />;
   }
 
   return (
@@ -90,9 +95,7 @@ export function DashboardStoreSettingsHubPanel({
       <div className="px-1 text-start">
         <DashboardStoreSettingsHubBack basePath={basePath} />
       </div>
-      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
-        <DashboardStoreSettingsHubGrid basePath={basePath} />
-      </div>
+      <DashboardStoreSettingsHubBody basePath={basePath} />
     </>
   );
 }

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { cookies } from "next/headers";
 import "./globals.css";
 import {
-  DASHBOARD_APPEARANCE_BOOT_SCRIPT,
   parseLocaleCookie,
   parseThemeCookie,
 } from "@/lib/dashboard-appearance-boot";
@@ -64,13 +62,6 @@ export default async function RootLayout({
         className="flex min-h-dvh flex-col overflow-x-hidden bg-bakery-scaffold text-bakery-ink"
         suppressHydrationWarning
       >
-        <Script
-          id="linky-dashboard-appearance-boot"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: DASHBOARD_APPEARANCE_BOOT_SCRIPT,
-          }}
-        />
         <PwaRoot>
           <main className="flex-1">{children}</main>
         </PwaRoot>

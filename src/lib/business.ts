@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { SLUG_REGEX, UNAVAILABLE_MESSAGE } from "@/lib/constants";
+import { syncBusinessTrialLock } from "@/lib/business-subscription";
 
 function slugifyBusinessName(name: string): string {
   const base = name
@@ -46,7 +47,7 @@ export async function generateUniqueBusinessSlug(name: string): Promise<string> 
 }
 
 export async function getBusinessBySlug(slug: string) {
-  return prisma.business.findUnique({
+  const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
     include: {
       products: { where: { isActive: true }, orderBy: { name: "asc" } },
@@ -74,6 +75,15 @@ export async function getBusinessBySlug(slug: string) {
       },
     },
   });
+
+  if (business) {
+    const { locked, isActive } = await syncBusinessTrialLock(business);
+    if (locked) {
+      return { ...business, isActive };
+    }
+  }
+
+  return business;
 }
 
 export function isBusinessAcceptingCustomers(

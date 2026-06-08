@@ -1,6 +1,6 @@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
-import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
+import { DEV_PREVIEW_ORDERS, DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
 
 export default function DevSellerActionsPreviewPage() {
   return (
@@ -9,6 +9,7 @@ export default function DevSellerActionsPreviewPage() {
         businessType="STORE"
         basePath="/dev/seller"
         previewOnly
+        previewCustomerOrders={DEV_PREVIEW_ORDERS}
       />
     </DashboardShell>
   );

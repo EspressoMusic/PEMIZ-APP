@@ -22,27 +22,43 @@ export function CustomerStoreTabNav({
   onSelect,
   ordersBadge,
   hideDeals = false,
+  phoneColumn = false,
+  isAppointments = false,
 }: {
   labels: CustomerLabels;
   active: CustomerMainTab;
   onSelect: (tab: CustomerMainTab) => void;
   ordersBadge?: number;
   hideDeals?: boolean;
+  /** בתוך עמודת 360px — לא נמתח על כל רוחב הדסקטופ */
+  phoneColumn?: boolean;
+  /** חנות פגישות — לשונית הזמנות מוצגת כ«תורים». */
+  isAppointments?: boolean;
 }) {
   const tabs = hideDeals ? TABS.filter((tab) => tab.id !== "deals") : TABS;
 
   return (
     <nav
-      className="customer-bottom-nav pointer-events-auto fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/25 bg-bakery-card"
+      className={
+        phoneColumn
+          ? "customer-bottom-nav pointer-events-auto relative z-50 w-full shrink-0 border-t border-bakery-border/25 bg-bakery-card"
+          : "customer-bottom-nav pointer-events-auto fixed bottom-0 left-0 right-0 z-50 border-t border-bakery-border/25 bg-bakery-card"
+      }
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
       aria-label={labels.store}
     >
-      <div className="mx-auto flex w-full max-w-[360px] gap-1 px-2 pt-2">
+      <div
+        className={`flex w-full gap-1 px-2 pt-2 ${phoneColumn ? "" : "mx-auto max-w-[360px]"}`}
+      >
         {tabs.map((tab) => (
           <TabNavButton
             key={tab.id}
             active={active === tab.id}
-            label={tab.label(labels)}
+            label={
+              tab.id === "orders" && isAppointments
+                ? labels.appointments
+                : tab.label(labels)
+            }
             icon={tab.icon}
             badge={tab.id === "orders" ? ordersBadge : undefined}
             onClick={() => onSelect(tab.id)}

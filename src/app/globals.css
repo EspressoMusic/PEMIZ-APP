@@ -897,6 +897,21 @@ html:not([data-store-theme="dark"]) .dashboard-action-square.bakery-float-tile--
   box-shadow: 0 4px 12px rgba(78, 52, 46, 0.1);
 }
 
+/* מלבני הגדרות / חנות / לקוחות — מסגרת כהה עבה ועדינה */
+html:not([data-store-theme="dark"]) .dashboard-action-row {
+  border-width: 3px;
+  border-color: rgba(58, 47, 38, 0.2);
+}
+
+html:not([data-store-theme="dark"]) .dashboard-action-row:hover {
+  border-color: rgba(58, 47, 38, 0.26);
+}
+
+html:not([data-store-theme="dark"]) .dashboard-action-row.bakery-float-tile--active,
+html:not([data-store-theme="dark"]) .dashboard-action-row.dashboard-action-square--active {
+  border-color: rgba(58, 47, 38, 0.3);
+}
+
 html:not([data-store-theme="dark"])
   :is(.dashboard-card.bakery-action-sheet-panel, .dashboard-card.dashboard-modal-card) {
   background: #e6d5b8;
@@ -1548,7 +1563,7 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
 
 /* Seller broadcast alert — always light card, dark CTA (any store theme) */
 .customer-seller-notice-panel {
-  background: linear-gradient(180deg, #faf4e6 0%, #f0e8da 100%);
+  background: #e6d5b8;
   border-color: rgba(201, 184, 154, 0.55);
   color: #3a2f26;
 }

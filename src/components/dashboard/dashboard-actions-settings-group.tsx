@@ -1,19 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, ChevronDown, Settings, Smartphone, TrendingUp, User } from "lucide-react";
+import {
+  Bell,
+  CalendarClock,
+  ChevronDown,
+  Clock,
+  History,
+  Settings,
+  Smartphone,
+  TrendingUp,
+  User,
+} from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
+import {
+  DASHBOARD_ACTION_ROW_CLASS,
+  DashboardActionRow,
+} from "@/components/dashboard/dashboard-action-row";
+import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
+import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
 import { DashboardStoreStylePicker } from "@/components/dashboard/dashboard-store-style-picker";
 
 export function DashboardActionsSettingsGroup({
   basePath = "/dashboard",
   previewOnly = false,
   businessType = "STORE",
+  previewCustomerOrders = [],
 }: {
   basePath?: string;
   previewOnly?: boolean;
   businessType?: string;
+  previewCustomerOrders?: DashboardOrderView[];
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
@@ -25,8 +42,8 @@ export function DashboardActionsSettingsGroup({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="dashboard-settings-items"
-        className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-          open ? "bakery-float-tile--active" : ""
+        className={`${DASHBOARD_ACTION_ROW_CLASS}${
+          open ? " bakery-float-tile--active" : ""
         }`}
       >
         <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
@@ -45,34 +62,57 @@ export function DashboardActionsSettingsGroup({
       </button>
 
       {open && (
-        <ul
-          id="dashboard-settings-items"
-          className="space-y-2 text-start"
-        >
-          {businessType === "STORE" ? (
+        <div id="dashboard-settings-items" className="space-y-2 text-start">
+          <ul className="space-y-2">
+            {businessType === "STORE" ? (
+              <DashboardActionRow
+                href={`${basePath}/stats/sales`}
+                icon={TrendingUp}
+                title={labels.salesAndProfit}
+              />
+            ) : null}
+            <DashboardStoreStylePicker previewOnly={previewOnly} />
             <DashboardActionRow
-              href={`${basePath}/stats/sales`}
-              icon={TrendingUp}
-              title={labels.salesAndProfit}
+              href={`${basePath}/settings/alerts`}
+              icon={Bell}
+              title={labels.alerts}
             />
-          ) : null}
-          <DashboardStoreStylePicker previewOnly={previewOnly} />
-          <DashboardActionRow
-            href={`${basePath}/settings/alerts`}
-            icon={Bell}
-            title={labels.alerts}
-          />
-          <DashboardActionRow
-            href={`${basePath}/settings/app`}
-            icon={Smartphone}
-            title={labels.installApp}
-          />
-          <DashboardActionRow
-            href={`${basePath}/settings/account`}
-            icon={User}
-            title={labels.accountAndLink}
-          />
-        </ul>
+            <DashboardActionRow
+              href={`${basePath}/settings/app`}
+              icon={Smartphone}
+              title={labels.installApp}
+            />
+            <DashboardActionRow
+              href={`${basePath}/settings/account`}
+              icon={User}
+              title={labels.accountAndLink}
+            />
+            {businessType === "APPOINTMENTS" ? (
+              <>
+                <DashboardActionRow
+                  href={`${basePath}/settings/slots`}
+                  icon={CalendarClock}
+                  title={labels.appointmentCalendar}
+                />
+                <DashboardActionRow
+                  href={`${basePath}/settings/limits`}
+                  icon={Clock}
+                  title={labels.limits}
+                />
+                <DashboardActionRow
+                  href={`${basePath}/settings/appointments/history`}
+                  icon={History}
+                  title={labels.appointmentHistory}
+                />
+              </>
+            ) : null}
+            <DashboardStoreCustomers
+              embedded
+              previewOnly={previewOnly}
+              previewOrders={previewCustomerOrders}
+            />
+          </ul>
+        </div>
       )}
     </li>
   );

@@ -25,6 +25,8 @@ model User {
   emailVerified              Boolean   @default(false)
   emailVerificationToken     String?   @unique
   emailVerificationExpiresAt DateTime?
+  passwordResetToken         String?   @unique
+  passwordResetExpiresAt     DateTime?
   role                       String    @default("OWNER")
   createdAt                  DateTime  @default(now())
   business                   Business?
@@ -84,6 +86,8 @@ model Business {
   sellerAlertOnLowStock  Boolean  @default(true)
   isActive               Boolean  @default(false)
   approvedAt      DateTime?
+  subscriptionActiveAt   DateTime?
+  subscriptionPlan       String?
   ownerId         String   @unique
   owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   termsAcceptedAt DateTime?

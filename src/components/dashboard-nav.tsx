@@ -8,14 +8,23 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 export function DashboardNav({
   businessType: _businessType,
   basePath = "/dashboard",
+  homeHref: homeHrefOverride,
+  actionsHref: actionsHrefOverride,
+  activeTab,
 }: {
   businessType?: string;
   /** למשל /dev/seller בתצוגה מקומית */
   basePath?: string;
+  /** דריסה לדף מדריך — שני הכפתורים נשארים באותו URL */
+  homeHref?: string;
+  actionsHref?: string;
+  /** כשהבית והפעולות באותו נתיב (מדריך dev) */
+  activeTab?: "home" | "actions";
 }) {
   const pathname = usePathname();
   const { labels } = useAppLocale();
-  const homeHref = basePath;
+  const homeHref = homeHrefOverride ?? basePath;
+  const actionsHref = actionsHrefOverride ?? `${basePath}/actions`;
   const defaultLinks = [
     { key: "home" as const, segment: "", label: labels.navHome, icon: Home },
     {
@@ -25,18 +34,24 @@ export function DashboardNav({
       icon: Zap,
     },
   ];
-  const actionsHref = `${basePath}/actions`;
 
-  const isHome = pathname === basePath || pathname === `${basePath}/`;
-  const isActions =
-    pathname === actionsHref ||
-    (pathname.startsWith(`${basePath}/`) &&
-      pathname !== basePath &&
-      pathname !== `${basePath}/`);
+  const isHome = activeTab
+    ? activeTab === "home"
+    : pathname === homeHref ||
+      pathname === `${homeHref}/` ||
+      (!homeHrefOverride &&
+        (pathname === basePath || pathname === `${basePath}/`));
+  const isActions = activeTab
+    ? activeTab === "actions"
+    : pathname === actionsHref ||
+      (!actionsHrefOverride &&
+        pathname.startsWith(`${basePath}/`) &&
+        pathname !== basePath &&
+        pathname !== `${basePath}/`);
 
   const links = defaultLinks.map((l) => ({
     ...l,
-    href: l.segment ? `${basePath}${l.segment}` : basePath,
+    href: l.key === "home" ? homeHref : actionsHref,
   }));
 
   return (
