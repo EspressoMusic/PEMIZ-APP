@@ -51,7 +51,8 @@ export function HomeLandingHero({ signupsEnabled }: { signupsEnabled: boolean })
             width={176}
             height={176}
             priority
-            className="home-landing-logo mb-5 h-32 w-32 sm:mb-7 sm:h-40 sm:w-40"
+            unoptimized
+            className="home-landing-logo mb-5 h-32 w-32 object-contain sm:mb-7 sm:h-40 sm:w-40"
           />
           <Panel className="dashboard-card w-full sm:p-8">
           <h1

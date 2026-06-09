@@ -111,7 +111,7 @@ function WelcomeGuideModal({
       <div className="relative z-10 mx-auto w-full max-w-md shrink-0 rounded-[24px] border border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-5 shadow-[var(--shadow-bakery-panel)]">
         <div className="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] shadow-[0_4px_14px_rgba(58,47,38,0.15)]">
           <Image
-            src="/icons/linky-app-logo.png"
+            src="/icons/linky-app-logo.png?v=2"
             alt="Linky"
             width={80}
             height={80}
