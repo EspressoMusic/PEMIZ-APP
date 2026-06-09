@@ -46,7 +46,7 @@ export function HomeLandingHero({ signupsEnabled }: { signupsEnabled: boolean })
       <section className="app-safe-x flex flex-1 flex-col items-center justify-center px-4 py-10 sm:py-16">
         <div className="auth-surface mx-auto flex w-full max-w-[min(100%,28rem)] flex-col items-center sm:max-w-[26rem]">
           <Image
-            src="/icons/linky-app-logo.png"
+            src="/icons/linky-app-logo.png?v=transparent"
             alt="BiziLink"
             width={176}
             height={176}
