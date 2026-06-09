@@ -21,6 +21,7 @@ export function CustomerStoreTabNav({
   active,
   onSelect,
   ordersBadge,
+  dealsBadge,
   hideDeals = false,
   phoneColumn = false,
   isAppointments = false,
@@ -29,6 +30,7 @@ export function CustomerStoreTabNav({
   active: CustomerMainTab;
   onSelect: (tab: CustomerMainTab) => void;
   ordersBadge?: number;
+  dealsBadge?: number;
   hideDeals?: boolean;
   /** בתוך עמודת 360px — לא נמתח על כל רוחב הדסקטופ */
   phoneColumn?: boolean;
@@ -60,7 +62,13 @@ export function CustomerStoreTabNav({
                 : tab.label(labels)
             }
             icon={tab.icon}
-            badge={tab.id === "orders" ? ordersBadge : undefined}
+            badge={
+              tab.id === "orders"
+                ? ordersBadge
+                : tab.id === "deals"
+                  ? dealsBadge
+                  : undefined
+            }
             onClick={() => onSelect(tab.id)}
           />
         ))}

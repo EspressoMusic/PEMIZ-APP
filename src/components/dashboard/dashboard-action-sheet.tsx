@@ -17,6 +17,9 @@ export function DashboardActionSheet({
   elevated = false,
   compact = false,
   warmPanel = false,
+  /** Fit all children without an inner scroll area (tight modals). */
+  fitContent = false,
+  panelClassName,
 }: {
   open: boolean;
   onClose: () => void;
@@ -33,6 +36,8 @@ export function DashboardActionSheet({
   compact?: boolean;
   /** Warm #e6d5b8 panel fill (e.g. add-service modal). */
   warmPanel?: boolean;
+  fitContent?: boolean;
+  panelClassName?: string;
 }) {
   const { labels } = useAppLocale();
   const closeLabel = labels.close;
@@ -67,9 +72,11 @@ export function DashboardActionSheet({
     </button>
   ) : null;
 
-  const panelMaxHeight = compact
-    ? "max-h-[min(calc(100dvh-1.25rem),720px)]"
-    : "max-h-[min(88vh,640px)]";
+  const panelMaxHeight = fitContent
+    ? "max-h-[min(calc(100dvh-1rem),820px)]"
+    : compact
+      ? "max-h-[min(calc(100dvh-1.25rem),720px)]"
+      : "max-h-[min(88vh,640px)]";
 
   return createPortal(
     <div
@@ -94,8 +101,10 @@ export function DashboardActionSheet({
       >
         {showBackButton && !compact ? backControl : null}
         <div
-          className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[32px] ${panelMaxHeight}${
-            warmPanel ? " bakery-action-sheet-panel--warm" : ""
+          className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex w-full flex-col rounded-[32px] ${panelMaxHeight}${
+            fitContent ? "overflow-visible" : "min-h-0 flex-1 overflow-hidden"
+          }${warmPanel ? " bakery-action-sheet-panel--warm" : ""}${
+            panelClassName ? ` ${panelClassName}` : ""
           }`}
         >
           {compact && showBackButton && title ? (
@@ -117,12 +126,14 @@ export function DashboardActionSheet({
             </h2>
           ) : null}
           <div
-            className={`dashboard-action-sheet-body min-h-0 flex-1 overflow-y-auto ${
+            className={`dashboard-action-sheet-body ${
+              fitContent ? "shrink-0 overflow-visible" : "min-h-0 flex-1 overflow-y-auto"
+            } ${
               title
-                ? compact
+                ? compact || fitContent
                   ? "px-3 pb-3 pt-1"
                   : "px-4 pb-4 pt-2"
-                : compact
+                : compact || fitContent
                   ? "p-2.5"
                   : "p-3"
             }`}

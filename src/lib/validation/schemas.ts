@@ -1,5 +1,20 @@
 import { z } from "zod";
+import { isValidPhone, INVALID_PHONE_MESSAGE_HE } from "@/lib/phone";
 import { STORE_THEME_IDS } from "@/lib/store-themes";
+
+export const customerPhoneSchema = z
+  .string()
+  .min(1, INVALID_PHONE_MESSAGE_HE)
+  .max(20)
+  .refine(isValidPhone, { message: INVALID_PHONE_MESSAGE_HE });
+
+export const optionalCustomerPhoneSchema = z
+  .string()
+  .max(20)
+  .optional()
+  .refine((value) => !value?.trim() || isValidPhone(value), {
+    message: INVALID_PHONE_MESSAGE_HE,
+  });
 
 export const emailSchema = z.string().email().max(254);
 
@@ -69,7 +84,7 @@ export const publicInquirySchema = z.object({
     .trim()
     .min(2, "שם: לפחות 2 תווים")
     .max(80, "שם ארוך מדי"),
-  customerPhone: z.string().max(20).optional(),
+  customerPhone: optionalCustomerPhoneSchema,
   customerEmail: z.string().email("אימייל לא תקין").optional().or(z.literal("")),
   subject: z
     .string()
@@ -86,12 +101,12 @@ export const publicInquirySchema = z.object({
 export const publicChatPostSchema = z.object({
   channel: z.literal("SELLER"),
   customerName: z.string().trim().min(2, "שם: לפחות 2 תווים").max(80),
-  customerPhone: z.string().max(20),
+  customerPhone: customerPhoneSchema,
   body: z.string().trim().min(1, "נא לכתוב הודעה").max(2000),
 });
 
 export const sellerPrivateChatReplySchema = z.object({
-  customerPhone: z.string().min(9).max(20),
+  customerPhone: customerPhoneSchema,
   body: z.string().trim().min(1).max(2000),
 });
 

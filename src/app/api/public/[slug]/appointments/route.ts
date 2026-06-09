@@ -2,7 +2,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { slotRemaining } from "@/lib/business";
-import { normalizePhone } from "@/lib/phone";
+import {
+  INVALID_PHONE_MESSAGE_HE,
+  normalizePhone,
+  parseIsraeliMobilePhone,
+} from "@/lib/phone";
+import { customerPhoneSchema } from "@/lib/validation/schemas";
 import {
   canCustomerCancelAppointment,
   parseAppointmentCancelPolicy,
@@ -12,14 +17,14 @@ import { parseServiceFromNotes } from "@/lib/customer-appointment-history";
 const postSchema = z.object({
   slotId: z.string(),
   customerName: z.string().min(2).max(80),
-  customerPhone: z.string().min(9).max(20),
+  customerPhone: customerPhoneSchema,
   serviceName: z.string().min(1).max(120),
   notes: z.string().max(500).optional(),
 });
 
 const patchSchema = z.object({
   appointmentId: z.string(),
-  customerPhone: z.string().min(9).max(20),
+  customerPhone: customerPhoneSchema,
 });
 
 export async function GET(
@@ -27,10 +32,10 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const phone = normalizePhone(
+  const phone = parseIsraeliMobilePhone(
     new URL(req.url).searchParams.get("phone") ?? ""
   );
-  if (phone.length < 9) return jsonError("מספר טלפון לא תקין");
+  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);
 
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
@@ -104,7 +109,7 @@ export async function POST(
       businessId: business.id,
       slotId: slot.id,
       customerName: parsed.data.customerName,
-      customerPhone: normalizePhone(parsed.data.customerPhone),
+      customerPhone: parseIsraeliMobilePhone(parsed.data.customerPhone)!,
       notes: noteParts.join("\n"),
       status: "CONFIRMED",
     },
@@ -144,7 +149,8 @@ export async function PATCH(
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
-  const phone = normalizePhone(parsed.data.customerPhone);
+  const phone = parseIsraeliMobilePhone(parsed.data.customerPhone);
+  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);
   const appt = await prisma.appointment.findFirst({
     where: {
       id: parsed.data.appointmentId,
@@ -153,7 +159,7 @@ export async function PATCH(
     include: { slot: true },
   });
   if (!appt) return jsonError("תור לא נמצא", 404);
-  if (normalizePhone(appt.customerPhone) !== phone) {
+  if (parseIsraeliMobilePhone(appt.customerPhone) !== phone) {
     return jsonError("אין הרשאה לבטל תור זה", 403);
   }
 

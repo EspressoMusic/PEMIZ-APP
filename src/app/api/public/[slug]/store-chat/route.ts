@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-import { normalizePhone } from "@/lib/phone";
+import {
+  INVALID_PHONE_MESSAGE_HE,
+  parseIsraeliMobilePhone,
+} from "@/lib/phone";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { isStoreChatChannel } from "@/lib/store-chat";
 import {
@@ -23,7 +26,9 @@ export async function GET(
     return jsonError("ערוץ לא תקין");
   }
 
-  const viewerPhone = normalizePhone(url.searchParams.get("phone") ?? "");
+  const viewerPhone = parseIsraeliMobilePhone(
+    url.searchParams.get("phone") ?? ""
+  );
 
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
@@ -35,7 +40,7 @@ export async function GET(
     return jsonError("צ'אט לא זמין בחנות זו", 403);
   }
 
-  if (viewerPhone.length < 9) return jsonError("מספר טלפון לא תקין");
+  if (!viewerPhone) return jsonError(INVALID_PHONE_MESSAGE_HE);
 
   const rows = await prisma.storeChatMessage.findMany({
     where: {
@@ -74,8 +79,8 @@ export async function POST(
   const parsed = publicChatPostSchema.safeParse(body);
   if (!parsed.success) return jsonError(zodFirstError(parsed));
 
-  const phone = normalizePhone(parsed.data.customerPhone);
-  if (phone.length < 9) return jsonError("מספר טלפון לא תקין");
+  const phone = parseIsraeliMobilePhone(parsed.data.customerPhone);
+  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);
 
   const row = await prisma.storeChatMessage.create({
     data: {

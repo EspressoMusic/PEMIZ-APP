@@ -9,6 +9,7 @@ import {
 } from "@/components/dashboard/dashboard-action-row";
 import { DashboardAccountSettingsGroup } from "@/components/dashboard/dashboard-account-settings-group";
 import { DashboardCalendarLimitsSettingsGroup } from "@/components/dashboard/dashboard-calendar-limits-settings-group";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 
 export function DashboardActionsSettingsGroup({
   basePath = "/dashboard",
@@ -58,7 +59,7 @@ export function DashboardActionsSettingsGroup({
                 title={labels.salesAndProfit}
               />
             ) : null}
-            {businessType === "APPOINTMENTS" ? (
+            {isScheduleLikeBusinessType(businessType) ? (
               <DashboardCalendarLimitsSettingsGroup basePath={basePath} />
             ) : null}
             <DashboardAccountSettingsGroup

@@ -1105,6 +1105,18 @@ html:not([data-store-theme="dark"]) .bakery-action-sheet-panel--warm {
   border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
 }
 
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-card.bakery-action-sheet-panel.dashboard-order-schedule-sheet,
+    .dashboard-card.bakery-action-sheet-panel.dashboard-appointment-cancel-sheet,
+    .dashboard-card.bakery-action-sheet-panel.dashboard-appointments-calendar-sheet
+  ) {
+  background: #e6d5b8;
+  background-image: none;
+  border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
+  box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
+}
+
 html:not([data-store-theme="dark"]) .dashboard-broadcast-form {
   position: relative;
   background: #e6d5b8;

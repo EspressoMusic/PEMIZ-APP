@@ -17,7 +17,7 @@ import {
   filterDevSellerChat,
   loadDevStoreChat,
 } from "@/lib/customer-chat-storage";
-import { normalizePhone } from "@/lib/phone";
+import { parseIsraeliMobilePhone } from "@/lib/phone";
 import { chatMessagesEqual } from "@/lib/store-chat-query";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 
@@ -126,10 +126,10 @@ export function CustomerContactModal({
       return;
     }
 
-    const phone = normalizePhone(contactPhone);
-    if (phone.length < 9) {
+    const phone = parseIsraeliMobilePhone(contactPhone);
+    if (!phone) {
       setChatMessages([]);
-      setChatError(labels.chatPhoneRequired);
+      setChatError(labels.invalidPhone);
       return;
     }
 
@@ -157,7 +157,7 @@ export function CustomerContactModal({
     contactPhone,
     isDevPreview,
     labels.chatLoadError,
-    labels.chatPhoneRequired,
+    labels.invalidPhone,
   ]);
 
   useVisibilityInterval(() => void loadChat(), 8000, 45_000, open && isSellerChat);
@@ -183,13 +183,13 @@ export function CustomerContactModal({
 
     const name = contactName.trim();
     const phone = contactPhone.trim();
-    const phoneNorm = normalizePhone(phone);
+    const phoneNorm = parseIsraeliMobilePhone(phone);
     if (name.length < 2) {
       setChatError(labels.chatNameRequired);
       return;
     }
-    if (phoneNorm.length < 9) {
-      setChatError(labels.chatPhoneRequired);
+    if (!phoneNorm) {
+      setChatError(labels.invalidPhone);
       return;
     }
 
@@ -406,7 +406,7 @@ export function CustomerContactModal({
 
   function renderChat() {
     const needsIdentity =
-      contactName.trim().length < 2 || normalizePhone(contactPhone).length < 9;
+      contactName.trim().length < 2 || !parseIsraeliMobilePhone(contactPhone);
 
     return (
       <div className="customer-wa-chat">

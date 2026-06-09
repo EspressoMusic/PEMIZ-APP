@@ -1,5 +1,4 @@
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
-import { DashboardAppointmentBookingByDaySettings } from "@/components/dashboard/dashboard-appointment-booking-by-day-settings";
 import { DashboardAppointmentCancelSettings } from "@/components/dashboard/dashboard-appointment-cancel-settings";
 import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/dashboard-appointments-calendar-settings";
 import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
@@ -26,10 +25,6 @@ export default function DevSellerAppointmentsCalendarPage() {
           mode="appointments"
           initialEnabled={false}
           initialScheduleJson={null}
-          previewOnly
-        />
-        <DashboardAppointmentBookingByDaySettings
-          initialBookingByDay={false}
           previewOnly
         />
       </div>

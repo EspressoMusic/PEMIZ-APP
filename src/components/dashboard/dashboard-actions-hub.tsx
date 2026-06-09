@@ -10,6 +10,7 @@ import { DashboardStoreSettingsHubPanel } from "@/components/dashboard/dashboard
 import { DashboardAppointmentsSettingsHubPanel } from "@/components/dashboard/dashboard-appointments-settings-hub";
 import type { DashboardAppointmentView } from "@/components/dashboard/dashboard-appointment-card";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 
 export function DashboardActionsHub({
   businessType,
@@ -28,7 +29,7 @@ export function DashboardActionsHub({
   const [customersOpen, setCustomersOpen] = useState(false);
   const [storeOpen, setStoreOpen] = useState(false);
   const showStoreHub = businessType === "STORE";
-  const showAppointmentsHub = businessType === "APPOINTMENTS";
+  const showAppointmentsHub = isScheduleLikeBusinessType(businessType);
 
   return (
     <div className="flex h-full min-h-0 flex-col px-3 py-3 text-center sm:py-4">

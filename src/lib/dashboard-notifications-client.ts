@@ -5,7 +5,10 @@ import {
   DEV_PREVIEW_ORDERS,
   DEV_PREVIEW_PRODUCTS,
   DEV_PREVIEW_SELLER_THREADS,
+  DEV_RENTAL_PREVIEW_INQUIRIES,
+  DEV_RENTAL_PREVIEW_SELLER_THREADS,
   getDevPreviewAppointmentsSeller,
+  getDevPreviewRentalSeller,
 } from "@/lib/dev-preview-data";
 import { parseServiceFromNotes } from "@/lib/customer-appointment-history";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
@@ -181,6 +184,70 @@ export function buildDevAppointmentsDashboardNotifications(
     const timeLabel = slotStart.toLocaleTimeString("he-IL", {
       hour: "2-digit",
       minute: "2-digit",
+    });
+    items.push({
+      id: `appointment:${appt.id}`,
+      kind: "new_appointment",
+      title: labels.notificationTypeAppointment,
+      subtitle: appt.customerName,
+      createdAt: appt.slot.startAt,
+      appointmentId: appt.id,
+      customerName: appt.customerName,
+      customerPhone: appt.customerPhone,
+      message: service ? `${service} · ${timeLabel}` : timeLabel,
+    });
+  }
+
+  return sortNotifications(items);
+}
+
+export function buildDevRentalDashboardNotifications(
+  labels: DashboardLabels
+): DashboardNotification[] {
+  const items: DashboardNotification[] = [];
+
+  for (const row of DEV_RENTAL_PREVIEW_INQUIRIES.filter((q) => !q.sellerReply)) {
+    items.push({
+      id: `inquiry:${row.id}`,
+      kind: "inquiry",
+      title: labels.notificationTypeInquiry,
+      subtitle: row.customerName,
+      createdAt: row.createdAt,
+      inquiryId: row.id,
+      customerName: row.customerName,
+      customerPhone: row.customerPhone,
+      message: row.message,
+    });
+  }
+
+  for (const thread of DEV_RENTAL_PREVIEW_SELLER_THREADS.filter(
+    (t) => t.unreadFromCustomer
+  )) {
+    items.push({
+      id: `chat:${thread.customerPhone}`,
+      kind: "chat",
+      title: labels.notificationTypeChat,
+      subtitle: thread.customerName,
+      createdAt: thread.lastAt,
+      customerName: thread.customerName,
+      customerPhone: thread.customerPhone,
+      message: thread.lastMessage,
+    });
+  }
+
+  const nowMs = Date.now();
+  for (const appt of getDevPreviewRentalSeller()
+    .filter(
+      (a) =>
+        a.status !== "CANCELLED" &&
+        new Date(a.slot.startAt).getTime() >= nowMs
+    )
+    .slice(0, 4)) {
+    const service = parseServiceFromNotes(appt.notes);
+    const slotStart = new Date(appt.slot.startAt);
+    const timeLabel = slotStart.toLocaleDateString("he-IL", {
+      day: "numeric",
+      month: "numeric",
     });
     items.push({
       id: `appointment:${appt.id}`,

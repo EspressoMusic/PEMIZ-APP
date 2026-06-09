@@ -3,7 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { getEffectivePrice } from "@/lib/product-price";
 import { getDealLines, splitDealPrice } from "@/lib/store-deal";
-import { normalizePhone } from "@/lib/phone";
+import {
+  INVALID_PHONE_MESSAGE_HE,
+  parseIsraeliMobilePhone,
+} from "@/lib/phone";
+import { customerPhoneSchema } from "@/lib/validation/schemas";
 import {
   isWithinOrderSchedule,
   ORDER_SCHEDULE_CLOSED_MESSAGE,
@@ -22,6 +26,10 @@ import {
   notifySellerNewOrder,
 } from "@/lib/seller-push";
 import { storePanelsFromBusiness } from "@/lib/store-panels-visible";
+import {
+  dealRedemptionLimitError,
+  isDealRedemptionLimitReached,
+} from "@/lib/store-deal-redemption";
 
 function afterOrderPlaced(
   businessId: string,
@@ -33,7 +41,7 @@ function afterOrderPlaced(
 }
 const schema = z.object({
   customerName: z.string().min(2).max(80),
-  customerPhone: z.string().min(9).max(20),
+  customerPhone: customerPhoneSchema,
   customerEmail: z.string().email().optional().or(z.literal("")),
   notes: z.string().max(500).optional(),
   dealId: z.string().optional(),
@@ -72,8 +80,8 @@ export async function POST(
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
 
-  const phone = normalizePhone(parsed.data.customerPhone);
-  if (phone.length < 9) return jsonError("מספר טלפון לא תקין");
+  const phone = parseIsraeliMobilePhone(parsed.data.customerPhone);
+  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);
 
   let orderItems: { productId: string; quantity: number; priceAtOrder: number }[] = [];
 
@@ -94,10 +102,13 @@ export async function POST(
     });
     if (!deal) return jsonError("הדיל לא זמין או שפג תוקף");
 
-    const redeemed = await prisma.dealRedemption.findUnique({
-      where: { dealId_customerPhone: { dealId: deal.id, customerPhone: phone } },
+    const redemptionCount = await prisma.dealRedemption.count({
+      where: { dealId: deal.id, customerPhone: phone },
     });
-    if (redeemed) return jsonError("כבר מימשת את הדיל הזה פעם אחת");
+    const maxRedemptions = deal.maxRedemptionsPerCustomer ?? 1;
+    if (isDealRedemptionLimitReached(maxRedemptions, redemptionCount)) {
+      return jsonError(dealRedemptionLimitError(maxRedemptions));
+    }
 
     const dealLines = getDealLines(deal);
     if (dealLines.length < 1) return jsonError("דיל לא תקין");
@@ -127,7 +138,7 @@ export async function POST(
           orderItems,
           {
             customerName: parsed.data.customerName,
-            customerPhone: parsed.data.customerPhone,
+            customerPhone: phone,
             customerEmail: parsed.data.customerEmail || null,
             notes: parsed.data.notes
               ? `${parsed.data.notes} [דיל: ${deal.name}]`
@@ -168,7 +179,7 @@ export async function POST(
     const order = await prisma.$transaction(async (tx) =>
       reserveStockAndCreateOrder(tx, business.id, orderItems, {
         customerName: parsed.data.customerName,
-        customerPhone: parsed.data.customerPhone,
+        customerPhone: phone,
         customerEmail: parsed.data.customerEmail || null,
         notes: parsed.data.notes,
       })

@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-import { normalizePhone } from "@/lib/phone";
+import {
+  INVALID_PHONE_MESSAGE_HE,
+  parseIsraeliMobilePhone,
+} from "@/lib/phone";
 
 export async function GET(
   req: Request,
@@ -8,8 +11,8 @@ export async function GET(
 ) {
   const { slug } = await params;
   const phoneRaw = new URL(req.url).searchParams.get("phone") ?? "";
-  const phone = normalizePhone(phoneRaw);
-  if (phone.length < 9) return jsonError("מספר טלפון לא תקין");
+  const phone = parseIsraeliMobilePhone(phoneRaw);
+  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);
 
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },

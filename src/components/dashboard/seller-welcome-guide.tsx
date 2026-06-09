@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 
 const STORAGE_PREFIX = "linky_seller_guide_done:";
 
@@ -33,7 +34,7 @@ function WelcomeGuideModal({
   onSkip: () => void;
 }) {
   const { labels } = useAppLocale();
-  const isAppointments = businessType === "APPOINTMENTS";
+  const isAppointments = isScheduleLikeBusinessType(businessType);
   const [step, setStep] = useState(0);
   const [mounted, setMounted] = useState(false);
 

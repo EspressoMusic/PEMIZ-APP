@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
-import { DashboardAppointmentBookingByDaySettings } from "@/components/dashboard/dashboard-appointment-booking-by-day-settings";
 import { DashboardAppointmentCancelSettings } from "@/components/dashboard/dashboard-appointment-cancel-settings";
 import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/dashboard-appointments-calendar-settings";
 import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
@@ -26,9 +25,6 @@ export default async function SettingsSlotsPage() {
         mode="appointments"
         initialEnabled={b.orderScheduleEnabled ?? false}
         initialScheduleJson={b.orderSchedule ?? null}
-      />
-      <DashboardAppointmentBookingByDaySettings
-        initialBookingByDay={b.appointmentBookingByDay ?? false}
       />
     </div>
   );

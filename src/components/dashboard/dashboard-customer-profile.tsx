@@ -9,7 +9,7 @@ import {
   resolveCustomerProfile,
   type CustomerProfile,
 } from "@/lib/store-customers";
-import { buildWhatsAppChatUrl, normalizePhone } from "@/lib/phone";
+import { buildWhatsAppChatUrl, isValidPhone } from "@/lib/phone";
 
 export const CUSTOMER_DETAIL_BAR =
   "overflow-hidden rounded-[12px] border-[1.2px] border-bakery-border/35 bg-[#F2EBE0] p-4 shadow-[var(--shadow-bakery-card)]";
@@ -65,7 +65,7 @@ export function DashboardCustomerProfileModal({
   const telHref = `tel:${phoneDigits}`;
   const smsHref = `sms:${phoneDigits}`;
   const whatsappHref = buildWhatsAppChatUrl(profile.customerPhone);
-  const phoneValid = normalizePhone(profile.customerPhone).length >= 9;
+  const phoneValid = isValidPhone(profile.customerPhone);
 
   if (typeof document === "undefined") return null;
 

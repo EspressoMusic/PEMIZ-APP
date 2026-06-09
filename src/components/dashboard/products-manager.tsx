@@ -15,7 +15,8 @@ import {
   Toggle,
 } from "@/components/ui";
 import { ProductImageField } from "@/components/product-image-field";
-import { uploadProductImageFile } from "@/lib/product-image";
+import { ImageCropModal } from "@/components/image-crop-modal";
+import { useCatalogImageUpload } from "@/components/use-catalog-image-upload";
 import { ProductSuccessModal } from "@/components/product-success-modal";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
@@ -188,64 +189,96 @@ const ProductCard = memo(function ProductCard({
   showDuration: boolean;
   previewOnly?: boolean;
 }) {
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const [imageUploading, setImageUploading] = useState(false);
-
-  async function pickProductImage(file: File | null) {
-    if (!file || !onImageUpload || previewOnly) return;
-    setImageUploading(true);
-    try {
-      const url = await uploadProductImageFile(file, locale);
-      await onImageUpload(url);
-    } catch (e) {
-      alert(e instanceof Error ? e.message : labels.productImageReadError);
-    } finally {
-      setImageUploading(false);
-      if (imageInputRef.current) imageInputRef.current.value = "";
-    }
-  }
+  const upload = useCatalogImageUpload({
+    locale,
+    labels,
+    onError: (msg) => alert(msg),
+    onUploaded: (url) => void onImageUpload?.(url),
+  });
 
   return (
     <SquareCard className="bakery-float-tile overflow-hidden rounded-[14px] p-0 transition">
       {p.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={p.imageUrl}
-          alt=""
-          className="h-[5.75rem] w-full object-cover"
-          loading="lazy"
-          decoding="async"
-        />
+        <div className="relative h-[5.75rem] w-full">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={p.imageUrl}
+            alt=""
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+          {onImageUpload && !previewOnly ? (
+            <div className="absolute bottom-1 left-1 flex gap-1">
+              <button
+                type="button"
+                onClick={() => upload.openCropFromUrl(p.imageUrl!)}
+                disabled={upload.uploading}
+                className="rounded-full bg-bakery-ink/75 px-2 py-0.5 text-[10px] font-bold text-white"
+              >
+                {labels.productImageEdit}
+              </button>
+              <button
+                type="button"
+                onClick={() => !upload.uploading && upload.openFilePicker()}
+                disabled={upload.uploading}
+                className="rounded-full bg-bakery-ink/75 px-2 py-0.5 text-[10px] font-bold text-white"
+              >
+                {labels.productImageReplace}
+              </button>
+            </div>
+          ) : null}
+        </div>
       ) : onImageUpload ? (
         <>
           <button
             type="button"
-            onClick={() => !imageUploading && imageInputRef.current?.click()}
-            disabled={imageUploading}
+            onClick={() => !upload.uploading && upload.openFilePicker()}
+            disabled={upload.uploading}
             className="flex h-[5.75rem] w-full flex-col items-center justify-center gap-0.5 bg-bakery-card text-bakery-ink transition hover:bg-bakery-cream-light active:scale-[0.98]"
           >
             <span className="text-2xl leading-none" aria-hidden>
-              {imageUploading ? "…" : "🧁"}
+              {upload.uploading ? "…" : "🧁"}
             </span>
             <span className="px-1 text-[10px] font-bold leading-tight">
-              {imageUploading
+              {upload.uploading
                 ? labels.productImageUploading
                 : labels.productImageUpload}
             </span>
           </button>
-          <input
-            ref={imageInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={(e) => void pickProductImage(e.target.files?.[0] ?? null)}
-          />
         </>
       ) : (
         <div className="flex h-[5.75rem] items-center justify-center bg-bakery-card text-3xl">
           🧁
         </div>
       )}
+      {onImageUpload && !previewOnly ? (
+        <input
+          ref={upload.inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            if (file) upload.openCropFromFile(file);
+          }}
+        />
+      ) : null}
+      {upload.cropSrc ? (
+        <ImageCropModal
+          open
+          imageSrc={upload.cropSrc}
+          title={labels.productImageCropTitle}
+          hint={labels.productImageCropHint}
+          cancelLabel={labels.cancel}
+          confirmLabel={labels.productImageCropConfirm}
+          processingLabel={labels.productImageUploading}
+          errorLabel={labels.productImageReadError}
+          zoomLabel={labels.productImageCropZoom}
+          onClose={upload.closeCrop}
+          onConfirm={upload.confirmCrop}
+        />
+      ) : null}
       <div className="flex flex-col gap-1.5 px-2 py-2 text-center">
         <p className="line-clamp-2 text-[12px] font-extrabold leading-snug text-bakery-ink">
           {p.name}
@@ -365,7 +398,7 @@ export function ProductsManager({
 
     if (!name || Number.isNaN(price)) return;
 
-    if (!isServices && imageUploading) {
+    if (imageUploading) {
       setError(labels.productImageUploading);
       return;
     }
@@ -431,16 +464,14 @@ export function ProductsManager({
           stock,
           serviceDurationMinutes,
           description: String(fd.get("description") ?? "") || null,
-          imageUrl: isServices ? null : imageData,
+          imageUrl: imageData,
           isActive: true,
         },
         ...prev,
       ]);
       formRef.current?.reset();
-      if (!isServices) {
-        setImagePreview(null);
-        setImageData(null);
-      }
+      setImagePreview(null);
+      setImageData(null);
       setDiscountOpen(false);
       setStockOpen(false);
       setAddFormOpen(false);
@@ -463,7 +494,7 @@ export function ProductsManager({
             : null,
         stock,
         serviceDurationMinutes: serviceDurationMinutes ?? undefined,
-        imageUrl: isServices ? undefined : imageData || undefined,
+        imageUrl: imageData || undefined,
       }),
     });
     setAdding(false);
@@ -477,10 +508,8 @@ export function ProductsManager({
       setProducts((prev) => [data.product as Product, ...prev]);
     }
     formRef.current?.reset();
-    if (!isServices) {
-      setImagePreview(null);
-      setImageData(null);
-    }
+    setImagePreview(null);
+    setImageData(null);
     setDiscountOpen(false);
     setStockOpen(false);
     setAddFormOpen(false);
@@ -703,18 +732,16 @@ export function ProductsManager({
               dir="ltr"
             />
           ) : null}
-          {!isServices ? (
-            <ProductImageField
-              compact
-              preview={imagePreview}
-              onChange={(url) => {
-                setImagePreview(url);
-                setImageData(url);
-              }}
-              onError={setError}
-              onUploadingChange={setImageUploading}
-            />
-          ) : null}
+          <ProductImageField
+            compact
+            preview={imagePreview}
+            onChange={(url) => {
+              setImagePreview(url);
+              setImageData(url);
+            }}
+            onError={setError}
+            onUploadingChange={setImageUploading}
+          />
           <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2 text-start">
             <span className="text-[13px] font-bold text-bakery-ink">
               {labels.productDiscount}
@@ -821,9 +848,7 @@ export function ProductsManager({
                 onHide={() => void setProductActive(p.id, p.isActive)}
                 onDelete={() => void deleteProduct(p.id, p.name)}
                 onStockSave={(stock) => updateProductStock(p.id, stock)}
-                onImageUpload={
-                  isServices ? undefined : (url) => updateProductImage(p.id, url)
-                }
+                onImageUpload={(url) => updateProductImage(p.id, url)}
                 showStock={!isServices}
                 showDuration={isServices}
               />

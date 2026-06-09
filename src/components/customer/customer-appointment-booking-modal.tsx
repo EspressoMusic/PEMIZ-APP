@@ -9,6 +9,7 @@ import {
 } from "@/components/customer/customer-center-modal";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
+import { isValidPhone } from "@/lib/phone";
 import type { CustomerLabels } from "./customer-labels";
 import type { AppointmentSlot } from "./customer-appointment-calendar";
 
@@ -120,7 +121,7 @@ export function CustomerAppointmentBookingModal({
     if (!slotId || serviceName.length < 1) return;
     const trimmedName = name.trim();
     const trimmedPhone = phone.trim();
-    if (trimmedName.length < 2 || trimmedPhone.length < 9) return;
+    if (trimmedName.length < 2 || !isValidPhone(trimmedPhone)) return;
     void onSubmit({
       slotId,
       name: trimmedName,
@@ -280,7 +281,7 @@ export function CustomerAppointmentBookingModal({
               !slotId ||
               (services.length === 0 && customService.trim().length < 1) ||
               name.trim().length < 2 ||
-              phone.trim().length < 9
+              !isValidPhone(phone.trim())
             }
           >
             {submitting ? labels.bookingSubmitting : labels.confirmBooking}

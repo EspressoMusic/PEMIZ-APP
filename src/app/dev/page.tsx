@@ -38,6 +38,12 @@ export default function DevPreviewPage() {
           דשבורד מוכר — חנות פגישות
         </Link>
         <Link
+          href="/dev/seller-rental"
+          className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
+        >
+          דשבורד מוכר — חנות השכרה
+        </Link>
+        <Link
           href="/dev/seller"
           className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
         >
@@ -58,7 +64,7 @@ export default function DevPreviewPage() {
           </Link>
         </div>
         <p className="text-xs text-bakery-muted">
-          חנות פגישות וחנות מוצרים נפרדות — הגדרות שונות לכל סוג. /login דורש Supabase ב-.env.local
+          שלושה סוגי חנות נפרדים (מוצרים, פגישות, השכרה). /login דורש Supabase ב-.env.local
         </p>
       </section>
 
@@ -75,6 +81,12 @@ export default function DevPreviewPage() {
           className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
         >
           פתח עסק תורים (תצוגה)
+        </Link>
+        <Link
+          href="/dev/customer-rental"
+          className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
+        >
+          פתח עסק השכרה (תצוגה)
         </Link>
         {storeHref && (
           <Link

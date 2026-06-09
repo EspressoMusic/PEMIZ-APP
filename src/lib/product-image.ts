@@ -102,25 +102,18 @@ export async function compressProductImageFile(
   return blob ?? file;
 }
 
-export async function uploadProductImageFile(
-  file: File,
-  locale: AppLocale = "he"
+async function postProductImageForm(
+  file: Blob,
+  fileName: string,
+  locale: AppLocale
 ): Promise<string> {
   const err = IMAGE_ERRORS[locale];
-  if (!isAllowedImageMime(file.type)) {
-    throw new Error(err.type);
-  }
   if (file.size > MAX_BYTES) {
     throw new Error(err.size);
   }
 
-  const compressed = await compressProductImageFile(file);
-  if (compressed.size > MAX_BYTES) {
-    throw new Error(err.size);
-  }
-
   const form = new FormData();
-  form.append("file", compressed, file.name);
+  form.append("file", file, fileName);
 
   const res = await fetch("/api/dashboard/products/image", {
     method: "POST",
@@ -134,4 +127,34 @@ export async function uploadProductImageFile(
     throw new Error(data.error ?? err.read);
   }
   return data.url;
+}
+
+export async function uploadProductImageBlob(
+  blob: Blob,
+  fileName: string,
+  locale: AppLocale = "he"
+): Promise<string> {
+  const err = IMAGE_ERRORS[locale];
+  const mime = blob.type === "image/png" ? "image/png" : "image/jpeg";
+  if (!isAllowedImageMime(mime)) {
+    throw new Error(err.type);
+  }
+  const normalizedName = fileName.replace(/\.[^.]+$/, "") + ".jpg";
+  return postProductImageForm(blob, normalizedName, locale);
+}
+
+export async function uploadProductImageFile(
+  file: File,
+  locale: AppLocale = "he"
+): Promise<string> {
+  const err = IMAGE_ERRORS[locale];
+  if (!isAllowedImageMime(file.type)) {
+    throw new Error(err.type);
+  }
+  if (file.size > MAX_BYTES) {
+    throw new Error(err.size);
+  }
+
+  const compressed = await compressProductImageFile(file);
+  return postProductImageForm(compressed, file.name, locale);
 }

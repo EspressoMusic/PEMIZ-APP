@@ -17,6 +17,7 @@ const schema = z.object({
   items: z.array(dealItemSchema).min(1).max(MAX_DEAL_PRODUCT_LINES),
   dealPrice: z.number().positive(),
   validUntil: z.string().datetime(),
+  maxRedemptionsPerCustomer: z.number().int().min(0).max(99).optional(),
 });
 
 const dealInclude = {
@@ -87,6 +88,7 @@ export async function POST(req: Request) {
       imageUrl: imageUrl ?? null,
       dealPrice: dealData.dealPrice,
       validUntil: new Date(dealData.validUntil),
+      maxRedemptionsPerCustomer: dealData.maxRedemptionsPerCustomer ?? 1,
       items: {
         create: dealData.items.map((item, sortOrder) => ({
           productId: item.productId,

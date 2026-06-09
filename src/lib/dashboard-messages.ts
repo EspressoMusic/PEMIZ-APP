@@ -412,6 +412,12 @@ export type DashboardLabels = {
   productImageTypeError: string;
   productImageSizeError: string;
   productImageReadError: string;
+  productImageCropTitle: string;
+  productImageCropHint: string;
+  productImageCropConfirm: string;
+  productImageCropZoom: string;
+  productImageEdit: string;
+  productImageReplace: string;
   dealName: string;
   dealPrice: string;
   dealDate: string;
@@ -425,6 +431,12 @@ export type DashboardLabels = {
   dealPublishedSuccess: string;
   dealNoActiveProducts: string;
   dealImage: string;
+  dealRedemptionLimit: string;
+  dealRedemptionOnce: string;
+  dealRedemptionUnlimited: string;
+  dealRedemptionLimited: string;
+  dealRedemptionTimes: string;
+  dealRedemptionCountLabel: string;
   periodOneDay: string;
   periodOneWeek: string;
   periodTwoWeeks: string;
@@ -871,12 +883,18 @@ const HE: DashboardLabels = {
   productStockRequired: "יש למלא מלאי",
   productImageUpload: "העלאת תמונה",
   productImageUploading: "מעלה…",
-  productImageDropHint: "לחץ או גרור לכאן",
+  productImageDropHint: "לחץ או גרור — ואז גזור לריבוע",
   productImagePreviewAlt: "תצוגה מקדימה",
   productImageRemove: "הסר תמונה",
   productImageTypeError: "יש להעלות תמונה בפורמט JPG, PNG, WebP או GIF",
   productImageSizeError: "גודל התמונה המקסימלי הוא 2MB",
   productImageReadError: "שגיאה בקריאת התמונה",
+  productImageCropTitle: "גזירת תמונה",
+  productImageCropHint: "גרור וזום כדי להתאים לריבוע בחנות",
+  productImageCropConfirm: "שמירה",
+  productImageCropZoom: "זום",
+  productImageEdit: "עריכת תמונה",
+  productImageReplace: "החלפה",
   dealName: "שם הדיל",
   dealPrice: "מחיר דיל",
   dealDate: "תאריך",
@@ -890,6 +908,12 @@ const HE: DashboardLabels = {
   dealPublishedSuccess: "הדיל פורסם בהצלחה!",
   dealNoActiveProducts: "אין מוצרים פעילים — הוסף מוצרים בדף המוצרים לפני יצירת דיל",
   dealImage: "תמונת דיל",
+  dealRedemptionLimit: "מימוש ללקוח",
+  dealRedemptionOnce: "פעם אחת",
+  dealRedemptionUnlimited: "ללא הגבלה",
+  dealRedemptionLimited: "פעמים",
+  dealRedemptionTimes: "כמה פעמים לקוח יכול להשתמש בדיל?",
+  dealRedemptionCountLabel: "מספר שימושים ללקוח",
   periodOneDay: "יום",
   periodOneWeek: "שבוע",
   periodTwoWeeks: "שבועיים",
@@ -1413,12 +1437,18 @@ const EN: DashboardLabels = {
   productStockRequired: "Enter stock quantity",
   productImageUpload: "Upload image",
   productImageUploading: "Uploading…",
-  productImageDropHint: "Click or drag here",
+  productImageDropHint: "Click or drag — then crop to a square",
   productImagePreviewAlt: "Preview",
   productImageRemove: "Remove image",
   productImageTypeError: "Use JPG, PNG, WebP, or GIF",
   productImageSizeError: "Maximum image size is 2MB",
   productImageReadError: "Could not read the image",
+  productImageCropTitle: "Crop image",
+  productImageCropHint: "Drag and zoom to fit the store square",
+  productImageCropConfirm: "Save",
+  productImageCropZoom: "Zoom",
+  productImageEdit: "Edit image",
+  productImageReplace: "Replace",
   dealName: "Deal name",
   dealPrice: "Deal price",
   dealDate: "Date",
@@ -1432,6 +1462,12 @@ const EN: DashboardLabels = {
   dealPublishedSuccess: "Deal published successfully!",
   dealNoActiveProducts: "No active products — add products before creating a deal",
   dealImage: "Deal image",
+  dealRedemptionLimit: "Per customer",
+  dealRedemptionOnce: "Once",
+  dealRedemptionUnlimited: "Unlimited",
+  dealRedemptionLimited: "times",
+  dealRedemptionTimes: "How many times can a customer use this deal?",
+  dealRedemptionCountLabel: "Uses per customer",
   periodOneDay: "1 day",
   periodOneWeek: "1 week",
   periodTwoWeeks: "2 weeks",

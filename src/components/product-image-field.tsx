@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { ImagePlus, X } from "lucide-react";
+import { useState } from "react";
+import { Crop, ImagePlus, X } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import { uploadProductImageFile } from "@/lib/product-image";
+import { ImageCropModal } from "@/components/image-crop-modal";
+import { useCatalogImageUpload } from "@/components/use-catalog-image-upload";
 
 export function ProductImageField({
   preview,
@@ -19,23 +20,18 @@ export function ProductImageField({
   compact?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
-  const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const upload = useCatalogImageUpload({
+    locale,
+    labels,
+    onError,
+    onUploaded: onChange,
+    onUploadingChange,
+  });
 
-  async function handleFile(file: File | null) {
+  function handleFile(file: File | null) {
     if (!file) return;
-    setUploading(true);
-    onUploadingChange?.(true);
-    try {
-      const url = await uploadProductImageFile(file, locale);
-      onChange(url);
-    } catch (e) {
-      onError(e instanceof Error ? e.message : labels.productImageReadError);
-    } finally {
-      setUploading(false);
-      onUploadingChange?.(false);
-    }
+    upload.openCropFromFile(file);
   }
 
   return (
@@ -46,25 +42,44 @@ export function ProductImageField({
           <img
             src={preview}
             alt={labels.productImagePreviewAlt}
-            className={`w-full object-cover ${compact ? "aspect-square max-h-[100px]" : "aspect-[4/3]"}`}
+            className={`w-full object-cover ${compact ? "aspect-square max-h-[100px]" : "aspect-square"}`}
           />
-          <button
-            type="button"
-            onClick={() => {
-              onChange(null);
-              if (inputRef.current) inputRef.current.value = "";
-            }}
-            className="absolute left-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-bakery-ink/70 text-white"
-            aria-label={labels.productImageRemove}
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="absolute left-2 top-2 flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => upload.openCropFromUrl(preview)}
+              disabled={upload.uploading}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-bakery-ink/70 text-white"
+              aria-label={labels.productImageEdit}
+            >
+              <Crop className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => !upload.uploading && upload.openFilePicker()}
+              disabled={upload.uploading}
+              className="flex h-9 items-center rounded-full bg-bakery-ink/70 px-3 text-[12px] font-bold text-white"
+            >
+              {labels.productImageReplace}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onChange(null);
+                if (upload.inputRef.current) upload.inputRef.current.value = "";
+              }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-bakery-ink/70 text-white"
+              aria-label={labels.productImageRemove}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       ) : (
         <button
           type="button"
-          onClick={() => !uploading && inputRef.current?.click()}
-          disabled={uploading}
+          onClick={() => !upload.uploading && upload.openFilePicker()}
+          disabled={upload.uploading}
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -88,7 +103,7 @@ export function ProductImageField({
             strokeWidth={1.5}
           />
           <span className={`font-bold text-bakery-ink ${compact ? "text-[12px]" : "text-[14px]"}`}>
-            {uploading ? labels.productImageUploading : labels.productImageUpload}
+            {upload.uploading ? labels.productImageUploading : labels.productImageUpload}
           </span>
           {!compact && (
             <span className="text-[12px] text-bakery-muted">
@@ -99,12 +114,28 @@ export function ProductImageField({
       )}
 
       <input
-        ref={inputRef}
+        ref={upload.inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
         className="hidden"
-        onChange={(e) => void handleFile(e.target.files?.[0] ?? null)}
+        onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
       />
+
+      {upload.cropSrc ? (
+        <ImageCropModal
+          open
+          imageSrc={upload.cropSrc}
+          title={labels.productImageCropTitle}
+          hint={labels.productImageCropHint}
+          cancelLabel={labels.cancel}
+          confirmLabel={labels.productImageCropConfirm}
+          processingLabel={labels.productImageUploading}
+          errorLabel={labels.productImageReadError}
+          zoomLabel={labels.productImageCropZoom}
+          onClose={upload.closeCrop}
+          onConfirm={upload.confirmCrop}
+        />
+      ) : null}
     </div>
   );
 }

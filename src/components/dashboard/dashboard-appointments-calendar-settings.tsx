@@ -1,16 +1,33 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
-import { Button, Alert, Input } from "@/components/ui";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
+import { Button, Alert, Input } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   clampAppointmentCalendarConfig,
   DEFAULT_APPOINTMENT_CALENDAR,
   type AppointmentCalendarConfig,
 } from "@/lib/appointment-slot-generator";
+
+function formatCalendarSummary(
+  config: AppointmentCalendarConfig,
+  locale: "he" | "en"
+): string {
+  const range = `${config.bookingStart}–${config.bookingEnd}`;
+  if (locale === "he") {
+    if (config.bookingByDay) {
+      return `${range} · הזמנה לפי ימים`;
+    }
+    return `${range} · רווח ${config.gapMinutes} דק׳ · משך ${config.durationMinutes} דק׳`;
+  }
+  if (config.bookingByDay) {
+    return `${range} · book by day`;
+  }
+  return `${range} · ${config.gapMinutes} min gap · ${config.durationMinutes} min slots`;
+}
 
 export function DashboardAppointmentsCalendarSettings({
   previewOnly = false,
@@ -29,10 +46,11 @@ export function DashboardAppointmentsCalendarSettings({
   const [bookingByDay, setBookingByDay] = useState(
     initialConfig.bookingByDay ?? false
   );
-  const [open, setOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const title = labels.appointmentBookingHours;
 
   const config = useMemo(
     () =>
@@ -45,6 +63,8 @@ export function DashboardAppointmentsCalendarSettings({
       }),
     [gapMinutes, durationMinutes, bookingStart, bookingEnd, bookingByDay]
   );
+
+  const summary = formatCalendarSummary(config, locale);
 
   const load = useCallback(async () => {
     if (previewOnly) return;
@@ -84,6 +104,7 @@ export function DashboardAppointmentsCalendarSettings({
     if (previewOnly) {
       setMessage(labels.previewSavedHint);
       setTimeout(() => setMessage(""), 3500);
+      setSheetOpen(false);
       return;
     }
 
@@ -108,6 +129,7 @@ export function DashboardAppointmentsCalendarSettings({
       }
       setMessage(labels.appointmentCalendarSaved);
       setTimeout(() => setMessage(""), 3000);
+      setSheetOpen(false);
     } catch {
       setError(labels.scheduleServerError);
     } finally {
@@ -116,101 +138,109 @@ export function DashboardAppointmentsCalendarSettings({
   }
 
   return (
-    <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3 text-center">
-      <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          className={`${DASHBOARD_ACTION_ROW_CLASS}${
-            open ? " bakery-float-tile--active" : ""
-          }`}
-        >
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {labels.appointmentBookingHours}
-          </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-              open ? "rotate-180" : ""
+    <>
+      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3 text-center">
+        <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            aria-expanded={sheetOpen}
+            className={`${DASHBOARD_ACTION_ROW_CLASS} justify-center${
+              sheetOpen ? " bakery-float-tile--active" : ""
             }`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
-        </button>
+          >
+            <span className="text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {title}
+            </span>
+          </button>
 
-        {open ? (
-          <div className="flex w-full flex-col items-center gap-4">
-            <div className="w-full space-y-3 text-start">
-              <div className="space-y-3">
-                <Input
-                  label={labels.appointmentBookingFrom}
-                  type="time"
-                  value={bookingStart}
-                  onChange={(e) => setBookingStart(e.target.value)}
-                  dir="ltr"
-                />
-                <Input
-                  label={labels.appointmentBookingUntil}
-                  type="time"
-                  value={bookingEnd}
-                  onChange={(e) => setBookingEnd(e.target.value)}
-                  dir="ltr"
-                />
-              </div>
+          <DashboardHelpText>
+            <p className="text-[13px] font-semibold text-bakery-muted">{summary}</p>
+          </DashboardHelpText>
+        </div>
+      </div>
 
+      <DashboardActionSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title={title}
+        ariaLabel={title}
+        placement="center"
+        showBackButton
+        compact
+        panelClassName="dashboard-appointments-calendar-sheet"
+      >
+        <div className="flex w-full flex-col items-center gap-4">
+          <div className="w-full space-y-3 text-start">
+            <div className="space-y-3">
               <Input
-                label={labels.appointmentGapMinutes}
-                type="number"
-                min={0}
-                max={180}
-                value={gapMinutes}
-                onChange={(e) => setGapMinutes(Number(e.target.value) || 0)}
+                label={labels.appointmentBookingFrom}
+                type="time"
+                value={bookingStart}
+                onChange={(e) => setBookingStart(e.target.value)}
                 dir="ltr"
               />
-
-              {!bookingByDay ? (
-                <Input
-                  label={labels.appointmentDurationMinutes}
-                  type="number"
-                  min={15}
-                  max={240}
-                  step={15}
-                  value={durationMinutes}
-                  onChange={(e) =>
-                    setDurationMinutes(Number(e.target.value) || 60)
-                  }
-                  dir="ltr"
-                />
-              ) : null}
+              <Input
+                label={labels.appointmentBookingUntil}
+                type="time"
+                value={bookingEnd}
+                onChange={(e) => setBookingEnd(e.target.value)}
+                dir="ltr"
+              />
             </div>
 
-            <DashboardHelpText>
-              <p className="text-[12px] font-semibold text-bakery-muted">
-                {locale === "he"
-                  ? "לאחר שמירה היומן מתעדכן אוטומטית לפי ימי העבודה, השעות והרווח."
-                  : "After saving, the calendar updates automatically from working days, hours, and gap."}
-              </p>
-            </DashboardHelpText>
+            <Input
+              label={labels.appointmentGapMinutes}
+              type="number"
+              min={0}
+              max={180}
+              value={gapMinutes}
+              onChange={(e) => setGapMinutes(Number(e.target.value) || 0)}
+              dir="ltr"
+            />
 
-            {error && <Alert variant="error">{error}</Alert>}
-            {message && (
-              <p className="w-full rounded-full border border-bakery-border/45 bg-bakery-input px-4 py-2.5 text-center text-[13px] font-bold text-bakery-ink">
-                {message}
-              </p>
-            )}
-
-            <Button
-              type="button"
-              variant="primary"
-              className="w-full min-h-[44px] rounded-full font-extrabold"
-              disabled={saving}
-              onClick={() => void save()}
-            >
-              {saving ? labels.saving : labels.saveAppointmentCalendar}
-            </Button>
+            {!bookingByDay ? (
+              <Input
+                label={labels.appointmentDurationMinutes}
+                type="number"
+                min={15}
+                max={240}
+                step={15}
+                value={durationMinutes}
+                onChange={(e) =>
+                  setDurationMinutes(Number(e.target.value) || 60)
+                }
+                dir="ltr"
+              />
+            ) : null}
           </div>
-        ) : null}
-      </div>
-    </div>
+
+          <DashboardHelpText>
+            <p className="text-[12px] font-semibold text-bakery-muted">
+              {locale === "he"
+                ? "לאחר שמירה היומן מתעדכן אוטומטית לפי ימי העבודה, השעות והרווח."
+                : "After saving, the calendar updates automatically from working days, hours, and gap."}
+            </p>
+          </DashboardHelpText>
+
+          {error ? <Alert variant="error">{error}</Alert> : null}
+          {message ? (
+            <p className="w-full rounded-full border border-bakery-border/45 bg-bakery-input px-4 py-2.5 text-center text-[13px] font-bold text-bakery-ink">
+              {message}
+            </p>
+          ) : null}
+
+          <Button
+            type="button"
+            variant="primary"
+            className="w-full min-h-[44px] rounded-full font-extrabold"
+            disabled={saving}
+            onClick={() => void save()}
+          >
+            {saving ? labels.saving : labels.saveAppointmentCalendar}
+          </Button>
+        </div>
+      </DashboardActionSheet>
+    </>
   );
 }

@@ -30,12 +30,40 @@ type Deal = {
   dealPrice: number;
   validUntil: string;
   isActive: boolean;
+  maxRedemptionsPerCustomer?: number;
   products: Product[];
   items?: { productId: string; quantity: number; product: Product }[];
   _count?: { redemptions: number };
 };
 
 type ValidityMode = "1d" | "3d" | "7d" | "14d" | "custom";
+
+function maxRedemptionsFromForm(unlimited: boolean, count: number): number {
+  if (unlimited) return 0;
+  return Math.max(1, Math.min(99, count));
+}
+
+function redemptionFormFromMax(max: number | undefined): {
+  unlimited: boolean;
+  count: number;
+} {
+  const value = max ?? 1;
+  if (value === 0) return { unlimited: true, count: 1 };
+  return { unlimited: false, count: value };
+}
+
+function redemptionSummaryLabel(
+  max: number,
+  labels: {
+    dealRedemptionOnce: string;
+    dealRedemptionUnlimited: string;
+    dealRedemptionLimited: string;
+  }
+) {
+  if (max === 0) return labels.dealRedemptionUnlimited;
+  if (max === 1) return labels.dealRedemptionOnce;
+  return `${max} ${labels.dealRedemptionLimited}`;
+}
 
 function resolveValidUntil(
   mode: ValidityMode,
@@ -107,10 +135,14 @@ export function DealsManager() {
     dealPrice: number;
     validUntil: string;
     validityLabel: string;
+    maxRedemptionsPerCustomer: number;
+    redemptionLabel: string;
   } | null>(null);
   const [dealSuccessOpen, setDealSuccessOpen] = useState(false);
   const [dealSuccessName, setDealSuccessName] = useState("");
   const [dealsListOpen, setDealsListOpen] = useState(false);
+  const [dealRedemptionUnlimited, setDealRedemptionUnlimited] = useState(false);
+  const [dealRedemptionCount, setDealRedemptionCount] = useState(1);
 
   async function load() {
     const [pRes, dRes] = await Promise.all([
@@ -143,6 +175,8 @@ export function DealsManager() {
     setDealImageUrl(null);
     setImageUploading(false);
     setConfirmDraft(null);
+    setDealRedemptionUnlimited(false);
+    setDealRedemptionCount(1);
     savingRef.current = false;
     dealFormRef.current?.reset();
   }
@@ -168,6 +202,9 @@ export function DealsManager() {
     setDealValidityMode("custom");
     setCustomValidDate(customDateFromIso(deal.validUntil));
     setDealImageUrl(deal.imageUrl ?? null);
+    const redemption = redemptionFormFromMax(deal.maxRedemptionsPerCustomer);
+    setDealRedemptionUnlimited(redemption.unlimited);
+    setDealRedemptionCount(redemption.count);
     setConfirmDraft(null);
     setWizardStep("form");
     requestAnimationFrame(() => {
@@ -268,12 +305,19 @@ export function DealsManager() {
         : (dealValidityOptions.find((o) => o.id === dealValidityMode)?.label ??
           "");
 
+    const maxRedemptions = maxRedemptionsFromForm(
+      dealRedemptionUnlimited,
+      dealRedemptionCount
+    );
+
     setConfirmDraft({
       name,
       imageUrl: dealImageUrl,
       dealPrice,
       validUntil: until.iso,
       validityLabel,
+      maxRedemptionsPerCustomer: maxRedemptions,
+      redemptionLabel: redemptionSummaryLabel(maxRedemptions, labels),
     });
     setWizardStep("confirm");
   }
@@ -293,6 +337,7 @@ export function DealsManager() {
       })),
       dealPrice: confirmDraft.dealPrice,
       validUntil: confirmDraft.validUntil,
+      maxRedemptionsPerCustomer: confirmDraft.maxRedemptionsPerCustomer,
     };
 
     try {
@@ -549,6 +594,36 @@ export function DealsManager() {
               />
               <div className="space-y-2 text-start">
                 <span className="block text-[14px] font-bold text-bakery-ink">
+                  {labels.dealRedemptionTimes}
+                </span>
+                <Input
+                  label={labels.dealRedemptionCountLabel}
+                  type="number"
+                  min={1}
+                  max={99}
+                  dir="ltr"
+                  value={dealRedemptionCount}
+                  disabled={dealRedemptionUnlimited}
+                  onChange={(e) =>
+                    setDealRedemptionCount(
+                      Math.max(1, Math.min(99, Number(e.target.value) || 1))
+                    )
+                  }
+                />
+                <label className="flex cursor-pointer items-center gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-input/80 px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    checked={dealRedemptionUnlimited}
+                    onChange={(e) => setDealRedemptionUnlimited(e.target.checked)}
+                    className="h-4 w-4 accent-bakery-primary"
+                  />
+                  <span className="text-[13px] font-bold text-bakery-ink">
+                    {labels.dealRedemptionUnlimited}
+                  </span>
+                </label>
+              </div>
+              <div className="space-y-2 text-start">
+                <span className="block text-[14px] font-bold text-bakery-ink">
                   {labels.dealDate}
                 </span>
                 <div className="flex flex-wrap justify-start gap-2">
@@ -623,6 +698,9 @@ export function DealsManager() {
                 </p>
                 <p className="text-[13px] text-bakery-muted">
                   {confirmDraft.validityLabel}
+                </p>
+                <p className="text-[13px] text-bakery-muted">
+                  {labels.dealRedemptionLimit}: {confirmDraft.redemptionLabel}
                 </p>
                 {editingDealId && (
                   <Badge tone="default">{labels.edit}</Badge>
@@ -737,6 +815,13 @@ export function DealsManager() {
                     </p>
                     <p className="text-[12px] text-bakery-muted">
                       {formatDateTime(d.validUntil)}
+                    </p>
+                    <p className="text-[12px] font-semibold text-bakery-muted">
+                      {labels.dealRedemptionLimit}:{" "}
+                      {redemptionSummaryLabel(
+                        d.maxRedemptionsPerCustomer ?? 1,
+                        labels
+                      )}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <Badge tone={d.isActive ? "success" : "default"}>

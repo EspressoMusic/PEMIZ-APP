@@ -47,10 +47,10 @@ export function DashboardSellerAlertsSettings({
 }: {
   initial?: SellerAlertsSettings;
   previewOnly?: boolean;
-  businessType?: "STORE" | "APPOINTMENTS";
+  businessType?: "STORE" | "APPOINTMENTS" | "RENTAL";
 }) {
   const { labels } = useAppLocale();
-  const isAppointments = businessType === "APPOINTMENTS";
+  const isAppointments = businessType === "APPOINTMENTS" || businessType === "RENTAL";
   const newBookingAlertLabel = isAppointments
     ? labels.alertOnNewAppointment
     : labels.alertOnNewOrder;

@@ -10,6 +10,7 @@ import {
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import type { PrepProductSummary } from "@/lib/dashboard-prep-summary";
 import type { CalendarSlot } from "@/lib/appointment-calendar-shared";
+import { isScheduleLikeBusinessType, type BusinessType } from "@/lib/types";
 
 const center = "text-center";
 const homeStack = "mx-auto w-full max-w-[360px]";
@@ -38,7 +39,7 @@ export function DashboardHomeView({
   basePath?: string;
   inquiriesHref?: string;
   inquiryBellPreview?: boolean;
-  businessType?: "STORE" | "APPOINTMENTS";
+  businessType?: BusinessType;
   appointmentsCalendarPreview?: {
     slots: CalendarSlot[];
     appointments: SellerHomeAppointment[];
@@ -47,7 +48,7 @@ export function DashboardHomeView({
   };
 }) {
   const { labels } = useAppLocale();
-  const isAppointments = businessType === "APPOINTMENTS";
+  const isAppointments = isScheduleLikeBusinessType(businessType);
 
   return (
     <div

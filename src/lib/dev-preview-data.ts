@@ -338,8 +338,11 @@ export const DEV_STORE_BUSINESS = {
     {
       id: "deal-active",
       name: "מבצע פעיל (דמו)",
+      imageUrl: null,
       dealPrice: 110,
       validUntil: "2027-12-31T23:59:59.000Z",
+      createdAt: "2026-01-01T10:00:00.000Z",
+      maxRedemptionsPerCustomer: 1,
       products: [
         {
           id: "1",
@@ -364,8 +367,11 @@ export const DEV_STORE_BUSINESS = {
     {
       id: "deal-oos",
       name: "מבצע אזל מהמלאי (דמו)",
+      imageUrl: null,
       dealPrice: 42,
       validUntil: "2027-12-31T23:59:59.000Z",
+      createdAt: "2026-01-02T10:00:00.000Z",
+      maxRedemptionsPerCustomer: 0,
       products: [
         {
           id: "2",
@@ -736,6 +742,272 @@ export function getDevSellerHomeCalendarPreview() {
 
 export function getDevPreviewCustomerOrdersFromAppointments() {
   return getDevPreviewAppointmentsSeller().map((appt) => ({
+    id: appt.id,
+    customerName: appt.customerName,
+    customerPhone: appt.customerPhone,
+    status: appt.status,
+    statusLabel: appt.status,
+    createdAt: appt.slot.startAt,
+    items: [] as {
+      name: string;
+      quantity: number;
+      lineTotal: number;
+      imageUrl: string | null;
+    }[],
+  }));
+}
+
+export const DEV_RENTAL_BUSINESS = {
+  slug: "demo-rental",
+  name: "וילה לים (תצוגה)",
+  description: "השכרת וילה לימים, חצי יום או סופ״ש — לפי זמינות.",
+  type: "RENTAL" as const,
+  products: [
+    {
+      id: "rent-1",
+      name: "וילה מלאה — יום שלם",
+      description: "עד 8 אורחים, בריכה ומטבח מאובזר",
+      imageUrl: null,
+      price: 1200,
+      salePrice: null,
+      stock: null,
+      serviceDurationMinutes: null,
+    },
+    {
+      id: "rent-2",
+      name: "חצי יום — בוקר",
+      description: "כניסה מ-08:00 עד 14:00",
+      imageUrl: null,
+      price: 650,
+      salePrice: 590,
+      stock: null,
+      serviceDurationMinutes: null,
+    },
+  ],
+  deals: [],
+  slots: [] as {
+    id: string;
+    startAt: string;
+    endAt: string;
+    maxBookings: number;
+    appointments: unknown[];
+  }[],
+  faqItems: [
+    {
+      id: "faq-rent-1",
+      question: "איך מבטלים הזמנה?",
+      answer: "עד 48 שעות לפני תחילת ההשכרה — ללא חיוב.",
+    },
+    {
+      id: "faq-rent-2",
+      question: "מה כולל המחיר?",
+      answer: "מים, חשמל, מצעים ומגבות — ללא ארוחת בוקר.",
+    },
+  ],
+  storeUrl: "http://localhost:3000/dev/customer-rental",
+  storeBroadcast: "סופ״ש פנוי ביום ו׳ — הזמינו עכשיו!",
+  storeBroadcastAt: "2026-06-01T10:00:00.000Z",
+  storeBroadcastHistory: [
+    {
+      message: "סופ״ש פנוי ביום ו׳ — הזמינו עכשיו!",
+      sentAt: "2026-06-01T10:00:00.000Z",
+    },
+  ],
+  storeTheme: "calm",
+  storeLocale: "he" as const,
+  storePolicy: "השכרה בימים א׳–ו׳. כניסה מ-15:00, יציאה עד 11:00.",
+  storeTerms: "ביטול עד 48 שעות לפני תחילת ההשכרה.",
+  appointmentSlotGapMinutes: 0,
+  appointmentSlotDurationMinutes: 1440,
+  appointmentBookingStart: "00:00",
+  appointmentBookingEnd: "23:59",
+  appointmentBookingByDay: true,
+  orderScheduleEnabled: true,
+  orderSchedule: orderScheduleToJson(
+    defaultDaySlots().map((slot) => ({
+      ...slot,
+      open: slot.day <= 5,
+    }))
+  ),
+};
+
+export const DEV_RENTAL_SELLER_BASE = "/dev/seller-rental";
+
+export const DEV_RENTAL_SELLER_SHELL = {
+  businessType: "RENTAL" as const,
+  basePath: DEV_RENTAL_SELLER_BASE,
+  storeLocale: DEV_RENTAL_BUSINESS.storeLocale,
+  storeTheme: DEV_RENTAL_BUSINESS.storeTheme,
+};
+
+export const DEV_RENTAL_OWNER_NAME = "דן";
+
+export const DEV_RENTAL_PREVIEW_INQUIRIES = [
+  {
+    id: "rent-inq-1",
+    customerName: "יעל כהן",
+    customerPhone: "050-1234567",
+    subject: "השכרה לסופ״ש",
+    message: "יש וילה פנויה לסופ״ש הקרוב ל-6 אנשים?",
+    sellerReply: null,
+    sellerReplyAt: null,
+    createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "rent-inq-2",
+    customerName: "דני לוי",
+    customerPhone: "052-9876543",
+    subject: "חצי יום",
+    message: "אפשר להשכיר רק לחצי יום ביום חמישי?",
+    sellerReply: null,
+    sellerReplyAt: null,
+    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+export const DEV_RENTAL_PREVIEW_SELLER_THREADS: SellerChatThread[] = [
+  {
+    customerPhone: "0501234567",
+    customerName: "יעל כהן",
+    lastMessage: "יש זמינות ל-3 לילות באוגוסט?",
+    lastAt: "2026-06-03T09:15:00.000Z",
+    unreadFromCustomer: true,
+  },
+  {
+    customerPhone: "0534445566",
+    customerName: "נועה ברק",
+    lastMessage: "מעולה, נאשר את התאריכים",
+    lastAt: "2026-06-02T16:20:00.000Z",
+    unreadFromCustomer: false,
+  },
+];
+
+export function getDevRentalBusiness() {
+  const day1 = devAppointmentSlotIso(2, 15);
+  const day1b = devAppointmentSlotIso(4, 15);
+  const day2 = devAppointmentSlotIso(7, 15);
+  const dayFull = devAppointmentSlotIso(10, 15);
+  const dayFull2 = devAppointmentSlotIso(14, 15);
+
+  return {
+    ...DEV_RENTAL_BUSINESS,
+    slots: [
+      {
+        id: "rent-slot-1",
+        startAt: day1,
+        endAt: devAppointmentSlotEnd(day1, 1440),
+        maxBookings: 1,
+        appointments: [{ id: "rent-appt-1" }],
+      },
+      {
+        id: "rent-slot-2",
+        startAt: day1b,
+        endAt: devAppointmentSlotEnd(day1b, 1440),
+        maxBookings: 1,
+        appointments: [],
+      },
+      {
+        id: "rent-slot-3",
+        startAt: day2,
+        endAt: devAppointmentSlotEnd(day2, 1440),
+        maxBookings: 1,
+        appointments: [],
+      },
+      {
+        id: "rent-slot-full-1",
+        startAt: dayFull,
+        endAt: devAppointmentSlotEnd(dayFull, 1440),
+        maxBookings: 1,
+        appointments: [{ id: "rent-appt-f1" }],
+      },
+      {
+        id: "rent-slot-full-2",
+        startAt: dayFull2,
+        endAt: devAppointmentSlotEnd(dayFull2, 1440),
+        maxBookings: 1,
+        appointments: [{ id: "rent-appt-f2" }],
+      },
+    ],
+  };
+}
+
+export function getDevPreviewRentalSeller() {
+  const biz = getDevRentalBusiness();
+  const slotA = biz.slots[0];
+  const slotB = biz.slots[1];
+  const slotFull1 = biz.slots[3];
+  const slotFull2 = biz.slots[4];
+  if (!slotA || !slotB || !slotFull1 || !slotFull2) {
+    return [];
+  }
+  const pastSlot = devAppointmentSlotIso(-5, 15);
+  return [
+    {
+      id: "rent-seller-1",
+      customerName: "יעל כהן",
+      customerPhone: "0501234567",
+      status: "CONFIRMED",
+      notes: "שירות: וילה מלאה — יום שלם",
+      slot: {
+        startAt: slotA.startAt,
+        endAt: slotA.endAt,
+      },
+    },
+    {
+      id: "rent-seller-2",
+      customerName: "דני לוי",
+      customerPhone: "0529876543",
+      status: "CONFIRMED",
+      slot: {
+        startAt: slotB.startAt,
+        endAt: slotB.endAt,
+      },
+    },
+    {
+      id: "rent-appt-f1",
+      customerName: "רון שטרן",
+      customerPhone: "0541112222",
+      status: "CONFIRMED",
+      slot: {
+        startAt: slotFull1.startAt,
+        endAt: slotFull1.endAt,
+      },
+    },
+    {
+      id: "rent-appt-f2",
+      customerName: "איתי מזרחי",
+      customerPhone: "0587778899",
+      status: "CONFIRMED",
+      slot: {
+        startAt: slotFull2.startAt,
+        endAt: slotFull2.endAt,
+      },
+    },
+    {
+      id: "rent-history-1",
+      customerName: "מיכל אברהם",
+      customerPhone: "0523334455",
+      status: "CONFIRMED",
+      slot: {
+        startAt: pastSlot,
+        endAt: devAppointmentSlotEnd(pastSlot, 1440),
+      },
+    },
+  ];
+}
+
+export function getDevSellerHomeRentalCalendarPreview() {
+  const biz = getDevRentalBusiness();
+  return {
+    slots: biz.slots,
+    appointments: getDevPreviewRentalSeller(),
+    bookingByDay: DEV_RENTAL_BUSINESS.appointmentBookingByDay ?? false,
+    referenceNowMs: Date.now(),
+  };
+}
+
+export function getDevPreviewCustomerOrdersFromRental() {
+  return getDevPreviewRentalSeller().map((appt) => ({
     id: appt.id,
     customerName: appt.customerName,
     customerPhone: appt.customerPhone,

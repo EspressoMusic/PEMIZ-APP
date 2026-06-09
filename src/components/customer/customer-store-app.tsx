@@ -60,7 +60,22 @@ import {
   loadPendingDeals,
   pendingDealsToSnapshots,
   removePendingDeals,
+  type PendingDealSnapshot,
 } from "@/lib/customer-pending-deals";
+import {
+  incrementLocalDealRedemptionCounts,
+  loadLocalDealRedemptionCounts,
+  mergeDealRedemptionCounts,
+} from "@/lib/customer-deal-redemptions";
+import { isDealRedemptionLimitReached } from "@/lib/store-deal-redemption";
+import {
+  bootstrapDealsSeenIfNeeded,
+  countUnseenDeals,
+  maxDealCreatedAt,
+  saveDealsLastSeenAt,
+} from "@/lib/customer-deals-seen";
+import type { PublicStoreDeal } from "@/lib/public-deals";
+import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 import {
   appendCustomerOrderHistory,
   loadCustomerOrderHistory,
@@ -116,7 +131,7 @@ import {
   CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME,
   CUSTOMER_VIEWPORT_HEIGHT,
 } from "./customer-store-frame";
-import { normalizePhone } from "@/lib/phone";
+import { isValidPhone, normalizePhone, parseIsraeliMobilePhone } from "@/lib/phone";
 import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 
@@ -149,22 +164,7 @@ type Product = {
   stock?: number | null;
 };
 
-type StoreDeal = {
-  id: string;
-  name: string;
-  imageUrl?: string | null;
-  dealPrice: number;
-  validUntil: string;
-  products: {
-    id: string;
-    name: string;
-    imageUrl: string | null;
-    price: number;
-    salePrice?: number | null;
-    stock?: number | null;
-    quantity?: number;
-  }[];
-};
+type StoreDeal = PublicStoreDeal;
 
 function dealHasStock(deal: StoreDeal): boolean {
   return deal.products.every((p) =>
@@ -227,7 +227,8 @@ export function CustomerStoreApp({
   unavailable: boolean;
   platformLegalDocs?: PlatformLegalDocPayload[];
 }) {
-  const isAppointments = business.type === "APPOINTMENTS";
+  const isAppointments =
+    business.type === "APPOINTMENTS" || business.type === "RENTAL";
   const isDevAppointments = business.slug === "demo-appointments";
   const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
   const effectiveOrderScheduleEnabled =
@@ -237,6 +238,8 @@ export function CustomerStoreApp({
     business.storeTerms
   );
   const [mainTab, setMainTab] = useState<CustomerMainTab>("home");
+  const [liveDeals, setLiveDeals] = useState<StoreDeal[]>(business.deals ?? []);
+  const [dealsLastSeenAt, setDealsLastSeenAt] = useState<string | null>(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactView, setContactView] = useState<ContactView>("menu");
   const [cart, setCart] = useState<Record<string, number>>({});
@@ -251,7 +254,10 @@ export function CustomerStoreApp({
   const [legalOpen, setLegalOpen] = useState(false);
   const [installAppOpen, setInstallAppOpen] = useState(false);
   const [settingsExpanded, setSettingsExpanded] = useState(false);
-  const [cartDeals, setCartDeals] = useState<StoreDeal[]>([]);
+  const [cartDeals, setCartDeals] = useState<PendingDealSnapshot[]>([]);
+  const [dealRedemptionCounts, setDealRedemptionCounts] = useState<
+    Record<string, number>
+  >({});
   const [orderCheckoutOpen, setOrderCheckoutOpen] = useState(false);
   const [orderSuccessOpen, setOrderSuccessOpen] = useState(false);
   const [activeOrdersOpen, setActiveOrdersOpen] = useState(false);
@@ -307,11 +313,43 @@ export function CustomerStoreApp({
     };
   }, []);
 
+  const refreshDealRedemptionCounts = useCallback(
+    async (phone?: string) => {
+      const local = loadLocalDealRedemptionCounts(business.slug);
+      const normalizedPhone = phone?.trim();
+      if (!normalizedPhone) {
+        setDealRedemptionCounts(local);
+        return;
+      }
+      try {
+        const res = await fetch(
+          `/api/public/${business.slug}/deal-redemptions?phone=${encodeURIComponent(normalizedPhone)}`
+        );
+        if (!res.ok) {
+          setDealRedemptionCounts(local);
+          return;
+        }
+        const data = (await res.json()) as { counts?: Record<string, number> };
+        setDealRedemptionCounts(
+          mergeDealRedemptionCounts(local, data.counts ?? {})
+        );
+      } catch {
+        setDealRedemptionCounts(local);
+      }
+    },
+    [business.slug]
+  );
+
   useEffect(() => {
     setLocalOrderHistory(loadCustomerOrderHistory(business.slug));
     setCartDeals(pendingDealsToSnapshots(loadPendingDeals(business.slug)));
     setLocalAppointments(loadCustomerAppointmentHistory(business.slug));
-  }, [business.slug]);
+    const savedPhone =
+      typeof window !== "undefined"
+        ? localStorage.getItem(inquiryPhoneKey(business.slug))
+        : null;
+    void refreshDealRedemptionCounts(savedPhone ?? undefined);
+  }, [business.slug, refreshDealRedemptionCounts]);
 
   const syncPendingDeals = useCallback(() => {
     const pending = loadPendingDeals(business.slug);
@@ -330,7 +368,10 @@ export function CustomerStoreApp({
     const saved = localStorage.getItem(`linky-customer-${business.slug}`);
     if (saved) setCustomerName(saved);
     const savedPhone = localStorage.getItem(inquiryPhoneKey(business.slug));
-    if (savedPhone) setOrderPhone(savedPhone);
+    if (savedPhone) {
+      setOrderPhone(savedPhone);
+      void refreshDealRedemptionCounts(savedPhone);
+    }
     const prefs = loadCustomerPreferences(business.slug, ownerLocale);
     const hasPrefs =
       typeof window !== "undefined" &&
@@ -338,7 +379,7 @@ export function CustomerStoreApp({
     setLocale(prefs.locale);
     setTextScale(prefs.textScale);
     setDisplayTheme(hasPrefs ? prefs.theme : ownerTheme);
-  }, [business.slug, ownerTheme, ownerLocale]);
+  }, [business.slug, ownerTheme, ownerLocale, refreshDealRedemptionCounts]);
 
   useEffect(() => {
     if (!profileModalOpen) return;
@@ -347,10 +388,17 @@ export function CustomerStoreApp({
     setProfileSavedFlash(false);
   }, [profileModalOpen, customerName, orderPhone]);
 
+  const [profilePhoneError, setProfilePhoneError] = useState("");
+
   function saveCustomerProfile() {
     const name = profileDraftName.trim();
     if (name.length < 2) return;
     const phone = profileDraftPhone.trim();
+    if (phone && !isValidPhone(phone)) {
+      setProfilePhoneError(labels.invalidPhone);
+      return;
+    }
+    setProfilePhoneError("");
     setCustomerName(name);
     setOrderPhone(phone);
     localStorage.setItem(`linky-customer-${business.slug}`, name);
@@ -411,8 +459,8 @@ export function CustomerStoreApp({
 
   const loadMyInquiries = useCallback(
     async (phoneRaw: string) => {
-      const phone = normalizePhone(phoneRaw);
-      if (phone.length < 9) {
+      const phone = parseIsraeliMobilePhone(phoneRaw);
+      if (!phone) {
         setMyInquiries([]);
         return;
       }
@@ -526,11 +574,84 @@ export function CustomerStoreApp({
     0
   );
 
-  const activeDeals = useMemo(() => {
-    const list = business.deals ?? [];
-    const now = Date.now();
-    return list.filter((d) => new Date(d.validUntil).getTime() > now);
+  const dealsSeenBootstrappedRef = useRef(false);
+
+  useEffect(() => {
+    setLiveDeals(business.deals ?? []);
   }, [business.deals]);
+
+  useEffect(() => {
+    if (unavailable || !panels.deals || isAppointments) return;
+    if (dealsSeenBootstrappedRef.current) return;
+    const seen = bootstrapDealsSeenIfNeeded(
+      business.slug,
+      business.deals ?? []
+    );
+    setDealsLastSeenAt(seen);
+    dealsSeenBootstrappedRef.current = true;
+  }, [business.slug, business.deals, unavailable, panels.deals, isAppointments]);
+
+  const refreshLiveDeals = useCallback(async () => {
+    if (unavailable || !panels.deals || isAppointments) return;
+    if (business.slug === "demo-store") return;
+    try {
+      const res = await fetch(`/api/public/${business.slug}/deals`);
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.deals)) {
+        setLiveDeals(data.deals as StoreDeal[]);
+      }
+    } catch {
+      // keep cached deals
+    }
+  }, [business.slug, unavailable, panels.deals, isAppointments]);
+
+  useVisibilityInterval(
+    () => void refreshLiveDeals(),
+    45_000,
+    120_000,
+    !unavailable && panels.deals && !isAppointments
+  );
+
+  const markDealsSeen = useCallback(() => {
+    const latest = maxDealCreatedAt(liveDeals);
+    const stamp = latest ?? new Date().toISOString();
+    saveDealsLastSeenAt(business.slug, stamp);
+    setDealsLastSeenAt(stamp);
+  }, [business.slug, liveDeals]);
+
+  const selectMainTab = useCallback(
+    (tab: CustomerMainTab) => {
+      if (tab === "deals") markDealsSeen();
+      setMainTab(tab);
+    },
+    [markDealsSeen]
+  );
+
+  const activeDeals = useMemo(() => {
+    const now = Date.now();
+    return liveDeals.filter((d) => new Date(d.validUntil).getTime() > now);
+  }, [liveDeals]);
+
+  const dealsBadge = useMemo(() => {
+    if (!panels.deals || isAppointments) return 0;
+    return countUnseenDeals(activeDeals, dealsLastSeenAt);
+  }, [activeDeals, dealsLastSeenAt, panels.deals, isAppointments]);
+
+  const dealsInCartIds = useMemo(
+    () => new Set(cartDeals.map((d) => d.id)),
+    [cartDeals]
+  );
+
+  const visibleDeals = useMemo(() => {
+    return activeDeals.filter((d) => {
+      const max = d.maxRedemptionsPerCustomer ?? 1;
+      const exhausted = isDealRedemptionLimitReached(
+        max,
+        dealRedemptionCounts[d.id] ?? 0
+      );
+      return !exhausted || dealsInCartIds.has(d.id);
+    });
+  }, [activeDeals, dealRedemptionCounts, dealsInCartIds]);
 
   const dealsTotal = cartDeals.reduce((s, d) => s + d.dealPrice, 0);
   const checkoutTotal = cartTotal + dealsTotal;
@@ -574,11 +695,6 @@ export function CustomerStoreApp({
     return [...dealLines, ...activeProductLines];
   }, [cartDeals, activeProductLines]);
 
-  const redeemedDealIds = useMemo(
-    () => new Set(cartDeals.map((d) => d.id)),
-    [cartDeals]
-  );
-
   useEffect(() => {
     const prev = prevActiveOrderCountRef.current;
     if (activeOrderCount > prev && activeOrderCount > 0) {
@@ -596,9 +712,14 @@ export function CustomerStoreApp({
         const deal =
           activeDeals.find((d) => d.id === line.dealId) ??
           (business.deals ?? []).find((d) => d.id === line.dealId);
+        const max = deal?.maxRedemptionsPerCustomer ?? 1;
         if (
           deal &&
           dealHasStock(deal) &&
+          !isDealRedemptionLimitReached(
+            max,
+            dealRedemptionCounts[deal.id] ?? 0
+          ) &&
           !nextDeals.some((d) => d.id === deal.id)
         ) {
           nextDeals.push(deal);
@@ -644,6 +765,10 @@ export function CustomerStoreApp({
       setOrderError(
         locale === "he" ? "יש למלא שם וטלפון" : "Please enter name and phone"
       );
+      return;
+    }
+    if (!isValidPhone(phone)) {
+      setOrderError(labels.invalidPhone);
       return;
     }
     setOrderError("");
@@ -700,10 +825,16 @@ export function CustomerStoreApp({
     setOrderPhone(phone);
     localStorage.setItem(`linky-customer-${business.slug}`, name);
     localStorage.setItem(inquiryPhoneKey(business.slug), phone);
-    removePendingDeals(
+    const redeemedDealIds = cartDeals.map((d) => d.id);
+    removePendingDeals(business.slug, redeemedDealIds);
+    const nextCounts = incrementLocalDealRedemptionCounts(
       business.slug,
-      cartDeals.map((d) => d.id)
+      redeemedDealIds
     );
+    setDealRedemptionCounts((prev) =>
+      mergeDealRedemptionCounts(prev, nextCounts)
+    );
+    void refreshDealRedemptionCounts(phone);
     setCart({});
     setCartDeals([]);
     setOrderCheckoutOpen(false);
@@ -722,7 +853,13 @@ export function CustomerStoreApp({
 
   function addDealToActiveOrders(deal: StoreDeal) {
     if (!dealHasStock(deal)) return;
-    if (redeemedDealIds.has(deal.id)) return;
+    if (dealsInCartIds.has(deal.id)) return;
+    const max = deal.maxRedemptionsPerCustomer ?? 1;
+    if (
+      isDealRedemptionLimitReached(max, dealRedemptionCounts[deal.id] ?? 0)
+    ) {
+      return;
+    }
     const next = addPendingDeal(business.slug, deal);
     setCartDeals(pendingDealsToSnapshots(next));
     setMainTab("orders");
@@ -747,6 +884,12 @@ export function CustomerStoreApp({
     const form = e.currentTarget;
     const fd = new FormData(form);
     const phone = String(fd.get("customerPhone") ?? "").trim();
+    if (phone && !isValidPhone(phone)) {
+      setInquirySubmitError(labels.invalidPhone);
+      inquirySubmitLockRef.current = false;
+      setInquirySubmitting(false);
+      return;
+    }
 
     try {
       const res = await fetch(`/api/public/${business.slug}/inquiries`, {
@@ -789,10 +932,10 @@ export function CustomerStoreApp({
   }
 
   const myAppointments = useMemo(() => {
-    const phone = normalizePhone(orderPhone);
+    const phone = parseIsraeliMobilePhone(orderPhone);
     if (!phone) return localAppointments;
     return localAppointments.filter(
-      (a) => normalizePhone(a.customerPhone) === phone
+      (a) => parseIsraeliMobilePhone(a.customerPhone) === phone
     );
   }, [localAppointments, orderPhone]);
 
@@ -831,7 +974,12 @@ export function CustomerStoreApp({
       return;
     }
 
-    const phone = normalizePhone(payload.phone);
+    if (!isValidPhone(payload.phone)) {
+      setBookingError(labels.invalidPhone);
+      setBookingSubmitting(false);
+      return;
+    }
+    const phone = parseIsraeliMobilePhone(payload.phone)!;
     const notes = buildAppointmentNotes(
       payload.serviceName,
       payload.notes,
@@ -1018,12 +1166,12 @@ export function CustomerStoreApp({
   }
 
   function renderDealsGrid() {
-    if (activeDeals.length === 0) {
+    if (visibleDeals.length === 0) {
       return <EmptyStateCard message={labels.noDeals} />;
     }
     return (
       <div className="grid min-w-0 grid-cols-1 items-stretch justify-items-center gap-3">
-        {activeDeals.map((d) => (
+        {visibleDeals.map((d) => (
           <DealCard
             key={d.id}
             name={d.name}
@@ -1034,7 +1182,7 @@ export function CustomerStoreApp({
             locale={locale}
             storeTheme={displayTheme}
             labels={labels}
-            faded={redeemedDealIds.has(d.id)}
+            faded={dealsInCartIds.has(d.id)}
             redeemDisabled={!dealHasStock(d)}
             onRedeem={() => addDealToActiveOrders(d)}
           />
@@ -1325,8 +1473,9 @@ export function CustomerStoreApp({
         <CustomerStoreTabNav
           labels={labels}
           active={mainTab}
-          onSelect={setMainTab}
+          onSelect={selectMainTab}
           ordersBadge={isAppointments ? undefined : cartItemCount}
+          dealsBadge={dealsBadge > 0 ? dealsBadge : undefined}
           hideDeals={isAppointments || !panels.deals}
           phoneColumn={isAppointments}
           isAppointments={isAppointments}
@@ -1448,6 +1597,14 @@ export function CustomerStoreApp({
               {labels.profileSaved}
             </p>
           )}
+          {profilePhoneError ? (
+            <p
+              role="alert"
+              className="text-center text-[14px] font-semibold text-bakery-error"
+            >
+              {profilePhoneError}
+            </p>
+          ) : null}
           <Input
             label={labels.yourName}
             value={profileDraftName}
@@ -1462,7 +1619,10 @@ export function CustomerStoreApp({
             dir="ltr"
             className="text-start"
             value={profileDraftPhone}
-            onChange={(e) => setProfileDraftPhone(e.target.value)}
+            onChange={(e) => {
+              setProfileDraftPhone(e.target.value);
+              if (profilePhoneError) setProfilePhoneError("");
+            }}
           />
           <Button
             type="button"

@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
-import { Button, Alert, Toggle } from "@/components/ui";
+import { Button, Alert } from "@/components/ui";
 import {
   defaultDaySlots,
   formatOrderScheduleSummary,
@@ -32,6 +34,7 @@ export function DashboardOrderScheduleSettings({
 
   const [enabled, setEnabled] = useState(initial.enabled);
   const [daySlots, setDaySlots] = useState<OrderDaySlot[]>(initial.daySlots);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -50,16 +53,14 @@ export function DashboardOrderScheduleSettings({
   const needOpenDayError = isAppointments
     ? labels.workingDaysNeedOpenDay
     : labels.scheduleNeedOpenDay;
-  const pickDaysHint = isAppointments
-    ? labels.workingDaysPickHint
-    : labels.schedulePickDaysHint;
 
-  function handleToggle(next: boolean) {
+  function openSheet() {
     setError("");
-    setEnabled(next);
-    if (next && daySlots.every((s) => !s.open)) {
+    if (!enabled && daySlots.every((s) => !s.open)) {
       setDaySlots(defaultDaySlots());
+      setEnabled(true);
     }
+    setSheetOpen(true);
   }
 
   function toggleDayOpen(day: number) {
@@ -89,17 +90,15 @@ export function DashboardOrderScheduleSettings({
     }
 
     const openSlots = daySlots.filter((s) => s.open);
-    if (enabled && openSlots.length === 0) {
+    if (openSlots.length === 0) {
       setError(needOpenDayError);
       return;
     }
 
-    if (enabled) {
-      for (const slot of openSlots) {
-        if (!normalizeTimeInput(slot.startTime) || !normalizeTimeInput(slot.endTime)) {
-          setError(labels.scheduleInvalidHours);
-          return;
-        }
+    for (const slot of openSlots) {
+      if (!normalizeTimeInput(slot.startTime) || !normalizeTimeInput(slot.endTime)) {
+        setError(labels.scheduleInvalidHours);
+        return;
       }
     }
 
@@ -115,8 +114,8 @@ export function DashboardOrderScheduleSettings({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          enabled,
-          daySlots: enabled ? normalized : defaultDaySlots(),
+          enabled: true,
+          daySlots: normalized,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -124,8 +123,10 @@ export function DashboardOrderScheduleSettings({
         setError((data as { error?: string }).error ?? labels.saveError);
         return;
       }
+      setEnabled(true);
       setMessage(labels.messageSent);
       setTimeout(() => setMessage(""), 3000);
+      setSheetOpen(false);
     } catch {
       setError(labels.scheduleServerError);
     } finally {
@@ -139,106 +140,108 @@ export function DashboardOrderScheduleSettings({
   );
 
   return (
-    <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3 text-center">
-      <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-4">
-        <div className="dashboard-action-square flex w-full items-center justify-between gap-3 rounded-[22px] px-3 py-3.5 text-start">
-          <span className="min-w-0 text-[15px] font-extrabold leading-snug text-bakery-ink">
-            {toggleTitle}
-          </span>
-          <Toggle
-            enabled={enabled}
-            onChange={handleToggle}
-            ariaLabel={toggleTitle}
-          />
-        </div>
+    <>
+      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3 text-center">
+        <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-3">
+          <button
+            type="button"
+            onClick={openSheet}
+            aria-expanded={sheetOpen}
+            className={`${DASHBOARD_ACTION_ROW_CLASS} justify-center${
+              sheetOpen ? " bakery-float-tile--active" : ""
+            }`}
+          >
+            <span className="text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {toggleTitle}
+            </span>
+          </button>
 
-        <DashboardHelpText>
-          <p className="text-[13px] font-semibold text-bakery-muted">{summary}</p>
-        </DashboardHelpText>
-
-        {enabled && (
-          <div className="w-full overflow-hidden rounded-[20px] border border-bakery-border/35 bg-bakery-card/70 p-3 shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)]">
-            <ul className="space-y-2">
-              {daySlots.map((slot) => (
-                <li
-                  key={slot.day}
-                  className={`overflow-hidden rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/80 px-2.5 py-2.5 transition ${
-                    slot.open ? "" : "opacity-40"
-                  }`}
-                >
-                  <div className="flex min-w-0 flex-col items-stretch gap-2">
-                    <button
-                      type="button"
-                      onClick={() => toggleDayOpen(slot.day)}
-                      className={`w-full text-center text-[15px] font-extrabold transition ${
-                        slot.open ? "text-bakery-ink" : "text-bakery-muted line-through"
-                      }`}
-                      title={dayToggleHint}
-                    >
-                      {dayNames[slot.day]}
-                    </button>
-                    <div
-                      className="flex min-w-0 items-center justify-center gap-1.5"
-                      dir="ltr"
-                    >
-                      <input
-                        type="time"
-                        value={slot.startTime}
-                        disabled={!slot.open}
-                        onChange={(e) =>
-                          updateDayTime(slot.day, "startTime", e.target.value)
-                        }
-                        aria-label={`${dayNames[slot.day]} ${labels.fromHour}`}
-                        className="bakery-field min-w-0 max-w-[42%] flex-1 rounded-[10px] border border-bakery-border/32 bg-bakery-input px-1.5 py-2 text-[13px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
-                      />
-                      <span className="shrink-0 text-[13px] font-bold text-bakery-muted">
-                        –
-                      </span>
-                      <input
-                        type="time"
-                        value={slot.endTime}
-                        disabled={!slot.open}
-                        onChange={(e) =>
-                          updateDayTime(slot.day, "endTime", e.target.value)
-                        }
-                        aria-label={`${dayNames[slot.day]} ${labels.toHour}`}
-                        className="bakery-field min-w-0 max-w-[42%] flex-1 rounded-[10px] border border-bakery-border/32 bg-bakery-input px-1.5 py-2 text-[13px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
-                      />
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {enabled && !previewOnly && (
           <DashboardHelpText>
-            <p className="text-[12px] font-semibold text-bakery-muted">
-              {pickDaysHint}
-            </p>
+            <p className="text-[13px] font-semibold text-bakery-muted">{summary}</p>
           </DashboardHelpText>
-        )}
+        </div>
+      </div>
 
-        {error && <Alert variant="error">{error}</Alert>}
-        {message && (
-          <p className="w-full rounded-full border border-bakery-border/45 bg-bakery-input px-4 py-2.5 text-center text-[13px] font-bold text-bakery-ink">
-            {message}
-          </p>
-        )}
+      <DashboardActionSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title={toggleTitle}
+        ariaLabel={toggleTitle}
+        placement="center"
+        showBackButton
+        compact
+        fitContent
+        panelClassName="dashboard-order-schedule-sheet"
+      >
+        <div className="flex flex-col gap-2.5">
+          <ul className="space-y-1">
+            {daySlots.map((slot) => (
+              <li
+                key={slot.day}
+                className={`flex items-center gap-2 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/80 px-2 py-1.5 transition ${
+                  slot.open ? "" : "opacity-40"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleDayOpen(slot.day)}
+                  className={`w-[5.25rem] shrink-0 truncate text-start text-[13px] font-extrabold leading-tight transition ${
+                    slot.open ? "text-bakery-ink" : "text-bakery-muted line-through"
+                  }`}
+                  title={dayToggleHint}
+                >
+                  {dayNames[slot.day]}
+                </button>
+                <div
+                  className="flex min-w-0 flex-1 items-center justify-end gap-1"
+                  dir="ltr"
+                >
+                  <input
+                    type="time"
+                    value={slot.startTime}
+                    disabled={!slot.open}
+                    onChange={(e) =>
+                      updateDayTime(slot.day, "startTime", e.target.value)
+                    }
+                    aria-label={`${dayNames[slot.day]} ${labels.fromHour}`}
+                    className="bakery-field min-w-0 flex-1 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1 py-1 text-[12px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <span className="shrink-0 text-[11px] font-bold text-bakery-muted">
+                    –
+                  </span>
+                  <input
+                    type="time"
+                    value={slot.endTime}
+                    disabled={!slot.open}
+                    onChange={(e) =>
+                      updateDayTime(slot.day, "endTime", e.target.value)
+                    }
+                    aria-label={`${dayNames[slot.day]} ${labels.toHour}`}
+                    className="bakery-field min-w-0 flex-1 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1 py-1 text-[12px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
 
-        {enabled && (
+          {error ? <Alert variant="error">{error}</Alert> : null}
+          {message ? (
+            <p className="rounded-full border border-bakery-border/45 bg-bakery-input px-3 py-2 text-center text-[12px] font-bold text-bakery-ink">
+              {message}
+            </p>
+          ) : null}
+
           <Button
             type="button"
             variant="primary"
-            className="w-full min-h-[44px] rounded-full font-extrabold"
+            className="w-full min-h-[42px] rounded-full font-extrabold"
             disabled={saving}
             onClick={save}
           >
             {saving ? labels.saving : saveLabel}
           </Button>
-        )}
-      </div>
-    </div>
+        </div>
+      </DashboardActionSheet>
+    </>
   );
 }

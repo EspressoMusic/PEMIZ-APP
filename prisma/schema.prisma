@@ -148,9 +148,11 @@ model StoreDeal {
   productBId  String?
   productA    Product?          @relation("DealProductA", fields: [productAId], references: [id])
   productB    Product?          @relation("DealProductB", fields: [productBId], references: [id])
-  dealPrice   Float
-  validUntil  DateTime
-  isActive    Boolean           @default(true)
+  dealPrice                  Float
+  validUntil                 DateTime
+  // 1 = once per customer; 0 = unlimited; N = up to N redemptions
+  maxRedemptionsPerCustomer  Int               @default(1)
+  isActive                   Boolean           @default(true)
   createdAt   DateTime          @default(now())
   redemptions DealRedemption[]
   items       StoreDealItem[]
@@ -178,7 +180,7 @@ model DealRedemption {
   customerPhone String
   createdAt     DateTime  @default(now())
 
-  @@unique([dealId, customerPhone])
+  @@index([dealId, customerPhone])
 }
 
 model Order {

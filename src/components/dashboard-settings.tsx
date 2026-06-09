@@ -50,7 +50,9 @@ export function DashboardSettingsView({
   const { labels } = useAppLocale();
   const showStoreQuickLinks =
     showQuickActionRows &&
-    (businessType === "STORE" || businessType === "APPOINTMENTS");
+    (businessType === "STORE" ||
+      businessType === "APPOINTMENTS" ||
+      businessType === "RENTAL");
 
   return (
     <div className="space-y-6 pb-2">
@@ -99,7 +101,9 @@ export function DashboardSettingsView({
           </ul>
         </div>
 
-        {(businessType === "STORE" || businessType === "APPOINTMENTS") && (
+        {(businessType === "STORE" ||
+          businessType === "APPOINTMENTS" ||
+          businessType === "RENTAL") && (
           <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
             <ul className="space-y-2 text-start">
               <DashboardStorePanelsSettingsGroup

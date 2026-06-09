@@ -6,6 +6,7 @@ import { CustomerCenterModal } from "@/components/customer/customer-center-modal
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import type { StoreThemeId } from "@/lib/store-themes";
+import { isValidPhone } from "@/lib/phone";
 
 export function OrderCheckoutModal({
   open,
@@ -34,11 +35,13 @@ export function OrderCheckoutModal({
 }) {
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
+  const [localError, setLocalError] = useState("");
 
   useEffect(() => {
     if (open) {
       setName(initialName);
       setPhone(initialPhone);
+      setLocalError("");
     }
   }, [open, initialName, initialPhone]);
 
@@ -51,6 +54,8 @@ export function OrderCheckoutModal({
           total: 'סה"כ',
           submit: "אישור הזמנה",
           submitting: "שולח...",
+          invalidPhone: "יש להזין מספר נייד ישראלי תקין (למשל 050-1234567)",
+          nameRequired: "יש למלא שם",
         }
       : {
           title: "Complete your order",
@@ -59,7 +64,11 @@ export function OrderCheckoutModal({
           total: "Total",
           submit: "Confirm order",
           submitting: "Sending...",
+          invalidPhone: "Enter a valid Israeli mobile number (e.g. 050-1234567)",
+          nameRequired: "Please enter your name",
         };
+
+  const displayError = error || localError;
 
   return (
     <CustomerCenterModal
@@ -82,12 +91,12 @@ export function OrderCheckoutModal({
           {t.total}: {formatCustomerMoney(total, locale)}
         </p>
 
-        {error ? (
+        {displayError ? (
           <p
             role="alert"
             className="rounded-2xl bg-bakery-error/10 px-3 py-2 text-[14px] font-semibold text-bakery-error"
           >
-            {error}
+            {displayError}
           </p>
         ) : null}
 
@@ -114,7 +123,20 @@ export function OrderCheckoutModal({
             type="button"
             className="w-full min-h-[48px] font-extrabold"
             disabled={submitting}
-            onClick={() => onSubmit(name.trim(), phone.trim())}
+            onClick={() => {
+              const trimmedName = name.trim();
+              const trimmedPhone = phone.trim();
+              if (trimmedName.length < 2) {
+                setLocalError(t.nameRequired);
+                return;
+              }
+              if (!isValidPhone(trimmedPhone)) {
+                setLocalError(t.invalidPhone);
+                return;
+              }
+              setLocalError("");
+              onSubmit(trimmedName, trimmedPhone);
+            }}
           >
             {submitting ? t.submitting : t.submit}
           </Button>

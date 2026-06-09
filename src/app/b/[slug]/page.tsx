@@ -4,7 +4,7 @@ import {
   isBusinessAcceptingCustomers,
   publicBusinessUrl,
 } from "@/lib/business";
-import { getDealLines } from "@/lib/store-deal";
+import { serializePublicStoreDeal } from "@/lib/public-deals";
 import { PublicStorefront } from "@/components/public-storefront";
 import { getAllPlatformLegalDocuments } from "@/lib/legal/platform-legal";
 import { publicCatalogImageUrl } from "@/lib/public-image-url";
@@ -59,25 +59,7 @@ export default async function PublicBusinessPage({
           salePrice: p.salePrice,
           stock: p.stock,
         })),
-        deals: business.storeDeals.map((d) => {
-          const lines = getDealLines(d);
-          return {
-            id: d.id,
-            name: d.name,
-            imageUrl: publicCatalogImageUrl(d.imageUrl),
-            dealPrice: d.dealPrice,
-            validUntil: d.validUntil.toISOString(),
-            products: lines.map((line) => ({
-              id: line.product.id,
-              name: line.product.name,
-              imageUrl: publicCatalogImageUrl(line.product.imageUrl),
-              price: line.product.price,
-              salePrice: line.product.salePrice,
-              stock: line.product.stock,
-              quantity: line.quantity,
-            })),
-          };
-        }),
+        deals: business.storeDeals.map((d) => serializePublicStoreDeal(d)),
         slots: business.slots.map((s) => ({
           id: s.id,
           startAt: s.startAt.toISOString(),

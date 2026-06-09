@@ -10,7 +10,9 @@ import {
   DEV_PREVIEW_ORDERS,
   DEV_PREVIEW_SELLER_CHAT,
   getDevPreviewCustomerOrdersFromAppointments,
+  getDevPreviewCustomerOrdersFromRental,
 } from "@/lib/dev-preview-data";
+import { isScheduleLikeBusinessType, type BusinessType } from "@/lib/types";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { getDashboardLabels } from "@/lib/app-locale";
 import {
@@ -20,6 +22,7 @@ import {
 import {
   buildDevAppointmentsDashboardNotifications,
   buildDevDashboardNotifications,
+  buildDevRentalDashboardNotifications,
   isStoreOnlyNotificationKind,
   notificationKindLabel,
   type DashboardNotification,
@@ -50,18 +53,20 @@ export function DashboardInquiryBell({
   inquiriesHref?: string;
   basePath?: string;
   previewOnly?: boolean;
-  businessType?: "STORE" | "APPOINTMENTS";
+  businessType?: BusinessType;
 }) {
-  const isAppointments = businessType === "APPOINTMENTS";
+  const isScheduleLike = isScheduleLikeBusinessType(businessType);
   const { labels, formatDateTime, locale } = useAppLocale();
   const previewOrders = useMemo(
     () =>
       previewOnly
-        ? isAppointments
-          ? getDevPreviewCustomerOrdersFromAppointments()
-          : DEV_PREVIEW_ORDERS
+        ? businessType === "RENTAL"
+          ? getDevPreviewCustomerOrdersFromRental()
+          : businessType === "APPOINTMENTS"
+            ? getDevPreviewCustomerOrdersFromAppointments()
+            : DEV_PREVIEW_ORDERS
         : undefined,
-    [previewOnly, isAppointments]
+    [previewOnly, businessType]
   );
   const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
     previewOnly,
@@ -87,9 +92,11 @@ export function DashboardInquiryBell({
     if (previewOnly) {
       const notificationLabels = getDashboardLabels(locale);
       setNotifications(
-        isAppointments
-          ? buildDevAppointmentsDashboardNotifications(notificationLabels)
-          : buildDevDashboardNotifications(notificationLabels)
+        businessType === "RENTAL"
+          ? buildDevRentalDashboardNotifications(notificationLabels)
+          : businessType === "APPOINTMENTS"
+            ? buildDevAppointmentsDashboardNotifications(notificationLabels)
+            : buildDevDashboardNotifications(notificationLabels)
       );
       return;
     }
@@ -98,11 +105,11 @@ export function DashboardInquiryBell({
     if (!res.ok) return;
     const items: DashboardNotification[] = data.notifications ?? [];
     setNotifications(
-      isAppointments
+      isScheduleLike
         ? items.filter((item) => !isStoreOnlyNotificationKind(item.kind))
         : items
     );
-  }, [previewOnly, isAppointments, locale]);
+  }, [previewOnly, isScheduleLike, businessType, locale]);
 
   useEffect(() => {
     void load();

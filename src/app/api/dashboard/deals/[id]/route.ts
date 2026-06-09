@@ -23,6 +23,7 @@ const patchSchema = z.object({
     .optional(),
   dealPrice: z.number().positive().optional(),
   validUntil: z.string().datetime().optional(),
+  maxRedemptionsPerCustomer: z.number().int().min(0).max(99).optional(),
 });
 
 const dealInclude = {
@@ -99,6 +100,9 @@ export async function PATCH(
         }),
         ...(parsed.data.validUntil !== undefined && {
           validUntil: new Date(parsed.data.validUntil),
+        }),
+        ...(parsed.data.maxRedemptionsPerCustomer !== undefined && {
+          maxRedemptionsPerCustomer: parsed.data.maxRedemptionsPerCustomer,
         }),
       },
       include: dealInclude,
