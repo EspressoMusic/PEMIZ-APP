@@ -115,7 +115,7 @@ function WelcomeGuideModal({
             alt="Linky"
             width={80}
             height={80}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
             priority
           />
         </div>
