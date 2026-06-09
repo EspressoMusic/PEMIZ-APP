@@ -3,8 +3,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const svgPath = join(root, "public/icons/linky-icon.svg");
+const logoPath = join(root, "public/icons/linky-app-logo.png");
 const outDir = join(root, "public/icons");
+const publicDir = join(root, "public");
 
 async function main() {
   let sharp;
@@ -17,17 +18,21 @@ async function main() {
     process.exit(1);
   }
 
-  const svg = readFileSync(svgPath);
+  const logo = readFileSync(logoPath);
   const sizes = [
     { name: "icon-192.png", size: 192 },
     { name: "icon-512.png", size: 512 },
     { name: "apple-touch-icon.png", size: 180 },
+    { name: "favicon-32.png", size: 32 },
   ];
 
   for (const { name, size } of sizes) {
-    await sharp(svg).resize(size, size).png().toFile(join(outDir, name));
+    await sharp(logo).resize(size, size).png().toFile(join(outDir, name));
     console.log(`Wrote ${name}`);
   }
+
+  await sharp(logo).resize(32, 32).png().toFile(join(publicDir, "favicon.ico"));
+  console.log("Wrote favicon.ico");
 }
 
 main().catch((err) => {
