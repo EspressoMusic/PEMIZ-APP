@@ -1,15 +1,19 @@
 import { DevPreviewModeSwitch } from "@/components/dashboard/dev-preview-mode-switch";
+import {
+  DASHBOARD_LAYOUT_BODY,
+  DASHBOARD_LAYOUT_FRAME,
+} from "@/components/dashboard/dashboard-panel-frame";
 
-export default function DevSellerAppointmentsLayout({
+export default function DevSellerRentalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <div className="dashboard-surface bakery-frame-bg h-dvh overflow-hidden">
-      <div className="app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-1.5 lg:px-[14px]">
+      <div className={DASHBOARD_LAYOUT_FRAME}>
         <DevPreviewModeSwitch />
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
+        <div className={DASHBOARD_LAYOUT_BODY}>{children}</div>
       </div>
     </div>
   );

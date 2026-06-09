@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Zap } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
 
 export function DashboardNav({
   businessType: _businessType,
@@ -60,7 +61,7 @@ export function DashboardNav({
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
       aria-label={labels.navSeller}
     >
-      <div className="mx-auto flex w-full max-w-lg px-6 pt-2">
+      <div className={`flex w-full pt-2 ${DASHBOARD_MOBILE_STACK} px-4`}>
         {links.map((l) => {
           const active = l.key === "home" ? isHome : isActions;
           const Icon = l.icon;

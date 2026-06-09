@@ -8,15 +8,20 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 export function DashboardAccountSettingsGroup({
   basePath = "/dashboard",
   previewOnly = false,
+  businessType = "STORE",
 }: {
   basePath?: string;
   previewOnly?: boolean;
+  businessType?: string;
 }) {
   const { labels } = useAppLocale();
 
   return (
     <>
-      <DashboardStoreStylePicker previewOnly={previewOnly} />
+      <DashboardStoreStylePicker
+        previewOnly={previewOnly}
+        businessType={businessType}
+      />
       <DashboardActionRow
         href={`${basePath}/settings/account`}
         icon={User}

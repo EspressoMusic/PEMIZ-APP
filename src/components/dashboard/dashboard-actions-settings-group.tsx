@@ -65,6 +65,7 @@ export function DashboardActionsSettingsGroup({
             <DashboardAccountSettingsGroup
               basePath={basePath}
               previewOnly={previewOnly}
+              businessType={businessType}
             />
           </ul>
         </div>

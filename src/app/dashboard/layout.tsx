@@ -5,6 +5,10 @@ import { activateLegacyPendingBusiness } from "@/lib/business";
 import { isBusinessTrialExpired } from "@/lib/business-trial";
 import { syncBusinessTrialLock } from "@/lib/business-subscription";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import {
+  DASHBOARD_LAYOUT_BODY,
+  DASHBOARD_LAYOUT_FRAME,
+} from "@/components/dashboard/dashboard-panel-frame";
 import { ServiceUnavailableNotice } from "@/components/service-unavailable-notice";
 import { recordSystemIncident } from "@/lib/system-incidents";
 import { formatServerError } from "@/lib/server-errors";
@@ -51,15 +55,17 @@ export default async function DashboardLayout({
 
   return (
     <div className="dashboard-surface bakery-frame-bg h-dvh overflow-hidden">
-      <div className="app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-4 lg:px-[14px]">
-        <DashboardShell
-          businessId={user.business.id}
-          businessType={user.business.type}
-          storeLocale={user.business.storeLocale}
-          storeTheme={user.business.storeTheme}
-        >
-          {children}
-        </DashboardShell>
+      <div className={DASHBOARD_LAYOUT_FRAME}>
+        <div className={DASHBOARD_LAYOUT_BODY}>
+          <DashboardShell
+            businessId={user.business.id}
+            businessType={user.business.type}
+            storeLocale={user.business.storeLocale}
+            storeTheme={user.business.storeTheme}
+          >
+            {children}
+          </DashboardShell>
+        </div>
       </div>
     </div>
   );

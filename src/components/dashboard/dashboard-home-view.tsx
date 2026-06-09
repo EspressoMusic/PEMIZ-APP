@@ -100,7 +100,7 @@ export function DashboardHomeView({
         className={`${homeStack} min-h-0 flex-1 overflow-hidden ${
           isAppointments
             ? "mt-1.5 flex min-h-0 flex-1 flex-col gap-2"
-            : "mt-2 flex flex-col space-y-2 sm:mt-2.5"
+            : "mt-2 grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_auto] gap-2 sm:mt-2.5"
         }`}
       >
         {isAppointments ? (
@@ -127,7 +127,7 @@ export function DashboardHomeView({
         )}
         <div
           className={`shrink-0 ${
-            isAppointments ? "pb-1 pt-0.5" : "pb-0.5"
+            isAppointments ? "pb-1 pt-0.5" : "pb-1 pt-0.5"
           }`}
         >
           <DashboardCustomerLinkCard

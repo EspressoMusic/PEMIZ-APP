@@ -358,6 +358,9 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipDealsBody: string;
   sellerGuideWelcomeTipLimitsTitle: string;
   sellerGuideWelcomeTipLimitsBody: string;
+  sellerGuideReplayTitle: string;
+  sellerGuideReplayBody: string;
+  sellerGuideReplayAction: string;
   liveTourIntroTitle: string;
   liveTourIntroBody: string;
   liveTourIntroTitleAppointments: string;
@@ -839,6 +842,9 @@ const HE: DashboardLabels = {
   sellerGuideWelcomeTipLimitsTitle: "איך מגדירים הגבלות?",
   sellerGuideWelcomeTipLimitsBody:
     "פעולות ← חנות ← דילים והגבלות ← הגבלות. מגדירים שעות וימים שבהם הלקוחות יכולים להזמין.",
+  sellerGuideReplayTitle: "מדריך התחלה",
+  sellerGuideReplayBody: "רוצה לעבור שוב על השלבים הראשונים בלינקי?",
+  sellerGuideReplayAction: "הפעל מדריך שוב",
   liveTourIntroTitle: "בואו נוסיף את המוצר הראשון",
   liveTourIntroBody:
     "נסיור קצר על המסך האמיתי — נלווה אותך שלב-אחר-שלב עד שהמוצר נשמר בחנות.",
@@ -1400,6 +1406,9 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeTipLimitsTitle: "How do I set order limits?",
   sellerGuideWelcomeTipLimitsBody:
     "Actions → Store → Deals & limits → Limits. Set the hours and days when customers can order.",
+  sellerGuideReplayTitle: "Getting started guide",
+  sellerGuideReplayBody: "Want to walk through the first steps in Linky again?",
+  sellerGuideReplayAction: "Show guide again",
   liveTourIntroTitle: "Let's add your first product",
   liveTourIntroBody:
     "A quick hands-on tour — we'll walk you through the real screens until your product is saved.",

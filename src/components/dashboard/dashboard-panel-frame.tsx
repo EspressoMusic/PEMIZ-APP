@@ -3,6 +3,13 @@ import type { ReactNode } from "react";
 /** רוחב מובייל כמו דף הבית */
 export const DASHBOARD_MOBILE_STACK = "mx-auto w-full max-w-[360px]";
 
+/** מעטפת עמוד מוכר — גובה מלא מעל סרגל תחתון */
+export const DASHBOARD_LAYOUT_FRAME =
+  "app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-2 sm:py-3 lg:px-[14px]";
+
+export const DASHBOARD_LAYOUT_BODY =
+  "flex min-h-0 flex-1 flex-col overflow-hidden";
+
 /** גובה אזור התוכן מעל סרגל הניווט */
 export const DASHBOARD_VIEWPORT_HEIGHT =
   "h-[calc(100dvh-76px-env(safe-area-inset-bottom)-1.5rem)] max-h-[calc(100dvh-76px-env(safe-area-inset-bottom)-1.5rem)]";

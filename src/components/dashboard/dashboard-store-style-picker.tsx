@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Palette } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { BookOpen, Palette } from "lucide-react";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useStoreTheme } from "@/components/dashboard/store-theme-provider";
@@ -13,15 +14,20 @@ import {
   storeThemeLabel,
   type StoreThemeId,
 } from "@/lib/store-themes";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 
 export function DashboardStoreStylePicker({
   previewOnly = false,
   embeddedInPanel = false,
+  businessType = "STORE",
 }: {
   previewOnly?: boolean;
   /** Inside shared «חשבון וחנות» panel in settings. */
   embeddedInPanel?: boolean;
+  businessType?: string;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -62,6 +68,23 @@ export function DashboardStoreStylePicker({
     } finally {
       setSaving(false);
     }
+  }
+
+  function restartSellerGuide() {
+    setOpen(false);
+    if (previewOnly) {
+      const guidePath = isScheduleLikeBusinessType(businessType)
+        ? "/dev/guide/appointments"
+        : "/dev/guide";
+      router.push(`${guidePath}?reset=1`);
+      return;
+    }
+    const params = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.search : ""
+    );
+    params.set("reset", "1");
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : `${pathname}?reset=1`);
   }
 
   const styleButton = (
@@ -154,6 +177,29 @@ export function DashboardStoreStylePicker({
                 </button>
               );
             })}
+          </div>
+
+          <div className="bakery-float-tile space-y-3 rounded-[18px] p-4 text-start">
+            <div className="flex items-start gap-3">
+              <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+                <BookOpen className="h-6 w-6" strokeWidth={1.75} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[15px] font-extrabold text-bakery-ink">
+                  {labels.sellerGuideReplayTitle}
+                </p>
+                <p className="mt-1 text-[12px] font-semibold leading-snug text-bakery-muted">
+                  {labels.sellerGuideReplayBody}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={restartSellerGuide}
+              className="w-full rounded-full bg-bakery-primary/15 px-4 py-2.5 text-[14px] font-extrabold text-bakery-primary ring-2 ring-bakery-primary/25 transition hover:bg-bakery-primary/20"
+            >
+              {labels.sellerGuideReplayAction}
+            </button>
           </div>
 
           {message && (

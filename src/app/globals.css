@@ -1146,6 +1146,14 @@ html:not([data-store-theme="dark"])
   box-shadow: none;
 }
 
+@media (min-width: 640px) {
+  html:not([data-store-theme="dark"])
+    .dashboard-card.bakery-action-sheet-panel.bakery-action-sheet-panel--fullscreen {
+    border-radius: 32px;
+    box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
+  }
+}
+
 html:not([data-store-theme="dark"]) .dashboard-deal-form-sheet > h2 {
   padding-top: 0.625rem;
   padding-bottom: 0.125rem;
@@ -1614,6 +1622,10 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   border-radius: 9999px;
   background: #a65d5d;
   box-shadow: 0 0 0 2px var(--bakery-prep-cream);
+}
+
+.dashboard-shell-main {
+  padding-bottom: calc(88px + max(10px, env(safe-area-inset-bottom)));
 }
 
 .dashboard-home-store-link--compact {

@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
 
 export function DashboardActionSheet({
   open,
@@ -61,7 +62,7 @@ export function DashboardActionSheet({
   const fullViewport = expanded && !fitContent;
 
   const alignClass = fullViewport
-    ? "items-stretch justify-center p-0"
+    ? "items-stretch justify-center p-0 sm:p-4"
     : placement === "top"
       ? "items-start justify-center pt-4 sm:pt-6"
       : placement === "upper"
@@ -102,7 +103,7 @@ export function DashboardActionSheet({
 
   return createPortal(
     <div
-      className={`fixed inset-0 flex ${fullViewport ? "" : "p-3 sm:p-4"} ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
+      className={`fixed inset-0 flex p-3 sm:p-4 ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel ?? title ?? closeLabel}
@@ -117,14 +118,16 @@ export function DashboardActionSheet({
         tabIndex={elevated ? -1 : undefined}
       />
       <div
-        className={`relative z-10 flex w-full flex-col ${
-          fullViewport ? "max-w-none" : "max-w-md"
-        } ${compact && !backOutside ? "gap-0" : fullViewport ? "gap-0" : "gap-2"} ${wrapperHeightClass}`}
+        className={`relative z-10 flex w-full flex-col ${DASHBOARD_MOBILE_STACK} ${
+          compact && !backOutside ? "gap-0" : fullViewport ? "gap-0 sm:gap-2" : "gap-2"
+        } ${wrapperHeightClass}`}
       >
         {backOutside ? backControl : null}
         <div
           className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex w-full flex-col ${
-            fullViewport ? "rounded-none bakery-action-sheet-panel--fullscreen" : "rounded-[32px]"
+            fullViewport
+              ? "rounded-none bakery-action-sheet-panel--fullscreen sm:rounded-[32px]"
+              : "rounded-[32px]"
           } ${panelHeightClass} ${
             fitContent ? "overflow-visible" : "min-h-0 flex-1 overflow-hidden"
           } bakery-action-sheet-panel--warm${
