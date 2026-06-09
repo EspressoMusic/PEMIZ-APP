@@ -1,21 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import {
-  CalendarClock,
-  ChevronDown,
-  Clock,
-  History,
-  Settings,
-  TrendingUp,
-  User,
-} from "lucide-react";
+import { ChevronDown, Settings, TrendingUp } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   DASHBOARD_ACTION_ROW_CLASS,
   DashboardActionRow,
 } from "@/components/dashboard/dashboard-action-row";
-import { DashboardStoreStylePicker } from "@/components/dashboard/dashboard-store-style-picker";
+import { DashboardAccountSettingsGroup } from "@/components/dashboard/dashboard-account-settings-group";
+import { DashboardCalendarLimitsSettingsGroup } from "@/components/dashboard/dashboard-calendar-limits-settings-group";
 
 export function DashboardActionsSettingsGroup({
   basePath = "/dashboard",
@@ -65,31 +58,13 @@ export function DashboardActionsSettingsGroup({
                 title={labels.salesAndProfit}
               />
             ) : null}
-            <DashboardStoreStylePicker previewOnly={previewOnly} />
-            <DashboardActionRow
-              href={`${basePath}/settings/account`}
-              icon={User}
-              title={labels.accountAndLink}
-            />
             {businessType === "APPOINTMENTS" ? (
-              <>
-                <DashboardActionRow
-                  href={`${basePath}/settings/slots`}
-                  icon={CalendarClock}
-                  title={labels.appointmentCalendar}
-                />
-                <DashboardActionRow
-                  href={`${basePath}/settings/limits`}
-                  icon={Clock}
-                  title={labels.limits}
-                />
-                <DashboardActionRow
-                  href={`${basePath}/settings/appointments/history`}
-                  icon={History}
-                  title={labels.appointmentHistory}
-                />
-              </>
+              <DashboardCalendarLimitsSettingsGroup basePath={basePath} />
             ) : null}
+            <DashboardAccountSettingsGroup
+              basePath={basePath}
+              previewOnly={previewOnly}
+            />
           </ul>
         </div>
       )}

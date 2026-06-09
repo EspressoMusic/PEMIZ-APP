@@ -9,7 +9,9 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { History, X } from "lucide-react";
+import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import {
   APPOINTMENT_DAY_FRAME_SQUARE_LARGE,
   AppointmentCalendarPanel,
@@ -66,6 +68,9 @@ function DashboardHomeCalendarModal({
   renderDay,
   labels,
   locale,
+  historyAppointments,
+  bookingByDay,
+  onCustomerClick,
 }: {
   open: boolean;
   onClose: () => void;
@@ -79,10 +84,18 @@ function DashboardHomeCalendarModal({
     homeCalendarTitle: string;
     homeCalendarPrevMonth: string;
     homeCalendarNextMonth: string;
+    homeCalendarHistoryHint: string;
+    appointmentHistory: string;
+    noAppointmentHistory: string;
     close: string;
   };
   locale: "he" | "en";
+  historyAppointments: SellerHomeAppointment[];
+  bookingByDay: boolean;
+  onCustomerClick?: (input: CustomerProfileInput) => void;
 }) {
+  const [historyOpen, setHistoryOpen] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -92,9 +105,14 @@ function DashboardHomeCalendarModal({
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open) setHistoryOpen(false);
+  }, [open]);
+
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
+    <>
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center p-3"
       role="dialog"
@@ -134,8 +152,56 @@ function DashboardHomeCalendarModal({
             renderDay={renderDay}
           />
         </div>
+        <div className="shrink-0 border-t border-bakery-border/25 bg-[#D2B88E]/95 px-2.5 pb-2.5 pt-2">
+          <button
+            type="button"
+            onClick={() => setHistoryOpen(true)}
+            className={DASHBOARD_ACTION_ROW_CLASS}
+          >
+            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+              <History className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {labels.appointmentHistory}
+            </span>
+          </button>
+        </div>
       </div>
-    </div>,
+    </div>
+
+      <DashboardActionSheet
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        title={labels.appointmentHistory}
+        ariaLabel={labels.appointmentHistory}
+        placement="center"
+        showBackButton
+        elevated
+      >
+        <p className="pb-2 text-center text-[13px] font-semibold leading-snug text-bakery-muted">
+          {labels.homeCalendarHistoryHint}
+        </p>
+        {historyAppointments.length === 0 ? (
+          <p className="py-6 text-center text-[14px] font-semibold text-bakery-muted">
+            {labels.noAppointmentHistory}
+          </p>
+        ) : (
+          <ul className="space-y-2 text-start">
+            {historyAppointments.map((appt) => (
+              <li key={appt.id}>
+                <DashboardAppointmentCard
+                  appointment={appt}
+                  bookingByDay={bookingByDay}
+                  outlined
+                  relativeDateLabels
+                  onCustomerClick={onCustomerClick}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </DashboardActionSheet>
+    </>,
     document.body
   );
 }
@@ -276,14 +342,12 @@ function DashboardDayAppointmentsModal({
                             {labels.homeCalendarSlotOpen}
                           </p>
 
-                          <div className="flex h-10 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[4px] border-[2px] border-bakery-border/40 bg-[#F2EBE0] px-0.5 shadow-[0_2px_8px_rgba(58,47,38,0.08)]">
-                            <span
-                              className="w-full text-center text-[12px] font-extrabold leading-none tabular-nums text-bakery-ink"
-                              dir="ltr"
-                            >
-                              {startTime}
-                            </span>
-                          </div>
+                          <span
+                            className="w-[4.5rem] shrink-0 text-center text-[22px] font-extrabold leading-none tabular-nums text-bakery-ink sm:text-[24px]"
+                            dir="ltr"
+                          >
+                            {startTime}
+                          </span>
 
                           <p
                             className="min-w-0 flex-1 truncate text-center text-[13px] font-bold tabular-nums text-bakery-ink"
@@ -294,7 +358,7 @@ function DashboardDayAppointmentsModal({
                           </p>
 
                           <p
-                            className="min-w-0 max-w-[38%] truncate text-right text-[15px] font-extrabold leading-tight text-bakery-primary"
+                            className="shrink-0 text-right text-[15px] font-extrabold leading-tight text-bakery-primary"
                             dir="rtl"
                           >
                             {isBooking
@@ -595,6 +659,14 @@ export function DashboardAppointmentsHomeCalendar({
     return active.filter((appt) => appt.status !== "CANCELLED");
   }, [appointments, nowMs, hydrated, initialReferenceNowMs]);
 
+  const historyAppointments = useMemo(() => {
+    const referenceMs = hydrated
+      ? nowMs
+      : (initialReferenceNowMs ?? nowMs);
+    const { history } = splitSellerAppointments(appointments, referenceMs);
+    return history.filter((appt) => appt.status !== "CANCELLED");
+  }, [appointments, nowMs, hydrated, initialReferenceNowMs]);
+
   const appointmentCustomerOrders = useMemo(
     (): DashboardOrderView[] =>
       appointments.map((appt) => ({
@@ -648,11 +720,11 @@ export function DashboardAppointmentsHomeCalendar({
     <>
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <div
-          className="dashboard-card bakery-float-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px] p-3"
+          className="dashboard-card bakery-float-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px] p-2.5 sm:p-3"
           role="region"
           aria-label={labels.homeUpcomingAppointments}
         >
-          <h2 className="shrink-0 pb-2 text-center text-[16px] font-extrabold text-bakery-ink sm:text-[17px]">
+          <h2 className="shrink-0 pb-1.5 text-center text-[16px] font-extrabold text-bakery-ink sm:text-[17px]">
             {labels.homeUpcomingAppointments}
           </h2>
           <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[18px] bg-transparent p-2 [-webkit-overflow-scrolling:touch]">
@@ -668,6 +740,7 @@ export function DashboardAppointmentsHomeCalendar({
                       appointment={appt}
                       bookingByDay={bookingByDay}
                       outlined
+                      homeList
                       highlightAsNext={hydrated && index === 0}
                       relativeDateLabels={hydrated}
                       onCustomerClick={openCustomer}
@@ -677,7 +750,7 @@ export function DashboardAppointmentsHomeCalendar({
               </ul>
             )}
           </div>
-          <div className="shrink-0 px-1 pb-0.5 pt-2">
+          <div className="shrink-0 px-1 pb-0 pt-1.5">
             <div className="dashboard-home-header dashboard-home-header--compact">
               <div className="dashboard-home-header__inner text-center px-2.5 py-2">
                 <button
@@ -705,10 +778,16 @@ export function DashboardAppointmentsHomeCalendar({
         weekdays={weekdays}
         weeks={weeks}
         renderDay={renderCalendarDay}
+        historyAppointments={historyAppointments}
+        bookingByDay={bookingByDay}
+        onCustomerClick={openCustomer}
         labels={{
           homeCalendarTitle: labels.homeCalendarTitle,
           homeCalendarPrevMonth: labels.homeCalendarPrevMonth,
           homeCalendarNextMonth: labels.homeCalendarNextMonth,
+          homeCalendarHistoryHint: labels.homeCalendarHistoryHint,
+          appointmentHistory: labels.appointmentHistory,
+          noAppointmentHistory: labels.noAppointmentHistory,
           close: labels.close,
         }}
         locale={locale}

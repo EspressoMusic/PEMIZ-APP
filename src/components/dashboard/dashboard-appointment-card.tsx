@@ -139,7 +139,7 @@ function DashboardAppointmentDetailModal({
             </h2>
           </div>
 
-          <div className="space-y-3 rounded-[18px] border border-bakery-border/35 bg-bakery-card px-4 py-4 text-start">
+          <div className="space-y-3 rounded-[18px] border border-bakery-border/35 bg-bakery-card px-4 py-4 text-center">
             {sellerBooking ? (
               <div>
                 <p className="text-[13px] font-bold text-bakery-muted">
@@ -165,7 +165,10 @@ function DashboardAppointmentDetailModal({
                 <p className="text-[13px] font-bold text-bakery-muted">
                   {labels.phone}
                 </p>
-                <p className="text-[18px] font-extrabold tabular-nums text-bakery-ink" dir="ltr">
+                <p
+                  className="text-[18px] font-extrabold tabular-nums text-bakery-ink"
+                  dir="ltr"
+                >
                   {appointment.customerPhone}
                 </p>
               </div>
@@ -181,7 +184,10 @@ function DashboardAppointmentDetailModal({
                   {formatAppointmentTimeLine(appointment.slot.startAt, locale)}
                 </span>
               </p>
-              <p className="mt-0.5 text-[15px] font-semibold text-bakery-muted" dir="ltr">
+              <p
+                className="mt-0.5 text-[15px] font-semibold text-bakery-muted"
+                dir="ltr"
+              >
                 {formatDateTime(appointment.slot.startAt)}
               </p>
             </div>
@@ -230,6 +236,7 @@ export function DashboardAppointmentCard({
   outlined = false,
   highlightAsNext = false,
   relativeDateLabels = true,
+  homeList = false,
 }: {
   appointment: DashboardAppointmentView;
   onHide?: () => void;
@@ -240,6 +247,8 @@ export function DashboardAppointmentCard({
   highlightAsNext?: boolean;
   /** היום/מחר — only after client hydration to avoid SSR mismatch. */
   relativeDateLabels?: boolean;
+  /** דף הבית — בלי שם שירות/הערות בשורת הרשימה. */
+  homeList?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
   const [detailOpen, setDetailOpen] = useState(false);
@@ -295,23 +304,29 @@ export function DashboardAppointmentCard({
             {dateLabel}
           </p>
 
-          <div className="flex h-10 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[4px] border-[2px] border-bakery-border/40 bg-[#F2EBE0] px-0.5 shadow-[0_2px_8px_rgba(58,47,38,0.08)]">
-            {timeLine ? (
-              <span
-                className="w-full text-center text-[12px] font-extrabold leading-none tabular-nums text-bakery-ink"
-                dir="ltr"
-              >
-                {timeLine}
-              </span>
-            ) : null}
-          </div>
+          {timeLine ? (
+            <span
+              className={`shrink-0 text-center text-[22px] font-extrabold leading-none tabular-nums text-bakery-ink sm:text-[24px] ${
+                homeList ? "min-w-0 flex-1" : "w-[4.5rem]"
+              }`}
+              dir="ltr"
+            >
+              {timeLine}
+            </span>
+          ) : (
+            <span className={homeList ? "min-w-0 flex-1" : "w-[4.5rem] shrink-0"} aria-hidden />
+          )}
 
-          <p className="min-w-0 flex-1 truncate text-center text-[13px] font-bold text-bakery-ink">
-            {serviceName || "\u00a0"}
-          </p>
+          {!homeList ? (
+            <p className="min-w-0 flex-1 truncate text-center text-[13px] font-bold text-bakery-ink">
+              {serviceName || "\u00a0"}
+            </p>
+          ) : null}
 
           <p
-            className="min-w-0 max-w-[38%] truncate text-right text-[15px] font-extrabold leading-tight text-bakery-ink"
+            className={`min-w-0 truncate text-right text-[15px] font-extrabold leading-tight text-bakery-ink ${
+              homeList ? "max-w-[48%] flex-1" : "max-w-[38%]"
+            }`}
             dir="rtl"
           >
             {displayName}

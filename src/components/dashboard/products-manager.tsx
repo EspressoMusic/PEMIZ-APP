@@ -657,9 +657,10 @@ export function ProductsManager({
         onClose={() => setAddFormOpen(false)}
         title={addLabel}
         ariaLabel={addLabel}
-        placement="upper"
+        placement={isServices ? "center" : "upper"}
         showBackButton
         compact
+        warmPanel={isServices}
       >
         <form
           ref={formRef}

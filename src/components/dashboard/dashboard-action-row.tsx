@@ -53,17 +53,34 @@ export function DashboardActionRow({
   icon,
   title,
   subtitle,
+  embeddedInPanel = false,
 }: {
   href: string;
   icon: LucideIcon;
   title: string;
   subtitle?: string;
+  /** Inside a shared «חשבון וחנות» panel — no outer tile border. */
+  embeddedInPanel?: boolean;
 }) {
+  const content = (
+    <>
+      <DashboardActionRowIcon icon={icon} />
+      <DashboardActionRowText title={title} subtitle={subtitle} />
+    </>
+  );
+
+  if (embeddedInPanel) {
+    return (
+      <Link href={href} className="dashboard-account-settings-panel__row">
+        {content}
+      </Link>
+    );
+  }
+
   return (
     <li>
       <Link href={href} className={DASHBOARD_ACTION_ROW_CLASS}>
-        <DashboardActionRowIcon icon={icon} />
-        <DashboardActionRowText title={title} subtitle={subtitle} />
+        {content}
       </Link>
     </li>
   );

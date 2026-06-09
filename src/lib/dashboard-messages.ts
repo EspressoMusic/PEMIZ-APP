@@ -18,6 +18,7 @@ export type DashboardLabels = {
   appointments: string;
   appointmentSlots: string;
   appointmentCalendar: string;
+  appointmentCalendarAndLimits: string;
   appointmentGapMinutes: string;
   appointmentDurationMinutes: string;
   appointmentBookingHours: string;
@@ -211,6 +212,7 @@ export type DashboardLabels = {
   homeOpenCalendar: string;
   homeCalendarTitle: string;
   homeCalendarQuickBook: string;
+  homeCalendarHistoryHint: string;
   sellerWalkInCustomer: string;
   sellerSelfBooking: string;
   appointmentSlotTime: string;
@@ -341,6 +343,10 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipAddServiceBody: string;
   sellerGuideWelcomeTipCalendarTitle: string;
   sellerGuideWelcomeTipCalendarBody: string;
+  sellerGuideWelcomeTipBookedAppointmentsTitle: string;
+  sellerGuideWelcomeTipBookedAppointmentsBody: string;
+  sellerGuideWelcomeTipDurationGapTitle: string;
+  sellerGuideWelcomeTipDurationGapBody: string;
   sellerGuideWelcomeTipDealsTitle: string;
   sellerGuideWelcomeTipDealsBody: string;
   sellerGuideWelcomeTipLimitsTitle: string;
@@ -466,6 +472,7 @@ export type DashboardLabels = {
   copyLink: string;
   copied: string;
   customerPreview: string;
+  viewCustomerSide: string;
   broadcastMessage: string;
   broadcastPlaceholder: string;
   sendToAllCustomers: string;
@@ -512,6 +519,7 @@ const HE: DashboardLabels = {
   appointments: "תורים",
   appointmentSlots: "משבצות תורים",
   appointmentCalendar: "יומן",
+  appointmentCalendarAndLimits: "יומן והגבלות",
   appointmentGapMinutes: "רווח בין פגישות (דקות)",
   appointmentDurationMinutes: "משך כל פגישה (דקות)",
   appointmentBookingHours: "שעות לקביעת תורים",
@@ -521,7 +529,7 @@ const HE: DashboardLabels = {
   appointmentCalendarSaved: "נשמר — היומן עודכן אוטומטית",
   workingDays: "ימי עבודה",
   settings: "הגדרות",
-  accountAndLink: "חשבון וקישור לחנות",
+  accountAndLink: "חשבון וחנות",
   storePanelsTitle: "מה יופיע באתר הלקוחות",
   storePanelDeals: "מבצעים (דילים)",
   storePanelBroadcast: "הודעות והתראות ללקוחות",
@@ -640,6 +648,8 @@ const HE: DashboardLabels = {
   homeOpenCalendar: "פתיחת יומן",
   homeCalendarTitle: "יומן",
   homeCalendarQuickBook: "שבץ תור",
+  homeCalendarHistoryHint:
+    "לעבר רחוק יותר — עברו לחודשים קודמים ובחרו יום ביומן.",
   sellerWalkInCustomer: "לקוח",
   sellerSelfBooking: "שיבוץ מוכר",
   appointmentSlotTime: "שעת הפגישה",
@@ -734,7 +744,7 @@ const HE: DashboardLabels = {
   sellerGuideIntro:
     "חמישה דברים פשוטים. ככה מנהלים את החנות — קרא בקצרה:",
   sellerGuideIntroAppointments:
-    "שלושה דברים פשוטים. ככה מנהלים את עסק התורים — קרא בקצרה:",
+    "חמישה דברים (+ בונוס). ככה מנהלים עסק תורים — קראו בקצרה:",
   sellerGuideStepNavTitle: "1. הניווט בתחתית המסך",
   sellerGuideStepNavBody:
     "יש שני כפתורים קבועים: בית — סיכום יומי וקישור ללקוחות. פעולות — כל ניהול העסק.",
@@ -782,15 +792,21 @@ const HE: DashboardLabels = {
   sellerGuideWelcomeTipOrdersTitle: "איפה רואים הזמנות ומאשרים?",
   sellerGuideWelcomeTipOrdersBody:
     "פעולות ← חנות ← הזמנות. לוחצים על שם הלקוח, רואים מה הוא קנה, ולוחצים אשר.",
-  sellerGuideWelcomeTipCustomersTitle: "איך עונים ללקוח?",
+  sellerGuideWelcomeTipCustomersTitle: "איך מדברים עם לקוחות?",
   sellerGuideWelcomeTipCustomersBody:
-    "פעולות ← לקוחות ← פניות לקוחות. שם יש צ'אט ופניות — פותחים ועונים.",
-  sellerGuideWelcomeTipAddServiceTitle: "איך מוסיפים שירות?",
+    "פעולות ← לקוחות ← פניות לקוחות. שם צ'אט ופניות — פותחים שיחה ועונים.",
+  sellerGuideWelcomeTipAddServiceTitle: "איך ממלאים שירות?",
   sellerGuideWelcomeTipAddServiceBody:
-    "למטה לוחצים פעולות ← חנות ← שירותים ← הוסף שירות. שמים שם ומחיר — ושומרים.",
-  sellerGuideWelcomeTipCalendarTitle: "איפה רואים תורים?",
+    "פעולות ← חנות ← שירותים ← הוסף שירות. ממלאים שם, מחיר ומשך השירות בדקות — ושומרים.",
+  sellerGuideWelcomeTipBookedAppointmentsTitle: "איפה רואים תורים שנקבעו?",
+  sellerGuideWelcomeTipBookedAppointmentsBody:
+    "בבית תחת «פגישות קרובות». גם בפעולות ← חנות ← תורים — שם כל התורים הפעילים, ו«היסטוריית תורים» לעבר.",
+  sellerGuideWelcomeTipCalendarTitle: "איפה היומן?",
   sellerGuideWelcomeTipCalendarBody:
-    "בבית רואים יומן. בפעולות ← חנות אפשר לפתוח משבצות ולראות מי קבע תור.",
+    "בבית — יומן חודשי עם ימים פתוחים לקביעה. לוחצים על יום לראות פגישות באותו יום, או «פתיחת יומן» לתצוגה מלאה.",
+  sellerGuideWelcomeTipDurationGapTitle: "בונוס: משך שירות ורווח בין פגישות",
+  sellerGuideWelcomeTipDurationGapBody:
+    "משך לכל שירות — בשדה «משך השירות» כשמוסיפים שירות. רווח בין פגישות ושעות קביעה: פעולות ← הגדרות ← יומן.",
   sellerGuideWelcomeTipDealsTitle: "איך מוסיפים דיל?",
   sellerGuideWelcomeTipDealsBody:
     "פעולות ← חנות ← דילים והגבלות ← דילים ← הוסף דיל. בוחרים מוצרים, מחיר ותוקף — ומפרסמים.",
@@ -998,6 +1014,7 @@ const HE: DashboardLabels = {
   notificationStockOut: "אזל מהמלאי",
   notificationStockLeft: "נשארו {n}",
   customerPreview: "תצוגת לקוח →",
+  viewCustomerSide: "לראות את צד הלקוח",
   broadcastMessage: "תוכן ההודעה",
   broadcastPlaceholder: "לדוגמה: מבצע סוף שבוע — 10% על כל המוצרים!",
   sendToAllCustomers: "שלח לכל הלקוחות",
@@ -1043,6 +1060,7 @@ const EN: DashboardLabels = {
   appointments: "Appointments",
   appointmentSlots: "Time slots",
   appointmentCalendar: "Calendar",
+  appointmentCalendarAndLimits: "Calendar & limits",
   appointmentGapMinutes: "Gap between appointments (minutes)",
   appointmentDurationMinutes: "Appointment length (minutes)",
   appointmentBookingHours: "Booking hours",
@@ -1052,7 +1070,7 @@ const EN: DashboardLabels = {
   appointmentCalendarSaved: "Saved — calendar updated automatically",
   workingDays: "Working days",
   settings: "Settings",
-  accountAndLink: "Account & store link",
+  accountAndLink: "Account & store",
   storePanelsTitle: "What customers see on your store",
   storePanelDeals: "Deals",
   storePanelBroadcast: "Messages & alerts to customers",
@@ -1171,6 +1189,8 @@ const EN: DashboardLabels = {
   homeOpenCalendar: "Open calendar",
   homeCalendarTitle: "Calendar",
   homeCalendarQuickBook: "Book slot",
+  homeCalendarHistoryHint:
+    "For older dates — go to previous months and tap a day on the calendar.",
   sellerWalkInCustomer: "Customer",
   sellerSelfBooking: "Seller booking",
   appointmentSlotTime: "Appointment time",
@@ -1266,7 +1286,7 @@ const EN: DashboardLabels = {
   sellerGuideIntro:
     "Five simple steps to run your store — read this first:",
   sellerGuideIntroAppointments:
-    "Three simple steps to run appointments — read this first:",
+    "Five essentials (+ a bonus). How to run an appointments business — read this first:",
   sellerGuideStepNavTitle: "1. Bottom navigation",
   sellerGuideStepNavBody:
     "Two fixed buttons: Home — daily summary and your customer link. Actions — everything you manage.",
@@ -1314,15 +1334,21 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeTipOrdersTitle: "Where are orders? How do I approve?",
   sellerGuideWelcomeTipOrdersBody:
     "Actions → Store → Orders. Tap the customer's name, see what they ordered, then tap Confirm.",
-  sellerGuideWelcomeTipCustomersTitle: "How do I reply to a customer?",
+  sellerGuideWelcomeTipCustomersTitle: "How do I talk to customers?",
   sellerGuideWelcomeTipCustomersBody:
     "Actions → Customers → Customer inquiries. Open Chat or Inquiries and reply.",
-  sellerGuideWelcomeTipAddServiceTitle: "How do I add a service?",
+  sellerGuideWelcomeTipAddServiceTitle: "How do I set up a service?",
   sellerGuideWelcomeTipAddServiceBody:
-    "Tap Actions → Store → Services → Add service. Enter name and price — then save.",
-  sellerGuideWelcomeTipCalendarTitle: "Where do I see appointments?",
+    "Actions → Store → Services → Add service. Enter name, price, and service duration in minutes — then save.",
+  sellerGuideWelcomeTipBookedAppointmentsTitle: "Where are booked appointments?",
+  sellerGuideWelcomeTipBookedAppointmentsBody:
+    "On Home under upcoming appointments. Also Actions → Store → Appointments for active bookings, and Appointment history for past ones.",
+  sellerGuideWelcomeTipCalendarTitle: "Where is the calendar?",
   sellerGuideWelcomeTipCalendarBody:
-    "Home shows your calendar. In Actions → Store you can open slots and see who booked.",
+    "On Home — a monthly calendar with open booking days. Tap a day to see that day's appointments, or Open calendar for the full view.",
+  sellerGuideWelcomeTipDurationGapTitle: "Bonus: duration & gap between appointments",
+  sellerGuideWelcomeTipDurationGapBody:
+    "Per-service duration — in the Add service form. Gap between appointments and booking hours: Actions → Settings → Calendar.",
   sellerGuideWelcomeTipDealsTitle: "How do I add a deal?",
   sellerGuideWelcomeTipDealsBody:
     "Actions → Store → Deals & limits → Deals → Add deal. Pick products, price, and expiry — then publish.",
@@ -1529,6 +1555,7 @@ const EN: DashboardLabels = {
   notificationStockOut: "Out of stock",
   notificationStockLeft: "{n} left",
   customerPreview: "Customer preview →",
+  viewCustomerSide: "View customer store",
   broadcastMessage: "Message",
   broadcastPlaceholder: "e.g. Weekend sale — 10% off everything!",
   sendToAllCustomers: "Send to all customers",

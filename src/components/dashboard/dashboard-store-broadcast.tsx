@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, History, Megaphone, X } from "lucide-react";
 import { Alert, Button, Textarea } from "@/components/ui";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   appendBroadcastUpdate,
@@ -170,7 +171,7 @@ export function DashboardStoreBroadcast({
         : []
   );
   const [expandedSentAt, setExpandedSentAt] = useState<string | null>(null);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historySheetOpen, setHistorySheetOpen] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -267,10 +268,11 @@ export function DashboardStoreBroadcast({
         <div className="mt-2 border-t border-bakery-border/25 pt-2">
           <button
             type="button"
-            onClick={() => setHistoryOpen((value) => !value)}
-            aria-expanded={historyOpen}
+            onClick={() => setHistorySheetOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={historySheetOpen}
             className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-              historyOpen ? "bakery-float-tile--active" : ""
+              historySheetOpen ? "bakery-float-tile--active" : ""
             }`}
           >
             <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
@@ -285,42 +287,47 @@ export function DashboardStoreBroadcast({
                 </span>
               )}
             </span>
-            <ChevronDown
-              className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-                historyOpen ? "rotate-180" : ""
-              }`}
-              strokeWidth={2.5}
-              aria-hidden
-            />
           </button>
-
-          {historyOpen && (
-            <div className="mt-2 text-center">
-              {history.length > 0 ? (
-                <ul className="dashboard-broadcast-history-list">
-                  {history.map((item) => (
-                    <BroadcastHistoryItem
-                      key={item.sentAt}
-                      item={item}
-                      expanded={expandedSentAt === item.sentAt}
-                      formatDayDate={formatDayDate}
-                      onToggle={() =>
-                        setExpandedSentAt((current) =>
-                          current === item.sentAt ? null : item.sentAt
-                        )
-                      }
-                    />
-                  ))}
-                </ul>
-              ) : (
-                <p className="dashboard-broadcast-history-empty">
-                  {labels.broadcastHistoryEmpty}
-                </p>
-              )}
-            </div>
-          )}
         </div>
       </div>
+
+      <DashboardActionSheet
+        open={historySheetOpen}
+        onClose={() => {
+          setHistorySheetOpen(false);
+          setExpandedSentAt(null);
+        }}
+        title={
+          history.length > 0
+            ? `${labels.broadcastHistory} (${history.length})`
+            : labels.broadcastHistory
+        }
+        ariaLabel={labels.broadcastHistory}
+        placement="center"
+        showBackButton
+      >
+        {history.length > 0 ? (
+          <ul className="dashboard-broadcast-history-list text-center">
+            {history.map((item) => (
+              <BroadcastHistoryItem
+                key={item.sentAt}
+                item={item}
+                expanded={expandedSentAt === item.sentAt}
+                formatDayDate={formatDayDate}
+                onToggle={() =>
+                  setExpandedSentAt((current) =>
+                    current === item.sentAt ? null : item.sentAt
+                  )
+                }
+              />
+            ))}
+          </ul>
+        ) : (
+          <p className="dashboard-broadcast-history-empty">
+            {labels.broadcastHistoryEmpty}
+          </p>
+        )}
+      </DashboardActionSheet>
 
       {composeOpen && (
         <BroadcastComposeModal

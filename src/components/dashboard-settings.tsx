@@ -6,7 +6,7 @@ import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row"
 import { DashboardDeleteStoreSection } from "@/components/dashboard/dashboard-delete-store-section";
 import { DashboardSellerDetailsCard } from "@/components/dashboard/dashboard-seller-details-card";
 import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
-import { DashboardStorePanelsSettings } from "@/components/dashboard/dashboard-store-panels-settings";
+import { DashboardStorePanelsSettingsGroup } from "@/components/dashboard/dashboard-store-panels-settings";
 import { DashboardSubscriptionSection } from "@/components/dashboard/dashboard-subscription-section";
 import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
 import {
@@ -57,62 +57,58 @@ export function DashboardSettingsView({
       {!showQuickActionRows ? <PageTitle>{labels.settings}</PageTitle> : null}
 
       <div className="space-y-2">
-        <DashboardSellerDetailsCard
-          ownerName={ownerName}
-          email={email}
-          phone={phone}
-          businessName={businessName}
-          isActive={isActive}
-        />
+        <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+          <ul className="space-y-2 text-start">
+            <DashboardSellerDetailsCard
+              embedded
+              ownerName={ownerName}
+              email={email}
+              phone={phone}
+              businessName={businessName}
+              isActive={isActive}
+            />
 
-        {!isActive && (
-          <div className="flex flex-col items-center gap-2 rounded-[22px] border border-bakery-sale/25 bg-bakery-sale/8 px-3 py-2.5 text-center text-[13px] leading-[1.45] text-bakery-ink sm:flex-row sm:justify-center">
-            <CircleAlert className="h-4 w-4 shrink-0 text-bakery-sale" />
-            <p>{labels.storeInactiveHint}</p>
-          </div>
-        )}
+            {!isActive ? (
+              <li>
+                <div className="flex flex-col items-center gap-2 rounded-[22px] border border-bakery-sale/25 bg-bakery-sale/8 px-3 py-2.5 text-center text-[13px] leading-[1.45] text-bakery-ink sm:flex-row sm:justify-center">
+                  <CircleAlert className="h-4 w-4 shrink-0 text-bakery-sale" />
+                  <p>{labels.storeInactiveHint}</p>
+                </div>
+              </li>
+            ) : null}
 
-        {showStoreQuickLinks ? (
+            {showStoreQuickLinks ? (
+              <>
+                <DashboardStoreCustomers
+                  embedded
+                  previewOnly={previewOnly}
+                  previewOrders={previewCustomerOrders}
+                />
+                <DashboardActionRow
+                  href={`${basePath}/settings/alerts`}
+                  icon={Bell}
+                  title={labels.alerts}
+                />
+                <DashboardActionRow
+                  href={`${basePath}/settings/app`}
+                  icon={Smartphone}
+                  title={labels.installApp}
+                />
+              </>
+            ) : null}
+          </ul>
+        </div>
+
+        {(businessType === "STORE" || businessType === "APPOINTMENTS") && (
           <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
-            <ul className="space-y-2">
-              <DashboardStoreCustomers
-                embedded
+            <ul className="space-y-2 text-start">
+              <DashboardStorePanelsSettingsGroup
+                initial={initialStorePanels}
                 previewOnly={previewOnly}
-                previewOrders={previewCustomerOrders}
-              />
-              <DashboardActionRow
-                href={`${basePath}/settings/alerts`}
-                icon={Bell}
-                title={labels.alerts}
-              />
-              <DashboardActionRow
-                href={`${basePath}/settings/app`}
-                icon={Smartphone}
-                title={labels.installApp}
+                businessType={businessType}
               />
             </ul>
           </div>
-        ) : null}
-
-        {(businessType === "STORE" || businessType === "APPOINTMENTS") && (
-          <DashboardSettingsTile>
-            <DashboardSettingsTileRow
-              panel={
-                <>
-                  <p className="text-[15px] font-extrabold text-bakery-ink">
-                    {labels.storePanelsTitle}
-                  </p>
-                  <div className="mt-3">
-                    <DashboardStorePanelsSettings
-                      initial={initialStorePanels}
-                      previewOnly={previewOnly}
-                      businessType={businessType}
-                    />
-                  </div>
-                </>
-              }
-            />
-          </DashboardSettingsTile>
         )}
 
         <DashboardSubscriptionSection previewOnly={previewOnly} />

@@ -32,16 +32,16 @@ export default function DevPreviewPage() {
       <section className="flex flex-col gap-3 rounded-2xl border border-bakery-border/40 bg-bakery-cream-light/60 p-4">
         <h2 className="text-sm font-bold text-bakery-ink">מוכר — עריכת עיצוב (מומלץ)</h2>
         <Link
-          href="/dev/seller"
+          href="/dev/seller-appointments"
           className="rounded-xl bg-bakery-primary px-4 py-3 text-center text-sm font-bold text-bakery-on-primary"
         >
-          דשבורד מוכר — חנות מוצרים
+          דשבורד מוכר — חנות פגישות
         </Link>
         <Link
-          href="/dev/seller-appointments"
+          href="/dev/seller"
           className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
         >
-          דשבורד מוכר — חנות פגישות
+          דשבורד מוכר — חנות מוצרים
         </Link>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Link

@@ -93,12 +93,12 @@ export function DashboardHomeView({
       <div
         className={`${homeStack} min-h-0 flex-1 overflow-hidden ${
           isAppointments
-            ? "mt-1.5 grid grid-rows-[minmax(0,1fr)_auto] gap-2"
+            ? "mt-1.5 flex min-h-0 flex-1 flex-col gap-2"
             : "mt-2 flex flex-col space-y-2 sm:mt-2.5"
         }`}
       >
         {isAppointments ? (
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <DashboardAppointmentsHomeCalendar
               previewOnly={Boolean(appointmentsCalendarPreview)}
               initialSlots={appointmentsCalendarPreview?.slots}
@@ -118,7 +118,11 @@ export function DashboardHomeView({
         ) : (
           <div className="min-h-0 flex-1" aria-hidden />
         )}
-        <div className="shrink-0 pb-0.5">
+        <div
+          className={`shrink-0 ${
+            isAppointments ? "pb-1 pt-0.5" : "pb-0.5"
+          }`}
+        >
           <DashboardCustomerLinkCard
             url={customerLink}
             previewHref={previewHref}

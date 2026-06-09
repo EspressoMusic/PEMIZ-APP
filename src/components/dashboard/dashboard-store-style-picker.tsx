@@ -16,8 +16,11 @@ import {
 
 export function DashboardStoreStylePicker({
   previewOnly = false,
+  embeddedInPanel = false,
 }: {
   previewOnly?: boolean;
+  /** Inside shared «חשבון וחנות» panel in settings. */
+  embeddedInPanel?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -61,22 +64,28 @@ export function DashboardStoreStylePicker({
     }
   }
 
+  const styleButton = (
+    <button
+      type="button"
+      onClick={() => setOpen(true)}
+      className={
+        embeddedInPanel
+          ? "dashboard-account-settings-panel__row"
+          : DASHBOARD_ACTION_ROW_CLASS
+      }
+    >
+      <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+        <Palette className="h-6 w-6" strokeWidth={1.75} />
+      </span>
+      <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+        {labels.styleColorLanguage}
+      </span>
+    </button>
+  );
+
   return (
     <>
-      <li>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className={DASHBOARD_ACTION_ROW_CLASS}
-        >
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <Palette className="h-6 w-6" strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {labels.styleColorLanguage}
-          </span>
-        </button>
-      </li>
+      {embeddedInPanel ? styleButton : <li>{styleButton}</li>}
 
       <DashboardActionSheet
         open={open}

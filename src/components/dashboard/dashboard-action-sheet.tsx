@@ -16,6 +16,7 @@ export function DashboardActionSheet({
   backButtonLabel,
   elevated = false,
   compact = false,
+  warmPanel = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -30,6 +31,8 @@ export function DashboardActionSheet({
   elevated?: boolean;
   /** Tighter padding, header back button, taller viewport use (e.g. add-product form). */
   compact?: boolean;
+  /** Warm #e6d5b8 panel fill (e.g. add-service modal). */
+  warmPanel?: boolean;
 }) {
   const { labels } = useAppLocale();
   const closeLabel = labels.close;
@@ -91,7 +94,9 @@ export function DashboardActionSheet({
       >
         {showBackButton && !compact ? backControl : null}
         <div
-          className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[32px] ${panelMaxHeight}`}
+          className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[32px] ${panelMaxHeight}${
+            warmPanel ? " bakery-action-sheet-panel--warm" : ""
+          }`}
         >
           {compact && showBackButton && title ? (
             <div className="relative shrink-0 px-3 pb-1 pt-3">

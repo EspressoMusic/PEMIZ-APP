@@ -740,11 +740,25 @@ html:not([data-store-theme="dark"])
 
 html:not([data-store-theme="dark"])
   :is(.dashboard-surface, .auth-surface)
-  :is(.dashboard-card, .bakery-float-panel, .bakery-action-sheet-panel) {
+  :is(
+    .dashboard-card:not(.bakery-action-sheet-panel):not(.dashboard-hub-panel),
+    .bakery-float-panel:not(.dashboard-hub-panel)
+  ) {
   background: #e6d5b8;
   border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
   border-radius: 32px;
   box-shadow: 0 8px 28px rgba(78, 52, 46, 0.14);
+}
+
+/* מסגרת בהירה לחלונות לקוחות / חנות (המלבנים הפנימיים נשארים #e6d5b8) */
+html:not([data-store-theme="dark"])
+  :is(.dashboard-surface, .auth-surface)
+  .dashboard-hub-panel,
+html:not([data-store-theme="dark"]) .dashboard-hub-panel {
+  background: #faf6f0;
+  border: 1.5px solid rgba(78, 52, 46, 0.16);
+  border-radius: 32px;
+  box-shadow: 0 8px 28px rgba(78, 52, 46, 0.12);
 }
 
 html:not([data-store-theme="dark"])
@@ -897,6 +911,97 @@ html:not([data-store-theme="dark"]) .dashboard-action-square.bakery-float-tile--
   box-shadow: 0 4px 12px rgba(78, 52, 46, 0.1);
 }
 
+/* מלבני לקוחות + חנות מוצרים + חנות פגישות — בז' עם ריבוע אייקון בהיר */
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .dashboard-action-row.dashboard-action-square {
+  background: #e6d5b8;
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+}
+
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .dashboard-action-row.dashboard-action-square:hover {
+  background: #eadcc4;
+  box-shadow: 0 4px 12px rgba(78, 52, 46, 0.08);
+}
+
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .dashboard-action-row.dashboard-action-square:active,
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .dashboard-action-row.dashboard-action-square.bakery-float-tile--active {
+  background: #dfd0b0;
+  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
+}
+
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .bakery-icon-tile {
+  background: #f2ebe0;
+  border: 1px solid rgba(78, 52, 46, 0.1);
+  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
+}
+
+/* הגדרות — «חשבון וחנות» + סגנון ושפה במסגרת אחת */
+html:not([data-store-theme="dark"]) .dashboard-account-settings-panel {
+  overflow: hidden;
+  border-radius: 22px;
+  border: 3px solid rgba(58, 47, 38, 0.2);
+  background: #f2ebe0;
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+}
+
+html:not([data-store-theme="dark"]) .dashboard-account-settings-panel__row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 0.75rem;
+  text-align: start;
+  transition: background 0.14s ease;
+}
+
+html:not([data-store-theme="dark"]) .dashboard-account-settings-panel__row:hover {
+  background: #f6f0e6;
+}
+
+html:not([data-store-theme="dark"]) .dashboard-account-settings-panel__row:active {
+  background: #efe8dc;
+}
+
+html:not([data-store-theme="dark"])
+  .dashboard-account-settings-panel__row
+  + .dashboard-account-settings-panel__row {
+  border-top: 1.5px solid rgba(78, 52, 46, 0.12);
+}
+
 /* מלבני הגדרות / חנות / לקוחות — מסגרת כהה עבה ועדינה */
 html:not([data-store-theme="dark"]) .dashboard-action-row {
   border-width: 3px;
@@ -913,11 +1018,91 @@ html:not([data-store-theme="dark"]) .dashboard-action-row.dashboard-action-squar
 }
 
 html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .dashboard-action-row.dashboard-action-square {
+  border-width: 1.5px;
+  border-color: rgba(78, 52, 46, 0.12);
+}
+
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .dashboard-action-row.dashboard-action-square:hover {
+  border-color: rgba(78, 52, 46, 0.14);
+}
+
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .dashboard-action-row.dashboard-action-square:active,
+html:not([data-store-theme="dark"])
+  :is(
+    .dashboard-customers-hub-rows,
+    .dashboard-appointments-hub-rows,
+    .dashboard-store-hub-rows
+  )
+  > li
+  .dashboard-action-row.dashboard-action-square.bakery-float-tile--active {
+  border-color: rgba(78, 52, 46, 0.16);
+}
+
+/* מלבני מודל — סגנון הגדרות (למשל צ'אט / פניות) */
+html:not([data-store-theme="dark"])
+  .dashboard-settings-style-rows
+  > li
+  .dashboard-action-row.dashboard-action-square {
+  background: #f2ebe0;
+  border-width: 3px;
+  border-color: rgba(58, 47, 38, 0.2);
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+}
+
+html:not([data-store-theme="dark"])
+  .dashboard-settings-style-rows
+  > li
+  .dashboard-action-row.dashboard-action-square:hover {
+  background: #f6f0e6;
+  border-color: rgba(58, 47, 38, 0.26);
+  box-shadow: 0 4px 12px rgba(78, 52, 46, 0.08);
+}
+
+html:not([data-store-theme="dark"])
+  .dashboard-settings-style-rows
+  > li
+  .dashboard-action-row.dashboard-action-square:active,
+html:not([data-store-theme="dark"])
+  .dashboard-settings-style-rows
+  > li
+  .dashboard-action-row.dashboard-action-square.bakery-float-tile--active {
+  background: #efe8dc;
+  border-color: rgba(58, 47, 38, 0.3);
+  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
+}
+
+html:not([data-store-theme="dark"])
   :is(.dashboard-card.bakery-action-sheet-panel, .dashboard-card.dashboard-modal-card) {
   background: #faf6f0;
   border: 1.5px solid rgba(78, 52, 46, 0.16);
   border-radius: 32px;
   box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
+}
+
+html:not([data-store-theme="dark"]) .bakery-action-sheet-panel--warm {
+  background: #e6d5b8;
+  border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
 }
 
 html:not([data-store-theme="dark"]) .dashboard-broadcast-form {

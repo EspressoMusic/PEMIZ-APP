@@ -35,10 +35,10 @@ function DashboardCustomerInquiriesGroup({
         onClose={() => setOpen(false)}
         title={labels.customerInquiries}
         ariaLabel={labels.customerInquiries}
-        placement="center"
+        placement="top"
         showBackButton
       >
-        <ul className="space-y-2 text-start">
+        <ul className="dashboard-settings-style-rows space-y-2 text-start">
           <DashboardActionRow
             href={`${basePath}/customers/chat`}
             icon={MessageCircle}
@@ -66,7 +66,7 @@ export function DashboardCustomersHubGrid({
   const { labels } = useAppLocale();
 
   const list = (
-    <ul className="space-y-2 text-start">
+    <ul className="dashboard-customers-hub-rows space-y-2 text-start">
       <DashboardActionRow
         href={`${basePath}/customers/broadcast`}
         icon={Megaphone}
@@ -84,7 +84,7 @@ export function DashboardCustomersHubGrid({
   if (embedded) return list;
 
   return (
-    <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+    <div className="dashboard-card dashboard-hub-panel bakery-float-panel shrink-0 rounded-[32px] p-3">
       {list}
     </div>
   );

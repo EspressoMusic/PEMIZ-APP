@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, ChevronLeft, Send } from "lucide-react";
+import { ChevronLeft, Send } from "lucide-react";
 import {
   customerProfileInitial,
   useDashboardCustomerProfile,
@@ -58,8 +58,6 @@ export function DashboardSellerChatManager({
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesLenRef = useRef(0);
-
-  const activeThread = threads.find((t) => t.customerPhone === activePhone);
 
   const loadThreads = useCallback(async () => {
     if (isDevPreview) {
@@ -233,33 +231,6 @@ export function DashboardSellerChatManager({
 
         {activePhone && (
           <div className="flex min-h-0 flex-col overflow-hidden rounded-[20px] border border-bakery-border/40 bg-bakery-square">
-            <div className="flex items-center gap-2 border-b border-bakery-border/25 px-3 py-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setActivePhone(null);
-                  setMessages([]);
-                }}
-                className="inline-flex items-center gap-1 text-[14px] font-bold text-bakery-ink"
-              >
-                <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
-                {labels.sellerChatBackToList}
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  activePhone &&
-                  openCustomer({
-                    customerName: activeThread?.customerName ?? labels.anonymousCustomer,
-                    customerPhone: activePhone,
-                    fallbackDate: activeThread?.lastAt,
-                  })
-                }
-                className="min-w-0 flex-1 truncate text-center text-[15px] font-extrabold text-bakery-ink transition hover:opacity-90"
-              >
-                {activeThread?.customerName ?? activePhone}
-              </button>
-            </div>
             <div className="customer-wa-chat flex min-h-[min(52dvh,440px)] flex-1 flex-col">
               <div
                 ref={scrollRef}

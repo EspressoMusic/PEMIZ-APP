@@ -42,7 +42,7 @@ export function DashboardStoreSettingsHubGrid({
   const { labels } = useAppLocale();
 
   return (
-    <ul className="space-y-2 text-start">
+    <ul className="dashboard-store-hub-rows space-y-2 text-start">
       <DashboardActionRow
         href={`${basePath}/settings/orders`}
         icon={ClipboardList}
@@ -72,7 +72,7 @@ function DashboardStoreSettingsHubBody({
   const grid = <DashboardStoreSettingsHubGrid basePath={basePath} />;
   if (embedded) return grid;
   return (
-    <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+    <div className="dashboard-card dashboard-hub-panel bakery-float-panel shrink-0 rounded-[32px] p-3">
       {grid}
     </div>
   );

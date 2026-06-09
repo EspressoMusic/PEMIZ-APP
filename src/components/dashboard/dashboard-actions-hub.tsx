@@ -8,16 +8,21 @@ import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sh
 import { DashboardCustomersHubGrid } from "@/components/dashboard/dashboard-customers-hub";
 import { DashboardStoreSettingsHubPanel } from "@/components/dashboard/dashboard-store-settings-hub";
 import { DashboardAppointmentsSettingsHubPanel } from "@/components/dashboard/dashboard-appointments-settings-hub";
+import type { DashboardAppointmentView } from "@/components/dashboard/dashboard-appointment-card";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardActionsHub({
   businessType,
   basePath = "/dashboard",
   previewOnly = false,
+  previewAppointments = [] as DashboardAppointmentView[],
+  previewBookingByDay = false,
 }: {
   businessType: string;
   basePath?: string;
   previewOnly?: boolean;
+  previewAppointments?: DashboardAppointmentView[];
+  previewBookingByDay?: boolean;
 }) {
   const { labels } = useAppLocale();
   const [customersOpen, setCustomersOpen] = useState(false);
@@ -96,6 +101,9 @@ export function DashboardActionsHub({
           <DashboardAppointmentsSettingsHubPanel
             basePath={basePath}
             embedded
+            previewOnly={previewOnly}
+            previewAppointments={previewAppointments}
+            previewBookingByDay={previewBookingByDay}
           />
         </DashboardActionSheet>
       ) : null}

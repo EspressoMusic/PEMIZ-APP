@@ -22,6 +22,7 @@ import {
   useDashboardCustomerProfile,
 } from "@/components/dashboard/dashboard-customer-profile";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { getDashboardLabels, type AppLocale } from "@/lib/app-locale";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
 import { splitSellerAppointments } from "@/lib/seller-appointment-history";
@@ -29,6 +30,9 @@ export { ProductsManager } from "@/components/dashboard/products-manager";
 
 const appointmentsListClassName =
   "no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
+
+const appointmentsModalListClassName =
+  "no-scrollbar overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
 
 function AppointmentsList({
   appointments,
@@ -494,18 +498,21 @@ export function AppointmentsManager({
   initialAppointments = [],
   initialBookingByDay = false,
   historyOnly = false,
+  sheetHistoryOnly = false,
 }: {
   framed?: boolean;
   previewOnly?: boolean;
   initialAppointments?: DashboardAppointmentView[];
   initialBookingByDay?: boolean;
   historyOnly?: boolean;
+  /** History list body for an action sheet — no page chrome. */
+  sheetHistoryOnly?: boolean;
 } = {}) {
   const { labels } = useAppLocale();
   const [items, setItems] = useState(initialAppointments);
   const [bookingByDay, setBookingByDay] = useState(initialBookingByDay);
-  const [activeOpen, setActiveOpen] = useState(true);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const [activeModalOpen, setActiveModalOpen] = useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
 
   async function load() {
@@ -595,6 +602,24 @@ export function AppointmentsManager({
     void load();
   }
 
+  if (sheetHistoryOnly) {
+    return (
+      <>
+        <div
+          className={`${appointmentsModalListClassName} max-h-[min(60vh,480px)]`}
+        >
+          <AppointmentsList
+            appointments={history}
+            emptyMessage={labels.noAppointmentHistory}
+            onCustomerClick={openCustomer}
+            bookingByDay={bookingByDay}
+          />
+        </div>
+        {customerModal}
+      </>
+    );
+  }
+
   if (historyOnly) {
     return (
       <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
@@ -665,12 +690,8 @@ export function AppointmentsManager({
       <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
         <button
           type="button"
-          onClick={() => setActiveOpen((open) => !open)}
-          aria-expanded={activeOpen}
-          aria-controls="dashboard-active-appointments-list"
-          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-            activeOpen ? "bakery-float-tile--active" : ""
-          }`}
+          onClick={() => setActiveModalOpen(true)}
+          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
         >
           <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
             <ClipboardList className="h-6 w-6" strokeWidth={1.75} />
@@ -684,42 +705,14 @@ export function AppointmentsManager({
               </span>
             )}
           </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-              activeOpen ? "rotate-180" : ""
-            }`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
         </button>
-
-        {activeOpen && (
-          <div
-            id="dashboard-active-appointments-list"
-            className={appointmentsListClassName}
-            role="region"
-            aria-label={labels.activeAppointments}
-          >
-            <AppointmentsList
-              appointments={active}
-              emptyMessage={labels.noActiveAppointments}
-              onHide={hideAppointment}
-              onCustomerClick={openCustomer}
-              bookingByDay={bookingByDay}
-            />
-          </div>
-        )}
       </div>
 
       <div className="dashboard-card bakery-float-panel mt-auto min-h-0 shrink-0 rounded-[32px] p-3">
         <button
           type="button"
-          onClick={() => setHistoryOpen((open) => !open)}
-          aria-expanded={historyOpen}
-          aria-controls="dashboard-appointment-history-list"
-          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-            historyOpen ? "bakery-float-tile--active" : ""
-          }`}
+          onClick={() => setHistoryModalOpen(true)}
+          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
         >
           <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
             <History className="h-6 w-6" strokeWidth={1.75} />
@@ -733,31 +726,53 @@ export function AppointmentsManager({
               </span>
             )}
           </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-              historyOpen ? "rotate-180" : ""
-            }`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
         </button>
-
-        {historyOpen && (
-          <div
-            id="dashboard-appointment-history-list"
-            className={appointmentsListClassName}
-            role="region"
-            aria-label={labels.appointmentHistory}
-          >
-            <AppointmentsList
-              appointments={history}
-              emptyMessage={labels.noAppointmentHistory}
-              onCustomerClick={openCustomer}
-              bookingByDay={bookingByDay}
-            />
-          </div>
-        )}
       </div>
+
+      <DashboardActionSheet
+        open={activeModalOpen}
+        onClose={() => setActiveModalOpen(false)}
+        title={
+          active.length > 0
+            ? `${labels.activeAppointments} (${active.length})`
+            : labels.activeAppointments
+        }
+        ariaLabel={labels.activeAppointments}
+        placement="center"
+        showBackButton
+      >
+        <div className={appointmentsModalListClassName}>
+          <AppointmentsList
+            appointments={active}
+            emptyMessage={labels.noActiveAppointments}
+            onHide={hideAppointment}
+            onCustomerClick={openCustomer}
+            bookingByDay={bookingByDay}
+          />
+        </div>
+      </DashboardActionSheet>
+
+      <DashboardActionSheet
+        open={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        title={
+          history.length > 0
+            ? `${labels.appointmentHistory} (${history.length})`
+            : labels.appointmentHistory
+        }
+        ariaLabel={labels.appointmentHistory}
+        placement="center"
+        showBackButton
+      >
+        <div className={appointmentsModalListClassName}>
+          <AppointmentsList
+            appointments={history}
+            emptyMessage={labels.noAppointmentHistory}
+            onCustomerClick={openCustomer}
+            bookingByDay={bookingByDay}
+          />
+        </div>
+      </DashboardActionSheet>
 
       {customerModal}
     </div>

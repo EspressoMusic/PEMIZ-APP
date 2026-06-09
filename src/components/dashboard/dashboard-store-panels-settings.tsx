@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { LayoutGrid } from "lucide-react";
 import { Alert, Toggle } from "@/components/ui";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   DEFAULT_STORE_PANELS_VISIBLE,
@@ -84,7 +87,7 @@ export function DashboardStorePanelsSettings({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="dashboard-settings-style-rows space-y-2">
       {error ? <Alert variant="error">{error}</Alert> : null}
       {isStore ? (
         <PanelToggleRow
@@ -125,5 +128,42 @@ export function DashboardStorePanelsSettings({
         onChange={(orderLimits) => void patch({ orderLimits })}
       />
     </div>
+  );
+}
+
+export function DashboardStorePanelsSettingsGroup({
+  initial = DEFAULT_STORE_PANELS_VISIBLE,
+  previewOnly = false,
+  businessType = "STORE",
+}: {
+  initial?: StorePanelsVisible;
+  previewOnly?: boolean;
+  businessType?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const { labels } = useAppLocale();
+
+  return (
+    <>
+      <DashboardActionRowButton
+        onClick={() => setOpen(true)}
+        icon={LayoutGrid}
+        title={labels.storePanelsTitle}
+      />
+      <DashboardActionSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={labels.storePanelsTitle}
+        ariaLabel={labels.storePanelsTitle}
+        placement="top"
+        showBackButton
+      >
+        <DashboardStorePanelsSettings
+          initial={initial}
+          previewOnly={previewOnly}
+          businessType={businessType}
+        />
+      </DashboardActionSheet>
+    </>
   );
 }

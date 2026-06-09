@@ -48,12 +48,20 @@ function WelcomeGuideModal({
           body: labels.sellerGuideWelcomeTipAddServiceBody,
         },
         {
+          title: labels.sellerGuideWelcomeTipBookedAppointmentsTitle,
+          body: labels.sellerGuideWelcomeTipBookedAppointmentsBody,
+        },
+        {
           title: labels.sellerGuideWelcomeTipCustomersTitle,
           body: labels.sellerGuideWelcomeTipCustomersBody,
         },
         {
           title: labels.sellerGuideWelcomeTipCalendarTitle,
           body: labels.sellerGuideWelcomeTipCalendarBody,
+        },
+        {
+          title: labels.sellerGuideWelcomeTipDurationGapTitle,
+          body: labels.sellerGuideWelcomeTipDurationGapBody,
         },
       ]
     : [

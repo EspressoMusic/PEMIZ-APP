@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Copy, Share2, X } from "lucide-react";
+import { Check, Copy, ExternalLink, Share2, X } from "lucide-react";
 import {
   DashboardSettingsTile,
   DashboardSettingsTileRow,
 } from "@/components/dashboard/dashboard-settings-tile";
 import { DASHBOARD_SETTINGS_ACTION } from "@/components/dashboard/dashboard-settings-bar";
-import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 function toAbsoluteUrl(url: string): string {
@@ -27,6 +26,13 @@ function displayPath(url: string): string {
   return url;
 }
 
+function resolveCustomerStoreHref(url: string, previewHref?: string): string | null {
+  if (previewHref?.trim()) return previewHref.trim();
+  const path = displayPath(url);
+  if (path.startsWith("/b/")) return path;
+  return null;
+}
+
 export function DashboardCustomerLinkCard({
   url,
   previewHref,
@@ -43,6 +49,7 @@ export function DashboardCustomerLinkCard({
   const [copied, setCopied] = useState(false);
   const [absoluteUrl, setAbsoluteUrl] = useState(url);
   const pathLabel = displayPath(url);
+  const customerStoreHref = resolveCustomerStoreHref(url, previewHref);
 
   useEffect(() => {
     setAbsoluteUrl(toAbsoluteUrl(url));
@@ -143,6 +150,19 @@ export function DashboardCustomerLinkCard({
             <Share2 className="h-5 w-5" strokeWidth={2} />
             {labels.shareStoreLink}
           </button>
+
+          {customerStoreHref ? (
+            <Link
+              href={customerStoreHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeSheet}
+              className="dashboard-share-tile flex w-full min-h-[52px] items-center justify-center gap-2 rounded-[9999px] px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition hover:opacity-95 active:scale-[0.99]"
+            >
+              <ExternalLink className="h-5 w-5" strokeWidth={2} />
+              {labels.viewCustomerSide}
+            </Link>
+          ) : null}
         </div>
       </div>
     </div>
@@ -158,15 +178,6 @@ export function DashboardCustomerLinkCard({
                 <p className="text-[15px] font-extrabold text-bakery-ink">
                   {labels.shareStoreLink}
                 </p>
-                {previewHref ? (
-                  <Link
-                    href={previewHref}
-                    target={previewHref.startsWith("http") ? "_blank" : undefined}
-                    className="mt-1 inline-block text-[12px] font-bold text-bakery-primary hover:underline"
-                  >
-                    {labels.customerPreview}
-                  </Link>
-                ) : null}
               </>
             }
             action={
@@ -221,18 +232,6 @@ export function DashboardCustomerLinkCard({
           </button>
         </div>
       </div>
-
-      {previewHref && !dense && (
-        <DashboardHelpText>
-          <Link
-            href={previewHref}
-            target={previewHref.startsWith("http") ? "_blank" : undefined}
-            className="mt-2 block text-center text-[13px] font-bold text-bakery-primary hover:underline"
-          >
-            {labels.customerPreview}
-          </Link>
-        </DashboardHelpText>
-      )}
 
       {shareSheet}
     </>

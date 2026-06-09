@@ -77,7 +77,7 @@ export function DashboardShellClient({
   const shellBody = (
     <div className="dashboard-surface flex h-full min-h-0 w-full flex-col overflow-hidden">
       <div
-        className={`min-h-0 min-w-0 flex-1 overflow-hidden pb-[calc(76px+max(8px,env(safe-area-inset-bottom)))]`}
+        className={`min-h-0 min-w-0 flex-1 overflow-hidden pb-[calc(84px+max(10px,env(safe-area-inset-bottom)))]`}
       >
         <div
           className={`${DASHBOARD_MOBILE_STACK} ${DASHBOARD_PAGE_ROOT} min-h-0 flex-1`}
