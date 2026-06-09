@@ -45,7 +45,7 @@ export default async function DashboardLayout({
   }
 
   const trialLock = await syncBusinessTrialLock(user.business);
-  if (trialLock.locked || isBusinessTrialExpired(user.business)) {
+  if (!trialLock.isActive || trialLock.locked || isBusinessTrialExpired(user.business)) {
     redirect("/trial-expired");
   }
 

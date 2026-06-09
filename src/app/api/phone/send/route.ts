@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser, generateOtp } from "@/lib/auth";
 import { OTP_EXPIRY_MINUTES } from "@/lib/constants";
 import { jsonError, jsonOk } from "@/lib/api";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
 import {
   INVALID_PHONE_MESSAGE_HE,
   parseIsraeliMobilePhone,
@@ -14,6 +15,9 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  const limited = enforceRateLimit(req, "phone:send", 5, 15 * 60 * 1000);
+  if (limited) return limited;
+
   const user = await getCurrentUser();
   if (!user) return jsonError("לא מחובר", 401);
 

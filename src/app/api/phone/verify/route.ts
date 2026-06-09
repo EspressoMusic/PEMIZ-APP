@@ -2,12 +2,16 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
 
 const schema = z.object({
   code: z.string().length(6),
 });
 
 export async function POST(req: Request) {
+  const limited = enforceRateLimit(req, "phone:verify", 8, 15 * 60 * 1000);
+  if (limited) return limited;
+
   const user = await getCurrentUser();
   if (!user) return jsonError("לא מחובר", 401);
 

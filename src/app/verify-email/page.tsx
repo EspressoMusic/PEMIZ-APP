@@ -10,7 +10,6 @@ export default function VerifyEmailPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [businessName, setBusinessName] = useState("");
-  const [devUrl, setDevUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,11 +19,6 @@ export default function VerifyEmailPage() {
     const params = new URLSearchParams(window.location.search);
     const err = params.get("error");
     if (err) setError(decodeURIComponent(err));
-    const stored = sessionStorage.getItem("linky_dev_verify_url");
-    if (stored) {
-      setDevUrl(stored);
-      sessionStorage.removeItem("linky_dev_verify_url");
-    }
   }, []);
 
   useEffect(() => {
@@ -58,7 +52,6 @@ export default function VerifyEmailPage() {
       return;
     }
     setInfo("נשלח מייל אימות. בדוק את תיבת הדואר (וגם ספאם).");
-    if (data.devVerifyUrl) setDevUrl(data.devVerifyUrl);
   }
 
   if (checking) {
@@ -98,17 +91,6 @@ export default function VerifyEmailPage() {
           {info && (
             <div className="mb-4">
               <Alert variant="success">{info}</Alert>
-            </div>
-          )}
-
-          {devUrl && (
-            <div className="mb-4">
-              <Alert variant="info">
-                מצב פיתוח —{" "}
-                <a href={devUrl} className="font-bold underline" dir="ltr">
-                  לחץ לאימות
-                </a>
-              </Alert>
             </div>
           )}
 

@@ -25,8 +25,11 @@ export async function requireBusinessOwner(): Promise<DashboardAuthResult> {
     return { ok: false, response: jsonError("אין עסק", 404) };
   }
 
-  await syncBusinessTrialLock(user.business);
-  if (isBusinessTrialExpired(user.business)) {
+  const trialLock = await syncBusinessTrialLock(user.business);
+  if (!trialLock.isActive) {
+    return { ok: false, response: jsonError("החנות אינה פעילה", 403) };
+  }
+  if (trialLock.locked || isBusinessTrialExpired(user.business)) {
     return {
       ok: false,
       response: jsonError(trialExpiredErrorMessage(), 402),

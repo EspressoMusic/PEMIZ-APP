@@ -25,9 +25,8 @@ export async function POST() {
   if (!user.business) return jsonError("אין חנות", 404);
   if (user.emailVerified) return jsonOk({ alreadyVerified: true });
 
-  const mail = await sendOwnerVerificationEmail(user.id);
+  await sendOwnerVerificationEmail(user.id);
   return jsonOk({
     message: "נשלח מייל אימות",
-    devVerifyUrl: mail.devUrl,
   });
 }

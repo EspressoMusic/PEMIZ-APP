@@ -8,7 +8,6 @@ import { WebShell } from "@/components/web-shell";
 export default function ForgotPasswordPage() {
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
-  const [devResetUrl, setDevResetUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -16,7 +15,6 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setError("");
     setInfo("");
-    setDevResetUrl(null);
     setLoading(true);
 
     const fd = new FormData(e.currentTarget);
@@ -31,7 +29,6 @@ export default function ForgotPasswordPage() {
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
         message?: string;
-        devResetUrl?: string;
       };
 
       if (!res.ok) {
@@ -44,7 +41,6 @@ export default function ForgotPasswordPage() {
         data.message ??
           "אם קיים חשבון עם האימייל הזה, נשלח אליך קישור לאיפוס הסיסמה."
       );
-      if (data.devResetUrl) setDevResetUrl(data.devResetUrl);
     } catch {
       setError("אין חיבור לשרת — בדוק אינטרנט ונסה שוב");
     } finally {
@@ -70,17 +66,6 @@ export default function ForgotPasswordPage() {
               <Alert variant="success">{info}</Alert>
             </div>
           )}
-          {devResetUrl && (
-            <div className="mb-4">
-              <Alert variant="info">
-                מצב פיתוח —{" "}
-                <a href={devResetUrl} className="font-bold underline" dir="ltr">
-                  לחץ לאיפוס סיסמה
-                </a>
-              </Alert>
-            </div>
-          )}
-
           {!done ? (
             <form onSubmit={onSubmit} className="space-y-3">
               <Input
@@ -103,7 +88,6 @@ export default function ForgotPasswordPage() {
               onClick={() => {
                 setDone(false);
                 setInfo("");
-                setDevResetUrl(null);
               }}
             >
               שלח שוב

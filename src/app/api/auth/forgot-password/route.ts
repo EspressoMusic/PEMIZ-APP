@@ -22,12 +22,10 @@ export async function POST(req: Request) {
   }
 
   const email = parsed.data.email.toLowerCase();
-  const result = await issuePasswordReset(email);
+  await issuePasswordReset(email);
 
   return jsonOk({
     message:
       "אם קיים חשבון עם האימייל הזה, נשלח אליך קישור לאיפוס הסיסמה.",
-    devResetUrl: result?.resetUrl,
-    sent: result?.sent ?? false,
   });
 }

@@ -30,7 +30,11 @@ export async function issuePasswordReset(email: string) {
   const { sendPasswordResetEmail } = await import("@/lib/email");
   const mail = await sendPasswordResetEmail(user.email, resetUrl, user.name);
 
-  return { resetUrl: mail.devUrl ?? resetUrl, sent: mail.sent };
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[Linky Password Reset] ${user.email}: ${resetUrl}`);
+  }
+
+  return { sent: mail.sent };
 }
 
 export async function resetPasswordWithToken(token: string, password: string) {
