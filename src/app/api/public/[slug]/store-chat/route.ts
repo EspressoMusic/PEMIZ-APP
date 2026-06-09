@@ -14,12 +14,24 @@ import {
 import { publicChatPostSchema, zodFirstError } from "@/lib/validation/schemas";
 import { notifySellerChat } from "@/lib/seller-push";
 import { isStorePanelEnabled } from "@/lib/store-panels-visible";
+import {
+  grantCustomerPhoneAccess,
+  requireCustomerPhoneAccess,
+} from "@/lib/customer-phone-access";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  const limited = await enforceRateLimit(
+    req,
+    `public:store-chat:get:${slug.toLowerCase()}`,
+    30,
+    10 * 60 * 1000
+  );
+  if (limited) return limited;
+
   const url = new URL(req.url);
   const channelRaw = url.searchParams.get("channel") ?? "";
   if (!isStoreChatChannel(channelRaw)) {
@@ -42,6 +54,9 @@ export async function GET(
 
   if (!viewerPhone) return jsonError(INVALID_PHONE_MESSAGE_HE);
 
+  const denied = await requireCustomerPhoneAccess(business.id, viewerPhone);
+  if (denied) return denied;
+
   const rows = await prisma.storeChatMessage.findMany({
     where: {
       businessId: business.id,
@@ -61,10 +76,10 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  const limited = enforceRateLimit(req, "public:store-chat", 40, 60 * 60 * 1000);
+  const { slug } = await params;
+  const limited = await enforceRateLimit(req, "public:store-chat", 40, 60 * 60 * 1000);
   if (limited) return limited;
 
-  const { slug } = await params;
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
     select: { id: true, isActive: true, storePanelsVisible: true },
@@ -93,6 +108,8 @@ export async function POST(
     },
     include: storeChatMessageInclude,
   });
+
+  await grantCustomerPhoneAccess(business.id, phone);
 
   void notifySellerChat(business.id, {
     id: row.id,

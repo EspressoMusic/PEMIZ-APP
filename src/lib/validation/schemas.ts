@@ -42,6 +42,15 @@ export const masterLoginSchema = z.object({
   password: z.string().min(1).max(128),
 });
 
+export const adminUserPatchSchema = z
+  .object({
+    email: emailSchema.optional(),
+    password: z.string().min(8, "סיסמה: לפחות 8 תווים").max(128).optional(),
+  })
+  .refine((data) => data.email !== undefined || data.password !== undefined, {
+    message: "נא לספק מייל או סיסמה לעדכון",
+  });
+
 export const businessCreateSchema = z.object({
   name: z.string().trim().min(2).max(100),
   description: z.string().max(500).optional(),

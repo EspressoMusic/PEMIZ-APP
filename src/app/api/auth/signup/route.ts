@@ -10,7 +10,7 @@ import { safeUserSelect } from "@/lib/security/user-select";
 import { signupSchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function POST(req: Request) {
-  const limited = enforceRateLimit(req, "auth:signup", 5, 60 * 60 * 1000);
+  const limited = await enforceRateLimit(req, "auth:signup", 5, 60 * 60 * 1000);
   if (limited) return limited;
 
   if (!(await isSignupEnabled())) {

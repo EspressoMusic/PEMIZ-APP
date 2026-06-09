@@ -35,7 +35,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const limited = enforceRateLimit(req, "dashboard:products:create", 30, 60 * 60 * 1000);
+  const limited = await enforceRateLimit(req, "dashboard:products:create", 30, 60 * 60 * 1000);
   if (limited) return limited;
 
   const ctx = await requireCatalogOwner();

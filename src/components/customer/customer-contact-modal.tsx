@@ -19,6 +19,7 @@ import {
 } from "@/lib/customer-chat-storage";
 import { parseIsraeliMobilePhone } from "@/lib/phone";
 import { chatMessagesEqual } from "@/lib/store-chat-query";
+import { CustomerPhoneVerification } from "@/components/customer/customer-phone-verification";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 
 function formatChatTime(iso: string, locale: CustomerLocale) {
@@ -66,6 +67,8 @@ export function CustomerContactModal({
   hasPendingInquiry = false,
   hideChat = false,
   hideInquiries = false,
+  inquiryPhoneVerifyRequired = false,
+  onInquiryPhoneVerified,
   onSubmitInquiry,
 }: {
   open: boolean;
@@ -85,6 +88,8 @@ export function CustomerContactModal({
   hasPendingInquiry?: boolean;
   hideChat?: boolean;
   hideInquiries?: boolean;
+  inquiryPhoneVerifyRequired?: boolean;
+  onInquiryPhoneVerified?: () => void;
   onSubmitInquiry: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   const [contactName, setContactName] = useState(customerName);
@@ -94,6 +99,7 @@ export function CustomerContactModal({
   const [chatLoading, setChatLoading] = useState(false);
   const [chatSending, setChatSending] = useState(false);
   const [chatError, setChatError] = useState("");
+  const [chatVerifyRequired, setChatVerifyRequired] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatLenRef = useRef(0);
   const chatSendLockRef = useRef(false);
@@ -136,13 +142,25 @@ export function CustomerContactModal({
     if (chatLenRef.current === 0) setChatLoading(true);
     try {
       const q = `channel=SELLER&phone=${encodeURIComponent(phone)}`;
-      const res = await fetch(`/api/public/${slug}/store-chat?${q}`);
-      const data = await res.json();
-      if (!res.ok) {
-        setChatError((data as { error?: string }).error ?? labels.chatLoadError);
+      const res = await fetch(`/api/public/${slug}/store-chat?${q}`, {
+        credentials: "include",
+      });
+      const data = (await res.json()) as {
+        error?: string;
+        code?: string;
+        messages?: StoreChatMessageDto[];
+      };
+      if (res.status === 403 && data.code === "PHONE_VERIFICATION_REQUIRED") {
+        setChatVerifyRequired(true);
+        setChatMessages([]);
         return;
       }
-      const incoming = (data.messages ?? []) as StoreChatMessageDto[];
+      setChatVerifyRequired(false);
+      if (!res.ok) {
+        setChatError(data.error ?? labels.chatLoadError);
+        return;
+      }
+      const incoming = data.messages ?? [];
       setChatMessages((prev) =>
         chatMessagesEqual(prev, incoming) ? prev : incoming
       );
@@ -231,6 +249,7 @@ export function CustomerContactModal({
 
       const res = await fetch(`/api/public/${slug}/store-chat`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           channel: "SELLER",
@@ -357,7 +376,17 @@ export function CustomerContactModal({
           </Panel>
         )}
 
-        {myInquiries.length > 0 && (
+        {inquiryPhoneVerifyRequired && parseIsraeliMobilePhone(contactPhone) ? (
+          <CustomerPhoneVerification
+            slug={slug}
+            phone={contactPhone}
+            locale={locale}
+            labels={labels}
+            onVerified={() => onInquiryPhoneVerified?.()}
+          />
+        ) : null}
+
+        {myInquiries.length > 0 && !inquiryPhoneVerifyRequired && (
           <div className="space-y-3">
             <h2 className="text-center text-[16px] font-extrabold text-bakery-ink">
               {labels.yourPastInquiries}
@@ -426,7 +455,20 @@ export function CustomerContactModal({
           </div>
         ) : null}
         <div ref={scrollRef} className="customer-wa-chat__messages">
-          {chatLoading && chatMessages.length === 0 ? (
+          {chatVerifyRequired && parseIsraeliMobilePhone(contactPhone) ? (
+            <div className="p-4">
+              <CustomerPhoneVerification
+                slug={slug}
+                phone={contactPhone}
+                locale={locale}
+                labels={labels}
+                onVerified={() => {
+                  setChatVerifyRequired(false);
+                  void loadChat();
+                }}
+              />
+            </div>
+          ) : chatLoading && chatMessages.length === 0 ? (
             <p className="py-8 text-center text-[14px] text-bakery-muted">
               {labels.chatLoading}
             </p>
@@ -467,7 +509,7 @@ export function CustomerContactModal({
             value={chatDraft}
             onChange={(e) => setChatDraft(e.target.value)}
             placeholder={labels.chatPlaceholder}
-            disabled={chatSending}
+            disabled={chatSending || chatVerifyRequired}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -479,7 +521,7 @@ export function CustomerContactModal({
             type="button"
             className="customer-wa-chat__send"
             onClick={() => void sendChat()}
-            disabled={!chatDraft.trim() || chatSending}
+            disabled={!chatDraft.trim() || chatSending || chatVerifyRequired}
             aria-busy={chatSending}
             aria-label={labels.send}
           >

@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getSession } from "@/lib/auth";
 import { studioConsolePath } from "@/lib/studio-access";
 import { activateLegacyPendingBusiness } from "@/lib/business";
-import { isBusinessTrialExpired } from "@/lib/business-trial";
 import { syncBusinessTrialLock } from "@/lib/business-subscription";
+import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import {
   DASHBOARD_LAYOUT_BODY,
@@ -44,9 +44,18 @@ export default async function DashboardLayout({
     redirect("/onboarding");
   }
 
-  const trialLock = await syncBusinessTrialLock(user.business);
-  if (!trialLock.isActive || trialLock.locked || isBusinessTrialExpired(user.business)) {
-    redirect("/trial-expired");
+  const session = await getSession();
+  const adminSupport = session?.adminSupport === true;
+
+  if (!adminSupport) {
+    const trialLock = await syncBusinessTrialLock(user.business);
+    if (
+      !trialLock.isActive ||
+      trialLock.locked ||
+      (await isTrialEnforcedAndExpired(user.business))
+    ) {
+      redirect("/trial-expired");
+    }
   }
 
   if (await activateLegacyPendingBusiness(user.business.id)) {

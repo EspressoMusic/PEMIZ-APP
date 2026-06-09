@@ -37,34 +37,36 @@ export function MasterLoginGate() {
 
   return (
     <WebShell>
-      <div className="mx-auto w-full max-w-sm px-4 py-12 sm:py-16">
+      <div className="master-surface mx-auto w-full max-w-sm px-4 py-12 sm:py-16">
         <PageTitle subtitle="הזינו את סיסמת הגישה לפאנל">פאנל המתכנת</PageTitle>
-        <form onSubmit={onSubmit} className="mt-8 space-y-4">
-          <label className="block">
-            <span className="mb-1.5 block text-[13px] font-bold text-bakery-muted">
-              סיסמה
-            </span>
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              dir="ltr"
-              className="w-full rounded-[16px] border border-bakery-border/40 bg-bakery-input px-4 py-3 text-[15px] text-bakery-ink outline-none ring-bakery-primary/30 focus:ring-2"
-              placeholder="••••••••"
-            />
-          </label>
-          {error && (
-            <p className="text-center text-[14px] font-semibold text-bakery-error">
-              {error}
-            </p>
-          )}
-          <Button type="submit" className="w-full" disabled={loading || !password.trim()}>
-            {loading ? "בודק..." : "כניסה"}
-          </Button>
-        </form>
+        <div className="master-panel-outer mt-8">
+          <form onSubmit={onSubmit} className="master-panel-inner space-y-4">
+            <label className="block">
+              <span className="mb-1.5 block text-[13px] font-bold text-bakery-muted">
+                סיסמה
+              </span>
+              <input
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                dir="ltr"
+                className="master-panel-input"
+                placeholder="••••••••"
+              />
+            </label>
+            {error && (
+              <p className="text-center text-[14px] font-semibold text-bakery-error">
+                {error}
+              </p>
+            )}
+            <Button type="submit" className="w-full" disabled={loading || !password.trim()}>
+              {loading ? "בודק..." : "כניסה"}
+            </Button>
+          </form>
+        </div>
         <p className="mt-6 text-center">
           <Link href="/" className="text-sm font-bold text-bakery-primary hover:underline">
             חזרה לדף הבית

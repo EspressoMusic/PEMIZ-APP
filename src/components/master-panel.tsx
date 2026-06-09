@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Search } from "lucide-react";
-import { Button, Panel, Badge, PageTitle } from "@/components/ui";
+import { Alert, Button, Badge, PageTitle, Textarea, Input } from "@/components/ui";
 import { MasterLoginGate } from "@/components/master-login-gate";
 import { WebShell } from "@/components/web-shell";
 import {
   BUSINESS_TRIAL_DAYS,
   getBusinessTrialStatus,
+  trialWarningScheduleLabelHe,
   type BusinessTrialStatus,
 } from "@/lib/business-trial";
 
@@ -59,6 +60,26 @@ type SystemIncidentRow = {
   stack?: string;
 };
 
+function MasterOuter({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <div className={`master-panel-outer ${className}`}>{children}</div>;
+}
+
+function MasterInner({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <div className={`master-panel-inner ${className}`}>{children}</div>;
+}
+
 function DetailBox({
   title,
   children,
@@ -67,12 +88,12 @@ function DetailBox({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/80 p-3">
+    <MasterInner>
       <p className="mb-2 text-[12px] font-extrabold uppercase tracking-wide text-bakery-muted">
         {title}
       </p>
       <div className="space-y-1 text-[14px] text-bakery-ink">{children}</div>
-    </div>
+    </MasterInner>
   );
 }
 
@@ -153,12 +174,35 @@ export function MasterPanel() {
   const [businesses, setBusinesses] = useState<BusinessRow[]>([]);
   const [pendingOwners, setPendingOwners] = useState<PendingOwner[]>([]);
   const [signupsEnabled, setSignupsEnabled] = useState(true);
+  const [trialClosureEnabled, setTrialClosureEnabled] = useState(true);
+  const [trialWarningEmailsEnabled, setTrialWarningEmailsEnabled] =
+    useState(true);
   const [platformLoading, setPlatformLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [incidents, setIncidents] = useState<SystemIncidentRow[]>([]);
   const [incidentsOpen, setIncidentsOpen] = useState(true);
   const [trialClock, setTrialClock] = useState(0);
+  const [ownerMessageDrafts, setOwnerMessageDrafts] = useState<
+    Record<string, string>
+  >({});
+  const [ownerMessageSendingId, setOwnerMessageSendingId] = useState<
+    string | null
+  >(null);
+  const [ownerMessageFeedback, setOwnerMessageFeedback] = useState<
+    Record<string, { tone: "success" | "error"; text: string }>
+  >({});
+  const [ownerEmailDrafts, setOwnerEmailDrafts] = useState<Record<string, string>>(
+    {}
+  );
+  const [ownerPasswordDrafts, setOwnerPasswordDrafts] = useState<
+    Record<string, string>
+  >({});
+  const [ownerCredSavingId, setOwnerCredSavingId] = useState<string | null>(null);
+  const [ownerCredFeedback, setOwnerCredFeedback] = useState<
+    Record<string, { tone: "success" | "error"; text: string }>
+  >({});
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -210,19 +254,46 @@ export function MasterPanel() {
     if (platformRes.ok) {
       const platform = await platformRes.json();
       setSignupsEnabled(platform.signupsEnabled !== false);
+      setTrialClosureEnabled(platform.trialClosureEnabled !== false);
+      setTrialWarningEmailsEnabled(
+        platform.trialWarningEmailsEnabled !== false
+      );
     }
   }
 
-  async function toggleSignups() {
+  async function patchPlatform(patch: Record<string, boolean>) {
     setPlatformLoading(true);
     const res = await fetch("/api/admin/platform", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ signupsEnabled: !signupsEnabled }),
+      body: JSON.stringify(patch),
     });
     const data = await res.json();
     setPlatformLoading(false);
-    if (res.ok) setSignupsEnabled(data.signupsEnabled);
+    if (!res.ok) return;
+    if (typeof data.signupsEnabled === "boolean") {
+      setSignupsEnabled(data.signupsEnabled);
+    }
+    if (typeof data.trialClosureEnabled === "boolean") {
+      setTrialClosureEnabled(data.trialClosureEnabled);
+    }
+    if (typeof data.trialWarningEmailsEnabled === "boolean") {
+      setTrialWarningEmailsEnabled(data.trialWarningEmailsEnabled);
+    }
+  }
+
+  async function toggleSignups() {
+    await patchPlatform({ signupsEnabled: !signupsEnabled });
+  }
+
+  async function toggleTrialClosure() {
+    await patchPlatform({ trialClosureEnabled: !trialClosureEnabled });
+  }
+
+  async function toggleTrialWarnings() {
+    await patchPlatform({
+      trialWarningEmailsEnabled: !trialWarningEmailsEnabled,
+    });
   }
 
   async function removePendingOwner(id: string, email: string) {
@@ -252,6 +323,198 @@ export function MasterPanel() {
     await fetch("/api/master/logout", { method: "POST" });
     setAuthenticated(false);
     setBusinesses([]);
+  }
+
+  function ensureOwnerEmailDraft(b: BusinessRow) {
+    setOwnerEmailDrafts((prev) =>
+      prev[b.id] !== undefined ? prev : { ...prev, [b.id]: b.owner.email }
+    );
+  }
+
+  async function patchOwnerCredentials(
+    b: BusinessRow,
+    patch: { email?: string; password?: string }
+  ) {
+    setOwnerCredSavingId(b.id);
+    setOwnerCredFeedback((prev) => {
+      const next = { ...prev };
+      delete next[b.id];
+      return next;
+    });
+
+    try {
+      const res = await fetch(`/api/admin/users/${b.owner.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        message?: string;
+      };
+      if (!res.ok) {
+        setOwnerCredFeedback((prev) => ({
+          ...prev,
+          [b.id]: {
+            tone: "error",
+            text: data.error ?? "עדכון נכשל",
+          },
+        }));
+        return;
+      }
+      if (patch.password) {
+        setOwnerPasswordDrafts((prev) => ({ ...prev, [b.id]: "" }));
+      }
+      setOwnerCredFeedback((prev) => ({
+        ...prev,
+        [b.id]: {
+          tone: "success",
+          text: data.message ?? "עודכן בהצלחה",
+        },
+      }));
+      await loadBusinesses();
+    } catch {
+      setOwnerCredFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "error", text: "שגיאת רשת" },
+      }));
+    } finally {
+      setOwnerCredSavingId(null);
+    }
+  }
+
+  async function saveOwnerEmail(b: BusinessRow) {
+    const email = (ownerEmailDrafts[b.id] ?? "").trim().toLowerCase();
+    if (!email) {
+      setOwnerCredFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "error", text: "נא להזין מייל" },
+      }));
+      return;
+    }
+    if (email === b.owner.email.toLowerCase()) {
+      setOwnerCredFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "error", text: "המייל זהה לקיים" },
+      }));
+      return;
+    }
+    await patchOwnerCredentials(b, { email });
+  }
+
+  async function saveOwnerPassword(b: BusinessRow) {
+    const password = ownerPasswordDrafts[b.id] ?? "";
+    if (password.length < 8) {
+      setOwnerCredFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "error", text: "סיסמה: לפחות 8 תווים" },
+      }));
+      return;
+    }
+    if (!confirm("לעדכן סיסמה למוכר? הוא יצטרך להתחבר עם הסיסמה החדשה.")) {
+      return;
+    }
+    await patchOwnerCredentials(b, { password });
+  }
+
+  async function enterOwnerDashboard(b: BusinessRow) {
+    if (
+      !confirm(
+        `להיכנס לדשבורד של "${b.name}" כמוכר? תועבר/י לדשבורד החנות.`
+      )
+    ) {
+      return;
+    }
+
+    setImpersonatingId(b.id);
+    setOwnerCredFeedback((prev) => {
+      const next = { ...prev };
+      delete next[b.id];
+      return next;
+    });
+
+    try {
+      const res = await fetch(`/api/admin/users/${b.owner.id}/impersonate`, {
+        method: "POST",
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        redirectTo?: string;
+      };
+      if (!res.ok) {
+        setOwnerCredFeedback((prev) => ({
+          ...prev,
+          [b.id]: {
+            tone: "error",
+            text: data.error ?? "כניסה נכשלה",
+          },
+        }));
+        return;
+      }
+      window.location.href = data.redirectTo ?? "/dashboard";
+    } catch {
+      setOwnerCredFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "error", text: "שגיאת רשת" },
+      }));
+    } finally {
+      setImpersonatingId(null);
+    }
+  }
+
+  async function sendOwnerMessage(b: BusinessRow) {
+    const text = (ownerMessageDrafts[b.id] ?? "").trim();
+    if (!text) {
+      setOwnerMessageFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "error", text: "כתוב הודעה לפני השליחה" },
+      }));
+      return;
+    }
+
+    setOwnerMessageSendingId(b.id);
+    setOwnerMessageFeedback((prev) => {
+      const next = { ...prev };
+      delete next[b.id];
+      return next;
+    });
+
+    try {
+      const res = await fetch(`/api/admin/businesses/${b.id}/message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        message?: string;
+      };
+      if (!res.ok) {
+        setOwnerMessageFeedback((prev) => ({
+          ...prev,
+          [b.id]: {
+            tone: "error",
+            text: data.error ?? "שליחה נכשלה",
+          },
+        }));
+        return;
+      }
+      setOwnerMessageDrafts((prev) => ({ ...prev, [b.id]: "" }));
+      setOwnerMessageFeedback((prev) => ({
+        ...prev,
+        [b.id]: {
+          tone: "success",
+          text: data.message ?? "ההודעה נשלחה",
+        },
+      }));
+    } catch {
+      setOwnerMessageFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "error", text: "שגיאת רשת" },
+      }));
+    } finally {
+      setOwnerMessageSendingId(null);
+    }
   }
 
   async function toggleActive(id: string, isActive: boolean) {
@@ -306,7 +569,9 @@ export function MasterPanel() {
   if (authenticated === null) {
     return (
       <WebShell>
-        <div className="px-4 py-20 text-center text-bakery-muted">טוען...</div>
+        <div className="master-surface px-4 py-20 text-center text-bakery-muted">
+          טוען...
+        </div>
       </WebShell>
     );
   }
@@ -349,7 +614,7 @@ export function MasterPanel() {
 
   return (
     <WebShell>
-      <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8 md:px-[14px]">
+      <div className="master-surface mx-auto max-w-3xl space-y-4 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8 md:px-[14px]">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
           <PageTitle>ניהול חנויות</PageTitle>
           <Button variant="ghost" onClick={logout}>
@@ -357,35 +622,40 @@ export function MasterPanel() {
           </Button>
         </div>
 
-        <Panel className="!p-3 sm:!p-4">
-          <label className="relative block">
-            <span className="sr-only">חיפוש חנויות</span>
-            <Search
-              className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-bakery-muted"
-              aria-hidden
-            />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="חיפוש לפי שם חנות, אימייל או כתובת..."
-              className="w-full rounded-[16px] border border-bakery-border/40 bg-bakery-input py-3 pe-4 ps-11 text-[15px] text-bakery-ink outline-none ring-bakery-primary/30 placeholder:text-bakery-muted focus:ring-2"
-              dir="auto"
-            />
-          </label>
-          {searchQuery.trim() && (
-            <p className="mt-2 text-[13px] font-semibold text-bakery-muted">
-              {filteredStores.length} חנויות · {filteredPendingOwners.length} חשבונות בלי חנות
-            </p>
-          )}
-        </Panel>
+        <MasterOuter>
+          <MasterInner>
+            <label className="relative block">
+              <span className="sr-only">חיפוש חנויות</span>
+              <Search
+                className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-bakery-muted"
+                aria-hidden
+              />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="חיפוש לפי שם חנות, אימייל או כתובת..."
+                className="master-panel-input py-3 pe-4 ps-11"
+                dir="auto"
+              />
+            </label>
+            {searchQuery.trim() && (
+              <p className="mt-2 text-[13px] font-semibold text-bakery-muted">
+                {filteredStores.length} חנויות · {filteredPendingOwners.length} חשבונות בלי חנות
+              </p>
+            )}
+          </MasterInner>
+        </MasterOuter>
 
-        <Panel className={incidents.length > 0 ? "!border-bakery-error/35" : ""}>
-          <button
-            type="button"
-            onClick={() => setIncidentsOpen((open) => !open)}
-            className="flex w-full items-center justify-between gap-3 text-start"
-          >
+        <MasterOuter
+          className={incidents.length > 0 ? "master-panel-outer--error" : ""}
+        >
+          <MasterInner>
+            <button
+              type="button"
+              onClick={() => setIncidentsOpen((open) => !open)}
+              className="flex w-full items-center justify-between gap-3 text-start"
+            >
             <div>
               <p className="text-[16px] font-extrabold text-bakery-ink">
                 תקלות מערכת (למתכנת בלבד)
@@ -404,11 +674,11 @@ export function MasterPanel() {
           </button>
 
           {incidentsOpen && incidents.length > 0 && (
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 space-y-2">
               {incidents.map((incident) => (
-                <div
+                <MasterInner
                   key={incident.id}
-                  className="rounded-[16px] border border-bakery-error/25 bg-bakery-cream-light/80 p-3 text-start"
+                  className="master-panel-inner--error text-start"
                 >
                   <p className="text-[12px] font-bold text-bakery-muted">
                     {new Date(incident.at).toLocaleString("he-IL")} · {incident.context}
@@ -424,17 +694,18 @@ export function MasterPanel() {
                       {incident.stack}
                     </pre>
                   ) : null}
-                </div>
+                </MasterInner>
               ))}
               <Button variant="ghost" onClick={clearIncidents} className="w-full">
                 נקה רשימת תקלות
               </Button>
             </div>
           )}
-        </Panel>
+          </MasterInner>
+        </MasterOuter>
 
-        <Panel>
-          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <MasterOuter>
+          <MasterInner className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="text-[16px] font-extrabold text-bakery-ink">הרשמה חדשה לאתר</p>
               <p className="mt-1 text-[14px] text-bakery-muted">
@@ -455,46 +726,109 @@ export function MasterPanel() {
                   ? "השעה הרשמה"
                   : "פתח הרשמה"}
             </Button>
-          </div>
-        </Panel>
+          </MasterInner>
+        </MasterOuter>
 
-        <Panel>
-          <p className="text-[15px] text-bakery-ink">
-            <span className="font-extrabold">{businesses.length}</span> חנויות ·{" "}
-            <span className="font-extrabold text-bakery-success">{activeCount}</span> פעילות ·{" "}
-            <span className="font-extrabold text-bakery-sale">
-              {pendingApproval.length}
-            </span>{" "}
-            ממתינות לאישור ·{" "}
-            <span className="font-extrabold text-bakery-error">
-              {businesses.length - activeCount - pendingApproval.length}
-            </span>{" "}
-            מושבתות
-            {pendingOwners.length > 0 && (
-              <>
-                {" "}
-                ·{" "}
-                <span className="font-extrabold text-bakery-muted">
-                  {pendingOwners.length}
-                </span>{" "}
-                חשבונות בלי חנות
-              </>
-            )}
-          </p>
-          <p className="mt-2 text-[14px] text-bakery-ink">
-            ניסיון {BUSINESS_TRIAL_DAYS} יום:{" "}
-            <span className="font-extrabold text-bakery-sale">
-              {trialsEndingSoon}
-            </span>{" "}
-            נגמרות בשבוע הקרוב ·{" "}
-            <span className="font-extrabold text-bakery-error">{trialsExpired}</span>{" "}
-            כבר נגמרו
-          </p>
-        </Panel>
+        <MasterOuter>
+          <MasterInner className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[16px] font-extrabold text-bakery-ink">
+                סגירת חנות אחרי {BUSINESS_TRIAL_DAYS} יום ניסיון
+              </p>
+              <p className="mt-1 text-[14px] text-bakery-muted">
+                {trialClosureEnabled
+                  ? "חנות ללא מנוי תיסגר אוטומטית בסוף תקופת הניסיון"
+                  : "הניסיון לא ייסגר אוטומטית — החנות נשארת פתוחה"}
+              </p>
+            </div>
+            <Button
+              variant={trialClosureEnabled ? "danger" : "primary"}
+              onClick={() => void toggleTrialClosure()}
+              disabled={platformLoading}
+              className={`w-full sm:w-auto ${trialClosureEnabled ? "master-btn-matte-danger" : ""}`}
+            >
+              {platformLoading
+                ? "שומר..."
+                : trialClosureEnabled
+                  ? "כבה סגירה אוטומטית"
+                  : "הפעל סגירה אוטומטית"}
+            </Button>
+          </MasterInner>
+        </MasterOuter>
+
+        <MasterOuter>
+          <MasterInner>
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-[16px] font-extrabold text-bakery-ink">
+                  התראות לפני סיום ניסיון
+                </p>
+                <p className="mt-1 text-[14px] text-bakery-muted">
+                  {trialWarningEmailsEnabled
+                    ? trialWarningScheduleLabelHe()
+                    : "לא נשלחות התראות במייל או בדחיפה למוכרים"}
+                </p>
+              </div>
+              <Button
+                variant={trialWarningEmailsEnabled ? "danger" : "primary"}
+                onClick={() => void toggleTrialWarnings()}
+                disabled={platformLoading || !trialClosureEnabled}
+                className={`w-full sm:w-auto ${trialWarningEmailsEnabled ? "master-btn-matte-warn" : ""}`}
+              >
+                {platformLoading
+                  ? "שומר..."
+                  : trialWarningEmailsEnabled
+                    ? "כבה התראות"
+                    : "הפעל התראות"}
+              </Button>
+            </div>
+            {!trialClosureEnabled ? (
+              <p className="mt-3 text-[13px] text-bakery-muted">
+                התראות רלוונטיות רק כשסגירה אוטומטית מופעלת.
+              </p>
+            ) : null}
+          </MasterInner>
+        </MasterOuter>
+
+        <MasterOuter>
+          <MasterInner className="space-y-2">
+            <p className="text-[15px] text-bakery-ink">
+              <span className="font-extrabold">{businesses.length}</span> חנויות ·{" "}
+              <span className="font-extrabold text-bakery-success">{activeCount}</span> פעילות ·{" "}
+              <span className="font-extrabold text-bakery-sale">
+                {pendingApproval.length}
+              </span>{" "}
+              ממתינות לאישור ·{" "}
+              <span className="font-extrabold text-bakery-error">
+                {businesses.length - activeCount - pendingApproval.length}
+              </span>{" "}
+              מושבתות
+              {pendingOwners.length > 0 && (
+                <>
+                  {" "}
+                  ·{" "}
+                  <span className="font-extrabold text-bakery-muted">
+                    {pendingOwners.length}
+                  </span>{" "}
+                  חשבונות בלי חנות
+                </>
+              )}
+            </p>
+            <p className="text-[14px] text-bakery-ink">
+              ניסיון {BUSINESS_TRIAL_DAYS} יום:{" "}
+              <span className="font-extrabold text-bakery-sale">
+                {trialsEndingSoon}
+              </span>{" "}
+              נגמרות בשבוע הקרוב ·{" "}
+              <span className="font-extrabold text-bakery-error">{trialsExpired}</span>{" "}
+              כבר נגמרו
+            </p>
+          </MasterInner>
+        </MasterOuter>
 
         {filteredPendingOwners.map((u) => (
-          <Panel key={u.id}>
-            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+          <MasterOuter key={u.id} className="master-panel-outer--tight">
+            <MasterInner className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-[18px] font-extrabold text-bakery-ink">{u.name}</p>
@@ -517,8 +851,8 @@ export function MasterPanel() {
               >
                 מחק חשבון
               </Button>
-            </div>
-          </Panel>
+            </MasterInner>
+          </MasterOuter>
         ))}
 
         {filteredStores.map((b) => {
@@ -530,11 +864,17 @@ export function MasterPanel() {
           const isSuspendAction = b.isActive;
 
           return (
-            <Panel key={b.id} className="!p-0 overflow-hidden">
+            <MasterOuter key={b.id} className="master-panel-outer--tight space-y-2">
               <button
                 type="button"
-                onClick={() => setExpandedId(expanded ? null : b.id)}
-                className="flex w-full items-center gap-3 px-4 py-3.5 text-start transition hover:bg-bakery-cream-light/50 sm:px-[18px]"
+                onClick={() => {
+                  const next = expanded ? null : b.id;
+                  setExpandedId(next);
+                  if (next) ensureOwnerEmailDraft(b);
+                }}
+                className={`master-panel-inner master-panel-row${
+                  expanded ? " master-panel-inner--active" : ""
+                }`}
                 aria-expanded={expanded}
               >
                 <ChevronDown
@@ -560,7 +900,7 @@ export function MasterPanel() {
               </button>
 
               {expanded && (
-                <div className="space-y-3 border-t border-bakery-border/25 px-4 pb-4 pt-3 sm:px-[18px]">
+                <div className="space-y-2">
                   {b.description && (
                     <DetailBox title="תיאור">
                       <p className="leading-[1.45] text-bakery-muted">{b.description}</p>
@@ -572,14 +912,83 @@ export function MasterPanel() {
                       <p>
                         <span className="font-bold">שם:</span> {b.owner.name}
                       </p>
-                      <p dir="ltr" className="break-all font-mono text-[13px]">
-                        {b.owner.email}
-                      </p>
                       {b.owner.phone && (
                         <p dir="ltr" className="font-mono text-[13px]">
                           {b.owner.phone}
                         </p>
                       )}
+                    </DetailBox>
+
+                    <DetailBox title="ניהול חשבון מוכר">
+                      <Input
+                        label="מייל"
+                        type="email"
+                        dir="ltr"
+                        autoComplete="off"
+                        value={ownerEmailDrafts[b.id] ?? b.owner.email}
+                        onChange={(e) =>
+                          setOwnerEmailDrafts((prev) => ({
+                            ...prev,
+                            [b.id]: e.target.value,
+                          }))
+                        }
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="mt-2 w-full sm:w-auto"
+                        disabled={ownerCredSavingId === b.id}
+                        onClick={() => void saveOwnerEmail(b)}
+                      >
+                        {ownerCredSavingId === b.id ? "שומר..." : "שמור מייל"}
+                      </Button>
+
+                      <Input
+                        label="סיסמה חדשה"
+                        type="password"
+                        dir="ltr"
+                        autoComplete="new-password"
+                        className="mt-3"
+                        value={ownerPasswordDrafts[b.id] ?? ""}
+                        onChange={(e) =>
+                          setOwnerPasswordDrafts((prev) => ({
+                            ...prev,
+                            [b.id]: e.target.value,
+                          }))
+                        }
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="mt-2 w-full sm:w-auto"
+                        disabled={ownerCredSavingId === b.id}
+                        onClick={() => void saveOwnerPassword(b)}
+                      >
+                        {ownerCredSavingId === b.id ? "שומר..." : "עדכן סיסמה"}
+                      </Button>
+
+                      {ownerCredFeedback[b.id] ? (
+                        <div className="mt-2">
+                          <Alert variant={ownerCredFeedback[b.id].tone}>
+                            {ownerCredFeedback[b.id].text}
+                          </Alert>
+                        </div>
+                      ) : null}
+
+                      <Button
+                        type="button"
+                        variant="primary"
+                        className="mt-4 w-full"
+                        disabled={impersonatingId === b.id}
+                        onClick={() => void enterOwnerDashboard(b)}
+                      >
+                        {impersonatingId === b.id
+                          ? "נכנס..."
+                          : "כניסה לדשבורד החנות"}
+                      </Button>
+                      <p className="mt-2 text-[12px] text-bakery-muted">
+                        נכנס כמוכר — גם אם החנות מושבתת או שהניסיון נגמר.
+                      </p>
                     </DetailBox>
 
                     <DetailBox title="תאריכים">
@@ -641,7 +1050,7 @@ export function MasterPanel() {
                       ).map(([label, count]) => (
                         <div
                           key={label}
-                          className="rounded-[12px] border border-bakery-border/25 bg-bakery-square/60 px-2 py-2 text-center"
+                          className="master-panel-stat"
                         >
                           <p className="text-[11px] font-bold text-bakery-muted">{label}</p>
                           <p className="text-[18px] font-extrabold text-bakery-ink">{count}</p>
@@ -650,7 +1059,7 @@ export function MasterPanel() {
                     </div>
                   </DetailBox>
 
-                  <div className="rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/80 p-3">
+                  <MasterInner>
                     <Link
                       href={`/b/${b.slug}`}
                       target="_blank"
@@ -658,9 +1067,49 @@ export function MasterPanel() {
                     >
                       צפייה בעמוד לקוחות →
                     </Link>
-                  </div>
+                  </MasterInner>
 
-                  <div className="flex flex-col gap-2 sm:flex-row">
+                  <DetailBox title="הודעה למוכר">
+                    <p className="text-[13px] text-bakery-muted">
+                      נשלח למייל{" "}
+                      <span dir="ltr" className="font-mono text-bakery-ink">
+                        {b.owner.email}
+                      </span>
+                    </p>
+                    <Textarea
+                      className="mt-2 min-h-[96px]"
+                      rows={4}
+                      maxLength={2000}
+                      placeholder="כתוב הודעה למוכר/ת החנות..."
+                      value={ownerMessageDrafts[b.id] ?? ""}
+                      onChange={(e) =>
+                        setOwnerMessageDrafts((prev) => ({
+                          ...prev,
+                          [b.id]: e.target.value,
+                        }))
+                      }
+                    />
+                    {ownerMessageFeedback[b.id] ? (
+                      <div className="mt-2">
+                        <Alert variant={ownerMessageFeedback[b.id].tone}>
+                          {ownerMessageFeedback[b.id].text}
+                        </Alert>
+                      </div>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="mt-3 w-full sm:w-auto"
+                      disabled={ownerMessageSendingId === b.id}
+                      onClick={() => void sendOwnerMessage(b)}
+                    >
+                      {ownerMessageSendingId === b.id
+                        ? "שולח..."
+                        : "שלח הודעה למייל"}
+                    </Button>
+                  </DetailBox>
+
+                  <MasterInner className="flex flex-col gap-2 sm:flex-row">
                     <Button
                       variant={isSuspendAction ? "primary" : b.isActive ? "danger" : "primary"}
                       className={toggleSuspendButtonClass(b)}
@@ -675,10 +1124,10 @@ export function MasterPanel() {
                     >
                       מחק חנות
                     </Button>
-                  </div>
+                  </MasterInner>
                 </div>
               )}
-            </Panel>
+            </MasterOuter>
           );
         })}
 

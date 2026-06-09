@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
-import { businessTrialEndsAt, isBusinessTrialExpired } from "@/lib/business-trial";
+import { businessTrialEndsAt } from "@/lib/business-trial";
 import { syncBusinessTrialLock } from "@/lib/business-subscription";
+import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 import { parseLocaleCookie } from "@/lib/dashboard-appearance-boot";
 import { AppLocaleProvider } from "@/components/dashboard/app-locale-provider";
 import { DashboardTrialPaywall } from "@/components/dashboard/dashboard-trial-paywall";
@@ -15,7 +16,7 @@ export default async function TrialExpiredPage() {
 
   await syncBusinessTrialLock(user.business);
 
-  if (!isBusinessTrialExpired(user.business)) {
+  if (!(await isTrialEnforcedAndExpired(user.business))) {
     redirect("/dashboard");
   }
 

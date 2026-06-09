@@ -114,6 +114,47 @@ export function fireSellerPush(
   void dispatchSellerPush(businessId, kind, notification);
 }
 
+/** Platform trial warnings — always sent, not gated by seller alert toggles. */
+export async function dispatchOwnerPush(
+  ownerId: string,
+  notification: SellerPushPayload
+) {
+  if (!isPushConfigured()) return;
+
+  try {
+    const subs = await prisma.sellerPushSubscription.findMany({
+      where: { userId: ownerId },
+    });
+    if (subs.length === 0) return;
+
+    configureWebPush();
+    const payload = JSON.stringify(notification);
+
+    await Promise.allSettled(
+      subs.map(async (sub) => {
+        try {
+          await webpush.sendNotification(
+            {
+              endpoint: sub.endpoint,
+              keys: { p256dh: sub.p256dh, auth: sub.auth },
+            },
+            payload
+          );
+        } catch (e: unknown) {
+          const status = (e as { statusCode?: number })?.statusCode;
+          if (status === 404 || status === 410) {
+            await prisma.sellerPushSubscription
+              .delete({ where: { id: sub.id } })
+              .catch(() => undefined);
+          }
+        }
+      })
+    );
+  } catch (e) {
+    console.error("[seller-push] owner", e);
+  }
+}
+
 export async function notifySellerNewOrder(
   businessId: string,
   order: { id: string; customerName: string; total?: number }

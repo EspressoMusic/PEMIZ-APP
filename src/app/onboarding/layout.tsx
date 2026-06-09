@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { isBusinessTrialExpired } from "@/lib/business-trial";
 import { syncBusinessTrialLock } from "@/lib/business-subscription";
+import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 
 export default async function OnboardingLayout({
   children,
@@ -13,7 +13,7 @@ export default async function OnboardingLayout({
 
   if (user.business) {
     await syncBusinessTrialLock(user.business);
-    if (isBusinessTrialExpired(user.business)) {
+    if (await isTrialEnforcedAndExpired(user.business)) {
       redirect("/trial-expired");
     }
     redirect("/dashboard");

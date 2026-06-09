@@ -10,7 +10,7 @@ import { safeUserWithPasswordSelect } from "@/lib/security/user-select";
 import { loginSchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function POST(req: Request) {
-  const limited = enforceRateLimit(req, "auth:login", 10, 15 * 60 * 1000);
+  const limited = await enforceRateLimit(req, "auth:login", 10, 15 * 60 * 1000);
   if (limited) return limited;
 
   const body = await req.json().catch(() => null);

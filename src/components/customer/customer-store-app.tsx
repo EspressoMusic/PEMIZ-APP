@@ -107,6 +107,7 @@ import {
   parseAppointmentCancelPolicy,
 } from "@/lib/appointment-cancel-policy";
 import { CustomerCenterModal } from "./customer-center-modal";
+import { CustomerPhoneVerification } from "./customer-phone-verification";
 import type { ContactView } from "./customer-contact-modal";
 
 const CustomerContactModal = dynamic(
@@ -287,6 +288,12 @@ export function CustomerStoreApp({
     null
   );
   const [myInquiries, setMyInquiries] = useState<MyInquiry[]>([]);
+  const [inquiryPhoneVerifyRequired, setInquiryPhoneVerifyRequired] =
+    useState(false);
+  const [phoneVerifyPrompt, setPhoneVerifyPrompt] = useState<string | null>(null);
+  const [pendingCancelAppointmentId, setPendingCancelAppointmentId] = useState<
+    string | null
+  >(null);
   const [inquirySubmitting, setInquirySubmitting] = useState(false);
   const [inquirySubmitError, setInquirySubmitError] = useState("");
   const [inquirySuccessOpen, setInquirySuccessOpen] = useState(false);
@@ -489,9 +496,19 @@ export function CustomerStoreApp({
 
       try {
         const res = await fetch(
-          `/api/public/${business.slug}/inquiry-updates?phone=${encodeURIComponent(phoneRaw)}`
+          `/api/public/${business.slug}/inquiry-updates?phone=${encodeURIComponent(phoneRaw)}`,
+          { credentials: "include" }
         );
-        const data = await res.json();
+        const data = (await res.json()) as {
+          inquiries?: MyInquiry[];
+          code?: string;
+        };
+        if (res.status === 403 && data.code === "PHONE_VERIFICATION_REQUIRED") {
+          setInquiryPhoneVerifyRequired(true);
+          setMyInquiries([]);
+          return;
+        }
+        setInquiryPhoneVerifyRequired(false);
         if (res.ok) setMyInquiries(data.inquiries ?? []);
       } catch {
         setMyInquiries([]);
@@ -787,6 +804,7 @@ export function CustomerStoreApp({
     for (const deal of cartDeals) {
       const res = await fetch(`/api/public/${business.slug}/orders`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payloadBase, dealId: deal.id }),
       });
@@ -804,6 +822,7 @@ export function CustomerStoreApp({
     if (cartLines.length > 0) {
       const res = await fetch(`/api/public/${business.slug}/orders`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payloadBase,
@@ -899,6 +918,7 @@ export function CustomerStoreApp({
     try {
       const res = await fetch(`/api/public/${business.slug}/inquiries`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customerName: fd.get("customerName"),
@@ -1011,6 +1031,7 @@ export function CustomerStoreApp({
       } else {
         const res = await fetch(`/api/public/${business.slug}/appointments`, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             slotId: payload.slotId,
@@ -1101,6 +1122,7 @@ export function CustomerStoreApp({
       } else {
         const res = await fetch(`/api/public/${business.slug}/appointments`, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             slotId: payload.slotId,
@@ -1158,12 +1180,21 @@ export function CustomerStoreApp({
     if (!isDevSchedule) {
       const res = await fetch(`/api/public/${business.slug}/appointments`, {
         method: "PATCH",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           appointmentId,
           customerPhone: appt.customerPhone,
         }),
       });
+      const data = (await res.json().catch(() => ({}))) as {
+        code?: string;
+      };
+      if (res.status === 403 && data.code === "PHONE_VERIFICATION_REQUIRED") {
+        setPendingCancelAppointmentId(appointmentId);
+        setPhoneVerifyPrompt(appt.customerPhone);
+        return;
+      }
       if (!res.ok) return;
     }
 
@@ -1351,6 +1382,23 @@ export function CustomerStoreApp({
       case "orders":
         return (
           <div className="space-y-4 pb-2">
+            {phoneVerifyPrompt ? (
+              <CustomerPhoneVerification
+                slug={business.slug}
+                phone={phoneVerifyPrompt}
+                locale={locale}
+                labels={labels}
+                compact
+                onVerified={() => {
+                  setPhoneVerifyPrompt(null);
+                  if (pendingCancelAppointmentId) {
+                    const id = pendingCancelAppointmentId;
+                    setPendingCancelAppointmentId(null);
+                    void cancelMyAppointment(id);
+                  }
+                }}
+              />
+            ) : null}
             {isScheduleLike ? (
               <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
                 <SettingsCollapsibleSection
@@ -1691,6 +1739,16 @@ export function CustomerStoreApp({
         hasPendingInquiry={hasPendingInquiry}
         hideChat={!panels.chat}
         hideInquiries={!panels.inquiries}
+        inquiryPhoneVerifyRequired={inquiryPhoneVerifyRequired}
+        onInquiryPhoneVerified={() => {
+          const phone =
+            orderPhone ||
+            (typeof window !== "undefined"
+              ? localStorage.getItem(inquiryPhoneKey(business.slug))
+              : null) ||
+            "";
+          if (phone) void loadMyInquiries(phone);
+        }}
         onSubmitInquiry={sendInquiry}
       />
       )}

@@ -1,11 +1,11 @@
 import type { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getSession } from "@/lib/auth";
 import { jsonError } from "@/lib/api";
 import {
   syncBusinessTrialLock,
   trialExpiredErrorMessage,
 } from "@/lib/business-subscription";
-import { isBusinessTrialExpired } from "@/lib/business-trial";
+import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 
 type AuthUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 type UserWithBusiness = AuthUser & {
@@ -25,15 +25,23 @@ export async function requireBusinessOwner(): Promise<DashboardAuthResult> {
     return { ok: false, response: jsonError("אין עסק", 404) };
   }
 
-  const trialLock = await syncBusinessTrialLock(user.business);
-  if (!trialLock.isActive) {
-    return { ok: false, response: jsonError("החנות אינה פעילה", 403) };
-  }
-  if (trialLock.locked || isBusinessTrialExpired(user.business)) {
-    return {
-      ok: false,
-      response: jsonError(trialExpiredErrorMessage(), 402),
-    };
+  const session = await getSession();
+  const adminSupport = session?.adminSupport === true;
+
+  if (!adminSupport) {
+    const trialLock = await syncBusinessTrialLock(user.business);
+    if (!trialLock.isActive) {
+      return { ok: false, response: jsonError("החנות אינה פעילה", 403) };
+    }
+    if (
+      trialLock.locked ||
+      (await isTrialEnforcedAndExpired(user.business))
+    ) {
+      return {
+        ok: false,
+        response: jsonError(trialExpiredErrorMessage(), 402),
+      };
+    }
   }
 
   return { ok: true, user: user as UserWithBusiness };

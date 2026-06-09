@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { generateUniqueBusinessSlug } from "@/lib/business";
-import { isBusinessTrialExpired } from "@/lib/business-trial";
+import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 import {
   syncBusinessTrialLock,
   trialExpiredErrorMessage,
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   if (!user) return jsonError("לא מחובר", 401);
   if (user.business) {
     await syncBusinessTrialLock(user.business);
-    if (isBusinessTrialExpired(user.business)) {
+    if (await isTrialEnforcedAndExpired(user.business)) {
       return jsonError(trialExpiredErrorMessage(), 402);
     }
     return jsonError("כבר קיים עסק לחשבון זה", 409);

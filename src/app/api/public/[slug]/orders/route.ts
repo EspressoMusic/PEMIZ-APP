@@ -30,6 +30,8 @@ import {
   dealRedemptionLimitError,
   isDealRedemptionLimitReached,
 } from "@/lib/store-deal-redemption";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { grantCustomerPhoneAccess } from "@/lib/customer-phone-access";
 
 function afterOrderPlaced(
   businessId: string,
@@ -60,6 +62,14 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  const limited = await enforceRateLimit(
+    req,
+    `public:orders:${slug.toLowerCase()}`,
+    10,
+    10 * 60 * 1000
+  );
+  if (limited) return limited;
+
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
     include: { products: { where: { isActive: true } } },
@@ -155,6 +165,7 @@ export async function POST(
         { id: order.id, customerName: order.customerName },
         orderItems
       );
+      await grantCustomerPhoneAccess(business.id, phone);
       return jsonOk({ orderId: order.id, dealApplied: true });
     } catch (e) {
       if (e instanceof OrderStockError) return jsonError(e.message);
@@ -189,6 +200,7 @@ export async function POST(
       { id: order.id, customerName: order.customerName },
       orderItems
     );
+    await grantCustomerPhoneAccess(business.id, phone);
     return jsonOk({ orderId: order.id });
   } catch (e) {
     if (e instanceof OrderStockError) return jsonError(e.message);

@@ -9,7 +9,7 @@ import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { masterLoginSchema, zodFirstError } from "@/lib/validation/schemas";
 
 export async function POST(req: Request) {
-  const limited = enforceRateLimit(req, "master:login", 8, 15 * 60 * 1000);
+  const limited = await enforceRateLimit(req, "master:login", 8, 15 * 60 * 1000);
   if (limited) return limited;
 
   if (!getMasterKeyFromEnv()) {

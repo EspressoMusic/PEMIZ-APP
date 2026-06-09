@@ -1,9 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import {
-  isBusinessSubscriptionLocked,
-  isBusinessTrialExpired,
-  type BusinessTrialFields,
-} from "@/lib/business-trial";
+import { type BusinessTrialFields } from "@/lib/business-trial";
+import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 
 export type BusinessTrialState = BusinessTrialFields & {
   id: string;
@@ -13,7 +10,7 @@ export type BusinessTrialState = BusinessTrialFields & {
 export async function syncBusinessTrialLock(
   business: BusinessTrialState
 ): Promise<{ locked: boolean; isActive: boolean }> {
-  if (!isBusinessTrialExpired(business)) {
+  if (!(await isTrialEnforcedAndExpired(business))) {
     return { locked: false, isActive: business.isActive };
   }
 

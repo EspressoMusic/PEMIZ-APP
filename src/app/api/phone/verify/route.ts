@@ -9,7 +9,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const limited = enforceRateLimit(req, "phone:verify", 8, 15 * 60 * 1000);
+  const limited = await enforceRateLimit(req, "phone:verify", 8, 15 * 60 * 1000);
   if (limited) return limited;
 
   const user = await getCurrentUser();

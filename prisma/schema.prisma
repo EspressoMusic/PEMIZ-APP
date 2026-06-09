@@ -10,9 +10,11 @@ datasource db {
 }
 
 model PlatformConfig {
-  id             String   @id @default("default")
-  signupsEnabled Boolean  @default(true)
-  updatedAt      DateTime @updatedAt
+  id                       String   @id @default("default")
+  signupsEnabled           Boolean  @default(true)
+  trialClosureEnabled      Boolean  @default(true)
+  trialWarningEmailsEnabled Boolean @default(true)
+  updatedAt                DateTime @updatedAt
 }
 
 model User {
@@ -59,6 +61,23 @@ model OtpCode {
   @@index([userId])
 }
 
+model PublicPhoneOtp {
+  id         String   @id @default(cuid())
+  businessId String
+  phone      String
+  code       String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([businessId, phone])
+}
+
+model RateLimitBucket {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+}
+
 model Business {
   id              String   @id @default(cuid())
   slug            String   @unique
@@ -90,6 +109,9 @@ model Business {
   approvedAt      DateTime?
   subscriptionActiveAt   DateTime?
   subscriptionPlan       String?
+  trialWarned7dAt        DateTime?
+  trialWarned3dAt        DateTime?
+  trialWarned1dAt        DateTime?
   ownerId         String   @unique
   owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   termsAcceptedAt DateTime?

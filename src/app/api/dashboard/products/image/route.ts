@@ -6,7 +6,7 @@ import { recordSystemIncident } from "@/lib/system-incidents";
 import { isAllowedImageMime, maxImageBytes } from "@/lib/upload-image";
 
 export async function POST(req: Request) {
-  const limited = enforceRateLimit(req, "dashboard:product-image", 40, 60 * 60 * 1000);
+  const limited = await enforceRateLimit(req, "dashboard:product-image", 40, 60 * 60 * 1000);
   if (limited) return limited;
 
   const ctx = await requireStoreOwner();

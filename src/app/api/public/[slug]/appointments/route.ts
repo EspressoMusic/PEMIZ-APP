@@ -13,6 +13,11 @@ import {
   parseAppointmentCancelPolicy,
 } from "@/lib/appointment-cancel-policy";
 import { parseServiceFromNotes } from "@/lib/customer-appointment-history";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
+import {
+  grantCustomerPhoneAccess,
+  requireCustomerPhoneAccess,
+} from "@/lib/customer-phone-access";
 
 const postSchema = z.object({
   slotId: z.string(),
@@ -32,6 +37,14 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  const limited = await enforceRateLimit(
+    req,
+    `public:appointments:get:${slug.toLowerCase()}`,
+    20,
+    10 * 60 * 1000
+  );
+  if (limited) return limited;
+
   const phone = parseIsraeliMobilePhone(
     new URL(req.url).searchParams.get("phone") ?? ""
   );
@@ -44,6 +57,9 @@ export async function GET(
   if (business.type !== "APPOINTMENTS" && business.type !== "RENTAL") {
     return jsonError("עסק זה אינו מקבל תורים", 400);
   }
+
+  const denied = await requireCustomerPhoneAccess(business.id, phone);
+  if (denied) return denied;
 
   const appointments = await prisma.appointment.findMany({
     where: {
@@ -79,6 +95,14 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  const limited = await enforceRateLimit(
+    req,
+    `public:appointments:post:${slug.toLowerCase()}`,
+    10,
+    10 * 60 * 1000
+  );
+  if (limited) return limited;
+
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
   });
@@ -120,6 +144,11 @@ export async function POST(
     include: { slot: true },
   });
 
+  await grantCustomerPhoneAccess(
+    business.id,
+    parseIsraeliMobilePhone(parsed.data.customerPhone)!
+  );
+
   return jsonOk({
     appointmentId: appointment.id,
     appointment: {
@@ -142,6 +171,14 @@ export async function PATCH(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  const limited = await enforceRateLimit(
+    req,
+    `public:appointments:patch:${slug.toLowerCase()}`,
+    15,
+    10 * 60 * 1000
+  );
+  if (limited) return limited;
+
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
   });
@@ -157,6 +194,10 @@ export async function PATCH(
 
   const phone = parseIsraeliMobilePhone(parsed.data.customerPhone);
   if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);
+
+  const denied = await requireCustomerPhoneAccess(business.id, phone);
+  if (denied) return denied;
+
   const appt = await prisma.appointment.findFirst({
     where: {
       id: parsed.data.appointmentId,

@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { isDatabaseConfigured } from "@/lib/db-env";
+import { checkRateLimitDb } from "@/lib/security/rate-limit-db";
 
 type Bucket = { count: number; resetAt: number };
 
@@ -52,6 +54,21 @@ export function checkRateLimit(
   return { ok: true };
 }
 
+async function checkRateLimitDistributed(
+  key: string,
+  limit: number,
+  windowMs: number
+): Promise<{ ok: true } | { ok: false; retryAfterSec: number }> {
+  if (isDatabaseConfigured()) {
+    try {
+      return await checkRateLimitDb(key, limit, windowMs);
+    } catch (error) {
+      console.warn("[rate-limit] DB unavailable, using memory fallback", error);
+    }
+  }
+  return checkRateLimit(key, limit, windowMs);
+}
+
 export function rateLimitResponse(retryAfterSec: number) {
   return NextResponse.json(
     { error: "יותר מדי בקשות. נסו שוב מאוחר יותר." },
@@ -63,13 +80,17 @@ export function rateLimitResponse(retryAfterSec: number) {
 }
 
 /** Apply rate limit; returns a Response to return early, or null to continue. */
-export function enforceRateLimit(
+export async function enforceRateLimit(
   req: Request,
   scope: string,
   limit: number,
   windowMs: number
-): NextResponse | null {
-  const result = checkRateLimit(rateLimitKey(req, scope), limit, windowMs);
+): Promise<NextResponse | null> {
+  const result = await checkRateLimitDistributed(
+    rateLimitKey(req, scope),
+    limit,
+    windowMs
+  );
   if (!result.ok) return rateLimitResponse(result.retryAfterSec);
   return null;
 }

@@ -12,6 +12,8 @@ export type SessionPayload = {
   userId: string;
   email: string;
   role: Role;
+  /** Set when platform admin impersonates a seller to manage their store. */
+  adminSupport?: boolean;
 };
 
 function getSecret() {
@@ -49,6 +51,7 @@ export async function getSession(): Promise<SessionPayload | null> {
       userId: payload.userId as string,
       email: payload.email as string,
       role: payload.role as Role,
+      adminSupport: payload.adminSupport === true,
     };
   } catch {
     return null;
