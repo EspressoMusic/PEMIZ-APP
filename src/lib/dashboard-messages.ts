@@ -169,6 +169,7 @@ export type DashboardLabels = {
   backToEdit: string;
   addDeal: string;
   existingDeals: string;
+  dealOff: string;
   noExistingDeals: string;
   closeForm: string;
   saveDeal: string;
@@ -209,6 +210,12 @@ export type DashboardLabels = {
   homeCalendarSlotFull: string;
   homeUpcomingAppointments: string;
   homeNoUpcomingAppointments: string;
+  homeUpcomingRentals: string;
+  homeNoUpcomingRentals: string;
+  rentalNight: string;
+  rentalNights: string;
+  rentalDay: string;
+  rentalDays: string;
   homeOpenCalendar: string;
   homeCalendarTitle: string;
   homeCalendarQuickBook: string;
@@ -617,6 +624,7 @@ const HE: DashboardLabels = {
   backToEdit: "חזרה לעריכה",
   addDeal: "הוסף דיל",
   existingDeals: "דילים קיימים",
+  dealOff: "כבוי",
   noExistingDeals: "אין דילים עדיין",
   closeForm: "סגור טופס",
   saveDeal: "שמור דיל",
@@ -657,6 +665,12 @@ const HE: DashboardLabels = {
   homeCalendarSlotFull: "מלא",
   homeUpcomingAppointments: "פגישות קרובות",
   homeNoUpcomingAppointments: "אין פגישות קרובות",
+  homeUpcomingRentals: "השכרות קרובות",
+  homeNoUpcomingRentals: "אין השכרות קרובות",
+  rentalNight: "לילה",
+  rentalNights: "לילות",
+  rentalDay: "יום",
+  rentalDays: "ימים",
   homeOpenCalendar: "פתיחת יומן",
   homeCalendarTitle: "יומן",
   homeCalendarQuickBook: "שבץ תור",
@@ -1170,6 +1184,7 @@ const EN: DashboardLabels = {
   backToEdit: "Back to edit",
   addDeal: "Add deal",
   existingDeals: "Existing deals",
+  dealOff: "Off",
   noExistingDeals: "No deals yet",
   closeForm: "Close form",
   saveDeal: "Save deal",
@@ -1210,6 +1225,12 @@ const EN: DashboardLabels = {
   homeCalendarSlotFull: "Full",
   homeUpcomingAppointments: "Upcoming appointments",
   homeNoUpcomingAppointments: "No upcoming appointments",
+  homeUpcomingRentals: "Upcoming rentals",
+  homeNoUpcomingRentals: "No upcoming rentals",
+  rentalNight: "night",
+  rentalNights: "nights",
+  rentalDay: "day",
+  rentalDays: "days",
   homeOpenCalendar: "Open calendar",
   homeCalendarTitle: "Calendar",
   homeCalendarQuickBook: "Book slot",

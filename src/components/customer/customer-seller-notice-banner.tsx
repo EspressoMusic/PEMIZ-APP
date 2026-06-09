@@ -23,6 +23,7 @@ export function CustomerSellerNoticeBanner({
   onClose,
   onDismiss,
   unread = false,
+  rentalMode = false,
 }: {
   message: string;
   labels: CustomerLabels;
@@ -31,6 +32,8 @@ export function CustomerSellerNoticeBanner({
   onClose: () => void;
   onDismiss: () => void;
   unread?: boolean;
+  /** חנות השכרה — רקע בהיר יותר; פגישות/מוצרים — רק מסגרת */
+  rentalMode?: boolean;
 }) {
   const confettiPieces = useMemo<ConfettiPiece[]>(() => {
     const colors = ["#e6d4b8", "#5c4a3e", "#43a047", "#c9a66b", "#7eb8ff", "#f4f0e8"];
@@ -81,7 +84,13 @@ export function CustomerSellerNoticeBanner({
         </div>
       )}
 
-      <div className="customer-seller-notice-panel border-b shadow-[0_4px_16px_rgba(58,47,38,0.1)]">
+      <div
+        className={`customer-seller-notice-panel customer-seller-notice-banner-strip shadow-[0_4px_16px_rgba(58,47,38,0.08)] ${
+          rentalMode
+            ? "customer-seller-notice-banner-strip--rental"
+            : "customer-seller-notice-banner-strip--framed"
+        }`}
+      >
         <button
           type="button"
           onClick={onOpen}

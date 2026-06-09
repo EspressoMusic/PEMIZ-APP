@@ -581,6 +581,22 @@ html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-
   }
 }
 
+@keyframes deal-active-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgb(67 160 71 / 0.45);
+  }
+  50% {
+    opacity: 0.42;
+    box-shadow: 0 0 0 5px rgb(67 160 71 / 0.12);
+  }
+}
+
+.deal-active-pulse {
+  animation: deal-active-pulse 2.6s ease-in-out infinite;
+}
+
 @keyframes dashboard-water-bubble-rise {
   0% {
     transform: translateY(0) scale(0.4);
@@ -1100,9 +1116,26 @@ html:not([data-store-theme="dark"])
   box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
 }
 
-html:not([data-store-theme="dark"]) .bakery-action-sheet-panel--warm {
+html:not([data-store-theme="dark"])
+  .dashboard-card.bakery-action-sheet-panel.bakery-action-sheet-panel--warm {
   background: #e6d5b8;
+  background-image: none;
   border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
+  box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
+}
+
+html:not([data-store-theme="dark"]) .dashboard-deal-form-sheet > h2 {
+  padding-top: 0.625rem;
+  padding-bottom: 0.125rem;
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+html:not([data-store-theme="dark"])
+  .dashboard-deal-form-sheet
+  > .dashboard-action-sheet-body {
+  padding-top: 0;
+  padding-bottom: 0.625rem;
 }
 
 html:not([data-store-theme="dark"])
@@ -1778,6 +1811,18 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   background: #e6d5b8;
   border-color: rgba(201, 184, 154, 0.55);
   color: #3a2f26;
+}
+
+.customer-seller-notice-banner-strip {
+  border: 3px solid rgb(92 74 62 / 0.16);
+}
+
+.customer-seller-notice-banner-strip--framed {
+  background: #e6d5b8;
+}
+
+.customer-seller-notice-banner-strip--rental {
+  background: #faf4e6;
 }
 
 .customer-seller-notice-panel .text-bakery-ink,

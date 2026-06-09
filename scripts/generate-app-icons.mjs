@@ -6,6 +6,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const logoPath = join(root, "public/icons/linky-app-logo.png");
 const outDir = join(root, "public/icons");
 const publicDir = join(root, "public");
+const appDir = join(root, "src/app");
 
 async function main() {
   let sharp;
@@ -31,8 +32,18 @@ async function main() {
     console.log(`Wrote ${name}`);
   }
 
-  await sharp(logo).resize(32, 32).png().toFile(join(publicDir, "favicon.ico"));
-  console.log("Wrote favicon.ico");
+  const favicon32 = await sharp(logo).resize(32, 32).png().toBuffer();
+  writeFileSync(join(publicDir, "favicon.ico"), favicon32);
+  writeFileSync(join(appDir, "favicon.ico"), favicon32);
+  console.log("Wrote favicon.ico (public + src/app)");
+
+  const icon192 = await sharp(logo).resize(192, 192).png().toBuffer();
+  writeFileSync(join(appDir, "icon.png"), icon192);
+  console.log("Wrote src/app/icon.png");
+
+  const apple180 = await sharp(logo).resize(180, 180).png().toBuffer();
+  writeFileSync(join(appDir, "apple-icon.png"), apple180);
+  console.log("Wrote src/app/apple-icon.png");
 }
 
 main().catch((err) => {

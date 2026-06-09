@@ -10,7 +10,11 @@ import {
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import type { PrepProductSummary } from "@/lib/dashboard-prep-summary";
 import type { CalendarSlot } from "@/lib/appointment-calendar-shared";
-import { isScheduleLikeBusinessType, type BusinessType } from "@/lib/types";
+import {
+  isRentalBusinessType,
+  isScheduleLikeBusinessType,
+  type BusinessType,
+} from "@/lib/types";
 
 const center = "text-center";
 const homeStack = "mx-auto w-full max-w-[360px]";
@@ -49,6 +53,7 @@ export function DashboardHomeView({
 }) {
   const { labels } = useAppLocale();
   const isAppointments = isScheduleLikeBusinessType(businessType);
+  const isRental = isRentalBusinessType(businessType);
 
   return (
     <div
@@ -106,6 +111,7 @@ export function DashboardHomeView({
               initialAppointments={appointmentsCalendarPreview?.appointments}
               initialBookingByDay={appointmentsCalendarPreview?.bookingByDay}
               initialReferenceNowMs={appointmentsCalendarPreview?.referenceNowMs}
+              rentalMode={isRental}
             />
           </div>
         ) : showPrepSummary && prepProducts ? (

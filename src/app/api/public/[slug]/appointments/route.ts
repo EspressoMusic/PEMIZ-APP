@@ -41,7 +41,9 @@ export async function GET(
     where: { slug: slug.toLowerCase() },
   });
   if (!business) return jsonError("עסק לא נמצא", 404);
-  if (business.type !== "APPOINTMENTS") return jsonError("עסק זה אינו מקבל תורים", 400);
+  if (business.type !== "APPOINTMENTS" && business.type !== "RENTAL") {
+    return jsonError("עסק זה אינו מקבל תורים", 400);
+  }
 
   const appointments = await prisma.appointment.findMany({
     where: {
@@ -83,7 +85,9 @@ export async function POST(
 
   if (!business) return jsonError("עסק לא נמצא", 404);
   if (!business.isActive) return jsonError("This business is currently unavailable.", 403);
-  if (business.type !== "APPOINTMENTS") return jsonError("עסק זה אינו מקבל תורים", 400);
+  if (business.type !== "APPOINTMENTS" && business.type !== "RENTAL") {
+    return jsonError("עסק זה אינו מקבל תורים", 400);
+  }
 
   const body = await req.json().catch(() => null);
   const parsed = postSchema.safeParse(body);
@@ -143,7 +147,9 @@ export async function PATCH(
   });
   if (!business) return jsonError("עסק לא נמצא", 404);
   if (!business.isActive) return jsonError("This business is currently unavailable.", 403);
-  if (business.type !== "APPOINTMENTS") return jsonError("עסק זה אינו מקבל תורים", 400);
+  if (business.type !== "APPOINTMENTS" && business.type !== "RENTAL") {
+    return jsonError("עסק זה אינו מקבל תורים", 400);
+  }
 
   const body = await req.json().catch(() => null);
   const parsed = patchSchema.safeParse(body);

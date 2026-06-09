@@ -393,6 +393,7 @@ export function DashboardAppointmentsHomeCalendar({
   initialAppointments = [],
   initialBookingByDay = false,
   initialReferenceNowMs,
+  rentalMode = false,
 }: {
   previewOnly?: boolean;
   initialSlots?: CalendarSlot[];
@@ -400,6 +401,7 @@ export function DashboardAppointmentsHomeCalendar({
   initialBookingByDay?: boolean;
   /** Server-frozen clock for preview SSR/hydration parity. */
   initialReferenceNowMs?: number;
+  rentalMode?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
   const [hydrated, setHydrated] = useState(false);
@@ -722,15 +724,23 @@ export function DashboardAppointmentsHomeCalendar({
         <div
           className="dashboard-card bakery-float-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px] p-2.5 sm:p-3"
           role="region"
-          aria-label={labels.homeUpcomingAppointments}
+          aria-label={
+            rentalMode
+              ? labels.homeUpcomingRentals
+              : labels.homeUpcomingAppointments
+          }
         >
           <h2 className="shrink-0 pb-1.5 text-center text-[16px] font-extrabold text-bakery-ink sm:text-[17px]">
-            {labels.homeUpcomingAppointments}
+            {rentalMode
+              ? labels.homeUpcomingRentals
+              : labels.homeUpcomingAppointments}
           </h2>
           <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[18px] bg-transparent p-2 [-webkit-overflow-scrolling:touch]">
             {upcomingAppointments.length === 0 ? (
               <p className="py-6 text-center text-[14px] font-semibold text-bakery-muted">
-                {labels.homeNoUpcomingAppointments}
+                {rentalMode
+                  ? labels.homeNoUpcomingRentals
+                  : labels.homeNoUpcomingAppointments}
               </p>
             ) : (
               <ul className="space-y-2">
@@ -739,6 +749,7 @@ export function DashboardAppointmentsHomeCalendar({
                     <DashboardAppointmentCard
                       appointment={appt}
                       bookingByDay={bookingByDay}
+                      rentalMode={rentalMode}
                       outlined
                       homeList
                       highlightAsNext={hydrated && index === 0}

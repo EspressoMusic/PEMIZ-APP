@@ -689,7 +689,7 @@ export function ProductsManager({
         placement={isServices ? "center" : "upper"}
         showBackButton
         compact
-        warmPanel={isServices}
+        warmPanel
       >
         <form
           ref={formRef}
@@ -830,6 +830,7 @@ export function ProductsManager({
         ariaLabel={listLabel}
         placement="center"
         showBackButton
+        warmPanel
       >
         {products.length === 0 ? (
           <p className="py-6 text-center text-[14px] text-bakery-muted">

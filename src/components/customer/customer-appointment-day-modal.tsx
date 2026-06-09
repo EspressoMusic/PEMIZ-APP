@@ -19,6 +19,7 @@ export function CustomerAppointmentDayModal({
   orderScheduleEnabled = false,
   orderSchedule = null,
   bookingByDay = false,
+  rentalMode = false,
   onBook,
 }: {
   open: boolean;
@@ -30,6 +31,7 @@ export function CustomerAppointmentDayModal({
   orderScheduleEnabled?: boolean;
   orderSchedule?: string | null;
   bookingByDay?: boolean;
+  rentalMode?: boolean;
   onBook: (dateKey: string, daySlots: AppointmentSlot[]) => void;
 }) {
   useEffect(() => {
@@ -51,7 +53,7 @@ export function CustomerAppointmentDayModal({
       className="fixed inset-0 z-[90] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label={labels.calendarPickTime}
+      aria-label={rentalMode ? labels.calendarPickCheckIn : labels.calendarPickTime}
     >
       <button
         type="button"
@@ -83,6 +85,7 @@ export function CustomerAppointmentDayModal({
             orderScheduleEnabled={orderScheduleEnabled}
             orderSchedule={orderSchedule}
             bookingByDay={bookingByDay}
+            rentalMode={rentalMode}
             hideHeader
             fillScroll
             onBook={(dk, daySlots) => {

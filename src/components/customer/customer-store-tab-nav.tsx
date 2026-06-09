@@ -25,6 +25,7 @@ export function CustomerStoreTabNav({
   hideDeals = false,
   phoneColumn = false,
   isAppointments = false,
+  isRental = false,
 }: {
   labels: CustomerLabels;
   active: CustomerMainTab;
@@ -36,6 +37,8 @@ export function CustomerStoreTabNav({
   phoneColumn?: boolean;
   /** חנות פגישות — לשונית הזמנות מוצגת כ«תורים». */
   isAppointments?: boolean;
+  /** חנות השכרה — לשונית הזמנות מוצגת כ«השכרות». */
+  isRental?: boolean;
 }) {
   const tabs = hideDeals ? TABS.filter((tab) => tab.id !== "deals") : TABS;
 
@@ -57,9 +60,11 @@ export function CustomerStoreTabNav({
             key={tab.id}
             active={active === tab.id}
             label={
-              tab.id === "orders" && isAppointments
-                ? labels.appointments
-                : tab.label(labels)
+              tab.id === "orders" && isRental
+                ? labels.myRentals
+                : tab.id === "orders" && isAppointments
+                  ? labels.appointments
+                  : tab.label(labels)
             }
             icon={tab.icon}
             badge={

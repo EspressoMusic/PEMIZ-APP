@@ -25,6 +25,7 @@ export function CustomerAppointmentSlotPicker({
   orderScheduleEnabled = false,
   orderSchedule = null,
   bookingByDay = false,
+  rentalMode = false,
   hideHeader = false,
   fillScroll = false,
   onBook,
@@ -36,6 +37,7 @@ export function CustomerAppointmentSlotPicker({
   orderScheduleEnabled?: boolean;
   orderSchedule?: string | null;
   bookingByDay?: boolean;
+  rentalMode?: boolean;
   /** Hide day title — used when the parent modal already shows it. */
   hideHeader?: boolean;
   /** Let the parent scroll the list (day picker modal). */
@@ -70,6 +72,21 @@ export function CustomerAppointmentSlotPicker({
         <p className="rounded-[16px] border border-bakery-border/30 bg-bakery-card/70 px-4 py-5 text-center text-[14px] font-semibold text-bakery-muted">
           {labels.calendarNoSlotsDay}
         </p>
+      ) : bookingByDay ? (
+        openSlots.length > 0 ? (
+          <Button
+            type="button"
+            variant="primary"
+            className="w-full min-h-[48px] rounded-[16px] text-[15px] font-extrabold"
+            onClick={() => onBook(dateKey, openSlots)}
+          >
+            {rentalMode ? labels.scheduleRental : labels.book}
+          </Button>
+        ) : (
+          <p className="rounded-[16px] border border-bakery-border/30 bg-bakery-card/70 px-4 py-5 text-center text-[14px] font-semibold text-bakery-muted">
+            {labels.calendarNoSlotsDay}
+          </p>
+        )
       ) : (
         <ul
           className={

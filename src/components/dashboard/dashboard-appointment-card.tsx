@@ -14,6 +14,10 @@ import {
   parseServiceFromNotes,
 } from "@/lib/customer-appointment-history";
 import { appointmentLocalDateKey } from "@/lib/appointment-calendar-shared";
+import {
+  formatRentalPeriodCompact,
+  formatRentalPeriodLine,
+} from "@/lib/rental-period";
 import type { DashboardLabels } from "@/lib/app-locale";
 import {
   isSellerSelfBooking,
@@ -237,11 +241,13 @@ export function DashboardAppointmentCard({
   highlightAsNext = false,
   relativeDateLabels = true,
   homeList = false,
+  rentalMode = false,
 }: {
   appointment: DashboardAppointmentView;
   onHide?: () => void;
   onCustomerClick?: (input: CustomerProfileInput) => void;
   bookingByDay?: boolean;
+  rentalMode?: boolean;
   outlined?: boolean;
   /** Closest upcoming appointment — matte red frame on home list. */
   highlightAsNext?: boolean;
@@ -269,10 +275,41 @@ export function DashboardAppointmentCard({
     }
     return formatAppointmentDateLabel(appointment.slot.startAt, locale, labels);
   }, [appointment.slot.startAt, locale, labels, relativeDateLabels]);
-  const timeLine = useMemo(
-    () => formatAppointmentTimeLine(appointment.slot.startAt, locale),
-    [appointment.slot.startAt, locale]
+  const rentalLabels = useMemo(
+    () => ({
+      rentalNight: labels.rentalNight,
+      rentalNights: labels.rentalNights,
+      rentalDay: labels.rentalDay,
+      rentalDays: labels.rentalDays,
+    }),
+    [labels]
   );
+  const timeLine = useMemo(() => {
+    if (rentalMode) {
+      return formatRentalPeriodCompact(
+        appointment.slot.startAt,
+        appointment.slot.endAt,
+        locale,
+        rentalLabels
+      );
+    }
+    return formatAppointmentTimeLine(appointment.slot.startAt, locale);
+  }, [
+    rentalMode,
+    appointment.slot.startAt,
+    appointment.slot.endAt,
+    locale,
+    rentalLabels,
+  ]);
+  const rentalPeriodLine = useMemo(() => {
+    if (!rentalMode) return "";
+    return formatRentalPeriodLine(
+      appointment.slot.startAt,
+      appointment.slot.endAt,
+      locale,
+      rentalLabels
+    );
+  }, [rentalMode, appointment.slot.startAt, appointment.slot.endAt, locale, rentalLabels]);
 
   const canOpenCustomerProfile =
     !sellerBooking &&
@@ -306,12 +343,18 @@ export function DashboardAppointmentCard({
 
           {timeLine ? (
             <span
-              className={`shrink-0 text-center text-[22px] font-extrabold leading-none tabular-nums text-bakery-ink sm:text-[24px] ${
-                homeList ? "min-w-0 flex-1" : "w-[4.5rem]"
+              className={`shrink-0 text-center font-extrabold leading-tight text-bakery-ink ${
+                rentalMode
+                  ? homeList
+                    ? "min-w-0 flex-1 text-[14px] sm:text-[15px]"
+                    : "min-w-0 flex-1 text-[15px]"
+                  : `text-[22px] leading-none tabular-nums sm:text-[24px] ${
+                      homeList ? "min-w-0 flex-1" : "w-[4.5rem]"
+                    }`
               }`}
               dir="ltr"
             >
-              {timeLine}
+              {rentalMode && !homeList ? rentalPeriodLine : timeLine}
             </span>
           ) : (
             <span className={homeList ? "min-w-0 flex-1" : "w-[4.5rem] shrink-0"} aria-hidden />

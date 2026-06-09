@@ -28,6 +28,7 @@ export function CustomerAppointmentCalendarModal({
   customerPhone = "",
   onNeedPhone,
   onBook,
+  rentalMode = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -41,7 +42,11 @@ export function CustomerAppointmentCalendarModal({
   customerPhone?: string;
   onNeedPhone: () => void;
   onBook: (dateKey: string, daySlots: AppointmentSlot[]) => void;
+  rentalMode?: boolean;
 }) {
+  const pickDayTitle = rentalMode
+    ? labels.calendarPickCheckIn
+    : labels.calendarPickDay;
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedDaySlots, setSelectedDaySlots] = useState<AppointmentSlot[]>([]);
 
@@ -68,7 +73,7 @@ export function CustomerAppointmentCalendarModal({
       className="fixed inset-0 z-[80] flex items-center justify-center p-3"
       role="dialog"
       aria-modal="true"
-      aria-label={labels.calendarPickDay}
+      aria-label={pickDayTitle}
     >
       <button
         type="button"
@@ -79,7 +84,7 @@ export function CustomerAppointmentCalendarModal({
       <div className="relative flex max-h-[min(94dvh,780px)] w-full max-w-[min(100%,400px)] flex-col overflow-hidden rounded-[28px] border border-[#5C4A3E]/25 bg-[#D2B88E] shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
         <div className="relative flex min-h-[56px] shrink-0 items-center justify-center border-b border-bakery-border/25 px-12 py-3.5">
           <h2 className="w-full text-center text-[22px] font-extrabold leading-tight text-bakery-ink sm:text-[24px]">
-            {labels.calendarPickDay}
+            {pickDayTitle}
           </h2>
           <button
             type="button"
@@ -131,6 +136,7 @@ export function CustomerAppointmentCalendarModal({
         orderScheduleEnabled={orderScheduleEnabled}
         orderSchedule={orderSchedule}
         bookingByDay={bookingByDay}
+        rentalMode={rentalMode}
         onBook={(dateKey, daySlots) => {
           onBook(dateKey, daySlots);
           onClose();

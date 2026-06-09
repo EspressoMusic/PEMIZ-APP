@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ClipboardList, History } from "lucide-react";
+import { ClipboardList, History } from "lucide-react";
 import {
   Button,
   Input,
@@ -272,8 +272,8 @@ export function OrdersManager({
     return <div className="space-y-4 text-center">{panels}</div>;
   }
 
-  const ordersListClassName =
-    "no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
+  const ordersModalListClassName =
+    "no-scrollbar max-h-[min(58dvh,480px)] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
 
   return (
     <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
@@ -285,12 +285,11 @@ export function OrdersManager({
       <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
         <button
           type="button"
-          onClick={() => setActiveOrdersOpen((v) => !v)}
-          aria-expanded={activeOrdersOpen}
-          aria-controls="dashboard-active-orders-list"
-          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-            activeOrdersOpen ? "bakery-float-tile--active" : ""
-          }`}
+          onClick={() => {
+            setHistoryOrdersOpen(false);
+            setActiveOrdersOpen(true);
+          }}
+          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
         >
           <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
             <ClipboardList className="h-6 w-6" strokeWidth={1.75} />
@@ -304,42 +303,17 @@ export function OrdersManager({
               </span>
             )}
           </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-              activeOrdersOpen ? "rotate-180" : ""
-            }`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
         </button>
-
-        {activeOrdersOpen && (
-          <div
-            id="dashboard-active-orders-list"
-            className={ordersListClassName}
-            role="region"
-            aria-label={labels.orders}
-          >
-            <DashboardOrdersList
-              orders={activeOrders}
-              onStatusChange={onStatusChange}
-              onCustomerClick={openCustomer}
-              emptyMessage={labels.noActiveOrders}
-              emptyCompact
-            />
-          </div>
-        )}
       </div>
 
       <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
         <button
           type="button"
-          onClick={() => setHistoryOrdersOpen((v) => !v)}
-          aria-expanded={historyOrdersOpen}
-          aria-controls="dashboard-order-history-list"
-          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-            historyOrdersOpen ? "bakery-float-tile--active" : ""
-          }`}
+          onClick={() => {
+            setActiveOrdersOpen(false);
+            setHistoryOrdersOpen(true);
+          }}
+          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
         >
           <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
             <History className="h-6 w-6" strokeWidth={1.75} />
@@ -353,32 +327,49 @@ export function OrdersManager({
               </span>
             )}
           </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-              historyOrdersOpen ? "rotate-180" : ""
-            }`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
         </button>
-
-        {historyOrdersOpen && (
-          <div
-            id="dashboard-order-history-list"
-            className={ordersListClassName}
-            role="region"
-            aria-label={labels.orderHistory}
-          >
-            <DashboardOrdersList
-              orders={historyOrders}
-              onCustomerClick={openCustomer}
-              emptyMessage={labels.noOrderHistory}
-              emptyCompact
-              showPrices
-            />
-          </div>
-        )}
       </div>
+
+      <DashboardActionSheet
+        open={activeOrdersOpen}
+        onClose={() => setActiveOrdersOpen(false)}
+        title={labels.orders}
+        ariaLabel={labels.orders}
+        placement="center"
+        showBackButton
+        warmPanel
+      >
+        <div className={ordersModalListClassName}>
+          <DashboardOrdersList
+            orders={activeOrders}
+            onStatusChange={onStatusChange}
+            onCustomerClick={openCustomer}
+            emptyMessage={labels.noActiveOrders}
+            emptyCompact
+          />
+        </div>
+      </DashboardActionSheet>
+
+      <DashboardActionSheet
+        open={historyOrdersOpen}
+        onClose={() => setHistoryOrdersOpen(false)}
+        title={labels.orderHistory}
+        ariaLabel={labels.orderHistory}
+        placement="center"
+        showBackButton
+        warmPanel
+      >
+        <div className={ordersModalListClassName}>
+          <DashboardOrdersList
+            orders={historyOrders}
+            onCustomerClick={openCustomer}
+            emptyMessage={labels.noOrderHistory}
+            emptyCompact
+            showPrices
+          />
+        </div>
+      </DashboardActionSheet>
+
       {customerModal}
     </div>
   );

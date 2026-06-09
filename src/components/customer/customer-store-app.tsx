@@ -93,6 +93,8 @@ import {
 } from "./customer-appointments-home-backdrop";
 import { CustomerAppointmentCalendarModal } from "./customer-appointment-calendar-modal";
 import { CustomerAppointmentBookingModal } from "./customer-appointment-booking-modal";
+import { CustomerRentalBookingModal } from "./customer-rental-booking-modal";
+import { buildRentalNotes, isoAtLocalTime } from "@/lib/rental-period";
 import {
   appendCustomerAppointmentHistory,
   buildAppointmentNotes,
@@ -227,9 +229,12 @@ export function CustomerStoreApp({
   unavailable: boolean;
   platformLegalDocs?: PlatformLegalDocPayload[];
 }) {
-  const isAppointments =
-    business.type === "APPOINTMENTS" || business.type === "RENTAL";
+  const isRental = business.type === "RENTAL";
+  const isAppointments = business.type === "APPOINTMENTS";
+  const isScheduleLike = isAppointments || isRental;
   const isDevAppointments = business.slug === "demo-appointments";
+  const isDevRental = business.slug === "demo-rental";
+  const isDevSchedule = isDevAppointments || isDevRental;
   const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
   const effectiveOrderScheduleEnabled =
     panels.orderLimits && (business.orderScheduleEnabled ?? false);
@@ -538,10 +543,10 @@ export function CustomerStoreApp({
   }, [mainTab]);
 
   useEffect(() => {
-    if ((isAppointments || !panels.deals) && mainTab === "deals") {
+    if ((isScheduleLike || !panels.deals) && mainTab === "deals") {
       setMainTab("home");
     }
-  }, [isAppointments, panels.deals, mainTab]);
+  }, [isScheduleLike, panels.deals, mainTab]);
 
   function updatePreferences(
     patch: Partial<{
@@ -581,7 +586,7 @@ export function CustomerStoreApp({
   }, [business.deals]);
 
   useEffect(() => {
-    if (unavailable || !panels.deals || isAppointments) return;
+    if (unavailable || !panels.deals || isScheduleLike) return;
     if (dealsSeenBootstrappedRef.current) return;
     const seen = bootstrapDealsSeenIfNeeded(
       business.slug,
@@ -589,10 +594,10 @@ export function CustomerStoreApp({
     );
     setDealsLastSeenAt(seen);
     dealsSeenBootstrappedRef.current = true;
-  }, [business.slug, business.deals, unavailable, panels.deals, isAppointments]);
+  }, [business.slug, business.deals, unavailable, panels.deals, isScheduleLike]);
 
   const refreshLiveDeals = useCallback(async () => {
-    if (unavailable || !panels.deals || isAppointments) return;
+    if (unavailable || !panels.deals || isScheduleLike) return;
     if (business.slug === "demo-store") return;
     try {
       const res = await fetch(`/api/public/${business.slug}/deals`);
@@ -603,13 +608,13 @@ export function CustomerStoreApp({
     } catch {
       // keep cached deals
     }
-  }, [business.slug, unavailable, panels.deals, isAppointments]);
+  }, [business.slug, unavailable, panels.deals, isScheduleLike]);
 
   useVisibilityInterval(
     () => void refreshLiveDeals(),
     45_000,
     120_000,
-    !unavailable && panels.deals && !isAppointments
+    !unavailable && panels.deals && !isScheduleLike
   );
 
   const markDealsSeen = useCallback(() => {
@@ -633,9 +638,9 @@ export function CustomerStoreApp({
   }, [liveDeals]);
 
   const dealsBadge = useMemo(() => {
-    if (!panels.deals || isAppointments) return 0;
+    if (!panels.deals || isScheduleLike) return 0;
     return countUnseenDeals(activeDeals, dealsLastSeenAt);
-  }, [activeDeals, dealsLastSeenAt, panels.deals, isAppointments]);
+  }, [activeDeals, dealsLastSeenAt, panels.deals, isScheduleLike]);
 
   const dealsInCartIds = useMemo(
     () => new Set(cartDeals.map((d) => d.id)),
@@ -939,11 +944,14 @@ export function CustomerStoreApp({
     );
   }, [localAppointments, orderPhone]);
 
+  function appointmentEndMs(entry: CustomerAppointmentEntry) {
+    return new Date(entry.endAt ?? entry.startAt).getTime();
+  }
+
   const activeAppointments = useMemo(
     () =>
       myAppointments.filter(
-        (a) =>
-          a.status !== "CANCELLED" && new Date(a.startAt).getTime() > Date.now()
+        (a) => a.status !== "CANCELLED" && appointmentEndMs(a) > Date.now()
       ),
     [myAppointments]
   );
@@ -951,9 +959,7 @@ export function CustomerStoreApp({
   const pastAppointments = useMemo(
     () =>
       myAppointments.filter(
-        (a) =>
-          a.status === "CANCELLED" ||
-          new Date(a.startAt).getTime() <= Date.now()
+        (a) => a.status === "CANCELLED" || appointmentEndMs(a) <= Date.now()
       ),
     [myAppointments]
   );
@@ -1042,6 +1048,100 @@ export function CustomerStoreApp({
     }
   }
 
+  async function submitRentalBooking(payload: {
+    slotId: string;
+    checkInDateKey: string;
+    checkOutDateKey: string;
+    name: string;
+    phone: string;
+    serviceName: string;
+    notes: string;
+  }) {
+    setBookingSubmitting(true);
+    setBookingError("");
+    const slot = business.slots.find((s) => s.id === payload.slotId);
+    if (!slot) {
+      setBookingError(labels.unavailable);
+      setBookingSubmitting(false);
+      return;
+    }
+
+    if (!isValidPhone(payload.phone)) {
+      setBookingError(labels.invalidPhone);
+      setBookingSubmitting(false);
+      return;
+    }
+    const phone = parseIsraeliMobilePhone(payload.phone)!;
+    const startAt = isoAtLocalTime(payload.checkInDateKey, 15, 0);
+    const endAt = isoAtLocalTime(payload.checkOutDateKey, 11, 0);
+    const notes = buildRentalNotes(
+      payload.serviceName,
+      payload.checkInDateKey,
+      payload.checkOutDateKey,
+      locale,
+      payload.notes
+    );
+
+    try {
+      let entry: CustomerAppointmentEntry;
+
+      if (isDevRental) {
+        entry = {
+          id: `local-${Date.now()}`,
+          slotId: payload.slotId,
+          startAt,
+          endAt,
+          serviceName: payload.serviceName,
+          customerName: payload.name.trim(),
+          customerPhone: phone,
+          notes,
+          status: "CONFIRMED",
+          bookedAt: new Date().toISOString(),
+        };
+      } else {
+        const res = await fetch(`/api/public/${business.slug}/appointments`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            slotId: payload.slotId,
+            customerName: payload.name,
+            customerPhone: phone,
+            serviceName: payload.serviceName,
+            notes,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setBookingError(
+            typeof data.error === "string" ? data.error : labels.unavailable
+          );
+          return;
+        }
+        entry = {
+          ...(data.appointment as CustomerAppointmentEntry),
+          startAt,
+          endAt,
+        };
+      }
+
+      setCustomerName(payload.name.trim());
+      setOrderPhone(phone);
+      localStorage.setItem(`linky-customer-${business.slug}`, payload.name.trim());
+      localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+
+      const next = appendCustomerAppointmentHistory(business.slug, entry);
+      setLocalAppointments(next);
+      setBookingModalOpen(false);
+      setBookingDay(null);
+      setBookingSlots([]);
+      setAppointmentSuccessOpen(true);
+      setMainTab("orders");
+      setActiveOrdersOpen(true);
+    } finally {
+      setBookingSubmitting(false);
+    }
+  }
+
   async function cancelMyAppointment(appointmentId: string) {
     const appt = localAppointments.find((a) => a.id === appointmentId);
     if (!appt) return;
@@ -1055,7 +1155,7 @@ export function CustomerStoreApp({
       return;
     }
 
-    if (!isDevAppointments) {
+    if (!isDevSchedule) {
       const res = await fetch(`/api/public/${business.slug}/appointments`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -1207,7 +1307,7 @@ export function CustomerStoreApp({
 
     switch (mainTab) {
       case "home":
-        return isAppointments ? (
+        return isScheduleLike ? (
           <CustomerAppointmentsHomeShell>
             <div className="w-full max-w-[340px]">
               <div className="rounded-[22px] bg-[#5C4A3E] px-5 py-6 text-center shadow-[0_4px_14px_rgba(58,47,38,0.22)]">
@@ -1226,7 +1326,9 @@ export function CustomerStoreApp({
                     <div className="m-3">
                       <div className="flex min-h-[88px] items-center justify-center rounded-[14px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card px-6 py-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
                         <span className="text-[24px] font-extrabold leading-tight text-bakery-ink sm:text-[26px]">
-                          {labels.scheduleAppointment}
+                          {isRental
+                            ? labels.scheduleRental
+                            : labels.scheduleAppointment}
                         </span>
                       </div>
                     </div>
@@ -1249,16 +1351,18 @@ export function CustomerStoreApp({
       case "orders":
         return (
           <div className="space-y-4 pb-2">
-            {isAppointments ? (
+            {isScheduleLike ? (
               <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
                 <SettingsCollapsibleSection
-                  title={labels.myAppointments}
+                  title={isRental ? labels.myRentals : labels.myAppointments}
                   icon={Receipt}
                   expanded={activeOrdersOpen}
                   onToggle={() => setActiveOrdersOpen((open) => !open)}
                 >
                   {activeAppointments.length === 0 ? (
-                    <HubEmptyText>{labels.noActiveAppts}</HubEmptyText>
+                    <HubEmptyText>
+                      {isRental ? labels.noActiveRentals : labels.noActiveAppts}
+                    </HubEmptyText>
                   ) : (
                     <ul className="space-y-2">
                       {activeAppointments.map((appt) => (
@@ -1266,6 +1370,8 @@ export function CustomerStoreApp({
                           <AppointmentPreviewCard
                             serviceName={appt.serviceName}
                             startAt={appt.startAt}
+                            endAt={appt.endAt}
+                            rentalMode={isRental}
                             status={appt.status}
                             locale={locale}
                             labels={labels}
@@ -1282,7 +1388,9 @@ export function CustomerStoreApp({
                   )}
                 </SettingsCollapsibleSection>
                 <SettingsCollapsibleSection
-                  title={labels.appointmentHistory}
+                  title={
+                    isRental ? labels.rentalHistory : labels.appointmentHistory
+                  }
                   icon={History}
                   expanded={historyOrdersOpen}
                   onToggle={() => setHistoryOrdersOpen((open) => !open)}
@@ -1296,6 +1404,8 @@ export function CustomerStoreApp({
                           <AppointmentPreviewCard
                             serviceName={appt.serviceName}
                             startAt={appt.startAt}
+                            endAt={appt.endAt}
+                            rentalMode={isRental}
                             status={appt.status}
                             locale={locale}
                             labels={labels}
@@ -1362,7 +1472,7 @@ export function CustomerStoreApp({
       case "deals":
         return (
           <div className="pb-2">
-            {isAppointments ? (
+            {isScheduleLike ? (
               <EmptyStateCard message={labels.noDeals} />
             ) : (
               <div className="p-1">
@@ -1438,7 +1548,7 @@ export function CustomerStoreApp({
         : "customer-text-scale-100";
 
   const appointmentsHomeActive =
-    isAppointments && mainTab === "home" && !unavailable;
+    isScheduleLike && mainTab === "home" && !unavailable;
 
   const storeBody = (
     <>
@@ -1454,6 +1564,7 @@ export function CustomerStoreApp({
                 onClose={closeSellerNoticeModal}
                 onDismiss={dismissSellerNotice}
                 unread={sellerNoticeUnread}
+                rentalMode={isRental}
               />
             </div>
           )}
@@ -1474,11 +1585,12 @@ export function CustomerStoreApp({
           labels={labels}
           active={mainTab}
           onSelect={selectMainTab}
-          ordersBadge={isAppointments ? undefined : cartItemCount}
+          ordersBadge={isScheduleLike ? undefined : cartItemCount}
           dealsBadge={dealsBadge > 0 ? dealsBadge : undefined}
-          hideDeals={isAppointments || !panels.deals}
-          phoneColumn={isAppointments}
+          hideDeals={isScheduleLike || !panels.deals}
+          phoneColumn={isScheduleLike}
           isAppointments={isAppointments}
+          isRental={isRental}
         />
       )}
     </>
@@ -1494,7 +1606,7 @@ export function CustomerStoreApp({
         key={productConfettiBurst}
         active={productConfettiActive}
       />
-      {isAppointments ? (
+      {isScheduleLike ? (
         <div
           className={`flex min-h-0 flex-1 justify-center ${CUSTOMER_PHONE_DESKTOP_BACKDROP}`}
         >
@@ -1676,8 +1788,16 @@ export function CustomerStoreApp({
         <CelebrationModal
           open
           onClose={() => setAppointmentSuccessOpen(false)}
-          title={labels.appointmentBookedTitle}
-          detail={labels.appointmentBookedDetail}
+          title={
+            isRental
+              ? labels.rentalBookedTitle
+              : labels.appointmentBookedTitle
+          }
+          detail={
+            isRental
+              ? labels.rentalBookedDetail
+              : labels.appointmentBookedDetail
+          }
           buttonLabel={labels.great}
           closeAriaLabel={labels.close}
         />
@@ -1691,7 +1811,8 @@ export function CustomerStoreApp({
         labels={labels}
         orderScheduleEnabled={effectiveOrderScheduleEnabled}
         orderSchedule={business.orderSchedule ?? null}
-        bookingByDay={business.appointmentBookingByDay ?? false}
+        bookingByDay={isRental || (business.appointmentBookingByDay ?? false)}
+        rentalMode={isRental}
         businessSlug={business.slug}
         customerPhone={orderPhone}
         onNeedPhone={() => setProfileModalOpen(true)}
@@ -1703,27 +1824,50 @@ export function CustomerStoreApp({
         }}
       />
 
-      <CustomerAppointmentBookingModal
-        open={bookingModalOpen}
-        onClose={() => {
-          setBookingModalOpen(false);
-          setBookingDay(null);
-          setBookingSlots([]);
-          setBookingError("");
-        }}
-        dateKey={bookingDay}
-        slots={bookingSlots}
-        services={business.products.map((p) => ({ id: p.id, name: p.name }))}
-        bookingByDay={business.appointmentBookingByDay ?? false}
-        locale={locale}
-        labels={labels}
-        storeTheme={displayTheme}
-        initialName={customerName}
-        initialPhone={orderPhone}
-        submitting={bookingSubmitting}
-        error={bookingError}
-        onSubmit={submitAppointmentBooking}
-      />
+      {isRental ? (
+        <CustomerRentalBookingModal
+          open={bookingModalOpen}
+          onClose={() => {
+            setBookingModalOpen(false);
+            setBookingDay(null);
+            setBookingSlots([]);
+            setBookingError("");
+          }}
+          checkInDateKey={bookingDay}
+          slots={bookingSlots.length > 0 ? bookingSlots : business.slots}
+          services={business.products.map((p) => ({ id: p.id, name: p.name }))}
+          locale={locale}
+          labels={labels}
+          storeTheme={displayTheme}
+          initialName={customerName}
+          initialPhone={orderPhone}
+          submitting={bookingSubmitting}
+          error={bookingError}
+          onSubmit={submitRentalBooking}
+        />
+      ) : (
+        <CustomerAppointmentBookingModal
+          open={bookingModalOpen}
+          onClose={() => {
+            setBookingModalOpen(false);
+            setBookingDay(null);
+            setBookingSlots([]);
+            setBookingError("");
+          }}
+          dateKey={bookingDay}
+          slots={bookingSlots}
+          services={business.products.map((p) => ({ id: p.id, name: p.name }))}
+          bookingByDay={business.appointmentBookingByDay ?? false}
+          locale={locale}
+          labels={labels}
+          storeTheme={displayTheme}
+          initialName={customerName}
+          initialPhone={orderPhone}
+          submitting={bookingSubmitting}
+          error={bookingError}
+          onSubmit={submitAppointmentBooking}
+        />
+      )}
 
       <CustomerCenterModal
         open={historyDetailOrder !== null}

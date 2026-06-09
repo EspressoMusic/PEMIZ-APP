@@ -7,6 +7,10 @@ export function parseBusinessType(type: string): BusinessType {
   return "STORE";
 }
 
+export function isRentalBusinessType(type: string): boolean {
+  return type === "RENTAL";
+}
+
 /** Appointments and rental stores share the same seller dashboard layout for now. */
 export function isScheduleLikeBusinessType(type: string): boolean {
   return type === "APPOINTMENTS" || type === "RENTAL";

@@ -20,6 +20,7 @@ export function DashboardActionSheet({
   /** Fit all children without an inner scroll area (tight modals). */
   fitContent = false,
   panelClassName,
+  backButtonOutside = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -38,6 +39,8 @@ export function DashboardActionSheet({
   warmPanel?: boolean;
   fitContent?: boolean;
   panelClassName?: string;
+  /** עם compact — מציב את «חזרה» מעל המלבן ולא בתוך הכותרת */
+  backButtonOutside?: boolean;
 }) {
   const { labels } = useAppLocale();
   const closeLabel = labels.close;
@@ -78,6 +81,8 @@ export function DashboardActionSheet({
       ? "max-h-[min(calc(100dvh-1.25rem),720px)]"
       : "max-h-[min(88vh,640px)]";
 
+  const backOutside = showBackButton && (!compact || backButtonOutside);
+
   return createPortal(
     <div
       className={`fixed inset-0 flex p-3 sm:p-4 ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
@@ -96,10 +101,10 @@ export function DashboardActionSheet({
       />
       <div
         className={`relative z-10 flex w-full max-w-md flex-col ${
-          compact ? "gap-0" : "gap-2"
+          compact && !backOutside ? "gap-0" : "gap-2"
         } ${panelMaxHeight}`}
       >
-        {showBackButton && !compact ? backControl : null}
+        {backOutside ? backControl : null}
         <div
           className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex w-full flex-col rounded-[32px] ${panelMaxHeight}${
             fitContent ? "overflow-visible" : "min-h-0 flex-1 overflow-hidden"
@@ -107,7 +112,7 @@ export function DashboardActionSheet({
             panelClassName ? ` ${panelClassName}` : ""
           }`}
         >
-          {compact && showBackButton && title ? (
+          {compact && showBackButton && title && !backOutside ? (
             <div className="relative shrink-0 px-3 pb-1 pt-3">
               <div className="absolute start-2 top-2.5 z-10">{backControl}</div>
               <h2 className="px-10 text-center text-[17px] font-extrabold leading-tight text-bakery-ink">

@@ -16,6 +16,7 @@ import {
   type OrderPreviewLine,
 } from "@/lib/customer-order-history";
 import { formatAppointmentDateTime } from "@/lib/customer-appointment-history";
+import { formatRentalPeriodLine } from "@/lib/rental-period";
 
 export type { OrderPreviewLine };
 
@@ -426,6 +427,8 @@ export function OrderHistorySummaryRow({
 export function AppointmentPreviewCard({
   serviceName,
   startAt,
+  endAt,
+  rentalMode = false,
   status,
   locale,
   labels,
@@ -434,19 +437,31 @@ export function AppointmentPreviewCard({
 }: {
   serviceName: string;
   startAt: string;
+  endAt?: string;
+  rentalMode?: boolean;
   status: string;
   locale: CustomerLocale;
   labels: ReturnType<typeof getCustomerLabels>;
   canCancel: boolean;
   onCancel?: () => void;
 }) {
+  const whenLabel =
+    rentalMode && endAt
+      ? formatRentalPeriodLine(startAt, endAt, locale, {
+          rentalNight: labels.rentalNight,
+          rentalNights: labels.rentalNights,
+          rentalDay: labels.rentalDay,
+          rentalDays: labels.rentalDays,
+        })
+      : formatAppointmentDateTime(startAt, locale);
+
   return (
     <div className={`${orderCardShell} space-y-1.5`}>
       <p className="text-[16px] font-extrabold leading-tight text-bakery-ink">
         {serviceName}
       </p>
       <p className="text-[14px] font-semibold text-bakery-muted">
-        {formatAppointmentDateTime(startAt, locale)}
+        {whenLabel}
       </p>
       {status === "CANCELLED" ? (
         <p className="text-[12px] font-bold text-bakery-muted">

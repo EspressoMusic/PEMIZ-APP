@@ -931,6 +931,12 @@ export function getDevRentalBusiness() {
   };
 }
 
+function devRentalStayRange(dayOffset: number, nights: number) {
+  const startAt = devAppointmentSlotIso(dayOffset, 15);
+  const endAt = devAppointmentSlotIso(dayOffset + nights, 11);
+  return { startAt, endAt };
+}
+
 export function getDevPreviewRentalSeller() {
   const biz = getDevRentalBusiness();
   const slotA = biz.slots[0];
@@ -940,58 +946,51 @@ export function getDevPreviewRentalSeller() {
   if (!slotA || !slotB || !slotFull1 || !slotFull2) {
     return [];
   }
-  const pastSlot = devAppointmentSlotIso(-5, 15);
+  const stayA = devRentalStayRange(2, 3);
+  const stayB = devRentalStayRange(4, 2);
+  const stayFull1 = devRentalStayRange(10, 2);
+  const stayFull2 = devRentalStayRange(14, 4);
+  const pastStay = devRentalStayRange(-5, 2);
   return [
     {
       id: "rent-seller-1",
       customerName: "יעל כהן",
       customerPhone: "0501234567",
       status: "CONFIRMED",
-      notes: "שירות: וילה מלאה — יום שלם",
-      slot: {
-        startAt: slotA.startAt,
-        endAt: slotA.endAt,
-      },
+      notes: "שירות: וילה מלאה — יום שלם\nהשכרה: 3 לילות",
+      slot: stayA,
     },
     {
       id: "rent-seller-2",
       customerName: "דני לוי",
       customerPhone: "0529876543",
       status: "CONFIRMED",
-      slot: {
-        startAt: slotB.startAt,
-        endAt: slotB.endAt,
-      },
+      notes: "שירות: חצי יום — בוקר\nהשכרה: 2 לילות",
+      slot: stayB,
     },
     {
       id: "rent-appt-f1",
       customerName: "רון שטרן",
       customerPhone: "0541112222",
       status: "CONFIRMED",
-      slot: {
-        startAt: slotFull1.startAt,
-        endAt: slotFull1.endAt,
-      },
+      notes: "שירות: וילה מלאה\nהשכרה: 2 לילות",
+      slot: stayFull1,
     },
     {
       id: "rent-appt-f2",
       customerName: "איתי מזרחי",
       customerPhone: "0587778899",
       status: "CONFIRMED",
-      slot: {
-        startAt: slotFull2.startAt,
-        endAt: slotFull2.endAt,
-      },
+      notes: "שירות: וילה מלאה\nהשכרה: 4 לילות",
+      slot: stayFull2,
     },
     {
       id: "rent-history-1",
       customerName: "מיכל אברהם",
       customerPhone: "0523334455",
       status: "CONFIRMED",
-      slot: {
-        startAt: pastSlot,
-        endAt: devAppointmentSlotEnd(pastSlot, 1440),
-      },
+      notes: "שירות: וילה מלאה\nהשכרה: 2 לילות",
+      slot: pastStay,
     },
   ];
 }

@@ -5,8 +5,9 @@ import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-co
 import { CelebrationModal } from "@/components/celebration-modal";
 import { ProductImageField } from "@/components/product-image-field";
 import { Button, Input, Badge, Alert } from "@/components/ui";
-import { ChevronDown, Gift, Package, Plus, Tags, X, Pencil } from "lucide-react";
+import { Gift, Package, Plus, Tags, X, Pencil } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
 import { MAX_DEAL_PRODUCT_LINES } from "@/lib/store-deal";
 
@@ -392,44 +393,85 @@ export function DealsManager() {
     return quantity > 1 ? `${name} ×${quantity}` : name;
   }
 
+  const dealFormOpen = wizardStep !== null;
+
   return (
     <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
       <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
-        {wizardStep === null ? (
-          <button
-            type="button"
-            onClick={openNewDealForm}
-            className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
-          >
-            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-              <Gift className="h-6 w-6" strokeWidth={1.75} />
-            </span>
-            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-              {labels.addDeal}
-            </span>
-            <ChevronDown
-              className="h-5 w-5 shrink-0 text-bakery-muted"
-              strokeWidth={2.5}
-              aria-hidden
-            />
-          </button>
-        ) : (
-          <>
-            <h2 className="mb-2 text-center text-[15px] font-extrabold text-bakery-ink">
-              {editingDealId ? labels.edit : labels.addDeal}
-            </h2>
+        <button
+          type="button"
+          onClick={openNewDealForm}
+          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+        >
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <Gift className="h-6 w-6" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+            {labels.addDeal}
+          </span>
+        </button>
+      </div>
 
+      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+        <button
+          type="button"
+          onClick={() => {
+            resetWizard();
+            setDealsListOpen(true);
+          }}
+          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+        >
+          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+            <Tags className="h-6 w-6" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+            {labels.existingDeals}
+            {deals.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({deals.length})
+              </span>
+            )}
+          </span>
+        </button>
+      </div>
+
+      <DashboardActionSheet
+        open={dealFormOpen}
+        onClose={resetWizard}
+        title={
+          wizardStep === "confirm"
+            ? labels.confirmBeforeSave
+            : editingDealId
+              ? labels.edit
+              : labels.addDeal
+        }
+        ariaLabel={labels.addDeal}
+        placement="upper"
+        showBackButton
+        backButtonOutside
+        compact
+        fitContent
+        warmPanel
+        panelClassName="dashboard-deal-form-sheet"
+      >
           {wizardStep === "form" && (
             <form
               ref={dealFormRef}
               onSubmit={goToConfirm}
-              className="flex w-full flex-col items-stretch gap-3 text-start"
+              className="flex w-full flex-col items-stretch gap-1.5 overflow-hidden text-start"
             >
               {dealError && <Alert variant="error">{dealError}</Alert>}
-              <Input name="name" label={labels.dealName} required />
+              <Input
+                name="name"
+                label={labels.dealName}
+                labelClassName="text-[13px]"
+                className="py-2 text-[15px]"
+                required
+              />
 
-              <div className="space-y-2 text-start">
-                <span className="block text-[14px] font-bold text-bakery-ink">
+              <div className="space-y-1 text-start">
+                <span className="block text-[13px] font-bold text-bakery-ink">
                   {labels.dealImage}
                 </span>
                 <ProductImageField
@@ -441,12 +483,12 @@ export function DealsManager() {
                 />
               </div>
 
-              <div className="space-y-3 text-start">
-                <span className="block text-[14px] font-bold text-bakery-ink">
+              <div className="space-y-1 text-start">
+                <span className="block text-[13px] font-bold text-bakery-ink">
                   {labels.products}
                 </span>
                 {activeProducts.length === 0 ? (
-                  <p className="rounded-[14px] border border-bakery-border/35 bg-bakery-input/80 px-3 py-3 text-[13px] font-semibold leading-snug text-bakery-muted">
+                  <p className="rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-2.5 py-2 text-[12px] font-semibold leading-snug text-bakery-muted">
                     {labels.dealNoActiveProducts}
                   </p>
                 ) : (
@@ -587,52 +629,60 @@ export function DealsManager() {
               <Input
                 name="dealPrice"
                 label={labels.dealPrice}
+                labelClassName="text-[13px]"
+                className="py-2 text-[15px]"
                 type="number"
                 step="0.01"
                 required
                 dir="ltr"
               />
-              <div className="space-y-2 text-start">
-                <span className="block text-[14px] font-bold text-bakery-ink">
+              <div className="space-y-1 text-start">
+                <span className="block text-[13px] font-bold text-bakery-ink">
                   {labels.dealRedemptionTimes}
                 </span>
-                <Input
-                  label={labels.dealRedemptionCountLabel}
-                  type="number"
-                  min={1}
-                  max={99}
-                  dir="ltr"
-                  value={dealRedemptionCount}
-                  disabled={dealRedemptionUnlimited}
-                  onChange={(e) =>
-                    setDealRedemptionCount(
-                      Math.max(1, Math.min(99, Number(e.target.value) || 1))
-                    )
-                  }
-                />
-                <label className="flex cursor-pointer items-center gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-input/80 px-3 py-2.5">
-                  <input
-                    type="checkbox"
-                    checked={dealRedemptionUnlimited}
-                    onChange={(e) => setDealRedemptionUnlimited(e.target.checked)}
-                    className="h-4 w-4 accent-bakery-primary"
-                  />
-                  <span className="text-[13px] font-bold text-bakery-ink">
-                    {labels.dealRedemptionUnlimited}
-                  </span>
-                </label>
+                <div className="flex items-stretch gap-2">
+                  <div className="min-w-0 flex-1">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={99}
+                      dir="ltr"
+                      className="py-2 text-[15px]"
+                      value={dealRedemptionCount}
+                      disabled={dealRedemptionUnlimited}
+                      onChange={(e) =>
+                        setDealRedemptionCount(
+                          Math.max(1, Math.min(99, Number(e.target.value) || 1))
+                        )
+                      }
+                    />
+                  </div>
+                  <label className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-2.5 py-2">
+                    <input
+                      type="checkbox"
+                      checked={dealRedemptionUnlimited}
+                      onChange={(e) =>
+                        setDealRedemptionUnlimited(e.target.checked)
+                      }
+                      className="h-3.5 w-3.5 accent-bakery-primary"
+                    />
+                    <span className="text-[12px] font-bold leading-tight text-bakery-ink">
+                      {labels.dealRedemptionUnlimited}
+                    </span>
+                  </label>
+                </div>
               </div>
-              <div className="space-y-2 text-start">
-                <span className="block text-[14px] font-bold text-bakery-ink">
+              <div className="space-y-1 text-start">
+                <span className="block text-[13px] font-bold text-bakery-ink">
                   {labels.dealDate}
                 </span>
-                <div className="flex flex-wrap justify-start gap-2">
+                <div className="flex flex-wrap justify-start gap-1.5">
                   {dealValidityOptions.map((opt) => (
                     <button
                       key={opt.id}
                       type="button"
                       onClick={() => setDealValidityMode(opt.id)}
-                      className={`rounded-full px-3 py-1.5 text-[12px] font-bold transition sm:text-[13px] ${
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition sm:text-[12px] ${
                         dealValidityMode === opt.id
                           ? "bakery-float-tile--active bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
                           : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink hover:bg-bakery-card"
@@ -645,6 +695,8 @@ export function DealsManager() {
                 {dealValidityMode === "custom" && (
                   <Input
                     label={labels.dealDate}
+                    labelClassName="text-[13px]"
+                    className="py-2 text-[15px]"
                     type="date"
                     required
                     dir="ltr"
@@ -657,7 +709,7 @@ export function DealsManager() {
               <Button
                 type="submit"
                 variant="primary"
-                className="w-full min-h-[44px] rounded-full font-extrabold"
+                className="mt-0.5 w-full min-h-[40px] rounded-full font-extrabold"
                 disabled={
                   dealSelectedLines.length < 1 ||
                   imageUploading ||
@@ -732,131 +784,97 @@ export function DealsManager() {
               </div>
             </div>
           )}
+      </DashboardActionSheet>
 
-            <button
-              type="button"
-              onClick={resetWizard}
-              aria-label={labels.close}
-              className="mt-2 flex w-full min-h-[44px] items-center justify-center rounded-[22px] text-bakery-muted transition hover:bg-bakery-card/60 hover:text-bakery-ink active:opacity-80"
-            >
-              <ChevronDown
-                className="h-6 w-6 rotate-180 transition-transform duration-200"
-                strokeWidth={2.5}
-                aria-hidden
-              />
-            </button>
-          </>
-        )}
-      </div>
-
-      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
-        <button
-          type="button"
-          onClick={() => {
-            setDealsListOpen((v) => !v);
-            if (wizardStep !== null) resetWizard();
-          }}
-          aria-expanded={dealsListOpen}
-          aria-controls="dashboard-deals-list"
-          className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-            dealsListOpen ? "bakery-float-tile--active" : ""
-          }`}
-        >
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <Tags className="h-6 w-6" strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {labels.existingDeals}
-            {deals.length > 0 && (
-              <span className="font-semibold text-bakery-muted">
-                {" "}
-                ({deals.length})
-              </span>
-            )}
-          </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-              dealsListOpen ? "rotate-180" : ""
-            }`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
-        </button>
-
-        {dealsListOpen && (
-          <div
-            id="dashboard-deals-list"
-            className="no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]"
-            role="region"
-            aria-label={labels.existingDeals}
-          >
-            {deals.length === 0 ? (
-              <p className="py-6 text-center text-[14px] text-bakery-muted">
-                {labels.noExistingDeals}
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {deals.map((d) => (
-                  <li
-                    key={d.id}
-                    className="bakery-float-tile rounded-[18px] p-3 text-start"
+      <DashboardActionSheet
+        open={dealsListOpen}
+        onClose={() => setDealsListOpen(false)}
+        title={labels.existingDeals}
+        ariaLabel={labels.existingDeals}
+        placement="center"
+        showBackButton
+        warmPanel
+      >
+        {deals.length === 0 ? (
+          <p className="py-6 text-center text-[14px] text-bakery-muted">
+            {labels.noExistingDeals}
+          </p>
+        ) : (
+          <ul className="space-y-2.5">
+            {deals.map((d) => (
+              <li
+                key={d.id}
+                className="rounded-[20px] border border-bakery-border/35 bg-bakery-card px-3 py-3 text-start shadow-[0_2px_10px_rgba(58,47,38,0.07)]"
+              >
+                <div className="relative mb-2.5 flex min-h-[22px] items-center justify-center px-10">
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2">
+                    {d.isActive ? (
+                      <span
+                        className="deal-active-pulse block h-2.5 w-2.5 rounded-full bg-[#43a047]"
+                        role="status"
+                        aria-label={labels.active}
+                      />
+                    ) : (
+                      <span className="text-[13px] font-extrabold leading-none text-[#9a4545]">
+                        {labels.dealOff}
+                      </span>
+                    )}
+                  </div>
+                  <p
+                    dir="ltr"
+                    className="text-center text-[12px] font-bold tabular-nums text-bakery-muted"
                   >
-                    <p className="text-[16px] font-extrabold text-bakery-ink">
-                      {d.name}
-                    </p>
-                    <p className="text-[14px] text-bakery-muted">
-                      {(d.products ?? []).map((p) => p.name).join(" + ")}
-                    </p>
-                    <p
-                      dir="ltr"
-                      className="text-[18px] font-extrabold tabular-nums text-bakery-primary"
-                    >
-                      {formatMoney(d.dealPrice)}
-                    </p>
-                    <p className="text-[12px] text-bakery-muted">
-                      {formatDateTime(d.validUntil)}
-                    </p>
-                    <p className="text-[12px] font-semibold text-bakery-muted">
-                      {labels.dealRedemptionLimit}:{" "}
-                      {redemptionSummaryLabel(
-                        d.maxRedemptionsPerCustomer ?? 1,
-                        labels
-                      )}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <Badge tone={d.isActive ? "success" : "default"}>
-                        {d.isActive ? labels.active : labels.inactive}
-                      </Badge>
-                    </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        variant="square"
-                        className="bakery-float-tile inline-flex min-h-[44px] items-center justify-center gap-2"
-                        onClick={() => {
-                          setDealsListOpen(false);
-                          openEditDeal(d);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" strokeWidth={2} />
-                        {labels.edit}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="min-h-[44px]"
-                        onClick={() => removeDeal(d.id)}
-                      >
-                        {labels.delete}
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                    {formatDateTime(d.validUntil)}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-[16px] font-extrabold leading-tight text-bakery-ink">
+                    {d.name}
+                  </p>
+                  <p className="text-[13px] font-semibold leading-snug text-bakery-muted">
+                    {(d.products ?? []).map((p) => p.name).join(" + ")}
+                  </p>
+                  <p
+                    dir="ltr"
+                    className="pt-0.5 text-[18px] font-extrabold tabular-nums text-bakery-primary"
+                  >
+                    {formatMoney(d.dealPrice)}
+                  </p>
+                  <p className="text-[12px] font-semibold text-bakery-muted">
+                    {labels.dealRedemptionLimit}:{" "}
+                    {redemptionSummaryLabel(
+                      d.maxRedemptionsPerCustomer ?? 1,
+                      labels
+                    )}
+                  </p>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => removeDeal(d.id)}
+                    className="min-h-[44px] px-1 text-[14px] font-extrabold text-[#9a4545] transition active:opacity-75"
+                  >
+                    {labels.delete}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDealsListOpen(false);
+                      openEditDeal(d);
+                    }}
+                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-[#5C4A3E] px-5 text-[14px] font-extrabold text-[#FAF4E6] shadow-[0_2px_8px_rgba(58,47,38,0.18)] transition active:scale-[0.98]"
+                  >
+                    <Pencil className="h-4 w-4" strokeWidth={2.25} />
+                    {labels.edit}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
-      </div>
+      </DashboardActionSheet>
 
       <DashboardConfettiBackground active={dealSuccessOpen} />
 
