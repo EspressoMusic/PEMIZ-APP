@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { CelebrationModal } from "@/components/celebration-modal";
 import { ProductImageField } from "@/components/product-image-field";
@@ -102,11 +102,41 @@ function customDateFromIso(iso: string) {
   return `${y}-${m}-${day}`;
 }
 
-export function DealsManager() {
+function toPreviewProducts(
+  items: {
+    id: string;
+    name: string;
+    price: number;
+    isActive?: boolean;
+    imageUrl?: string | null;
+  }[]
+): Product[] {
+  return items.map((product) => ({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    isActive: product.isActive ?? true,
+    imageUrl: product.imageUrl ?? null,
+  }));
+}
+
+export function DealsManager({
+  previewOnly = false,
+  initialProducts,
+  initialDeals,
+}: {
+  previewOnly?: boolean;
+  initialProducts?: Parameters<typeof toPreviewProducts>[0];
+  initialDeals?: Deal[];
+} = {}) {
   const dealFormRef = useRef<HTMLFormElement>(null);
   const savingRef = useRef(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [deals, setDeals] = useState<Deal[]>([]);
+  const [products, setProducts] = useState<Product[]>(() =>
+    previewOnly && initialProducts ? toPreviewProducts(initialProducts) : []
+  );
+  const [deals, setDeals] = useState<Deal[]>(() =>
+    previewOnly && initialDeals ? initialDeals : []
+  );
   const [dealError, setDealError] = useState("");
   const [saving, setSaving] = useState(false);
   const [wizardStep, setWizardStep] = useState<null | "form" | "confirm">(null);
@@ -145,7 +175,8 @@ export function DealsManager() {
   const [dealRedemptionUnlimited, setDealRedemptionUnlimited] = useState(false);
   const [dealRedemptionCount, setDealRedemptionCount] = useState(1);
 
-  async function load() {
+  const load = useCallback(async () => {
+    if (previewOnly) return;
     const [pRes, dRes] = await Promise.all([
       fetch("/api/dashboard/products"),
       fetch("/api/dashboard/deals"),
@@ -154,11 +185,11 @@ export function DealsManager() {
     const dData = await dRes.json();
     if (pRes.ok) setProducts(pData.products);
     if (dRes.ok) setDeals(dData.deals);
-  }
+  }, [previewOnly]);
 
   useEffect(() => {
-    load();
-  }, []);
+    void load();
+  }, [load]);
 
   const activeProducts = products.filter((p) => p.isActive);
   const pickerProducts = activeProducts.filter(
@@ -376,9 +407,14 @@ export function DealsManager() {
 
   async function removeDeal(id: string) {
     if (!confirm(labels.confirmDeleteDeal)) return;
+    if (previewOnly) {
+      setDeals((prev) => prev.filter((deal) => deal.id !== id));
+      if (editingDealId === id) resetWizard();
+      return;
+    }
     await fetch(`/api/dashboard/deals/${id}`, { method: "DELETE" });
     if (editingDealId === id) resetWizard();
-    load();
+    void load();
   }
 
   const selectedDealLines = dealSelectedLines
@@ -804,7 +840,7 @@ export function DealsManager() {
             {deals.map((d) => (
               <li
                 key={d.id}
-                className="rounded-[20px] border border-bakery-border/35 bg-bakery-card px-3 py-3 text-start shadow-[0_2px_10px_rgba(58,47,38,0.07)]"
+                className="rounded-[20px] border border-bakery-border/20 bg-[#faf6f0] px-3 py-3 text-start shadow-[0_2px_8px_rgba(78,52,46,0.06)]"
               >
                 <div className="relative mb-2.5 flex min-h-[22px] items-center justify-center px-10">
                   <div className="absolute left-0 top-1/2 -translate-y-1/2">
@@ -850,7 +886,10 @@ export function DealsManager() {
                   </p>
                 </div>
 
-                <div className="mt-3 flex items-center justify-between gap-3">
+                <div
+                  className="mt-3 flex items-center justify-between gap-3"
+                  dir="ltr"
+                >
                   <button
                     type="button"
                     onClick={() => removeDeal(d.id)}

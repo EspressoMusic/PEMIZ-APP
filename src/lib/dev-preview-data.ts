@@ -322,6 +322,63 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
 ];
 
+function devPreviewDealProduct(id: string) {
+  const product = DEV_PREVIEW_PRODUCTS.find((item) => item.id === id);
+  if (!product) {
+    throw new Error(`Missing dev preview product: ${id}`);
+  }
+  return {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    isActive: product.isActive,
+    imageUrl: product.imageUrl,
+  };
+}
+
+/** דילים לתצוגת מוכר dev — בדיקת רשימת דילים קיימים */
+export const DEV_PREVIEW_DEALS = [
+  {
+    id: "demo-deal-1",
+    name: "מבצע בוקר זוגי",
+    imageUrl: null,
+    dealPrice: 28,
+    validUntil: "2026-07-15T23:59:59.000Z",
+    isActive: true,
+    maxRedemptionsPerCustomer: 1,
+    products: [
+      devPreviewDealProduct("demo-p2"),
+      devPreviewDealProduct("demo-p5"),
+    ],
+  },
+  {
+    id: "demo-deal-2",
+    name: "חבילת קינוחים משפחתית",
+    imageUrl: null,
+    dealPrice: 125,
+    validUntil: "2026-08-01T23:59:59.000Z",
+    isActive: true,
+    maxRedemptionsPerCustomer: 0,
+    products: [
+      devPreviewDealProduct("demo-p1"),
+      devPreviewDealProduct("demo-p3"),
+    ],
+  },
+  {
+    id: "demo-deal-3",
+    name: "לחם ומאפה",
+    imageUrl: null,
+    dealPrice: 38,
+    validUntil: "2026-05-20T23:59:59.000Z",
+    isActive: false,
+    maxRedemptionsPerCustomer: 3,
+    products: [
+      devPreviewDealProduct("demo-p4"),
+      devPreviewDealProduct("demo-p5"),
+    ],
+  },
+];
+
 export function devPreviewCustomerProducts() {
   return DEV_PREVIEW_PRODUCTS.filter((product) => product.isActive).map(
     ({ isActive: _isActive, ...product }) => product

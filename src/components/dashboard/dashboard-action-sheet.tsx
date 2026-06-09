@@ -16,11 +16,13 @@ export function DashboardActionSheet({
   backButtonLabel,
   elevated = false,
   compact = false,
-  warmPanel = false,
+  warmPanel = true,
   /** Fit all children without an inner scroll area (tight modals). */
   fitContent = false,
   panelClassName,
   backButtonOutside = false,
+  /** Full-height sheet from top to bottom; disabled automatically when fitContent. */
+  expanded = true,
 }: {
   open: boolean;
   onClose: () => void;
@@ -41,6 +43,7 @@ export function DashboardActionSheet({
   panelClassName?: string;
   /** עם compact — מציב את «חזרה» מעל המלבן ולא בתוך הכותרת */
   backButtonOutside?: boolean;
+  expanded?: boolean;
 }) {
   const { labels } = useAppLocale();
   const closeLabel = labels.close;
@@ -55,14 +58,17 @@ export function DashboardActionSheet({
 
   if (!open || typeof document === "undefined") return null;
 
-  const alignClass =
-    placement === "top"
+  const fullViewport = expanded && !fitContent;
+
+  const alignClass = fullViewport
+    ? "items-stretch justify-center p-0"
+    : placement === "top"
       ? "items-start justify-center pt-4 sm:pt-6"
       : placement === "upper"
         ? "items-start justify-center pt-2 pb-2 sm:pt-3"
-      : placement === "center"
-        ? "items-center justify-center"
-        : "items-end justify-center pb-4 sm:pb-6";
+        : placement === "center"
+          ? "items-center justify-center"
+          : "items-end justify-center pb-4 sm:pb-6";
 
   const backControl = showBackButton ? (
     <button
@@ -75,17 +81,28 @@ export function DashboardActionSheet({
     </button>
   ) : null;
 
-  const panelMaxHeight = fitContent
-    ? "max-h-[min(calc(100dvh-1rem),820px)]"
-    : compact
-      ? "max-h-[min(calc(100dvh-1.25rem),720px)]"
-      : "max-h-[min(88vh,640px)]";
+  const panelMaxHeight = fullViewport
+    ? "h-full min-h-0 max-h-none"
+    : fitContent
+      ? "max-h-[min(calc(100dvh-1rem),820px)]"
+      : compact
+        ? "max-h-[min(calc(100dvh-1.25rem),720px)]"
+        : "max-h-[min(88vh,640px)]";
 
-  const backOutside = showBackButton && (!compact || backButtonOutside);
+  const backOutside =
+    !fullViewport && showBackButton && (!compact || backButtonOutside);
+
+  const wrapperHeightClass = fullViewport
+    ? "h-full min-h-0"
+    : panelMaxHeight;
+
+  const panelHeightClass = fullViewport
+    ? "min-h-0 flex-1"
+    : panelMaxHeight;
 
   return createPortal(
     <div
-      className={`fixed inset-0 flex p-3 sm:p-4 ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
+      className={`fixed inset-0 flex ${fullViewport ? "" : "p-3 sm:p-4"} ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel ?? title ?? closeLabel}
@@ -100,22 +117,28 @@ export function DashboardActionSheet({
         tabIndex={elevated ? -1 : undefined}
       />
       <div
-        className={`relative z-10 flex w-full max-w-md flex-col ${
-          compact && !backOutside ? "gap-0" : "gap-2"
-        } ${panelMaxHeight}`}
+        className={`relative z-10 flex w-full flex-col ${
+          fullViewport ? "max-w-none" : "max-w-md"
+        } ${compact && !backOutside ? "gap-0" : fullViewport ? "gap-0" : "gap-2"} ${wrapperHeightClass}`}
       >
         {backOutside ? backControl : null}
         <div
-          className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex w-full flex-col rounded-[32px] ${panelMaxHeight}${
+          className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex w-full flex-col ${
+            fullViewport ? "rounded-none bakery-action-sheet-panel--fullscreen" : "rounded-[32px]"
+          } ${panelHeightClass} ${
             fitContent ? "overflow-visible" : "min-h-0 flex-1 overflow-hidden"
-          }${warmPanel ? " bakery-action-sheet-panel--warm" : ""}${
+          } bakery-action-sheet-panel--warm${
             panelClassName ? ` ${panelClassName}` : ""
           }`}
         >
-          {compact && showBackButton && title && !backOutside ? (
+          {(compact || fullViewport) && showBackButton && title && !backOutside ? (
             <div className="relative shrink-0 px-3 pb-1 pt-3">
               <div className="absolute start-2 top-2.5 z-10">{backControl}</div>
-              <h2 className="px-10 text-center text-[17px] font-extrabold leading-tight text-bakery-ink">
+              <h2
+                className={`px-10 text-center font-extrabold leading-tight text-bakery-ink ${
+                  compact ? "text-[17px]" : "text-[18px]"
+                }`}
+              >
                 {title}
               </h2>
             </div>
@@ -132,7 +155,9 @@ export function DashboardActionSheet({
           ) : null}
           <div
             className={`dashboard-action-sheet-body ${
-              fitContent ? "shrink-0 overflow-visible" : "min-h-0 flex-1 overflow-y-auto"
+              fitContent
+                ? "shrink-0 overflow-visible"
+                : "flex min-h-0 flex-1 flex-col overflow-y-auto"
             } ${
               title
                 ? compact || fitContent

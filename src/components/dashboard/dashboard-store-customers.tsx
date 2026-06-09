@@ -131,9 +131,11 @@ export function DashboardStoreCustomers({
         <DashboardActionSheet
           open={open}
           onClose={() => setOpen(false)}
+          title={labels.customers}
           ariaLabel={labels.customers}
           placement="top"
           showBackButton
+          panelClassName="dashboard-customers-sheet"
         >
           {customersList}
         </DashboardActionSheet>

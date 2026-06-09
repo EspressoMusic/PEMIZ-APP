@@ -1,4 +1,8 @@
-import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
+import {
+  DEV_PREVIEW_DEALS,
+  DEV_PREVIEW_PRODUCTS,
+  DEV_STORE_BUSINESS,
+} from "@/lib/dev-preview-data";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DealsManager } from "@/components/dashboard/deals-manager";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
@@ -12,7 +16,11 @@ export default function DevSellerSettingsDealsPage() {
           <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
             <DashboardSettingsBackLink basePath="/dev/seller" />
             <div className="min-h-0 flex-1 overflow-hidden">
-              <DealsManager />
+              <DealsManager
+                previewOnly
+                initialProducts={DEV_PREVIEW_PRODUCTS}
+                initialDeals={DEV_PREVIEW_DEALS}
+              />
             </div>
           </div>
         </DashboardShell>

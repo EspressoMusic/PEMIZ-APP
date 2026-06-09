@@ -164,6 +164,27 @@ html[data-locale="he"] body {
   filter: brightness(1.08);
 }
 
+.home-landing-logo {
+  animation: home-landing-logo-float 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes home-landing-logo-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-landing-logo {
+    animation: none;
+  }
+}
+
 /* Matte red / warn — flat fills, no glossy button shadow */
 button.master-btn-matte-warn,
 button.master-btn-matte-danger,
@@ -709,18 +730,12 @@ html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-
     0 12px 28px rgba(58, 47, 38, 0.1);
 }
 
-/* Modals: light cream panel (brighter than action tiles) */
+/* Modals: warm tan panel — same fill across all dashboard sheets */
 .bakery-action-sheet-panel {
-  background: linear-gradient(
-    180deg,
-    var(--bakery-cream-light) 0%,
-    var(--bakery-cream) 100%
-  );
-  border: 1px solid rgba(235, 225, 210, 0.9);
-  box-shadow:
-    inset 0 1px 0 rgba(250, 244, 230, 0.9),
-    0 3px 0 rgba(58, 47, 38, 0.04),
-    0 12px 28px rgba(58, 47, 38, 0.1);
+  background: #e6d5b8;
+  background-image: none;
+  border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
+  box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
 }
 
 /* Seller dashboard — warm login-screen aesthetic (calm theme) */
@@ -1110,8 +1125,9 @@ html:not([data-store-theme="dark"])
 
 html:not([data-store-theme="dark"])
   :is(.dashboard-card.bakery-action-sheet-panel, .dashboard-card.dashboard-modal-card) {
-  background: #faf6f0;
-  border: 1.5px solid rgba(78, 52, 46, 0.16);
+  background: #e6d5b8;
+  background-image: none;
+  border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
   border-radius: 32px;
   box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
 }
@@ -1122,6 +1138,12 @@ html:not([data-store-theme="dark"])
   background-image: none;
   border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
   box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12);
+}
+
+html:not([data-store-theme="dark"])
+  .dashboard-card.bakery-action-sheet-panel.bakery-action-sheet-panel--fullscreen {
+  border-radius: 0;
+  box-shadow: none;
 }
 
 html:not([data-store-theme="dark"]) .dashboard-deal-form-sheet > h2 {
@@ -1136,6 +1158,12 @@ html:not([data-store-theme="dark"])
   > .dashboard-action-sheet-body {
   padding-top: 0;
   padding-bottom: 0.625rem;
+}
+
+html:not([data-store-theme="dark"]) .dashboard-product-list-card {
+  background-color: #f2ebe0;
+  border: 2px solid rgba(58, 47, 38, 0.22);
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.06);
 }
 
 html:not([data-store-theme="dark"])
@@ -1281,6 +1309,27 @@ html:not([data-store-theme="dark"]) .dashboard-store-customers-list {
   gap: 0.5rem;
   overflow-y: auto;
   padding: 0 0.125rem;
+}
+
+html:not([data-store-theme="dark"]) .dashboard-customers-sheet {
+  min-height: 0;
+}
+
+html:not([data-store-theme="dark"])
+  .dashboard-customers-sheet
+  > .dashboard-action-sheet-body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+html:not([data-store-theme="dark"])
+  .dashboard-customers-sheet
+  .dashboard-store-customers-list {
+  max-height: none;
+  min-height: 0;
+  flex: 1;
 }
 
 html:not([data-store-theme="dark"]) .dashboard-store-customer-item {

@@ -32,7 +32,7 @@ const appointmentsListClassName =
   "no-scrollbar mt-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
 
 const appointmentsModalListClassName =
-  "no-scrollbar overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
+  "no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
 
 function AppointmentsList({
   appointments,
@@ -273,7 +273,7 @@ export function OrdersManager({
   }
 
   const ordersModalListClassName =
-    "no-scrollbar max-h-[min(58dvh,480px)] overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
+    "no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
 
   return (
     <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
@@ -596,9 +596,7 @@ export function AppointmentsManager({
   if (sheetHistoryOnly) {
     return (
       <>
-        <div
-          className={`${appointmentsModalListClassName} max-h-[min(60vh,480px)]`}
-        >
+        <div className={appointmentsModalListClassName}>
           <AppointmentsList
             appointments={history}
             emptyMessage={labels.noAppointmentHistory}

@@ -37,6 +37,7 @@ function DashboardCustomerInquiriesGroup({
         ariaLabel={labels.customerInquiries}
         placement="top"
         showBackButton
+        warmPanel
       >
         <ul className="dashboard-settings-style-rows space-y-2 text-start">
           <DashboardActionRow

@@ -10,7 +10,6 @@ import {
 import {
   Button,
   Input,
-  SquareCard,
   Alert,
   Toggle,
 } from "@/components/ui";
@@ -195,9 +194,12 @@ const ProductCard = memo(function ProductCard({
     onError: (msg) => alert(msg),
     onUploaded: (url) => void onImageUpload?.(url),
   });
+  const isHidden = !p.isActive;
+  const hiddenDimClass = isHidden ? "opacity-50 saturate-[0.85]" : "";
 
   return (
-    <SquareCard className="bakery-float-tile overflow-hidden rounded-[14px] p-0 transition">
+    <div className="dashboard-product-list-card overflow-hidden rounded-[14px] p-0 transition">
+      <div className={hiddenDimClass}>
       {p.imageUrl ? (
         <div className="relative h-[5.75rem] w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -318,24 +320,31 @@ const ProductCard = memo(function ProductCard({
             onSave={onStockSave}
           />
         ) : null}
-        <div className="mt-0.5 grid grid-cols-2 gap-1.5 border-t border-bakery-border/25 pt-1.5">
-          <button
-            type="button"
-            className="flex min-h-[2rem] items-center justify-center rounded-[10px] bg-[#F9F3E5] px-1 py-1.5 text-[11px] font-bold text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.98]"
-            onClick={onHide}
-          >
-            {p.isActive ? labels.hide : labels.show}
-          </button>
-          <button
-            type="button"
-            className="flex min-h-[2rem] items-center justify-center rounded-[10px] bg-[#F9F3E5] px-1 py-1.5 text-[11px] font-bold text-bakery-sale transition hover:bg-bakery-cream-hover active:scale-[0.98]"
-            onClick={onDelete}
-          >
-            {labels.delete}
-          </button>
-        </div>
       </div>
-    </SquareCard>
+      </div>
+      <div
+        className={`grid grid-cols-2 gap-1.5 border-t px-2 pb-2 pt-1.5 ${
+          isHidden ? "border-bakery-border/15" : "border-bakery-border/25"
+        }`}
+      >
+        <button
+          type="button"
+          className="flex min-h-[2rem] items-center justify-center rounded-[10px] bg-[#614136] px-1 py-1.5 text-[11px] font-bold text-[#FAF4E6] transition hover:opacity-90 active:scale-[0.98]"
+          onClick={onHide}
+        >
+          {p.isActive ? labels.hide : labels.show}
+        </button>
+        <button
+          type="button"
+          className={`flex min-h-[2rem] items-center justify-center rounded-[10px] border border-[#9a4545] bg-transparent px-1 py-1.5 text-[11px] font-bold text-[#9a4545] transition hover:bg-[#9a4545]/8 active:scale-[0.98] ${
+            isHidden ? "opacity-50 saturate-[0.85]" : ""
+          }`}
+          onClick={onDelete}
+        >
+          {labels.delete}
+        </button>
+      </div>
+    </div>
   );
 });
 
@@ -688,6 +697,7 @@ export function ProductsManager({
         ariaLabel={addLabel}
         placement={isServices ? "center" : "upper"}
         showBackButton
+        backButtonOutside
         compact
         warmPanel
       >

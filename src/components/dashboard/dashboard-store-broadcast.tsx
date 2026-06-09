@@ -305,6 +305,7 @@ export function DashboardStoreBroadcast({
         ariaLabel={labels.broadcastHistory}
         placement="center"
         showBackButton
+        warmPanel
       >
         {history.length > 0 ? (
           <ul className="dashboard-broadcast-history-list text-center">
