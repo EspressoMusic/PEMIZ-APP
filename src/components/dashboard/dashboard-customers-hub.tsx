@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
+import {
+  DASHBOARD_PAGE_ROOT,
+  DASHBOARD_VIEWPORT_HEIGHT,
+} from "@/components/dashboard/dashboard-panel-frame";
+import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 import {
   HelpCircle,
   Megaphone,
@@ -67,7 +71,7 @@ export function DashboardCustomersHubGrid({
   const { labels } = useAppLocale();
 
   const list = (
-    <ul className="dashboard-customers-hub-rows space-y-2 text-start">
+    <ul className="dashboard-settings-style-rows space-y-2 text-start">
       <DashboardActionRow
         href={`${basePath}/customers/broadcast`}
         icon={Megaphone}
@@ -97,8 +101,19 @@ export function DashboardCustomersHub({
   basePath?: string;
 }) {
   return (
-    <div className={`${DASHBOARD_PAGE_ROOT} justify-start pb-2 text-center`}>
-      <DashboardCustomersHubGrid basePath={basePath} />
+    <div
+      className={`${DASHBOARD_PAGE_ROOT} ${DASHBOARD_VIEWPORT_HEIGHT} min-h-0 flex-1 text-center`}
+    >
+      <div className="flex h-full min-h-0 flex-col gap-2">
+        <div className="shrink-0 px-1 text-start">
+          <DashboardActionsBackLink basePath={basePath} />
+        </div>
+        <div className="dashboard-card bakery-action-sheet-panel bakery-action-sheet-panel--warm bakery-action-sheet-panel--fullscreen flex min-h-0 flex-1 flex-col overflow-hidden sm:rounded-[32px]">
+          <div className="dashboard-action-sheet-body flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
+            <DashboardCustomersHubGrid basePath={basePath} embedded />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -83,6 +83,7 @@ export default async function PublicBusinessPage({
         storeBroadcast: business.storeBroadcast,
         storeBroadcastAt: business.storeBroadcastAt?.toISOString() ?? null,
         storePanelsVisible: storePanelsFromBusiness(business),
+        sellerContactPhone: business.owner?.phone ?? null,
       }}
       unavailable={unavailable}
       platformLegalDocs={platformLegalDocs}

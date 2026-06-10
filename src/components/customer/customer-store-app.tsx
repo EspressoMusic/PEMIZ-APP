@@ -136,7 +136,10 @@ import {
 } from "./customer-store-frame";
 import { isValidPhone, normalizePhone, parseIsraeliMobilePhone } from "@/lib/phone";
 import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
+import type { CustomerResolution } from "@/lib/customer-resolution";
+import { updateDevStoreChatResolution } from "@/lib/customer-chat-storage";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
+import { isWithinCustomerHistoryWindow } from "@/lib/customer-history-access";
 
 const PRODUCT_CONFETTI_MS = 2800;
 
@@ -146,8 +149,44 @@ type MyInquiry = {
   message: string;
   sellerReply: string | null;
   sellerReplyAt: string | null;
+  customerResolution?: string | null;
+  customerResolutionAt?: string | null;
   createdAt: string;
 };
+
+function inquiryResolutionKey(slug: string) {
+  return `linky-inquiry-resolution-${slug}`;
+}
+
+function loadDevInquiryResolutions(
+  slug: string
+): Record<string, { resolution: CustomerResolution; at: string }> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(inquiryResolutionKey(slug));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<
+      string,
+      { resolution: CustomerResolution; at: string }
+    >;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveDevInquiryResolution(
+  slug: string,
+  inquiryId: string,
+  resolution: CustomerResolution
+) {
+  const existing = loadDevInquiryResolutions(slug);
+  existing[inquiryId] = {
+    resolution,
+    at: new Date().toISOString(),
+  };
+  localStorage.setItem(inquiryResolutionKey(slug), JSON.stringify(existing));
+}
 
 function broadcastSeenKey(slug: string) {
   return `linky-broadcast-seen-${slug}`;
@@ -222,6 +261,7 @@ export function CustomerStoreApp({
     storeBroadcast?: string | null;
     storeBroadcastAt?: string | null;
     storePanelsVisible?: StorePanelsVisible;
+    sellerContactPhone?: string | null;
     demoOrders?: {
       active: DemoOrderPreview[];
       history: DemoOrderPreview[];
@@ -239,7 +279,8 @@ export function CustomerStoreApp({
   const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
   const effectiveOrderScheduleEnabled =
     panels.orderLimits && (business.orderScheduleEnabled ?? false);
-  const showContactSeller = panels.chat || panels.inquiries;
+  const showContactSeller =
+    !!business.sellerContactPhone || panels.chat || panels.inquiries;
   const appointmentCancelPolicy = parseAppointmentCancelPolicy(
     business.storeTerms
   );
@@ -478,18 +519,24 @@ export function CustomerStoreApp({
       }
 
       if (business.slug === "demo-store") {
+        const devResolutions = loadDevInquiryResolutions(business.slug);
         const matched = DEV_PREVIEW_INQUIRIES.filter(
           (row) =>
             row.customerPhone &&
             normalizePhone(row.customerPhone) === phone
-        ).map((row) => ({
-          id: row.id,
-          subject: row.subject,
-          message: row.message,
-          sellerReply: row.sellerReply,
-          sellerReplyAt: row.sellerReplyAt,
-          createdAt: row.createdAt,
-        }));
+        ).map((row) => {
+          const saved = devResolutions[row.id];
+          return {
+            id: row.id,
+            subject: row.subject,
+            message: row.message,
+            sellerReply: row.sellerReply,
+            sellerReplyAt: row.sellerReplyAt,
+            customerResolution: saved?.resolution ?? null,
+            customerResolutionAt: saved?.at ?? null,
+            createdAt: row.createdAt,
+          };
+        });
         setMyInquiries(matched);
         return;
       }
@@ -694,6 +741,15 @@ export function CustomerStoreApp({
       (a, b) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime()
     );
   }, [localOrderHistory, demoHistoryOrders]);
+  const visibleOrderHistory = useMemo(
+    () =>
+      orderHistoryList.filter((order) =>
+        isWithinCustomerHistoryWindow(order.placedAt)
+      ),
+    [orderHistoryList]
+  );
+  const orderHistorySuspended =
+    orderHistoryList.length > 0 && visibleOrderHistory.length === 0;
   const activeProductLines = useMemo(
     (): OrderPreviewLine[] =>
       cartLines.map((l) => ({
@@ -895,6 +951,96 @@ export function CustomerStoreApp({
     [myInquiries]
   );
 
+  async function submitInquiryResolution(
+    inquiryId: string,
+    resolution: CustomerResolution
+  ) {
+    const phoneRaw =
+      orderPhone ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem(inquiryPhoneKey(business.slug))
+        : null) ||
+      "";
+    const phone = parseIsraeliMobilePhone(phoneRaw);
+    if (!phone) return;
+
+    if (business.slug === "demo-store") {
+      saveDevInquiryResolution(business.slug, inquiryId, resolution);
+      setMyInquiries((prev) =>
+        prev.map((inq) =>
+          inq.id === inquiryId
+            ? {
+                ...inq,
+                customerResolution: resolution,
+                customerResolutionAt: new Date().toISOString(),
+              }
+            : inq
+        )
+      );
+      return;
+    }
+
+    const res = await fetch(
+      `/api/public/${business.slug}/inquiries/${inquiryId}/resolution`,
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerPhone: phone, resolution }),
+      }
+    );
+    if (!res.ok) throw new Error("resolution failed");
+    const data = (await res.json()) as {
+      inquiry?: {
+        customerResolution?: string | null;
+        customerResolutionAt?: string | null;
+      };
+    };
+    setMyInquiries((prev) =>
+      prev.map((inq) =>
+        inq.id === inquiryId
+          ? {
+              ...inq,
+              customerResolution:
+                data.inquiry?.customerResolution ?? resolution,
+              customerResolutionAt:
+                data.inquiry?.customerResolutionAt ?? new Date().toISOString(),
+            }
+          : inq
+      )
+    );
+  }
+
+  async function submitChatResolution(
+    messageId: string,
+    resolution: CustomerResolution
+  ) {
+    const phoneRaw =
+      orderPhone ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem(inquiryPhoneKey(business.slug))
+        : null) ||
+      "";
+    const phone = parseIsraeliMobilePhone(phoneRaw);
+    if (!phone) return;
+
+    if (business.slug === "demo-store") {
+      updateDevStoreChatResolution(business.slug, "SELLER", messageId, resolution);
+      return;
+    }
+
+    const res = await fetch(
+      `/api/public/${business.slug}/store-chat/${messageId}/resolution`,
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerPhone: phone, resolution }),
+      }
+    );
+    if (!res.ok) throw new Error("resolution failed");
+  }
+
   async function sendInquiry(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (inquirySubmitting || inquirySubmitLockRef.current || hasPendingInquiry) {
@@ -983,6 +1129,15 @@ export function CustomerStoreApp({
       ),
     [myAppointments]
   );
+  const visiblePastAppointments = useMemo(
+    () =>
+      pastAppointments.filter((appt) =>
+        isWithinCustomerHistoryWindow(appt.endAt ?? appt.startAt)
+      ),
+    [pastAppointments]
+  );
+  const appointmentHistorySuspended =
+    pastAppointments.length > 0 && visiblePastAppointments.length === 0;
 
   async function submitAppointmentBooking(payload: {
     slotId: string;
@@ -1443,11 +1598,13 @@ export function CustomerStoreApp({
                   expanded={historyOrdersOpen}
                   onToggle={() => setHistoryOrdersOpen((open) => !open)}
                 >
-                  {pastAppointments.length === 0 ? (
+                  {appointmentHistorySuspended ? (
+                    <HubEmptyText>{labels.historySuspended}</HubEmptyText>
+                  ) : visiblePastAppointments.length === 0 ? (
                     <HubEmptyText>{labels.noMyAppts}</HubEmptyText>
                   ) : (
                     <ul className="space-y-2">
-                      {pastAppointments.map((appt) => (
+                      {visiblePastAppointments.map((appt) => (
                         <li key={appt.id}>
                           <AppointmentPreviewCard
                             serviceName={appt.serviceName}
@@ -1495,11 +1652,13 @@ export function CustomerStoreApp({
                   expanded={historyOrdersOpen}
                   onToggle={() => setHistoryOrdersOpen((open) => !open)}
                 >
-                  {orderHistoryList.length === 0 ? (
+                  {orderHistorySuspended ? (
+                    <HubEmptyText>{labels.historySuspended}</HubEmptyText>
+                  ) : visibleOrderHistory.length === 0 ? (
                     <HubEmptyText>{labels.noPastOrders}</HubEmptyText>
                   ) : (
                     <ul className="space-y-2">
-                      {orderHistoryList.map((order) => (
+                      {visibleOrderHistory.map((order) => (
                         <li key={order.id}>
                           <OrderHistorySummaryRow
                             placedAt={order.placedAt}
@@ -1727,6 +1886,8 @@ export function CustomerStoreApp({
         view={contactView}
         onViewChange={setContactView}
         slug={business.slug}
+        storeName={business.name}
+        sellerContactPhone={business.sellerContactPhone}
         locale={locale}
         storeTheme={displayTheme}
         labels={labels}
@@ -1749,6 +1910,8 @@ export function CustomerStoreApp({
             "";
           if (phone) void loadMyInquiries(phone);
         }}
+        onSubmitInquiryResolution={submitInquiryResolution}
+        onSubmitChatResolution={submitChatResolution}
         onSubmitInquiry={sendInquiry}
       />
       )}

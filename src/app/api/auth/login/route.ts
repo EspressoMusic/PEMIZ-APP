@@ -8,6 +8,8 @@ import { databaseConfigHint, isDatabaseConfigured } from "@/lib/db-env";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { safeUserWithPasswordSelect } from "@/lib/security/user-select";
 import { loginSchema, zodFirstError } from "@/lib/validation/schemas";
+import { parseIsraeliMobilePhone } from "@/lib/phone";
+import { syntheticOwnerEmail } from "@/lib/owner-auth-phone";
 
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, "auth:login", 10, 15 * 60 * 1000);
@@ -26,16 +28,37 @@ export async function POST(req: Request) {
     );
   }
 
-  const email = parsed.data.email.toLowerCase();
+  const identifier = parsed.data.identifier.trim();
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: safeUserWithPasswordSelect,
-    });
+    const phone = parseIsraeliMobilePhone(identifier);
+    let user =
+      phone != null
+        ? await prisma.user.findFirst({
+            where: { phone },
+            select: safeUserWithPasswordSelect,
+          })
+        : null;
+
+    if (!user && phone) {
+      const syntheticEmail = syntheticOwnerEmail(phone);
+      if (syntheticEmail) {
+        user = await prisma.user.findUnique({
+          where: { email: syntheticEmail },
+          select: safeUserWithPasswordSelect,
+        });
+      }
+    }
+
+    if (!user && identifier.includes("@")) {
+      user = await prisma.user.findUnique({
+        where: { email: identifier.toLowerCase() },
+        select: safeUserWithPasswordSelect,
+      });
+    }
 
     if (!user) {
-      return jsonError("לא קיים משתמש עם האימייל הזה", 401);
+      return jsonError("לא קיים משתמש עם הטלפון הזה", 401);
     }
 
     const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);

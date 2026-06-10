@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, FileText, MessageCircle, Send, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, MessageCircle, MessagesSquare, Send } from "lucide-react";
 import { Button, Input, Textarea, Panel } from "@/components/ui";
 import {
   CustomerCenterModal,
@@ -20,7 +20,14 @@ import {
 import { parseIsraeliMobilePhone } from "@/lib/phone";
 import { chatMessagesEqual } from "@/lib/store-chat-query";
 import { CustomerPhoneVerification } from "@/components/customer/customer-phone-verification";
+import { CustomerResolutionFeedback } from "@/components/customer/customer-resolution-feedback";
+import {
+  buildSellerWhatsAppHref,
+  CustomerWhatsAppContactRow,
+} from "@/components/customer/customer-whatsapp-contact-row";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
+import type { CustomerResolution } from "@/lib/customer-resolution";
+import { isWithinCustomerHistoryWindow } from "@/lib/customer-history-access";
 
 function formatChatTime(iso: string, locale: CustomerLocale) {
   return new Date(iso).toLocaleTimeString(
@@ -46,6 +53,8 @@ type MyInquiry = {
   message: string;
   sellerReply: string | null;
   sellerReplyAt?: string | null;
+  customerResolution?: string | null;
+  customerResolutionAt?: string | null;
   createdAt?: string;
 };
 
@@ -55,6 +64,8 @@ export function CustomerContactModal({
   view,
   onViewChange,
   slug,
+  storeName,
+  sellerContactPhone,
   locale,
   storeTheme,
   labels,
@@ -69,6 +80,8 @@ export function CustomerContactModal({
   hideInquiries = false,
   inquiryPhoneVerifyRequired = false,
   onInquiryPhoneVerified,
+  onSubmitInquiryResolution,
+  onSubmitChatResolution,
   onSubmitInquiry,
 }: {
   open: boolean;
@@ -76,6 +89,8 @@ export function CustomerContactModal({
   view: ContactView;
   onViewChange: (view: ContactView) => void;
   slug: string;
+  storeName: string;
+  sellerContactPhone?: string | null;
   locale: CustomerLocale;
   storeTheme: StoreThemeId;
   labels: CustomerLabels;
@@ -90,6 +105,14 @@ export function CustomerContactModal({
   hideInquiries?: boolean;
   inquiryPhoneVerifyRequired?: boolean;
   onInquiryPhoneVerified?: () => void;
+  onSubmitInquiryResolution: (
+    inquiryId: string,
+    resolution: CustomerResolution
+  ) => Promise<void>;
+  onSubmitChatResolution: (
+    messageId: string,
+    resolution: CustomerResolution
+  ) => Promise<void>;
   onSubmitInquiry: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   const [contactName, setContactName] = useState(customerName);
@@ -100,6 +123,9 @@ export function CustomerContactModal({
   const [chatSending, setChatSending] = useState(false);
   const [chatError, setChatError] = useState("");
   const [chatVerifyRequired, setChatVerifyRequired] = useState(false);
+  const [resolutionSubmitting, setResolutionSubmitting] = useState<
+    string | null
+  >(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatLenRef = useRef(0);
   const chatSendLockRef = useRef(false);
@@ -112,6 +138,14 @@ export function CustomerContactModal({
 
   const isSellerChat = view === "seller-chat";
   const closeLabel = locale === "he" ? "סגור" : "Close";
+
+  const latestSellerMessage = useMemo(() => {
+    for (let i = chatMessages.length - 1; i >= 0; i -= 1) {
+      const message = chatMessages[i];
+      if (message.authorRole === "SELLER") return message;
+    }
+    return null;
+  }, [chatMessages]);
 
   const title =
     view === "menu"
@@ -283,27 +317,46 @@ export function CustomerContactModal({
     }
   }
 
-  function renderMenu() {
-    const rows = [
-      !hideInquiries ? (
-        <SettingsMenuRow
-          key="inquiry"
-          icon={FileText}
-          title={labels.contactOptionInquiry}
-          onClick={() => onViewChange("inquiry")}
-        />
-      ) : null,
-      !hideChat ? (
-        <SettingsMenuRow
-          key="chat"
-          icon={MessageCircle}
-          title={labels.contactOptionSellerChat}
-          onClick={() => onViewChange("seller-chat")}
-        />
-      ) : null,
-    ].filter(Boolean);
+  const whatsAppHref = useMemo(
+    () => buildSellerWhatsAppHref(sellerContactPhone, storeName, locale),
+    [sellerContactPhone, storeName, locale]
+  );
 
-    return <div className="space-y-2 px-4 py-4">{rows}</div>;
+  const visibleInquiries = useMemo(
+    () =>
+      myInquiries.filter(
+        (inq) => inq.createdAt && isWithinCustomerHistoryWindow(inq.createdAt)
+      ),
+    [myInquiries]
+  );
+
+  const inquiryHistorySuspended =
+    myInquiries.length > 0 && visibleInquiries.length === 0;
+
+  function renderMenu() {
+    return (
+      <div className="space-y-2 px-4 py-4">
+        <CustomerWhatsAppContactRow
+          title={labels.contactOptionWhatsApp}
+          href={whatsAppHref}
+          unavailableLabel={labels.contactOptionWhatsAppUnavailable}
+        />
+        {!hideChat ? (
+          <SettingsMenuRow
+            icon={MessageCircle}
+            title={labels.contactMenuChat}
+            disabled
+          />
+        ) : null}
+        {!hideInquiries ? (
+          <SettingsMenuRow
+            icon={MessagesSquare}
+            title={labels.contactMenuInquiries}
+            disabled
+          />
+        ) : null}
+      </div>
+    );
   }
 
   function renderInquiry() {
@@ -386,12 +439,20 @@ export function CustomerContactModal({
           />
         ) : null}
 
-        {myInquiries.length > 0 && !inquiryPhoneVerifyRequired && (
+        {inquiryHistorySuspended && !inquiryPhoneVerifyRequired ? (
+          <Panel className="rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square px-4 py-4 text-center">
+            <p className="text-[15px] font-semibold leading-relaxed text-bakery-muted">
+              {labels.historySuspended}
+            </p>
+          </Panel>
+        ) : null}
+
+        {visibleInquiries.length > 0 && !inquiryPhoneVerifyRequired && (
           <div className="space-y-3">
             <h2 className="text-center text-[16px] font-extrabold text-bakery-ink">
               {labels.yourPastInquiries}
             </h2>
-            {myInquiries.map((inq) => (
+            {visibleInquiries.map((inq) => (
               <div
                 key={inq.id}
                 className="overflow-hidden rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square p-3 shadow-[0_3px_10px_rgba(58,47,38,0.1)]"
@@ -418,6 +479,26 @@ export function CustomerContactModal({
                       <p className="mt-1 whitespace-pre-wrap text-center text-[14px] leading-relaxed text-bakery-ink">
                         {inq.sellerReply}
                       </p>
+                      <div className="mt-3">
+                        <CustomerResolutionFeedback
+                          locale={locale}
+                          labels={labels}
+                          currentResolution={inq.customerResolution}
+                          submitting={resolutionSubmitting === `inq-${inq.id}`}
+                          compact
+                          onSubmit={async (resolution) => {
+                            setResolutionSubmitting(`inq-${inq.id}`);
+                            try {
+                              await onSubmitInquiryResolution(
+                                inq.id,
+                                resolution
+                              );
+                            } finally {
+                              setResolutionSubmitting(null);
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <p className="mt-3 text-center text-[13px] font-semibold text-bakery-muted">
@@ -496,6 +577,44 @@ export function CustomerContactModal({
               );
             })
           )}
+          {latestSellerMessage &&
+          !chatVerifyRequired &&
+          parseIsraeliMobilePhone(contactPhone) ? (
+            <div className="px-3 pb-3">
+              <CustomerResolutionFeedback
+                locale={locale}
+                labels={labels}
+                currentResolution={latestSellerMessage.customerResolution}
+                submitting={
+                  resolutionSubmitting === `chat-${latestSellerMessage.id}`
+                }
+                compact
+                onSubmit={async (resolution) => {
+                  setResolutionSubmitting(`chat-${latestSellerMessage.id}`);
+                  try {
+                    await onSubmitChatResolution(
+                      latestSellerMessage.id,
+                      resolution
+                    );
+                    setChatMessages((prev) =>
+                      prev.map((message) =>
+                        message.id === latestSellerMessage.id
+                          ? {
+                              ...message,
+                              customerResolution: resolution,
+                              customerResolutionAt: new Date().toISOString(),
+                            }
+                          : message
+                      )
+                    );
+                    await loadChat();
+                  } finally {
+                    setResolutionSubmitting(null);
+                  }
+                }}
+              />
+            </div>
+          ) : null}
         </div>
         {chatError && (
           <p className="bg-bakery-cream-light px-3 py-1.5 text-center text-[12px] font-semibold text-bakery-error">
@@ -547,16 +666,11 @@ export function CustomerContactModal({
       ariaLabel={title}
       header={
         view === "menu" ? (
-          <div className="flex shrink-0 justify-end border-b border-bakery-border/25 px-4 py-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[15px] font-semibold text-bakery-ink transition hover:bg-bakery-card/80"
-            >
-              <X className="h-5 w-5" strokeWidth={2} />
-              {closeLabel}
-            </button>
-          </div>
+          <CustomerModalHeaderBar
+            title={labels.contactSeller}
+            onClose={onClose}
+            closeLabel={closeLabel}
+          />
         ) : (
           <CustomerModalHeaderBar
             title={title}

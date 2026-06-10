@@ -269,9 +269,11 @@ model Inquiry {
   customerEmail String?
   subject       String   @default("")
   message       String
-  sellerReply   String?
-  sellerReplyAt DateTime?
-  createdAt     DateTime @default(now())
+  sellerReply          String?
+  sellerReplyAt        DateTime?
+  customerResolution   String?
+  customerResolutionAt DateTime?
+  createdAt            DateTime @default(now())
 
   @@index([businessId])
 }
@@ -288,8 +290,10 @@ model StoreChatMessage {
   replyToId     String?
   replyTo       StoreChatMessage?  @relation("ChatMessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
   replies       StoreChatMessage[] @relation("ChatMessageReplies")
-  likes         StoreChatMessageLike[]
-  createdAt     DateTime @default(now())
+  likes                StoreChatMessageLike[]
+  customerResolution   String?
+  customerResolutionAt DateTime?
+  createdAt            DateTime @default(now())
 
   @@index([businessId, channel, createdAt])
   @@index([businessId, channel, customerPhone])

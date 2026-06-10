@@ -67,3 +67,23 @@ export function appendDevSellerChatMessage(
 ) {
   appendDevStoreChat(slug, "SELLER", message);
 }
+
+export function updateDevStoreChatResolution(
+  slug: string,
+  channel: StoreChatChannel,
+  messageId: string,
+  resolution: "RESOLVED" | "NOT_RESOLVED"
+): StoreChatMessageDto[] {
+  const list = loadDevStoreChat(slug, channel);
+  const next = list.map((message) =>
+    message.id === messageId
+      ? {
+          ...message,
+          customerResolution: resolution,
+          customerResolutionAt: new Date().toISOString(),
+        }
+      : message
+  );
+  saveDevStoreChat(slug, channel, next);
+  return next;
+}

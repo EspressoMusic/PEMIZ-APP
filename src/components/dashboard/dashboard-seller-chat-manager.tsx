@@ -274,6 +274,15 @@ export function DashboardSellerChatManager({
                           <p className="customer-wa-chat__time">
                             {formatChatTime(m.createdAt, locale)}
                           </p>
+                          {mine && m.customerResolution === "RESOLVED" ? (
+                            <p className="mt-1 text-[10px] font-bold text-emerald-700">
+                              {labels.customerMarkedResolved}
+                            </p>
+                          ) : mine && m.customerResolution === "NOT_RESOLVED" ? (
+                            <p className="mt-1 text-[10px] font-bold text-amber-800">
+                              {labels.customerMarkedNotResolved}
+                            </p>
+                          ) : null}
                         </div>
                       </div>
                     );

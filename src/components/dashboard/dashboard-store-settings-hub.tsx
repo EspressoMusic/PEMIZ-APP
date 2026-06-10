@@ -42,7 +42,7 @@ export function DashboardStoreSettingsHubGrid({
   const { labels } = useAppLocale();
 
   return (
-    <ul className="dashboard-store-hub-rows space-y-2 text-start">
+    <ul className="dashboard-settings-style-rows space-y-2 text-start">
       <DashboardActionRow
         href={`${basePath}/settings/orders`}
         icon={ClipboardList}

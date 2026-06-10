@@ -50,6 +50,7 @@ export async function getBusinessBySlug(slug: string) {
   const business = await prisma.business.findUnique({
     where: { slug: slug.toLowerCase() },
     include: {
+      owner: { select: { phone: true } },
       products: { where: { isActive: true }, orderBy: { name: "asc" } },
       slots: {
         where: { startAt: { gte: new Date() } },

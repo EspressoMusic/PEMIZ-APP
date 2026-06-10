@@ -19,12 +19,12 @@ export const optionalCustomerPhoneSchema = z
 export const emailSchema = z.string().email().max(254);
 
 export const loginSchema = z.object({
-  email: emailSchema,
+  identifier: z.string().trim().min(1, "נא להזין טלפון").max(254),
   password: z.string().min(1, "נא להזין סיסמה").max(128),
 });
 
 export const signupSchema = z.object({
-  email: emailSchema,
+  phone: customerPhoneSchema,
   password: z.string().min(8, "סיסמה: לפחות 8 תווים").max(128),
   name: z.string().trim().min(2).max(80),
 });

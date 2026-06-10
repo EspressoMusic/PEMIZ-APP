@@ -74,6 +74,7 @@ export function DashboardActionsHub({
         ariaLabel={labels.customers}
         placement="top"
         showBackButton
+        backButtonLabel={labels.backToActions}
       >
         <DashboardCustomersHubGrid basePath={basePath} embedded />
       </DashboardActionSheet>

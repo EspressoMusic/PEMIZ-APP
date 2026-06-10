@@ -91,7 +91,8 @@ export function DashboardActionSheet({
         : "max-h-[min(88vh,640px)]";
 
   const backOutside =
-    !fullViewport && showBackButton && (!compact || backButtonOutside);
+    showBackButton &&
+    (fullViewport ? !title : !compact || backButtonOutside);
 
   const wrapperHeightClass = fullViewport
     ? "h-full min-h-0"
@@ -119,7 +120,13 @@ export function DashboardActionSheet({
       />
       <div
         className={`relative z-10 flex w-full flex-col ${DASHBOARD_MOBILE_STACK} ${
-          compact && !backOutside ? "gap-0" : fullViewport ? "gap-0 sm:gap-2" : "gap-2"
+          compact && !backOutside
+            ? "gap-0"
+            : backOutside
+              ? "gap-2"
+              : fullViewport
+                ? "gap-0 sm:gap-2"
+                : "gap-2"
         } ${wrapperHeightClass}`}
       >
         {backOutside ? backControl : null}

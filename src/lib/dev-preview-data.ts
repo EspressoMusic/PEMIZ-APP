@@ -390,6 +390,7 @@ export const DEV_STORE_BUSINESS = {
   name: "המאפייה שלי (תצוגה)",
   description: null,
   type: "STORE" as const,
+  sellerContactPhone: "050-1234567",
   products: devPreviewCustomerProducts(),
   deals: [
     {
@@ -519,6 +520,7 @@ export const DEV_APPOINTMENTS_BUSINESS = {
   name: "סטודיו יופי (תצוגה)",
   description: "תורים לטיפולי פנים, עיצוב שיער ומניקור.",
   type: "APPOINTMENTS" as const,
+  sellerContactPhone: "050-7654321",
   products: [
     {
       id: "svc-1",
@@ -819,6 +821,7 @@ export const DEV_RENTAL_BUSINESS = {
   name: "וילה לים (תצוגה)",
   description: "השכרת וילה לימים, חצי יום או סופ״ש — לפי זמינות.",
   type: "RENTAL" as const,
+  sellerContactPhone: "052-1112233",
   products: [
     {
       id: "rent-1",

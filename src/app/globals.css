@@ -1233,6 +1233,37 @@ html:not([data-store-theme="dark"])
 }
 
 html:not([data-store-theme="dark"])
+  .customer-store-root
+  .dashboard-settings-style-rows
+  > li
+  .dashboard-action-row.dashboard-action-square {
+  background: #f2ebe0;
+  border-width: 3px;
+  border-color: rgba(58, 47, 38, 0.2);
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+}
+
+html:not([data-store-theme="dark"])
+  .customer-store-root
+  .dashboard-settings-style-rows
+  > li
+  .dashboard-action-row.dashboard-action-square:hover {
+  background: #f6f0e6;
+  border-color: rgba(58, 47, 38, 0.26);
+  box-shadow: 0 4px 12px rgba(78, 52, 46, 0.08);
+}
+
+html:not([data-store-theme="dark"])
+  .customer-store-root
+  .dashboard-settings-style-rows
+  > li
+  .bakery-icon-tile {
+  background: #f2ebe0;
+  border: 1px solid rgba(78, 52, 46, 0.1);
+  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
+}
+
+html:not([data-store-theme="dark"])
   :is(.dashboard-card.bakery-action-sheet-panel, .dashboard-card.dashboard-modal-card) {
   background: #e6d5b8;
   background-image: none;

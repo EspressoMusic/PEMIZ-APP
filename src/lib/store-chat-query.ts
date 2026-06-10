@@ -15,6 +15,8 @@ type ChatRow = {
   customerName: string;
   authorRole: string;
   body: string;
+  customerResolution?: string | null;
+  customerResolutionAt?: Date | null;
   createdAt: Date;
   replyTo: { id: string; body: string; customerName: string } | null;
 };
@@ -28,6 +30,8 @@ export function storeChatRowToDto(row: ChatRow): StoreChatMessageDto {
     authorRole: row.authorRole as StoreChatMessageDto["authorRole"],
     body: row.body,
     createdAt: row.createdAt.toISOString(),
+    customerResolution: row.customerResolution ?? null,
+    customerResolutionAt: row.customerResolutionAt?.toISOString() ?? null,
     replyTo: row.replyTo
       ? {
           id: row.replyTo.id,
@@ -46,7 +50,13 @@ export function chatMessagesEqual(
   for (let i = 0; i < a.length; i++) {
     const x = a[i];
     const y = b[i];
-    if (x.id !== y.id || x.body !== y.body) return false;
+    if (
+      x.id !== y.id ||
+      x.body !== y.body ||
+      x.customerResolution !== y.customerResolution
+    ) {
+      return false;
+    }
   }
   return true;
 }

@@ -39,11 +39,17 @@ export function AuthForm({
     setError("");
     setLoading(true);
     const fd = new FormData(e.currentTarget);
-    const payload = {
-      email: fd.get("email"),
-      password: fd.get("password"),
-      ...(mode === "signup" ? { name: fd.get("name") } : {}),
-    };
+    const payload =
+      mode === "signup"
+        ? {
+            phone: fd.get("phone"),
+            password: fd.get("password"),
+            name: fd.get("name"),
+          }
+        : {
+            identifier: fd.get("identifier"),
+            password: fd.get("password"),
+          };
 
     try {
       const res = await fetch(`/api/auth/${mode}`, {
@@ -67,7 +73,7 @@ export function AuthForm({
           data.error ??
             (res.status === 401
               ? mode === "login"
-                ? "לא הצלחנו להתחבר — בדוק אימייל וסיסמה"
+                ? "לא הצלחנו להתחבר — בדוק טלפון וסיסמה"
                 : "לא הצלחנו ליצור חשבון"
               : res.status >= 500
                 ? "יש תקלה טכנית זמנית במערכת. נסה שוב מאוחר יותר."
@@ -115,14 +121,27 @@ export function AuthForm({
             {mode === "signup" && (
               <Input name="name" label="שם מלא" required autoComplete="name" />
             )}
-            <Input
-              name="email"
-              type="email"
-              label="אימייל"
-              required
-              autoComplete="email"
-              dir="ltr"
-            />
+            {mode === "signup" ? (
+              <Input
+                name="phone"
+                type="tel"
+                label="טלפון נייד"
+                required
+                autoComplete="tel"
+                dir="ltr"
+                placeholder="050-1234567"
+              />
+            ) : (
+              <Input
+                name="identifier"
+                type="tel"
+                label="טלפון"
+                required
+                autoComplete="tel"
+                dir="ltr"
+                placeholder="050-1234567"
+              />
+            )}
             <Input
               name="password"
               type="password"

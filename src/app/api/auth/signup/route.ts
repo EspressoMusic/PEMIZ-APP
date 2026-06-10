@@ -8,6 +8,8 @@ import { isDatabaseConfigured, databaseConfigHint } from "@/lib/db-env";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { safeUserSelect } from "@/lib/security/user-select";
 import { signupSchema, zodFirstError } from "@/lib/validation/schemas";
+import { parseIsraeliMobilePhone, INVALID_PHONE_MESSAGE_HE } from "@/lib/phone";
+import { syntheticOwnerEmail } from "@/lib/owner-auth-phone";
 
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, "auth:signup", 5, 60 * 60 * 1000);
@@ -30,21 +32,33 @@ export async function POST(req: Request) {
     );
   }
 
-  const email = parsed.data.email.toLowerCase();
+  const phone = parseIsraeliMobilePhone(parsed.data.phone);
+  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE, 400);
+
+  const email = syntheticOwnerEmail(phone);
+  if (!email) return jsonError(INVALID_PHONE_MESSAGE_HE, 400);
 
   try {
-    const existing = await prisma.user.findUnique({
-      where: { email },
+    const existingByPhone = await prisma.user.findFirst({
+      where: { phone },
       select: { id: true, business: { select: { id: true } } },
     });
-    if (existing) {
-      if (!existing.business) {
+    if (existingByPhone) {
+      if (!existingByPhone.business) {
         return jsonError(
-          "האימייל כבר רשום, אך החנות עדיין לא נוצרה. התחבר/י עם אותה סיסמה כדי להמשיך.",
+          "הטלפון כבר רשום, אך החנות עדיין לא נוצרה. התחבר/י עם אותה סיסמה כדי להמשיך.",
           409
         );
       }
-      return jsonError("כבר קיים משתמש עם האימייל הזה", 409);
+      return jsonError("כבר קיים משתמש עם הטלפון הזה", 409);
+    }
+
+    const existingByEmail = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (existingByEmail) {
+      return jsonError("כבר קיים משתמש עם הטלפון הזה", 409);
     }
 
     const passwordHash = await bcrypt.hash(parsed.data.password, 12);
@@ -53,6 +67,8 @@ export async function POST(req: Request) {
         email,
         passwordHash,
         name: parsed.data.name,
+        phone,
+        phoneVerified: true,
       },
       select: safeUserSelect,
     });
@@ -63,7 +79,7 @@ export async function POST(req: Request) {
       role: user.role as Role,
     });
 
-    return jsonOk({ userId: user.id, email: user.email });
+    return jsonOk({ userId: user.id, phone: user.phone });
   } catch (error) {
     return jsonServerError(error, "auth:signup");
   }

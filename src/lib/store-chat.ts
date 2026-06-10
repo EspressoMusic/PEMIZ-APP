@@ -18,6 +18,8 @@ export type StoreChatMessageDto = {
   authorRole: StoreChatAuthorRole;
   body: string;
   createdAt: string;
+  customerResolution?: string | null;
+  customerResolutionAt?: string | null;
   replyTo?: StoreChatReplyPreview | null;
   replyToId?: string | null;
 };

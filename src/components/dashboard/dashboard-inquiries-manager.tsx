@@ -19,6 +19,8 @@ type InquiryRow = {
   customerPhone?: string | null;
   sellerReply?: string | null;
   sellerReplyAt?: string | null;
+  customerResolution?: string | null;
+  customerResolutionAt?: string | null;
   createdAt: string;
 };
 
@@ -146,6 +148,15 @@ function InquiryCard({
                   {formatDateTime(inquiry.sellerReplyAt)}
                 </p>
               )}
+              {inquiry.customerResolution === "RESOLVED" ? (
+                <p className="mt-1 text-[10px] font-bold text-emerald-700">
+                  {labels.customerMarkedResolved}
+                </p>
+              ) : inquiry.customerResolution === "NOT_RESOLVED" ? (
+                <p className="mt-1 text-[10px] font-bold text-amber-800">
+                  {labels.customerMarkedNotResolved}
+                </p>
+              ) : null}
             </button>
           )}
 
@@ -242,6 +253,8 @@ export function DashboardInquiriesManager({
                 ...row,
                 sellerReply: text,
                 sellerReplyAt: new Date().toISOString(),
+                customerResolution: null,
+                customerResolutionAt: null,
               }
             : row
         )

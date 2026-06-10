@@ -28,6 +28,8 @@ export async function PATCH(
     data: {
       sellerReply: parsed.data.sellerReply.trim(),
       sellerReplyAt: new Date(),
+      customerResolution: null,
+      customerResolutionAt: null,
     },
   });
 

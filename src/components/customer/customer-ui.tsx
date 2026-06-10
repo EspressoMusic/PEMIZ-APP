@@ -57,11 +57,13 @@ const orderCardShell =
 
 function SettingsMenuInnerRow({
   icon: Icon,
+  iconSlot,
   title,
   subtitle,
   trailing,
 }: {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconSlot?: ReactNode;
   title: string;
   subtitle?: string;
   trailing?: ReactNode;
@@ -69,8 +71,14 @@ function SettingsMenuInnerRow({
   return (
     <div className={`${settingsMenuInner} px-3 py-3`}>
       <div className="flex items-center gap-3">
-        <span className={settingsMenuIconBox}>
-          <Icon className="h-[26px] w-[26px] text-bakery-ink" strokeWidth={1.75} />
+        <span className={iconSlot ? "shrink-0" : settingsMenuIconBox}>
+          {iconSlot ??
+            (Icon ? (
+              <Icon
+                className="h-[26px] w-[26px] text-bakery-ink"
+                strokeWidth={1.75}
+              />
+            ) : null)}
         </span>
         <div className="min-w-0 flex-1 text-start">
           <p className="text-[18px] font-extrabold leading-tight text-bakery-ink">
@@ -90,11 +98,13 @@ function SettingsMenuInnerRow({
 
 function SettingsMenuRowBody({
   icon,
+  iconSlot,
   title,
   subtitle,
   trailing,
 }: {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconSlot?: ReactNode;
   title: string;
   subtitle?: string;
   trailing?: ReactNode;
@@ -103,6 +113,7 @@ function SettingsMenuRowBody({
     <div className="m-3">
       <SettingsMenuInnerRow
         icon={icon}
+        iconSlot={iconSlot}
         title={title}
         subtitle={subtitle}
         trailing={trailing}
@@ -261,27 +272,43 @@ function ActionSquare({
 /** [_SettingsMenuItem] → [_SettingsMenuRow] inside [_OrdersPanel] */
 export function SettingsMenuRow({
   icon: Icon,
+  iconSlot,
   title,
   subtitle,
   onClick,
   href,
   trailing,
+  disabled = false,
 }: {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconSlot?: ReactNode;
   title: string;
   subtitle?: string;
   onClick?: () => void;
   href?: string;
   trailing?: ReactNode;
+  disabled?: boolean;
 }) {
   const content = (
     <SettingsMenuRowBody
       icon={Icon}
+      iconSlot={iconSlot}
       title={title}
       subtitle={subtitle}
       trailing={trailing}
     />
   );
+
+  if (disabled) {
+    return (
+      <div
+        className={`${settingsMenuShell} pointer-events-none opacity-45`}
+        aria-disabled
+      >
+        {content}
+      </div>
+    );
+  }
 
   if (href) {
     return (

@@ -52,6 +52,8 @@ export async function GET(
       message: row.message,
       sellerReply: row.sellerReply,
       sellerReplyAt: row.sellerReplyAt?.toISOString() ?? null,
+      customerResolution: row.customerResolution,
+      customerResolutionAt: row.customerResolutionAt?.toISOString() ?? null,
       createdAt: row.createdAt.toISOString(),
     })),
   });

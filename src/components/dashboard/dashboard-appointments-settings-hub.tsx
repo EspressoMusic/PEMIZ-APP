@@ -93,7 +93,7 @@ export function DashboardAppointmentsSettingsHubGrid({
   const { labels } = useAppLocale();
 
   return (
-    <ul className="dashboard-appointments-hub-rows space-y-2 text-start">
+    <ul className="dashboard-settings-style-rows space-y-2 text-start">
       <DashboardActionRow
         href={`${basePath}/settings/products`}
         icon={Package}

@@ -266,6 +266,8 @@ export type DashboardLabels = {
   replyToCustomer: string;
   sendReply: string;
   yourReply: string;
+  customerMarkedResolved: string;
+  customerMarkedNotResolved: string;
   customerInquiryLabel: string;
   answerCustomer: string;
   whatsappPhoneLabel: string;
@@ -725,6 +727,8 @@ const HE: DashboardLabels = {
   replyToCustomer: "תשובה ללקוח",
   sendReply: "שלח תשובה",
   yourReply: "התשובה שלך",
+  customerMarkedResolved: "הלקוח: הבעיה נפתרה",
+  customerMarkedNotResolved: "הלקוח: הבעיה עדיין לא נפתרה",
   customerInquiryLabel: "פניית הלקוח",
   answerCustomer: "ענה ללקוח",
   whatsappPhoneLabel: "מספר וואטסאפ לקבלת התראות",
@@ -1288,6 +1292,8 @@ const EN: DashboardLabels = {
   replyToCustomer: "Reply to customer",
   sendReply: "Send reply",
   yourReply: "Your reply",
+  customerMarkedResolved: "Customer: issue resolved",
+  customerMarkedNotResolved: "Customer: issue not resolved yet",
   customerInquiryLabel: "Customer message",
   answerCustomer: "Reply to customer",
   whatsappPhoneLabel: "WhatsApp number for alerts",
