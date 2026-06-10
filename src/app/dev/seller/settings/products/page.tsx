@@ -19,6 +19,7 @@ export default function DevSellerSettingsProductsPage() {
         <DashboardSettingsBackLink basePath="/dev/seller" />
         <div className="min-h-0 flex-1 overflow-hidden">
           <ProductsManager
+            autoOpenList
             previewOnly
             initialProducts={DEV_PREVIEW_PRODUCTS}
           />

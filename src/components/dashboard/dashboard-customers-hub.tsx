@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import {
-  DASHBOARD_PAGE_ROOT,
-  DASHBOARD_VIEWPORT_HEIGHT,
-} from "@/components/dashboard/dashboard-panel-frame";
+import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
 import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
+import { HelpCircle, MessageCircle, MessagesSquare } from "lucide-react";
+import { DashboardBroadcastEntry } from "@/components/dashboard/dashboard-store-broadcast";
 import {
-  HelpCircle,
-  Megaphone,
-  MessageCircle,
-  MessagesSquare,
-} from "lucide-react";
+  DEV_APPOINTMENTS_BUSINESS,
+  DEV_RENTAL_BUSINESS,
+  DEV_STORE_BUSINESS,
+} from "@/lib/dev-preview-data";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import {
   DashboardActionRow,
@@ -69,13 +67,26 @@ export function DashboardCustomersHubGrid({
   embedded?: boolean;
 }) {
   const { labels } = useAppLocale();
+  const isDevPreview = basePath.startsWith("/dev/");
+  const devBroadcast = basePath.startsWith("/dev/seller-rental")
+    ? DEV_RENTAL_BUSINESS
+    : basePath.startsWith("/dev/seller-appointments")
+      ? DEV_APPOINTMENTS_BUSINESS
+      : DEV_STORE_BUSINESS;
 
   const list = (
     <ul className="dashboard-settings-style-rows space-y-2 text-start">
-      <DashboardActionRow
-        href={`${basePath}/customers/broadcast`}
-        icon={Megaphone}
-        title={labels.customerMessage}
+      <DashboardBroadcastEntry
+        previewOnly={isDevPreview}
+        initialMessage={
+          isDevPreview ? (devBroadcast.storeBroadcast ?? "") : ""
+        }
+        initialSentAt={
+          isDevPreview ? (devBroadcast.storeBroadcastAt ?? null) : null
+        }
+        initialHistory={
+          isDevPreview ? (devBroadcast.storeBroadcastHistory ?? []) : []
+        }
       />
       <DashboardCustomerInquiriesGroup basePath={basePath} />
       <DashboardActionRow
@@ -101,19 +112,10 @@ export function DashboardCustomersHub({
   basePath?: string;
 }) {
   return (
-    <div
-      className={`${DASHBOARD_PAGE_ROOT} ${DASHBOARD_VIEWPORT_HEIGHT} min-h-0 flex-1 text-center`}
+    <DashboardFullscreenHubShell
+      backLink={<DashboardActionsBackLink basePath={basePath} />}
     >
-      <div className="flex h-full min-h-0 flex-col gap-2">
-        <div className="shrink-0 px-1 text-start">
-          <DashboardActionsBackLink basePath={basePath} />
-        </div>
-        <div className="dashboard-card bakery-action-sheet-panel bakery-action-sheet-panel--warm bakery-action-sheet-panel--fullscreen flex min-h-0 flex-1 flex-col overflow-hidden sm:rounded-[32px]">
-          <div className="dashboard-action-sheet-body flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
-            <DashboardCustomersHubGrid basePath={basePath} embedded />
-          </div>
-        </div>
-      </div>
-    </div>
+      <DashboardCustomersHubGrid basePath={basePath} embedded />
+    </DashboardFullscreenHubShell>
   );
 }

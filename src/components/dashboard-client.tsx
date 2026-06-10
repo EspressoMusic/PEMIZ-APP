@@ -23,6 +23,7 @@ import {
 } from "@/components/dashboard/dashboard-customer-profile";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { getDashboardLabels, type AppLocale } from "@/lib/app-locale";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
 import { splitSellerAppointments } from "@/lib/seller-appointment-history";
@@ -152,56 +153,25 @@ function mapOrdersFromApi(
   );
 }
 
-function OrdersPanels({
-  orders,
-  onStatusChange,
-  onCustomerClick,
-  customerModal,
-}: {
-  orders: DashboardOrderView[];
-  onStatusChange?: (orderId: string, status: string) => void;
-  onCustomerClick?: ReturnType<
-    typeof useDashboardCustomerProfile
-  >["openCustomer"];
-  customerModal?: React.ReactNode;
-}) {
-  const { labels } = useAppLocale();
-  const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
-  const historyOrders = orders.filter((o) => !isActiveOrderStatus(o.status));
+const ordersModalListClassName =
+  "no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
 
+function OrdersPreviewBanner() {
   return (
-    <div className="space-y-5 pb-2">
-      <DashboardOrdersSection
-        title={labels.activeOrders}
-        orders={activeOrders}
-        onStatusChange={onStatusChange}
-        onCustomerClick={onCustomerClick}
-        customerModal={customerModal}
-        emptyMessage={labels.noActiveOrders}
-      />
-      <DashboardOrdersSection
-        title={labels.orderHistory}
-        orders={historyOrders}
-        onCustomerClick={onCustomerClick}
-        emptyMessage={labels.noOrderHistory}
-      />
-    </div>
+    <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
+      תצוגה מקדימה — הזמנות דמו לבדיקה, השינויים לא נשמרים בשרת
+    </p>
   );
 }
 
-export function OrdersManager({
-  framed = true,
+function useOrdersManager({
   previewOnly = false,
   previewOrders,
 }: {
-  /** מסגרת לבנה כמו דף פעולות */
-  framed?: boolean;
   previewOnly?: boolean;
   previewOrders?: DashboardOrderView[];
 }) {
   const [orders, setOrders] = useState<DashboardOrderView[]>(previewOrders ?? []);
-  const [activeOrdersOpen, setActiveOrdersOpen] = useState(false);
-  const [historyOrdersOpen, setHistoryOrdersOpen] = useState(false);
   const { labels, locale } = useAppLocale();
 
   async function load() {
@@ -253,16 +223,208 @@ export function OrdersManager({
 
   const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
   const historyOrders = orders.filter((o) => !isActiveOrderStatus(o.status));
-  const onStatusChange = setStatus;
   const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
     previewOnly,
     previewOrders: orders,
   });
 
+  return {
+    labels,
+    activeOrders,
+    historyOrders,
+    setStatus,
+    openCustomer,
+    customerModal,
+    previewOnly,
+  };
+}
+
+function OrdersPanels({
+  orders,
+  onStatusChange,
+  onCustomerClick,
+  customerModal,
+}: {
+  orders: DashboardOrderView[];
+  onStatusChange?: (orderId: string, status: string) => void;
+  onCustomerClick?: ReturnType<
+    typeof useDashboardCustomerProfile
+  >["openCustomer"];
+  customerModal?: React.ReactNode;
+}) {
+  const { labels } = useAppLocale();
+  const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
+  const historyOrders = orders.filter((o) => !isActiveOrderStatus(o.status));
+
+  return (
+    <div className="space-y-5 pb-2">
+      <DashboardOrdersSection
+        title={labels.activeOrders}
+        orders={activeOrders}
+        onStatusChange={onStatusChange}
+        onCustomerClick={onCustomerClick}
+        customerModal={customerModal}
+        emptyMessage={labels.noActiveOrders}
+      />
+      <DashboardOrdersSection
+        title={labels.orderHistory}
+        orders={historyOrders}
+        onCustomerClick={onCustomerClick}
+        emptyMessage={labels.noOrderHistory}
+      />
+    </div>
+  );
+}
+
+function OrdersActiveSheet({
+  open,
+  onClose,
+  activeOrders,
+  onStatusChange,
+  onCustomerClick,
+  previewOnly,
+}: {
+  open: boolean;
+  onClose: () => void;
+  activeOrders: DashboardOrderView[];
+  onStatusChange: (orderId: string, status: string) => void;
+  onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
+  previewOnly?: boolean;
+}) {
+  const { labels } = useAppLocale();
+
+  return (
+    <DashboardActionSheet
+      open={open}
+      onClose={onClose}
+      title={labels.orders}
+      ariaLabel={labels.orders}
+      placement="center"
+      showBackButton
+      warmPanel
+    >
+      {previewOnly ? <OrdersPreviewBanner /> : null}
+      <div className={ordersModalListClassName}>
+        <DashboardOrdersList
+          orders={activeOrders}
+          onStatusChange={onStatusChange}
+          onCustomerClick={onCustomerClick}
+          emptyMessage={labels.noActiveOrders}
+          emptyCompact
+        />
+      </div>
+    </DashboardActionSheet>
+  );
+}
+
+function OrdersHistorySheet({
+  open,
+  onClose,
+  historyOrders,
+  onCustomerClick,
+}: {
+  open: boolean;
+  onClose: () => void;
+  historyOrders: DashboardOrderView[];
+  onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
+}) {
+  const { labels } = useAppLocale();
+
+  return (
+    <DashboardActionSheet
+      open={open}
+      onClose={onClose}
+      title={labels.orderHistory}
+      ariaLabel={labels.orderHistory}
+      placement="center"
+      showBackButton
+      warmPanel
+    >
+      <div className={ordersModalListClassName}>
+        <DashboardOrdersList
+          orders={historyOrders}
+          onCustomerClick={onCustomerClick}
+          emptyMessage={labels.noOrderHistory}
+          emptyCompact
+          showPrices
+        />
+      </div>
+    </DashboardActionSheet>
+  );
+}
+
+/** שורה בחנות — פותחת ישר את חלון ההזמנות הפעילות */
+export function DashboardOrdersEntry({
+  previewOnly = false,
+  previewOrders,
+}: {
+  previewOnly?: boolean;
+  previewOrders?: DashboardOrderView[];
+}) {
+  const [open, setOpen] = useState(false);
+  const {
+    labels,
+    activeOrders,
+    setStatus,
+    openCustomer,
+    customerModal,
+    previewOnly: isPreview,
+  } = useOrdersManager({ previewOnly, previewOrders });
+
+  const title =
+    activeOrders.length > 0
+      ? `${labels.orders} (${activeOrders.length})`
+      : labels.orders;
+
+  return (
+    <>
+      <DashboardActionRowButton
+        onClick={() => setOpen(true)}
+        icon={ClipboardList}
+        title={title}
+      />
+      <OrdersActiveSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        activeOrders={activeOrders}
+        onStatusChange={setStatus}
+        onCustomerClick={openCustomer}
+        previewOnly={isPreview}
+      />
+      {customerModal}
+    </>
+  );
+}
+
+export function OrdersManager({
+  framed = true,
+  autoOpenActive = false,
+  previewOnly = false,
+  previewOrders,
+}: {
+  /** מסגרת לבנה כמו דף פעולות */
+  framed?: boolean;
+  /** פותח ישר את חלון ההזמנות (לינקים ישירים לעמוד) */
+  autoOpenActive?: boolean;
+  previewOnly?: boolean;
+  previewOrders?: DashboardOrderView[];
+}) {
+  const [activeOrdersOpen, setActiveOrdersOpen] = useState(autoOpenActive);
+  const [historyOrdersOpen, setHistoryOrdersOpen] = useState(false);
+  const {
+    labels,
+    activeOrders,
+    historyOrders,
+    setStatus,
+    openCustomer,
+    customerModal,
+    previewOnly: isPreview,
+  } = useOrdersManager({ previewOnly, previewOrders });
+
   const panels = (
     <OrdersPanels
-      orders={orders}
-      onStatusChange={onStatusChange}
+      orders={[...activeOrders, ...historyOrders]}
+      onStatusChange={setStatus}
       onCustomerClick={openCustomer}
       customerModal={customerModal}
     />
@@ -272,39 +434,35 @@ export function OrdersManager({
     return <div className="space-y-4 text-center">{panels}</div>;
   }
 
-  const ordersModalListClassName =
-    "no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
-
   return (
     <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
-      {previewOnly && (
-        <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
-          תצוגה מקדימה — הזמנות דמו לבדיקה, השינויים לא נשמרים בשרת
-        </p>
-      )}
-      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
-        <button
-          type="button"
-          onClick={() => {
-            setHistoryOrdersOpen(false);
-            setActiveOrdersOpen(true);
-          }}
-          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
-        >
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <ClipboardList className="h-6 w-6" strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {labels.orders}
-            {activeOrders.length > 0 && (
-              <span className="font-semibold text-bakery-muted">
-                {" "}
-                ({activeOrders.length})
-              </span>
-            )}
-          </span>
-        </button>
-      </div>
+      {isPreview && !autoOpenActive ? <OrdersPreviewBanner /> : null}
+
+      {!autoOpenActive ? (
+        <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+          <button
+            type="button"
+            onClick={() => {
+              setHistoryOrdersOpen(false);
+              setActiveOrdersOpen(true);
+            }}
+            className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+          >
+            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+              <ClipboardList className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {labels.orders}
+              {activeOrders.length > 0 && (
+                <span className="font-semibold text-bakery-muted">
+                  {" "}
+                  ({activeOrders.length})
+                </span>
+              )}
+            </span>
+          </button>
+        </div>
+      ) : null}
 
       <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
         <button
@@ -330,45 +488,21 @@ export function OrdersManager({
         </button>
       </div>
 
-      <DashboardActionSheet
+      <OrdersActiveSheet
         open={activeOrdersOpen}
         onClose={() => setActiveOrdersOpen(false)}
-        title={labels.orders}
-        ariaLabel={labels.orders}
-        placement="center"
-        showBackButton
-        warmPanel
-      >
-        <div className={ordersModalListClassName}>
-          <DashboardOrdersList
-            orders={activeOrders}
-            onStatusChange={onStatusChange}
-            onCustomerClick={openCustomer}
-            emptyMessage={labels.noActiveOrders}
-            emptyCompact
-          />
-        </div>
-      </DashboardActionSheet>
+        activeOrders={activeOrders}
+        onStatusChange={setStatus}
+        onCustomerClick={openCustomer}
+        previewOnly={isPreview}
+      />
 
-      <DashboardActionSheet
+      <OrdersHistorySheet
         open={historyOrdersOpen}
         onClose={() => setHistoryOrdersOpen(false)}
-        title={labels.orderHistory}
-        ariaLabel={labels.orderHistory}
-        placement="center"
-        showBackButton
-        warmPanel
-      >
-        <div className={ordersModalListClassName}>
-          <DashboardOrdersList
-            orders={historyOrders}
-            onCustomerClick={openCustomer}
-            emptyMessage={labels.noOrderHistory}
-            emptyCompact
-            showPrices
-          />
-        </div>
-      </DashboardActionSheet>
+        historyOrders={historyOrders}
+        onCustomerClick={openCustomer}
+      />
 
       {customerModal}
     </div>

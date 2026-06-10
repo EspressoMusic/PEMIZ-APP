@@ -22,6 +22,7 @@ import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
 import { formatStockLabel, parseStockInput } from "@/lib/product-stock";
 import { Package, Plus } from "lucide-react";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
 
@@ -348,14 +349,30 @@ const ProductCard = memo(function ProductCard({
   );
 });
 
+function ProductsPreviewBanner() {
+  return (
+    <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
+      תצוגה מקדימה — השינויים לא נשמרים ולא מועלים לשרת
+    </p>
+  );
+}
+
 export function ProductsManager({
   previewOnly = false,
   initialProducts,
   mode = "products",
+  autoOpenList = false,
+  standaloneList = false,
+  onStandaloneClose,
 }: {
   previewOnly?: boolean;
   initialProducts?: Parameters<typeof toPreviewProducts>[0];
   mode?: "products" | "services";
+  /** פותח ישר את רשימת המוצרים (לינקים ישירים לעמוד) */
+  autoOpenList?: boolean;
+  /** מודל בלבד מתפריט חנות — בלי כרטיסי hub */
+  standaloneList?: boolean;
+  onStandaloneClose?: () => void;
 } = {}) {
   const { labels, formatMoney, locale } = useAppLocale();
   const isServices = mode === "services";
@@ -380,7 +397,9 @@ export function ProductsManager({
   const [discountOpen, setDiscountOpen] = useState(false);
   const [stockOpen, setStockOpen] = useState(false);
   const [addFormOpen, setAddFormOpen] = useState(false);
-  const [productsListOpen, setProductsListOpen] = useState(false);
+  const [productsListOpen, setProductsListOpen] = useState(
+    autoOpenList || standaloneList
+  );
   const [successOpen, setSuccessOpen] = useState(false);
   const [successName, setSuccessName] = useState("");
 
@@ -635,241 +654,170 @@ export function ProductsManager({
     [previewOnly, products, locale, labels.saveError]
   );
 
-  return (
-    <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
-      {previewOnly && (
-        <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
-          תצוגה מקדימה — השינויים לא נשמרים ולא מועלים לשרת
-        </p>
-      )}
-      {error && (
-        <div className="shrink-0">
-          <Alert variant="error">{error}</Alert>
-        </div>
-      )}
+  const productsListAddButton = (
+    <button
+      type="button"
+      onClick={() => setAddFormOpen(true)}
+      className="dashboard-action-square mb-2 flex w-full shrink-0 items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+    >
+      <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+        <Plus className="h-6 w-6" strokeWidth={1.75} />
+      </span>
+      <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+        {addLabel}
+      </span>
+    </button>
+  );
 
-      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
-        <button
-          type="button"
-          onClick={() => {
-            setProductsListOpen(false);
-            setAddFormOpen(true);
-          }}
-          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
-        >
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <Plus className="h-6 w-6" strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {addLabel}
-          </span>
-        </button>
-      </div>
-
-      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
-        <button
-          type="button"
-          onClick={() => {
-            setAddFormOpen(false);
-            setProductsListOpen(true);
-          }}
-          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
-        >
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <Package className="h-6 w-6" strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {listLabel}
-            {products.length > 0 && (
-              <span className="font-semibold text-bakery-muted">
-                {" "}
-                ({visibleToCustomerCount}/{products.length})
-              </span>
-            )}
-          </span>
-        </button>
-      </div>
-
-      <DashboardActionSheet
-        open={addFormOpen}
-        onClose={() => setAddFormOpen(false)}
-        title={addLabel}
-        ariaLabel={addLabel}
-        placement={isServices ? "center" : "upper"}
-        showBackButton
-        backButtonOutside
-        compact
-        warmPanel
+  const addFormSheet = (
+    <DashboardActionSheet
+      open={addFormOpen}
+      onClose={() => setAddFormOpen(false)}
+      title={addLabel}
+      ariaLabel={addLabel}
+      placement={isServices ? "center" : "upper"}
+      showBackButton
+      backButtonOutside
+      compact
+      warmPanel
+      elevated
+    >
+      <form
+        ref={formRef}
+        onSubmit={addProduct}
+        className="flex flex-col gap-1.5 overflow-hidden text-start"
       >
-        <form
-          ref={formRef}
-          onSubmit={addProduct}
-          className="flex flex-col gap-1.5 overflow-hidden text-start"
-        >
+        <Input
+          name="name"
+          label={labels.productName}
+          labelClassName="text-[13px]"
+          className="py-2.5 text-[15px]"
+          required
+        />
+        <Input
+          name="price"
+          label={labels.productPrice}
+          labelClassName="text-[13px]"
+          className="py-2.5 text-[15px]"
+          type="number"
+          step="0.01"
+          required
+          dir="ltr"
+        />
+        <Input
+          name="description"
+          label={labels.productDescription}
+          labelClassName="text-[13px]"
+          className="py-2.5 text-[15px]"
+        />
+        {isServices ? (
           <Input
-            name="name"
-            label={labels.productName}
-            labelClassName="text-[13px]"
-            className="py-2.5 text-[15px]"
-            required
-          />
-          <Input
-            name="price"
-            label={labels.productPrice}
-            labelClassName="text-[13px]"
-            className="py-2.5 text-[15px]"
+            name="serviceDurationMinutes"
+            label={labels.serviceDurationMinutes}
             type="number"
-            step="0.01"
+            min={15}
+            max={480}
+            step={15}
+            defaultValue={60}
             required
             dir="ltr"
           />
-          <Input
-            name="description"
-            label={labels.productDescription}
-            labelClassName="text-[13px]"
-            className="py-2.5 text-[15px]"
+        ) : null}
+        <ProductImageField
+          compact
+          preview={imagePreview}
+          onChange={(url) => {
+            setImagePreview(url);
+            setImageData(url);
+          }}
+          onError={setError}
+          onUploadingChange={setImageUploading}
+        />
+        <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2 text-start">
+          <span className="text-[13px] font-bold text-bakery-ink">
+            {labels.productDiscount}
+          </span>
+          <Toggle
+            enabled={discountOpen}
+            onChange={setDiscountOpen}
+            ariaLabel={labels.productDiscount}
           />
-          {isServices ? (
+        </div>
+        {discountOpen && (
+          <>
             <Input
-              name="serviceDurationMinutes"
-              label={labels.serviceDurationMinutes}
+              name="salePrice"
+              label={labels.productDiscountPrice}
+              labelClassName="text-[13px]"
+              className="py-2.5 text-[15px]"
               type="number"
-              min={15}
-              max={480}
-              step={15}
-              defaultValue={60}
-              required
+              step="0.01"
+              min={0.01}
               dir="ltr"
+              required
             />
-          ) : null}
-          <ProductImageField
-            compact
-            preview={imagePreview}
-            onChange={(url) => {
-              setImagePreview(url);
-              setImageData(url);
-            }}
-            onError={setError}
-            onUploadingChange={setImageUploading}
-          />
-          <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2 text-start">
-            <span className="text-[13px] font-bold text-bakery-ink">
-              {labels.productDiscount}
-            </span>
-            <Toggle
-              enabled={discountOpen}
-              onChange={setDiscountOpen}
-              ariaLabel={labels.productDiscount}
+            <Input
+              name="maxDiscount"
+              label={labels.productDiscountLimit}
+              labelClassName="text-[13px]"
+              className="py-2.5 text-[15px]"
+              type="number"
+              step="0.01"
+              min={0.01}
+              dir="ltr"
+              placeholder="10"
+              required
             />
-          </div>
-          {discountOpen && (
-            <>
-              <Input
-                name="salePrice"
-                label={labels.productDiscountPrice}
-                labelClassName="text-[13px]"
-                className="py-2.5 text-[15px]"
-                type="number"
-                step="0.01"
-                min={0.01}
-                dir="ltr"
-                required
-              />
-              <Input
-                name="maxDiscount"
-                label={labels.productDiscountLimit}
-                labelClassName="text-[13px]"
-                className="py-2.5 text-[15px]"
-                type="number"
-                step="0.01"
-                min={0.01}
-                dir="ltr"
-                placeholder="10"
-                required
-              />
-            </>
-          )}
-          {!isServices && (
-            <>
-              <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2 text-start">
-                <span className="text-[13px] font-bold text-bakery-ink">
-                  {labels.productStock}
-                </span>
-                <Toggle
-                  enabled={stockOpen}
-                  onChange={setStockOpen}
-                  ariaLabel={labels.productStock}
-                />
-              </div>
-              {stockOpen && (
-                <Input
-                  name="stock"
-                  labelClassName="text-[13px]"
-                  className="py-2.5 text-[15px]"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  dir="ltr"
-                  required
-                  onChange={(e) => {
-                    e.target.value = e.target.value.replace(/\D/g, "");
-                  }}
-                />
-              )}
-            </>
-          )}
-          <Button
-            type="submit"
-            variant="primary"
-            className="mt-0.5 w-full min-h-[42px] rounded-full font-extrabold"
-            disabled={adding || imageUploading}
-          >
-            {imageUploading
-              ? labels.productImageUploading
-              : adding
-                ? labels.adding
-                : addLabel}
-          </Button>
-        </form>
-      </DashboardActionSheet>
-
-      <DashboardActionSheet
-        open={productsListOpen}
-        onClose={() => setProductsListOpen(false)}
-        title={productsListTitle}
-        ariaLabel={listLabel}
-        placement="center"
-        showBackButton
-        warmPanel
-      >
-        {products.length === 0 ? (
-          <p className="py-6 text-center text-[14px] text-bakery-muted">
-            {emptyLabel}
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            {products.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                labels={labels}
-                locale={locale}
-                formatMoney={formatMoney}
-                previewOnly={previewOnly}
-                onHide={() => void setProductActive(p.id, p.isActive)}
-                onDelete={() => void deleteProduct(p.id, p.name)}
-                onStockSave={(stock) => updateProductStock(p.id, stock)}
-                onImageUpload={(url) => updateProductImage(p.id, url)}
-                showStock={!isServices}
-                showDuration={isServices}
-              />
-            ))}
-          </div>
+          </>
         )}
-      </DashboardActionSheet>
+        {!isServices && (
+          <>
+            <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2 text-start">
+              <span className="text-[13px] font-bold text-bakery-ink">
+                {labels.productStock}
+              </span>
+              <Toggle
+                enabled={stockOpen}
+                onChange={setStockOpen}
+                ariaLabel={labels.productStock}
+              />
+            </div>
+            {stockOpen && (
+              <Input
+                name="stock"
+                labelClassName="text-[13px]"
+                className="py-2.5 text-[15px]"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                dir="ltr"
+                required
+                onChange={(e) => {
+                  e.target.value = e.target.value.replace(/\D/g, "");
+                }}
+              />
+            )}
+          </>
+        )}
+        <Button
+          type="submit"
+          variant="primary"
+          className="mt-0.5 w-full min-h-[42px] rounded-full font-extrabold"
+          disabled={adding || imageUploading}
+        >
+          {imageUploading
+            ? labels.productImageUploading
+            : adding
+              ? labels.adding
+              : addLabel}
+        </Button>
+      </form>
+    </DashboardActionSheet>
+  );
 
+  const productFeedback = (
+    <>
       <DashboardConfettiBackground active={successOpen} />
-
       <ProductSuccessModal
         open={successOpen}
         productName={successName}
@@ -882,6 +830,160 @@ export function ProductsManager({
         }
         closeAriaLabel={labels.close}
       />
+    </>
+  );
+
+  const productsListSheet = (
+    <DashboardActionSheet
+      open={productsListOpen}
+      onClose={() => {
+        setProductsListOpen(false);
+        if (standaloneList) onStandaloneClose?.();
+      }}
+      title={productsListTitle}
+      ariaLabel={listLabel}
+      placement="center"
+      showBackButton
+      warmPanel
+    >
+      {previewOnly ? <ProductsPreviewBanner /> : null}
+      {productsListAddButton}
+      {products.length === 0 ? (
+        <p className="py-6 text-center text-[14px] text-bakery-muted">
+          {emptyLabel}
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          {products.map((p) => (
+            <ProductCard
+              key={p.id}
+              product={p}
+              labels={labels}
+              locale={locale}
+              formatMoney={formatMoney}
+              previewOnly={previewOnly}
+              onHide={() => void setProductActive(p.id, p.isActive)}
+              onDelete={() => void deleteProduct(p.id, p.name)}
+              onStockSave={(stock) => updateProductStock(p.id, stock)}
+              onImageUpload={(url) => updateProductImage(p.id, url)}
+              showStock={!isServices}
+              showDuration={isServices}
+            />
+          ))}
+        </div>
+      )}
+    </DashboardActionSheet>
+  );
+
+  if (standaloneList) {
+    return (
+      <>
+        {error ? (
+          <div className="shrink-0">
+            <Alert variant="error">{error}</Alert>
+          </div>
+        ) : null}
+        {productsListSheet}
+        {addFormSheet}
+        {productFeedback}
+      </>
+    );
+  }
+
+  return (
+    <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
+      {previewOnly && !autoOpenList ? <ProductsPreviewBanner /> : null}
+      {error && (
+        <div className="shrink-0">
+          <Alert variant="error">{error}</Alert>
+        </div>
+      )}
+
+      {!autoOpenList ? (
+        <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+          <button
+            type="button"
+            onClick={() => {
+              setProductsListOpen(false);
+              setAddFormOpen(true);
+            }}
+            className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+          >
+            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+              <Plus className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {addLabel}
+            </span>
+          </button>
+        </div>
+      ) : null}
+
+      {!autoOpenList ? (
+        <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+          <button
+            type="button"
+            onClick={() => {
+              setAddFormOpen(false);
+              setProductsListOpen(true);
+            }}
+            className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+          >
+            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+              <Package className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+              {listLabel}
+              {products.length > 0 && (
+                <span className="font-semibold text-bakery-muted">
+                  {" "}
+                  ({visibleToCustomerCount}/{products.length})
+                </span>
+              )}
+            </span>
+          </button>
+        </div>
+      ) : null}
+
+      {addFormSheet}
+
+      {productsListSheet}
+
+      {productFeedback}
     </div>
+  );
+}
+
+/** שורה בחנות — פותחת ישר את רשימת המוצרים / השירותים */
+export function DashboardProductsEntry({
+  previewOnly = false,
+  initialProducts,
+  mode = "products",
+}: {
+  previewOnly?: boolean;
+  initialProducts?: Parameters<typeof toPreviewProducts>[0];
+  mode?: "products" | "services";
+}) {
+  const [open, setOpen] = useState(false);
+  const { labels } = useAppLocale();
+  const title = mode === "services" ? labels.services : labels.products;
+
+  return (
+    <>
+      <DashboardActionRowButton
+        onClick={() => setOpen(true)}
+        icon={Package}
+        title={title}
+      />
+      {open ? (
+        <ProductsManager
+          standaloneList
+          previewOnly={previewOnly}
+          initialProducts={initialProducts}
+          mode={mode}
+          onStandaloneClose={() => setOpen(false)}
+        />
+      ) : null}
+    </>
   );
 }

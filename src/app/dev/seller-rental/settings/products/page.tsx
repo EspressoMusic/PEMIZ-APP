@@ -13,6 +13,7 @@ export default function DevSellerAppointmentsServicesPage() {
         <DashboardSettingsBackLink basePath={DEV_RENTAL_SELLER_BASE} />
         <div className="min-h-0 flex-1 overflow-hidden">
           <ProductsManager
+            autoOpenList
             mode="services"
             previewOnly
             initialProducts={DEV_RENTAL_BUSINESS.products}

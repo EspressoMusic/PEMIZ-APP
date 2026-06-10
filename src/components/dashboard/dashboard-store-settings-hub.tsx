@@ -1,11 +1,11 @@
 "use client";
 
-import {
-  DASHBOARD_PAGE_ROOT,
-  DASHBOARD_SCROLL_MAIN,
-} from "@/components/dashboard/dashboard-panel-frame";
-import { Package, ClipboardList, Gift, ChevronLeft } from "lucide-react";
+import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
+import { Gift, ChevronLeft } from "lucide-react";
+import { DashboardOrdersEntry } from "@/components/dashboard-client";
+import { DashboardProductsEntry } from "@/components/dashboard/products-manager";
 import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
+import { DEV_PREVIEW_ORDERS, DEV_PREVIEW_PRODUCTS } from "@/lib/dev-preview-data";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 
@@ -40,18 +40,17 @@ export function DashboardStoreSettingsHubGrid({
   basePath?: string;
 }) {
   const { labels } = useAppLocale();
+  const isDevPreview = basePath.startsWith("/dev/");
 
   return (
     <ul className="dashboard-settings-style-rows space-y-2 text-start">
-      <DashboardActionRow
-        href={`${basePath}/settings/orders`}
-        icon={ClipboardList}
-        title={labels.orders}
+      <DashboardOrdersEntry
+        previewOnly={isDevPreview}
+        previewOrders={isDevPreview ? DEV_PREVIEW_ORDERS : undefined}
       />
-      <DashboardActionRow
-        href={`${basePath}/settings/products`}
-        icon={Package}
-        title={labels.products}
+      <DashboardProductsEntry
+        previewOnly={isDevPreview}
+        initialProducts={isDevPreview ? DEV_PREVIEW_PRODUCTS : undefined}
       />
       <DashboardActionRow
         href={`${basePath}/settings/deals-and-limits`}
@@ -106,10 +105,10 @@ export function DashboardStoreSettingsHub({
   basePath?: string;
 }) {
   return (
-    <div className={`${DASHBOARD_PAGE_ROOT} justify-start text-center`}>
-      <div className={`${DASHBOARD_SCROLL_MAIN} flex flex-col justify-start gap-3`}>
-        <DashboardStoreSettingsHubPanel basePath={basePath} />
-      </div>
-    </div>
+    <DashboardFullscreenHubShell
+      backLink={<DashboardActionsBackLink basePath={basePath} />}
+    >
+      <DashboardStoreSettingsHubGrid basePath={basePath} />
+    </DashboardFullscreenHubShell>
   );
 }

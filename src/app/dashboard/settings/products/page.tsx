@@ -19,7 +19,10 @@ export default async function SettingsProductsPage() {
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
       <DashboardSettingsBackLink />
       <div className="min-h-0 flex-1 overflow-hidden">
-        <ProductsManager mode={isAppointments ? "services" : "products"} />
+        <ProductsManager
+          autoOpenList
+          mode={isAppointments ? "services" : "products"}
+        />
       </div>
     </div>
   );

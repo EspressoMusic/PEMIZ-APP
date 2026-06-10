@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
+import { ClipboardList, ChevronLeft, History } from "lucide-react";
+import { DashboardProductsEntry } from "@/components/dashboard/products-manager";
 import {
-  DASHBOARD_PAGE_ROOT,
-  DASHBOARD_SCROLL_MAIN,
-} from "@/components/dashboard/dashboard-panel-frame";
-import { Package, ClipboardList, ChevronLeft, History } from "lucide-react";
+  DEV_APPOINTMENTS_BUSINESS,
+  DEV_RENTAL_BUSINESS,
+} from "@/lib/dev-preview-data";
 import { AppointmentsManager } from "@/components/dashboard-client";
 import {
   DashboardActionRow,
@@ -91,13 +93,17 @@ export function DashboardAppointmentsSettingsHubGrid({
   previewBookingByDay?: boolean;
 }) {
   const { labels } = useAppLocale();
+  const isDevPreview = basePath.startsWith("/dev/");
+  const devServices = basePath.startsWith("/dev/seller-rental")
+    ? DEV_RENTAL_BUSINESS.products
+    : DEV_APPOINTMENTS_BUSINESS.products;
 
   return (
     <ul className="dashboard-settings-style-rows space-y-2 text-start">
-      <DashboardActionRow
-        href={`${basePath}/settings/products`}
-        icon={Package}
-        title={labels.services}
+      <DashboardProductsEntry
+        mode="services"
+        previewOnly={isDevPreview}
+        initialProducts={isDevPreview ? devServices : undefined}
       />
       <DashboardActionRow
         href={`${basePath}/settings/appointments`}
@@ -194,17 +200,15 @@ export function DashboardAppointmentsSettingsHub({
   previewBookingByDay?: boolean;
 }) {
   return (
-    <div className={`${DASHBOARD_PAGE_ROOT} justify-start text-center`}>
-      <div
-        className={`${DASHBOARD_SCROLL_MAIN} flex flex-col justify-start gap-3`}
-      >
-        <DashboardAppointmentsSettingsHubPanel
-          basePath={basePath}
-          previewOnly={previewOnly}
-          previewAppointments={previewAppointments}
-          previewBookingByDay={previewBookingByDay}
-        />
-      </div>
-    </div>
+    <DashboardFullscreenHubShell
+      backLink={<DashboardActionsBackLink basePath={basePath} />}
+    >
+      <DashboardAppointmentsSettingsHubGrid
+        basePath={basePath}
+        previewOnly={previewOnly}
+        previewAppointments={previewAppointments}
+        previewBookingByDay={previewBookingByDay}
+      />
+    </DashboardFullscreenHubShell>
   );
 }

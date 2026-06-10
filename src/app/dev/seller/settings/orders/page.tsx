@@ -13,6 +13,7 @@ export default function DevSellerSettingsOrdersPage() {
             <DashboardSettingsBackLink basePath="/dev/seller" />
             <div className="min-h-0 flex-1 overflow-hidden">
               <OrdersManager
+                autoOpenActive
                 previewOnly
                 previewOrders={DEV_PREVIEW_ORDERS}
               />
