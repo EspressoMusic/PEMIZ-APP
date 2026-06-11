@@ -90,9 +90,7 @@ export function DashboardActionSheet({
         ? "max-h-[min(calc(100dvh-1.25rem),720px)]"
         : "max-h-[min(88vh,640px)]";
 
-  const backOutside =
-    showBackButton &&
-    (fullViewport ? !title : !compact || backButtonOutside);
+  const backOutside = showBackButton && backButtonOutside;
 
   const wrapperHeightClass = fullViewport
     ? "h-full min-h-0"
@@ -104,7 +102,7 @@ export function DashboardActionSheet({
 
   return createPortal(
     <div
-      className={`fixed inset-0 flex p-3 sm:p-4 ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
+      className={`fixed inset-0 flex ${fullViewport ? "p-0 sm:p-4" : "p-3 sm:p-4"} ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel ?? title ?? closeLabel}
@@ -141,17 +139,21 @@ export function DashboardActionSheet({
             panelClassName ? ` ${panelClassName}` : ""
           }`}
         >
-          {(compact || fullViewport) && showBackButton && title && !backOutside ? (
-            <div className="relative shrink-0 px-3 pb-1 pt-3">
-              <div className="absolute start-2 top-2.5 z-10">{backControl}</div>
-              <h2
-                className={`px-10 text-center font-extrabold leading-tight text-bakery-ink ${
-                  compact ? "text-[17px]" : "text-[18px]"
-                }`}
-              >
-                {title}
-              </h2>
-            </div>
+          {(compact || fullViewport) && showBackButton && !backOutside ? (
+            title ? (
+              <div className="relative shrink-0 px-3 pb-1 pt-3">
+                <div className="absolute start-2 top-2.5 z-10">{backControl}</div>
+                <h2
+                  className={`px-10 text-center font-extrabold leading-tight text-bakery-ink ${
+                    compact ? "text-[17px]" : "text-[18px]"
+                  }`}
+                >
+                  {title}
+                </h2>
+              </div>
+            ) : (
+              <div className="shrink-0 px-3 pb-1 pt-3 text-start">{backControl}</div>
+            )
           ) : title ? (
             <h2
               className={`shrink-0 text-center font-extrabold text-bakery-ink ${

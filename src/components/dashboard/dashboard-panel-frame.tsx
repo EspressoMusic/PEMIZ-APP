@@ -89,14 +89,12 @@ export function DashboardFullscreenHubShell({
 }) {
   return (
     <div
-      className={`${DASHBOARD_PAGE_ROOT} ${DASHBOARD_VIEWPORT_HEIGHT} min-h-0 flex-1 text-center`}
+      className={`${DASHBOARD_PAGE_ROOT} -mt-2 flex min-h-0 flex-1 flex-col sm:mt-0`}
     >
-      <div className="flex h-full min-h-0 flex-col gap-2">
-        <div className="shrink-0 px-1 text-start">{backLink}</div>
-        <div className="dashboard-card bakery-action-sheet-panel bakery-action-sheet-panel--warm bakery-action-sheet-panel--fullscreen flex min-h-0 flex-1 flex-col overflow-hidden sm:rounded-[32px]">
-          <div className="dashboard-action-sheet-body flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
-            {children}
-          </div>
+      <div className="dashboard-card bakery-action-sheet-panel bakery-action-sheet-panel--warm bakery-action-sheet-panel--fullscreen flex min-h-0 flex-1 flex-col overflow-hidden sm:rounded-[32px]">
+        <div className="shrink-0 px-3 pb-1 pt-3 text-start">{backLink}</div>
+        <div className="dashboard-action-sheet-body flex min-h-0 flex-1 flex-col overflow-y-auto p-3 pt-1">
+          {children}
         </div>
       </div>
     </div>
