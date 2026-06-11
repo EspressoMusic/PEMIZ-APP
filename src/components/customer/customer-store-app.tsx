@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
+  ChevronDown,
   HelpCircle,
   History,
   Receipt,
@@ -300,7 +301,6 @@ export function CustomerStoreApp({
   const [displayOpen, setDisplayOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
   const [installAppOpen, setInstallAppOpen] = useState(false);
-  const [settingsExpanded, setSettingsExpanded] = useState(false);
   const [cartDeals, setCartDeals] = useState<PendingDealSnapshot[]>([]);
   const [dealRedemptionCounts, setDealRedemptionCounts] = useState<
     Record<string, number>
@@ -600,10 +600,6 @@ export function CustomerStoreApp({
     if (mainTab !== "home") {
       setSellerNoticeExpanded(false);
     }
-  }, [mainTab]);
-
-  useEffect(() => {
-    if (mainTab !== "settings") setSettingsExpanded(false);
   }, [mainTab]);
 
   useEffect(() => {
@@ -1646,31 +1642,18 @@ export function CustomerStoreApp({
                     />
                   )}
                 </SettingsCollapsibleSection>
-                <SettingsCollapsibleSection
-                  title={labels.orderHistory}
+                <SettingsMenuRow
                   icon={History}
-                  expanded={historyOrdersOpen}
-                  onToggle={() => setHistoryOrdersOpen((open) => !open)}
-                >
-                  {orderHistorySuspended ? (
-                    <HubEmptyText>{labels.historySuspended}</HubEmptyText>
-                  ) : visibleOrderHistory.length === 0 ? (
-                    <HubEmptyText>{labels.noPastOrders}</HubEmptyText>
-                  ) : (
-                    <ul className="space-y-2">
-                      {visibleOrderHistory.map((order) => (
-                        <li key={order.id}>
-                          <OrderHistorySummaryRow
-                            placedAt={order.placedAt}
-                            total={order.total}
-                            locale={locale}
-                            onClick={() => setHistoryDetailOrder(order)}
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </SettingsCollapsibleSection>
+                  title={labels.comingSoon}
+                  disabled
+                  trailing={
+                    <ChevronDown
+                      className="h-6 w-6 shrink-0 text-bakery-muted"
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                  }
+                />
               </div>
             )}
           </div>
@@ -1703,37 +1686,22 @@ export function CustomerStoreApp({
               {showContactSeller ? (
                 <SettingsMenuRow
                   icon={MessagesSquare}
-                  title={labels.contactSeller}
-                  onClick={openContactModal}
+                  title={labels.comingSoon}
+                  disabled
                 />
               ) : null}
-              <SettingsCollapsibleSection
-                title={labels.settings}
+              <SettingsMenuRow
                 icon={Settings}
-                expanded={settingsExpanded}
-                onToggle={() => setSettingsExpanded((open) => !open)}
-              >
-                <SettingsMenuSubRow
-                  icon={UserRound}
-                  title={labels.signIn}
-                  onClick={() => setProfileModalOpen(true)}
-                />
-                <SettingsMenuSubRow
-                  icon={SlidersHorizontal}
-                  title={labels.language}
-                  onClick={() => setDisplayOpen(true)}
-                />
-                <SettingsMenuSubRow
-                  icon={ShieldPlus}
-                  title={labels.legal}
-                  onClick={() => setLegalOpen(true)}
-                />
-                <SettingsMenuSubRow
-                  icon={Smartphone}
-                  title={labels.installApp}
-                  onClick={() => setInstallAppOpen(true)}
-                />
-              </SettingsCollapsibleSection>
+                title={labels.comingSoon}
+                disabled
+                trailing={
+                  <ChevronDown
+                    className="h-6 w-6 shrink-0 text-bakery-muted"
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                }
+              />
             </div>
           </div>
         );

@@ -902,7 +902,7 @@ export function DealCard({
   return (
     <>
       <article
-        className={`mx-auto flex w-full max-w-[17.5rem] min-w-0 flex-col gap-2 overflow-hidden rounded-[16px] border-[1.5px] border-[#5C4A3E]/25 bg-bakery-square p-3 shadow-[0_2px_8px_rgba(58,47,38,0.1)] transition-opacity duration-300 ${
+        className={`mx-auto flex w-full max-w-[17.5rem] min-w-0 flex-col gap-2 overflow-hidden rounded-[16px] border-[3px] border-[#3D2E26]/38 bg-bakery-square p-3 shadow-[0_2px_8px_rgba(58,47,38,0.1)] transition-opacity duration-300 ${
           faded ? "opacity-45 saturate-[0.65]" : ""
         }`}
       >
@@ -916,7 +916,7 @@ export function DealCard({
         ) : null}
 
         <div className="relative flex min-h-[2.25rem] items-center justify-center px-7">
-          <h3 className="line-clamp-2 w-full text-center text-[15px] font-extrabold leading-[1.2] text-bakery-ink">
+          <h3 className="line-clamp-2 w-full rounded-[12px] border-2 border-[#3D2E26]/32 bg-bakery-card/50 px-5 py-1.5 text-center text-[15px] font-extrabold leading-[1.2] text-bakery-ink">
             {name}
           </h3>
           <button

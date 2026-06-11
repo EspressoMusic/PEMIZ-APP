@@ -1,62 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
 import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
-import { HelpCircle, MessageCircle, MessagesSquare } from "lucide-react";
+import { HelpCircle, MessagesSquare } from "lucide-react";
 import { DashboardBroadcastEntry } from "@/components/dashboard/dashboard-store-broadcast";
 import {
   DEV_APPOINTMENTS_BUSINESS,
   DEV_RENTAL_BUSINESS,
   DEV_STORE_BUSINESS,
 } from "@/lib/dev-preview-data";
-import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import {
   DashboardActionRow,
   DashboardActionRowButton,
 } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-
-function DashboardCustomerInquiriesGroup({
-  basePath = "/dashboard",
-}: {
-  basePath?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const { labels } = useAppLocale();
-
-  return (
-    <>
-      <DashboardActionRowButton
-        onClick={() => setOpen(true)}
-        icon={MessagesSquare}
-        title={labels.customerInquiries}
-      />
-      <DashboardActionSheet
-        open={open}
-        onClose={() => setOpen(false)}
-        title={labels.customerInquiries}
-        ariaLabel={labels.customerInquiries}
-        placement="top"
-        showBackButton
-        warmPanel
-      >
-        <ul className="dashboard-settings-style-rows space-y-2 text-start">
-          <DashboardActionRow
-            href={`${basePath}/customers/chat`}
-            icon={MessageCircle}
-            title={labels.customerInquiriesChat}
-          />
-          <DashboardActionRow
-            href={`${basePath}/customers/inquiries`}
-            icon={MessagesSquare}
-            title={labels.customerInquiriesInbox}
-          />
-        </ul>
-      </DashboardActionSheet>
-    </>
-  );
-}
 
 export function DashboardCustomersHubGrid({
   basePath = "/dashboard",
@@ -88,7 +45,11 @@ export function DashboardCustomersHubGrid({
           isDevPreview ? (devBroadcast.storeBroadcastHistory ?? []) : []
         }
       />
-      <DashboardCustomerInquiriesGroup basePath={basePath} />
+      <DashboardActionRowButton
+        icon={MessagesSquare}
+        title={labels.comingSoon}
+        disabled
+      />
       <DashboardActionRow
         href={`${basePath}/faq`}
         icon={HelpCircle}

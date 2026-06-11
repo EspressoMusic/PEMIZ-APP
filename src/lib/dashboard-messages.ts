@@ -309,7 +309,10 @@ export type DashboardLabels = {
   faqPublishedTitle: string;
   faqPublishedDetail: string;
   celebrationOk: string;
+  comingSoon: string;
   sellerGuideTitle: string;
+  sellerGuidePurpose: string;
+  sellerGuidePurposeAppointments: string;
   sellerGuideIntro: string;
   sellerGuideIntroAppointments: string;
   sellerGuideStepNavTitle: string;
@@ -773,7 +776,12 @@ const HE: DashboardLabels = {
   faqPublishedTitle: "השאלה פורסמה בהצלחה!",
   faqPublishedDetail: "הלקוחות יראו אותה בעמוד החנות",
   celebrationOk: "מעולה",
+  comingSoon: "בקרוב",
   sellerGuideTitle: "מדריך קצר — בוא נתחיל!",
+  sellerGuidePurpose:
+    "לינקי נותן לך חנות לקבל הזמנות. הכל מגיע מסודר בתור — אתה רואה, מסכם ומאשר. אתה קובע מתי אפשר להזמין וכמה. ללקוח — הכל ברור ונוח, כולל דילים.",
+  sellerGuidePurposeAppointments:
+    "לינקי נותן לך מקום לקבוע פגישות. הכל מגיע מסודר בתור — אתה רואה, מסכם ומאשר. אתה קובע מתי אפשר לקבוע וכמה. ללקוח — הכל ברור ונוח, כולל דילים.",
   sellerGuideIntro:
     "חמישה דברים פשוטים. ככה מנהלים את החנות — קרא בקצרה:",
   sellerGuideIntroAppointments:
@@ -1339,7 +1347,12 @@ const EN: DashboardLabels = {
   faqPublishedTitle: "Question published!",
   faqPublishedDetail: "Customers will see it on your store page",
   celebrationOk: "Great",
+  comingSoon: "Coming soon",
   sellerGuideTitle: "Quick guide — let's go!",
+  sellerGuidePurpose:
+    "Linky gives you a store to take orders. Everything lands in one clear queue — you see, summarize, and confirm. You choose when and how much customers can order. For them — it's tidy and easy, with deals too.",
+  sellerGuidePurposeAppointments:
+    "Linky gives you a place to book appointments. Everything lands in one clear queue — you see, summarize, and confirm. You choose when and how many slots are open. For customers — it's tidy and easy, with deals too.",
   sellerGuideIntro:
     "Five simple steps to run your store — read this first:",
   sellerGuideIntroAppointments:

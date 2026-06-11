@@ -53,10 +53,6 @@ function WelcomeGuideModal({
           body: labels.sellerGuideWelcomeTipBookedAppointmentsBody,
         },
         {
-          title: labels.sellerGuideWelcomeTipCustomersTitle,
-          body: labels.sellerGuideWelcomeTipCustomersBody,
-        },
-        {
           title: labels.sellerGuideWelcomeTipCalendarTitle,
           body: labels.sellerGuideWelcomeTipCalendarBody,
         },
@@ -69,10 +65,6 @@ function WelcomeGuideModal({
         {
           title: labels.sellerGuideWelcomeTipAddProductTitle,
           body: labels.sellerGuideWelcomeTipAddProductBody,
-        },
-        {
-          title: labels.sellerGuideWelcomeTipCustomersTitle,
-          body: labels.sellerGuideWelcomeTipCustomersBody,
         },
         {
           title: labels.sellerGuideWelcomeTipOrdersTitle,
@@ -128,7 +120,12 @@ function WelcomeGuideModal({
             >
               {labels.sellerGuideTitle}
             </h2>
-            <p className="mt-3 text-center text-[15px] font-semibold leading-[1.55] text-bakery-muted">
+            <p className="mt-3 text-center text-[15px] font-semibold leading-[1.55] text-bakery-ink">
+              {isAppointments
+                ? labels.sellerGuidePurposeAppointments
+                : labels.sellerGuidePurpose}
+            </p>
+            <p className="mt-3 text-center text-[14px] font-semibold leading-[1.55] text-bakery-muted">
               {isAppointments
                 ? labels.sellerGuideIntroAppointments
                 : labels.sellerGuideIntro}

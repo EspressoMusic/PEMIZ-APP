@@ -94,15 +94,38 @@ export function DashboardActionRowButton({
   trailing,
   active = false,
   expanded,
+  disabled = false,
 }: {
-  onClick: () => void;
+  onClick?: () => void;
   icon: LucideIcon;
   title: string;
   subtitle?: string;
   trailing?: ReactNode;
   active?: boolean;
   expanded?: boolean;
+  disabled?: boolean;
 }) {
+  const content = (
+    <>
+      <DashboardActionRowIcon icon={icon} />
+      <DashboardActionRowText title={title} subtitle={subtitle} />
+      {trailing}
+    </>
+  );
+
+  if (disabled) {
+    return (
+      <li>
+        <div
+          className={`${DASHBOARD_ACTION_ROW_CLASS} pointer-events-none opacity-45`}
+          aria-disabled
+        >
+          {content}
+        </div>
+      </li>
+    );
+  }
+
   return (
     <li>
       <button
@@ -113,9 +136,7 @@ export function DashboardActionRowButton({
           active ? " bakery-float-tile--active" : ""
         }`}
       >
-        <DashboardActionRowIcon icon={icon} />
-        <DashboardActionRowText title={title} subtitle={subtitle} />
-        {trailing}
+        {content}
       </button>
     </li>
   );
