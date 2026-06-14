@@ -1,8 +1,11 @@
-import { issuePasswordReset } from "@/lib/password-reset";
+import { requestPasswordResetByPhone } from "@/lib/password-reset";
 import { jsonError, jsonInfrastructureError, jsonOk } from "@/lib/api";
 import { databaseConfigHint, isDatabaseConfigured } from "@/lib/db-env";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { forgotPasswordSchema, zodFirstError } from "@/lib/validation/schemas";
+
+const SUCCESS_MESSAGE =
+  "הבקשה נשלחה למתכנת. הוא ייצור איתך קשר ויעביר לך סיסמה חדשה.";
 
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, "auth:forgot-password", 5, 15 * 60 * 1000);
@@ -21,11 +24,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const email = parsed.data.email.toLowerCase();
-  await issuePasswordReset(email);
+  await requestPasswordResetByPhone(parsed.data.phone);
 
-  return jsonOk({
-    message:
-      "אם קיים חשבון עם האימייל הזה, נשלח אליך קישור לאיפוס הסיסמה.",
-  });
+  return jsonOk({ message: SUCCESS_MESSAGE });
 }

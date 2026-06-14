@@ -2,6 +2,7 @@ import type { CustomerLocale } from "@/lib/customer-preferences";
 
 const EN = {
   home: "Home",
+  navProducts: "Products",
   settings: "Settings",
   dashboard: "Dashboard",
   storeActions: "Store actions",
@@ -117,6 +118,7 @@ const EN = {
   profileSaved: "Saved on this device",
   productInfo: "Product details",
   confirmOrder: "Confirm order",
+  completeOrder: "Complete purchase",
   cancelOrder: "Cancel",
   pendingOrder: "Awaiting confirmation",
   orderCheckoutTitle: "Complete your order",
@@ -205,6 +207,7 @@ const EN = {
 
 const HE: typeof EN = {
   home: "בית",
+  navProducts: "מוצרים",
   settings: "הגדרות",
   dashboard: "דאשבורד",
   storeActions: "פעולות בחנות",
@@ -320,6 +323,7 @@ const HE: typeof EN = {
   profileSaved: "נשמר במכשיר",
   productInfo: "מידע על המוצר",
   confirmOrder: "אישור ההזמנה",
+  completeOrder: "השלמת קניה",
   cancelOrder: "ביטול",
   pendingOrder: "ממתין לאישור",
   orderCheckoutTitle: "פרטים להשלמת ההזמנה",

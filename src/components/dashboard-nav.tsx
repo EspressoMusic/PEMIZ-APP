@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Home, Zap } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
@@ -24,6 +25,12 @@ export function DashboardNav({
 }) {
   const pathname = usePathname();
   const { labels } = useAppLocale();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const homeHref = homeHrefOverride ?? basePath;
   const actionsHref = actionsHrefOverride ?? `${basePath}/actions`;
   const defaultLinks = [
@@ -36,19 +43,23 @@ export function DashboardNav({
     },
   ];
 
-  const isHome = activeTab
-    ? activeTab === "home"
-    : pathname === homeHref ||
-      pathname === `${homeHref}/` ||
-      (!homeHrefOverride &&
-        (pathname === basePath || pathname === `${basePath}/`));
-  const isActions = activeTab
-    ? activeTab === "actions"
-    : pathname === actionsHref ||
-      (!actionsHrefOverride &&
-        pathname.startsWith(`${basePath}/`) &&
-        pathname !== basePath &&
-        pathname !== `${basePath}/`);
+  const isHome = mounted
+    ? activeTab
+      ? activeTab === "home"
+      : pathname === homeHref ||
+        pathname === `${homeHref}/` ||
+        (!homeHrefOverride &&
+          (pathname === basePath || pathname === `${basePath}/`))
+    : false;
+  const isActions = mounted
+    ? activeTab
+      ? activeTab === "actions"
+      : pathname === actionsHref ||
+        (!actionsHrefOverride &&
+          pathname.startsWith(`${basePath}/`) &&
+          pathname !== basePath &&
+          pathname !== `${basePath}/`)
+    : false;
 
   const links = defaultLinks.map((l) => ({
     ...l,

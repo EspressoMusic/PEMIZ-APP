@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -48,6 +48,12 @@ export function DashboardActionSheet({
 }) {
   const { labels } = useAppLocale();
   const closeLabel = labels.close;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -57,7 +63,7 @@ export function DashboardActionSheet({
     };
   }, [open]);
 
-  if (!open || typeof document === "undefined") return null;
+  if (!open || !mounted) return null;
 
   const fullViewport = expanded && !fitContent;
 

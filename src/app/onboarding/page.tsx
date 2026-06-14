@@ -72,19 +72,17 @@ export default function OnboardingPage() {
                 >
                   חנות מוצרים
                 </button>
-                <div className="flex min-w-0 flex-col">
-                  <button
-                    type="button"
-                    disabled
-                    aria-disabled="true"
-                    className="cursor-not-allowed rounded-[18px] border-[1.2px] border-bakery-border/25 bg-bakery-card/60 px-3 py-3 text-[14px] font-bold text-bakery-muted opacity-50"
-                  >
-                    קביעת תורים
-                  </button>
-                  <p className="mt-1.5 text-center text-[11px] font-extrabold leading-snug text-bakery-muted/75">
-                    בקרוב! יש למה לחכות!
-                  </p>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setType("APPOINTMENTS")}
+                  className={`rounded-[18px] border-[1.2px] px-3 py-3 text-[14px] font-bold transition ${
+                    type === "APPOINTMENTS"
+                      ? "border-bakery-primary bg-bakery-primary/14 text-bakery-ink"
+                      : "border-bakery-border/40 bg-bakery-card text-bakery-muted"
+                  }`}
+                >
+                  קביעת תורים
+                </button>
               </div>
             </div>
 

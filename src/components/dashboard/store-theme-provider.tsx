@@ -30,12 +30,9 @@ export function StoreThemeProvider({
   children: ReactNode;
   initialTheme?: string | null;
 }) {
-  const [theme, setThemeState] = useState<StoreThemeId>(() => {
-    if (typeof window === "undefined") return parseStoreTheme(initialTheme);
-    const fromDom = document.documentElement.dataset.storeTheme;
-    if (fromDom) return parseStoreTheme(fromDom);
-    return hydrateDashboardTheme(initialTheme);
-  });
+  const [theme, setThemeState] = useState<StoreThemeId>(() =>
+    parseStoreTheme(initialTheme)
+  );
 
   const setTheme = useCallback((next: StoreThemeId) => {
     const parsed = parseStoreTheme(next);
@@ -45,8 +42,14 @@ export function StoreThemeProvider({
   }, []);
 
   useLayoutEffect(() => {
-    applyDocumentStoreTheme(theme);
-  }, [theme]);
+    const fromDom = document.documentElement.dataset.storeTheme;
+    const hydrated = fromDom
+      ? parseStoreTheme(fromDom)
+      : hydrateDashboardTheme(initialTheme);
+    const parsed = parseStoreTheme(hydrated);
+    setThemeState(parsed);
+    applyDocumentStoreTheme(parsed);
+  }, [initialTheme]);
 
   const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);
 

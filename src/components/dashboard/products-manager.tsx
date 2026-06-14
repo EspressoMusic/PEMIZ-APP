@@ -19,7 +19,7 @@ import { useCatalogImageUpload } from "@/components/use-catalog-image-upload";
 import { ProductSuccessModal } from "@/components/product-success-modal";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
-import { formatStockLabel, parseStockInput } from "@/lib/product-stock";
+import { parseStockInput, formatSellerProductStockLabel, getProductStockStatus, isProductStockAlert } from "@/lib/product-stock";
 import { Package, Plus } from "lucide-react";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
@@ -67,16 +67,40 @@ function toPreviewProducts(
 function ProductStockEdit({
   stock,
   labels,
+  previewOnly = false,
   onSave,
 }: {
   stock: number | null | undefined;
   labels: ReturnType<typeof useAppLocale>["labels"];
+  previewOnly?: boolean;
   onSave: (stock: number | null) => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [tracked, setTracked] = useState(stock != null);
   const [draft, setDraft] = useState(stock != null ? String(stock) : "");
   const [error, setError] = useState("");
+  const stockStatus = getProductStockStatus(stock);
+  const stockAlert = isProductStockAlert(stock);
+  const stockLabel = formatSellerProductStockLabel(stock, labels);
+
+  useEffect(() => {
+    if (open) return;
+    setTracked(stock != null);
+    setDraft(stock != null ? String(stock) : "");
+  }, [stock, open]);
+
+  function openEdit() {
+    setTracked(stock != null);
+    setDraft(stock != null ? String(stock) : "");
+    setError("");
+    setOpen(true);
+  }
+
+  function addToDraft(amount: number) {
+    const current = parseStockInput(draft) ?? 0;
+    setDraft(String(current + amount));
+    setTracked(true);
+  }
 
   function close() {
     setOpen(false);
@@ -99,18 +123,40 @@ function ProductStockEdit({
   }
 
   if (!open) {
+    const boxClassName = `w-full rounded-[10px] border px-2 py-1.5 ${
+      stockAlert
+        ? "border-bakery-error/40 bg-[#faf0ee]"
+        : stockStatus === "unlimited"
+          ? "border-bakery-border/25 bg-bakery-card/50"
+          : "border-bakery-border/30 bg-bakery-card/70"
+    }`;
+
+    const content = (
+      <>
+        <span
+          className={`block text-[11px] font-extrabold leading-snug tabular-nums ${
+            stockAlert ? "text-bakery-error" : "text-bakery-ink"
+          }`}
+          dir="ltr"
+        >
+          {stockLabel}
+        </span>
+        {stockStatus === "low" ? (
+          <span className="mt-0.5 block text-[10px] font-bold text-bakery-error">
+            {labels.productStockLow}
+          </span>
+        ) : null}
+      </>
+    );
+
     return (
       <button
         type="button"
-        className="text-[10px] font-semibold leading-snug text-bakery-muted underline-offset-2 transition hover:text-bakery-ink hover:underline"
-        onClick={() => {
-          setTracked(stock != null);
-          setDraft(stock != null ? String(stock) : "");
-          setError("");
-          setOpen(true);
-        }}
+        onClick={openEdit}
+        className={`${boxClassName} cursor-pointer text-start transition hover:brightness-[0.97] active:scale-[0.99]`}
+        aria-label={labels.productStockEdit}
       >
-        {formatStockLabel(stock)}
+        {content}
       </button>
     );
   }
@@ -128,18 +174,32 @@ function ProductStockEdit({
         />
       </div>
       {tracked && (
-        <input
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={draft}
-          onChange={(e) =>
-            setDraft(e.target.value.replace(/\D/g, ""))
-          }
-          dir="ltr"
-          className="bakery-field w-full rounded-[10px] border border-bakery-border/32 bg-bakery-input px-2 py-1.5 text-[12px] text-bakery-ink outline-none"
-          aria-label={labels.productStock}
-        />
+        <>
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={draft}
+            onChange={(e) =>
+              setDraft(e.target.value.replace(/\D/g, ""))
+            }
+            dir="ltr"
+            className="bakery-field w-full rounded-[10px] border border-bakery-border/32 bg-bakery-input px-2 py-1.5 text-[12px] text-bakery-ink outline-none"
+            aria-label={labels.productStock}
+          />
+          <div className="flex flex-wrap gap-1">
+            {[5, 10, 25, 50].map((amount) => (
+              <button
+                key={amount}
+                type="button"
+                onClick={() => addToDraft(amount)}
+                className="rounded-full border border-bakery-border/35 bg-bakery-card px-2 py-0.5 text-[10px] font-bold tabular-nums text-bakery-ink transition hover:bg-bakery-cream-hover"
+              >
+                +{amount}
+              </button>
+            ))}
+          </div>
+        </>
       )}
       {error ? (
         <p className="text-[10px] font-semibold text-bakery-error">{error}</p>
@@ -197,9 +257,14 @@ const ProductCard = memo(function ProductCard({
   });
   const isHidden = !p.isActive;
   const hiddenDimClass = isHidden ? "opacity-50 saturate-[0.85]" : "";
+  const stockAlert = showStock && isProductStockAlert(p.stock);
 
   return (
-    <div className="dashboard-product-list-card overflow-hidden rounded-[14px] p-0 transition">
+    <div
+      className={`dashboard-product-list-card overflow-hidden rounded-[14px] p-0 transition ${
+        stockAlert ? "ring-2 ring-bakery-error/35" : ""
+      }`}
+    >
       <div className={hiddenDimClass}>
       {p.imageUrl ? (
         <div className="relative h-[5.75rem] w-full">
@@ -318,6 +383,7 @@ const ProductCard = memo(function ProductCard({
           <ProductStockEdit
             stock={p.stock}
             labels={labels}
+            previewOnly={previewOnly}
             onSave={onStockSave}
           />
         ) : null}

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
+  Check,
   ChevronDown,
   HelpCircle,
   History,
@@ -32,6 +33,7 @@ import { CustomerDisplaySheet } from "./customer-display-sheet";
 import { CustomerLegalSheet } from "./customer-legal-sheet";
 import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
 import { OrderCheckoutModal } from "./order-checkout-modal";
+import { CustomerCartCheckoutBar } from "./customer-cart-checkout-bar";
 import { cn } from "@/lib/utils";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import { getEffectivePrice } from "@/lib/product-price";
@@ -130,6 +132,7 @@ import {
   CUSTOMER_MOBILE_STACK,
   CUSTOMER_PAGE_ROOT,
   CUSTOMER_SCROLL_MAIN,
+  CUSTOMER_SCROLL_MAIN_WITH_CHECKOUT,
   CUSTOMER_PHONE_COLUMN,
   CUSTOMER_PHONE_DESKTOP_BACKDROP,
   CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME,
@@ -139,10 +142,7 @@ import { isValidPhone, normalizePhone, parseIsraeliMobilePhone } from "@/lib/pho
 import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
 import type { CustomerResolution } from "@/lib/customer-resolution";
 import { updateDevStoreChatResolution } from "@/lib/customer-chat-storage";
-import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { isWithinCustomerHistoryWindow } from "@/lib/customer-history-access";
-
-const PRODUCT_CONFETTI_MS = 2800;
 
 type MyInquiry = {
   id: string;
@@ -308,7 +308,6 @@ export function CustomerStoreApp({
   const [orderCheckoutOpen, setOrderCheckoutOpen] = useState(false);
   const [orderSuccessOpen, setOrderSuccessOpen] = useState(false);
   const [activeOrdersOpen, setActiveOrdersOpen] = useState(false);
-  const [historyOrdersOpen, setHistoryOrdersOpen] = useState(false);
   const [localOrderHistory, setLocalOrderHistory] = useState<
     CustomerOrderHistoryEntry[]
   >([]);
@@ -317,11 +316,6 @@ export function CustomerStoreApp({
   const prevActiveOrderCountRef = useRef(0);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [orderError, setOrderError] = useState("");
-  const [productConfettiActive, setProductConfettiActive] = useState(false);
-  const [productConfettiBurst, setProductConfettiBurst] = useState(0);
-  const productConfettiTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  );
   const [sellerNoticeUnread, setSellerNoticeUnread] = useState(false);
   const [sellerNoticeExpanded, setSellerNoticeExpanded] = useState(false);
   const [sellerNoticeMessage, setSellerNoticeMessage] = useState("");
@@ -608,6 +602,12 @@ export function CustomerStoreApp({
     }
   }, [isScheduleLike, panels.deals, mainTab]);
 
+  useEffect(() => {
+    if (mainTab === "orders") {
+      setMainTab("home");
+    }
+  }, [mainTab]);
+
   function updatePreferences(
     patch: Partial<{
       locale: CustomerLocale;
@@ -686,6 +686,7 @@ export function CustomerStoreApp({
 
   const selectMainTab = useCallback(
     (tab: CustomerMainTab) => {
+      if (tab === "orders") return;
       if (tab === "deals") markDealsSeen();
       setMainTab(tab);
     },
@@ -822,8 +823,10 @@ export function CustomerStoreApp({
     setCart(nextCart);
     setCartDeals(pendingDealsToSnapshots(loadPendingDeals(business.slug)));
     setHistoryDetailOrder(null);
-    setActiveOrdersOpen(true);
-    setMainTab("orders");
+    if (isScheduleLike) {
+      setActiveOrdersOpen(true);
+      setMainTab("settings");
+    }
   }
 
   async function submitOrder(name: string, phone: string) {
@@ -938,8 +941,6 @@ export function CustomerStoreApp({
     }
     const next = addPendingDeal(business.slug, deal);
     setCartDeals(pendingDealsToSnapshots(next));
-    setMainTab("orders");
-    setActiveOrdersOpen(true);
   }
 
   const hasPendingInquiry = useMemo(
@@ -1118,23 +1119,6 @@ export function CustomerStoreApp({
     [myAppointments]
   );
 
-  const pastAppointments = useMemo(
-    () =>
-      myAppointments.filter(
-        (a) => a.status === "CANCELLED" || appointmentEndMs(a) <= Date.now()
-      ),
-    [myAppointments]
-  );
-  const visiblePastAppointments = useMemo(
-    () =>
-      pastAppointments.filter((appt) =>
-        isWithinCustomerHistoryWindow(appt.endAt ?? appt.startAt)
-      ),
-    [pastAppointments]
-  );
-  const appointmentHistorySuspended =
-    pastAppointments.length > 0 && visiblePastAppointments.length === 0;
-
   async function submitAppointmentBooking(payload: {
     slotId: string;
     name: string;
@@ -1213,7 +1197,7 @@ export function CustomerStoreApp({
       setBookingDay(null);
       setBookingSlots([]);
       setAppointmentSuccessOpen(true);
-      setMainTab("orders");
+      setMainTab("settings");
       setActiveOrdersOpen(true);
     } finally {
       setBookingSubmitting(false);
@@ -1308,7 +1292,7 @@ export function CustomerStoreApp({
       setBookingDay(null);
       setBookingSlots([]);
       setAppointmentSuccessOpen(true);
-      setMainTab("orders");
+      setMainTab("settings");
       setActiveOrdersOpen(true);
     } finally {
       setBookingSubmitting(false);
@@ -1361,40 +1345,13 @@ export function CustomerStoreApp({
 
   const cartItemCount = activeOrderCount;
 
-  const triggerProductConfetti = useCallback(() => {
-    if (productConfettiTimeoutRef.current) {
-      clearTimeout(productConfettiTimeoutRef.current);
-    }
-    setProductConfettiBurst((n) => n + 1);
-    setProductConfettiActive(true);
-    productConfettiTimeoutRef.current = setTimeout(() => {
-      setProductConfettiActive(false);
-      productConfettiTimeoutRef.current = null;
-    }, PRODUCT_CONFETTI_MS);
+  const incrementProductInCart = useCallback((productId: string, maxQty: number) => {
+    setCart((c) => {
+      const current = c[productId] ?? 0;
+      if (current >= maxQty) return c;
+      return { ...c, [productId]: current + 1 };
+    });
   }, []);
-
-  useEffect(
-    () => () => {
-      if (productConfettiTimeoutRef.current) {
-        clearTimeout(productConfettiTimeoutRef.current);
-      }
-    },
-    []
-  );
-
-  const incrementProductInCart = useCallback(
-    (productId: string, maxQty: number) => {
-      let added = false;
-      setCart((c) => {
-        const current = c[productId] ?? 0;
-        if (current >= maxQty) return c;
-        added = true;
-        return { ...c, [productId]: current + 1 };
-      });
-      if (added) triggerProductConfetti();
-    },
-    [triggerProductConfetti]
-  );
 
   const productCartHandlers = useMemo(() => {
     const map: Record<string, { onDec: () => void; onInc: () => void }> = {};
@@ -1478,6 +1435,78 @@ export function CustomerStoreApp({
     setContactModalOpen(true);
   }
 
+  function renderScheduleAppointmentsPanel() {
+    return (
+      <>
+        {phoneVerifyPrompt ? (
+          <CustomerPhoneVerification
+            slug={business.slug}
+            phone={phoneVerifyPrompt}
+            locale={locale}
+            labels={labels}
+            compact
+            onVerified={() => {
+              setPhoneVerifyPrompt(null);
+              if (pendingCancelAppointmentId) {
+                const id = pendingCancelAppointmentId;
+                setPendingCancelAppointmentId(null);
+                void cancelMyAppointment(id);
+              }
+            }}
+          />
+        ) : null}
+        <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
+          <SettingsCollapsibleSection
+            title={isRental ? labels.myRentals : labels.myAppointments}
+            icon={Receipt}
+            expanded={activeOrdersOpen}
+            onToggle={() => setActiveOrdersOpen((open) => !open)}
+          >
+            {activeAppointments.length === 0 ? (
+              <HubEmptyText>
+                {isRental ? labels.noActiveRentals : labels.noActiveAppts}
+              </HubEmptyText>
+            ) : (
+              <ul className="space-y-2">
+                {activeAppointments.map((appt) => (
+                  <li key={appt.id}>
+                    <AppointmentPreviewCard
+                      serviceName={appt.serviceName}
+                      startAt={appt.startAt}
+                      endAt={appt.endAt}
+                      rentalMode={isRental}
+                      status={appt.status}
+                      locale={locale}
+                      labels={labels}
+                      canCancel={canCustomerCancelAppointment(
+                        appt.startAt,
+                        appointmentCancelPolicy,
+                        appt.status
+                      )}
+                      onCancel={() => void cancelMyAppointment(appt.id)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SettingsCollapsibleSection>
+          <SettingsMenuRow
+            icon={History}
+            title={labels.comingSoon}
+            disabled
+            trailing={
+              <Check
+                className="h-6 w-6 shrink-0 text-bakery-ink"
+                strokeWidth={2.5}
+                aria-hidden
+              />
+            }
+          />
+        </div>
+      </>
+    );
+  }
+
   function renderMainContent() {
     if (unavailable) {
       return (
@@ -1491,32 +1520,26 @@ export function CustomerStoreApp({
       case "home":
         return isScheduleLike ? (
           <CustomerAppointmentsHomeShell>
-            <div className="w-full max-w-[340px]">
-              <div className="rounded-[22px] bg-[#5C4A3E] px-5 py-6 text-center shadow-[0_4px_14px_rgba(58,47,38,0.22)]">
-                <p className="text-[30px] font-extrabold leading-tight text-[#FAF4E6] sm:text-[34px]">
-                  {labels.hello}
-                </p>
-                <p className="mt-1.5 text-[24px] font-bold leading-snug text-[#FAF4E6] sm:text-[26px]">
-                  {labels.helloStoreName(business.name)}
-                </p>
-                {futureSlots.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => setCalendarPickerOpen(true)}
-                    className="mt-5 block w-full cursor-pointer rounded-[22px] border-[1.2px] border-bakery-border/45 bg-[#E6D5B8] bakery-panel-shadow transition active:scale-[0.99]"
-                  >
-                    <div className="m-3">
-                      <div className="flex min-h-[88px] items-center justify-center rounded-[14px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card px-6 py-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
-                        <span className="text-[24px] font-extrabold leading-tight text-bakery-ink sm:text-[26px]">
-                          {isRental
-                            ? labels.scheduleRental
-                            : labels.scheduleAppointment}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                ) : null}
-              </div>
+            <div className="w-full max-w-[340px] text-center">
+              <p className="text-[30px] font-extrabold leading-tight text-bakery-ink sm:text-[34px]">
+                {labels.hello}
+              </p>
+              <p className="mt-1.5 text-[24px] font-bold leading-snug text-bakery-ink sm:text-[26px]">
+                {labels.helloStoreName(business.name)}
+              </p>
+              {futureSlots.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setCalendarPickerOpen(true)}
+                  className="mt-5 flex min-h-[88px] w-full cursor-pointer items-center justify-center rounded-[14px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card px-6 py-6 text-center shadow-[0_3px_10px_rgba(58,47,38,0.1)] transition active:scale-[0.99]"
+                >
+                  <span className="text-[24px] font-extrabold leading-tight text-bakery-ink sm:text-[26px]">
+                    {isRental
+                      ? labels.scheduleRental
+                      : labels.scheduleAppointment}
+                  </span>
+                </button>
+              ) : null}
               {futureSlots.length === 0 ? (
                 <div className="mt-4">
                   <EmptyStateCard message={labels.noSlots} />
@@ -1531,133 +1554,7 @@ export function CustomerStoreApp({
         );
 
       case "orders":
-        return (
-          <div className="space-y-4 pb-2">
-            {phoneVerifyPrompt ? (
-              <CustomerPhoneVerification
-                slug={business.slug}
-                phone={phoneVerifyPrompt}
-                locale={locale}
-                labels={labels}
-                compact
-                onVerified={() => {
-                  setPhoneVerifyPrompt(null);
-                  if (pendingCancelAppointmentId) {
-                    const id = pendingCancelAppointmentId;
-                    setPendingCancelAppointmentId(null);
-                    void cancelMyAppointment(id);
-                  }
-                }}
-              />
-            ) : null}
-            {isScheduleLike ? (
-              <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
-                <SettingsCollapsibleSection
-                  title={isRental ? labels.myRentals : labels.myAppointments}
-                  icon={Receipt}
-                  expanded={activeOrdersOpen}
-                  onToggle={() => setActiveOrdersOpen((open) => !open)}
-                >
-                  {activeAppointments.length === 0 ? (
-                    <HubEmptyText>
-                      {isRental ? labels.noActiveRentals : labels.noActiveAppts}
-                    </HubEmptyText>
-                  ) : (
-                    <ul className="space-y-2">
-                      {activeAppointments.map((appt) => (
-                        <li key={appt.id}>
-                          <AppointmentPreviewCard
-                            serviceName={appt.serviceName}
-                            startAt={appt.startAt}
-                            endAt={appt.endAt}
-                            rentalMode={isRental}
-                            status={appt.status}
-                            locale={locale}
-                            labels={labels}
-                            canCancel={canCustomerCancelAppointment(
-                              appt.startAt,
-                              appointmentCancelPolicy,
-                              appt.status
-                            )}
-                            onCancel={() => void cancelMyAppointment(appt.id)}
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </SettingsCollapsibleSection>
-                <SettingsCollapsibleSection
-                  title={
-                    isRental ? labels.rentalHistory : labels.appointmentHistory
-                  }
-                  icon={History}
-                  expanded={historyOrdersOpen}
-                  onToggle={() => setHistoryOrdersOpen((open) => !open)}
-                >
-                  {appointmentHistorySuspended ? (
-                    <HubEmptyText>{labels.historySuspended}</HubEmptyText>
-                  ) : visiblePastAppointments.length === 0 ? (
-                    <HubEmptyText>{labels.noMyAppts}</HubEmptyText>
-                  ) : (
-                    <ul className="space-y-2">
-                      {visiblePastAppointments.map((appt) => (
-                        <li key={appt.id}>
-                          <AppointmentPreviewCard
-                            serviceName={appt.serviceName}
-                            startAt={appt.startAt}
-                            endAt={appt.endAt}
-                            rentalMode={isRental}
-                            status={appt.status}
-                            locale={locale}
-                            labels={labels}
-                            canCancel={false}
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </SettingsCollapsibleSection>
-              </div>
-            ) : (
-              <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
-                <SettingsCollapsibleSection
-                  title={labels.activeOrders}
-                  icon={Receipt}
-                  expanded={activeOrdersOpen}
-                  onToggle={() => setActiveOrdersOpen((open) => !open)}
-                >
-                  {!cartHasItems ? (
-                    <HubEmptyText>{labels.cartEmpty}</HubEmptyText>
-                  ) : (
-                    <OrderPreviewCard
-                      lines={activeCartLines}
-                      locale={locale}
-                      confirmLabel={labels.confirmOrder}
-                      cancelLabel={labels.cancelOrder}
-                      onConfirm={() => {
-                        setOrderError("");
-                        setOrderCheckoutOpen(true);
-                      }}
-                      onCancel={clearActiveCart}
-                    />
-                  )}
-                </SettingsCollapsibleSection>
-                <SettingsMenuRow
-                  icon={History}
-                  title={labels.comingSoon}
-                  disabled
-                  trailing={
-                    <ChevronDown
-                      className="h-6 w-6 shrink-0 text-bakery-muted"
-                      strokeWidth={2}
-                      aria-hidden
-                    />
-                  }
-                />
-              </div>
-            )}
-          </div>
-        );
+        return null;
 
       case "deals":
         return (
@@ -1675,6 +1572,7 @@ export function CustomerStoreApp({
       case "settings":
         return (
           <div className="space-y-4 pb-2">
+            {isScheduleLike ? renderScheduleAppointmentsPanel() : null}
             <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
               {panels.faq ? (
                 <SettingsMenuRow
@@ -1725,6 +1623,9 @@ export function CustomerStoreApp({
   const appointmentsHomeActive =
     isScheduleLike && mainTab === "home" && !unavailable;
 
+  const showCartCheckoutBar =
+    !unavailable && !isScheduleLike && cartHasItems;
+
   const storeBody = (
     <>
       <div className={CUSTOMER_VIEWPORT_HEIGHT}>
@@ -1747,13 +1648,29 @@ export function CustomerStoreApp({
             className={
               appointmentsHomeActive
                 ? CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME
-                : CUSTOMER_SCROLL_MAIN
+                : showCartCheckoutBar
+                  ? CUSTOMER_SCROLL_MAIN_WITH_CHECKOUT
+                  : CUSTOMER_SCROLL_MAIN
             }
           >
             {renderMainContent()}
           </main>
         </div>
       </div>
+
+      {showCartCheckoutBar && (
+        <CustomerCartCheckoutBar
+          labels={labels}
+          locale={locale}
+          total={checkoutTotal}
+          itemCount={activeOrderCount}
+          onComplete={() => {
+            setOrderError("");
+            setOrderCheckoutOpen(true);
+          }}
+          onClear={clearActiveCart}
+        />
+      )}
 
       {!unavailable && (
         <CustomerStoreTabNav
@@ -1763,6 +1680,7 @@ export function CustomerStoreApp({
           ordersBadge={isScheduleLike ? undefined : cartItemCount}
           dealsBadge={dealsBadge > 0 ? dealsBadge : undefined}
           hideDeals={isScheduleLike || !panels.deals}
+          hideOrders
           phoneColumn={isScheduleLike}
           isAppointments={isAppointments}
           isRental={isRental}
@@ -1777,10 +1695,6 @@ export function CustomerStoreApp({
       dir={rootDir}
       className={`customer-store-root ${themeClass} ${textScaleClass} flex h-full min-h-0 w-full flex-col overflow-hidden`}
     >
-      <DashboardConfettiBackground
-        key={productConfettiBurst}
-        active={productConfettiActive}
-      />
       {isScheduleLike ? (
         <div
           className={`flex min-h-0 flex-1 justify-center ${CUSTOMER_PHONE_DESKTOP_BACKDROP}`}

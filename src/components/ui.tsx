@@ -166,9 +166,11 @@ export function Badge({
 export function Alert({
   children,
   variant = "info",
+  className = "",
 }: {
   children: ReactNode;
   variant?: "info" | "error" | "success";
+  className?: string;
 }) {
   const styles = {
     info: "border-bakery-border/40 bg-bakery-card text-bakery-ink",
@@ -177,7 +179,7 @@ export function Alert({
   };
   return (
     <div
-      className={`rounded-2xl border-[1.2px] px-4 py-3 text-[14px] leading-[1.35] ${styles[variant]}`}
+      className={`rounded-2xl border-[1.2px] px-4 py-3 text-[14px] leading-[1.35] ${styles[variant]} ${className}`}
     >
       {children}
     </div>

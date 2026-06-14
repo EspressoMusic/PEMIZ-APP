@@ -103,12 +103,12 @@ export function CustomerAppointmentSlotPicker({
             return (
               <li key={slot.id}>
                 <div
-                  className={`flex items-center gap-2 rounded-[16px] border px-3 py-2.5 ${
+                  className={`flex items-center gap-2 rounded-[16px] border px-3 py-2.5 transition-colors duration-150 ${
                     isOpen
-                      ? "border-bakery-primary/35 bg-bakery-card"
+                      ? "border-bakery-primary/35 bg-bakery-card hover:bg-bakery-cream-hover active:bg-bakery-cream-mid"
                       : isFull
-                        ? "border-[#b85c5c]/35 bg-[#faf0ee]"
-                        : "border-bakery-border/25 bg-bakery-card/55 opacity-80"
+                        ? "border-[#b85c5c]/35 bg-[#faf0ee] hover:bg-[#f3e4e1] active:bg-[#ecd8d4]"
+                        : "border-bakery-border/25 bg-bakery-card/55 opacity-80 hover:bg-bakery-card/80 hover:opacity-90"
                   }`}
                 >
                   <span

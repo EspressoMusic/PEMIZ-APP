@@ -13,6 +13,10 @@ export const CUSTOMER_PAGE_ROOT =
 export const CUSTOMER_SCROLL_MAIN =
   "relative z-10 no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-3";
 
+/** גלילה עם סרגל השלמת הזמנה מעל הניווט */
+export const CUSTOMER_SCROLL_MAIN_WITH_CHECKOUT =
+  "relative z-10 no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-[calc(10.5rem+env(safe-area-inset-bottom))] pt-3";
+
 /** יומן תורים — ממלא את גובה המסך (ניווט בתוך עמודת הטלפון) */
 export const CUSTOMER_SCROLL_MAIN_APPOINTMENTS_HOME =
   "relative z-10 no-scrollbar flex h-full min-h-0 flex-1 flex-col overflow-hidden px-0 pb-0 pt-0";

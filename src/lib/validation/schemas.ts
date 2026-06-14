@@ -30,7 +30,7 @@ export const signupSchema = z.object({
 });
 
 export const forgotPasswordSchema = z.object({
-  email: emailSchema,
+  phone: customerPhoneSchema,
 });
 
 export const resetPasswordSchema = z.object({
@@ -54,11 +54,7 @@ export const adminUserPatchSchema = z
 export const businessCreateSchema = z.object({
   name: z.string().trim().min(2).max(100),
   description: z.string().max(500).optional(),
-  type: z
-    .enum(["STORE", "APPOINTMENTS"])
-    .refine((value) => value === "STORE", {
-      message: "מצב פגישות יהיה זמין בקרוב",
-    }),
+  type: z.enum(["STORE", "APPOINTMENTS"]),
   acceptTerms: z.literal(true),
 });
 

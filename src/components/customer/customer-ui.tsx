@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, type ReactNode } from "react";
+import { memo, useMemo, useState, type ReactNode } from "react";
 import { ChevronDown, Info, Tag, type LucideIcon } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatCustomerMoney } from "@/lib/customer-money";
@@ -546,16 +546,18 @@ export function OrderPreviewCard({
           />
         </div>
       ))}
+      {lines.length > 0 ? (
+        <div className="flex items-center justify-between gap-3 px-1 pt-1">
+          <span className="text-[14px] font-bold text-bakery-ink">
+            {labels.total}
+          </span>
+          <span className="text-[17px] font-extrabold text-bakery-ink tabular-nums">
+            {formatCustomerMoney(orderTotal, locale)}
+          </span>
+        </div>
+      ) : null}
       {showActions ? (
         <div className="space-y-2 pt-1">
-          <div className="flex items-center justify-between gap-3 px-1">
-            <span className="text-[14px] font-bold text-bakery-ink">
-              {labels.total}
-            </span>
-            <span className="text-[17px] font-extrabold text-bakery-ink tabular-nums">
-              {formatCustomerMoney(orderTotal, locale)}
-            </span>
-          </div>
           <div className="flex justify-center gap-1.5">
           {onConfirm ? (
             <button
@@ -740,6 +742,7 @@ export const ProductGridCard = memo(function ProductGridCard({
   const onSale =
     salePrice != null && salePrice > 0 && salePrice < price;
   const display = onSale ? salePrice! : price;
+  const salePriceDelay = `${(name.length % 7) * 0.9}s`;
 
   const atMax = maxQty != null && qty >= maxQty;
 
@@ -771,8 +774,9 @@ export const ProductGridCard = memo(function ProductGridCard({
         <div className="mt-auto grid h-9 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1">
           <span
             className={`min-w-0 truncate text-[17px] font-extrabold leading-none tabular-nums ${
-              onSale ? "text-bakery-sale" : "text-bakery-ink"
+              onSale ? "customer-product-sale-price" : "text-bakery-ink"
             }`}
+            style={onSale ? { animationDelay: salePriceDelay } : undefined}
           >
             {formatCustomerMoney(display, locale)}
           </span>
@@ -845,8 +849,9 @@ export const ProductGridCard = memo(function ProductGridCard({
           )}
           <span
             className={`text-[26px] font-extrabold leading-none tabular-nums ${
-              onSale ? "text-bakery-sale" : "text-bakery-ink"
+              onSale ? "customer-product-sale-price" : "text-bakery-ink"
             }`}
+            style={onSale ? { animationDelay: salePriceDelay } : undefined}
           >
             {formatCustomerMoney(display, locale)}
           </span>
@@ -898,11 +903,13 @@ export function DealCard({
     0
   );
   const validUntilLabel = `${labels.dealValidUntil} ${formatCustomerOrderDate(validUntil, locale)}`;
+  const dealPriceDelay = `${(name.length % 7) * 0.9}s`;
+  const dealPriceStyle = { animationDelay: dealPriceDelay } as const;
 
   return (
     <>
       <article
-        className={`mx-auto flex w-full max-w-[17.5rem] min-w-0 flex-col gap-2 overflow-hidden rounded-[16px] border-[3px] border-[#3D2E26]/38 bg-bakery-square p-3 shadow-[0_2px_8px_rgba(58,47,38,0.1)] transition-opacity duration-300 ${
+        className={`relative mx-auto flex w-full max-w-[17.5rem] min-w-0 flex-col gap-2 overflow-hidden rounded-[16px] border-[3px] border-[#3D2E26]/38 bg-bakery-square p-3 shadow-[0_2px_8px_rgba(58,47,38,0.1)] transition-opacity duration-300 ${
           faded ? "opacity-45 saturate-[0.65]" : ""
         }`}
       >
@@ -954,20 +961,22 @@ export function DealCard({
           })}
         </div>
 
-        <div className="flex flex-col items-center gap-0.5">
+        <div className="flex flex-col items-center gap-1 rounded-[12px] border border-bakery-border/35 bg-bakery-card px-3 py-2.5 shadow-[0_2px_6px_rgba(58,47,38,0.08)]">
           {originalTotal > dealPrice && (
             <p className="text-center text-[13px] font-semibold leading-none text-bakery-muted line-through tabular-nums">
               {formatCustomerMoney(originalTotal, locale)}
             </p>
           )}
-          <p className="text-center text-[18px] font-extrabold leading-none text-bakery-sale tabular-nums">
+          <p
+            className="customer-product-sale-price text-center text-[18px] font-extrabold leading-none tabular-nums"
+            style={dealPriceStyle}
+          >
             {formatCustomerMoney(dealPrice, locale)}
           </p>
+          <p className="pt-0.5 text-center text-[11px] font-semibold leading-snug text-bakery-muted">
+            {validUntilLabel}
+          </p>
         </div>
-
-        <p className="text-center text-[11px] font-semibold leading-snug text-bakery-muted">
-          {validUntilLabel}
-        </p>
 
         <button
           type="button"
@@ -1039,14 +1048,16 @@ export function DealCard({
                 {formatCustomerMoney(originalTotal, locale)}
               </p>
             )}
-            <p className="text-center text-[26px] font-extrabold leading-none text-bakery-sale tabular-nums">
+            <p
+              className="customer-product-sale-price text-center text-[26px] font-extrabold leading-none tabular-nums"
+              style={dealPriceStyle}
+            >
               {formatCustomerMoney(dealPrice, locale)}
             </p>
+            <p className="pt-0.5 text-center text-[12px] font-semibold leading-snug text-bakery-muted">
+              {validUntilLabel}
+            </p>
           </div>
-
-          <p className="rounded-[12px] bg-bakery-square/90 px-3 py-2.5 text-center text-[12px] font-semibold leading-snug text-bakery-muted">
-            {validUntilLabel}
-          </p>
 
           <p className="rounded-[12px] bg-bakery-square/90 px-3 py-2.5 text-center text-[12px] font-medium leading-snug text-bakery-muted">
             {labels.dealOnce}

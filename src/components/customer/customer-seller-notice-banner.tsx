@@ -6,6 +6,18 @@ import { Megaphone, X } from "lucide-react";
 import { Button } from "@/components/ui";
 import type { CustomerLabels } from "./customer-labels";
 
+function SellerNoticeMegaphone() {
+  return (
+    <span className="customer-seller-notice-megaphone-shell flex h-full w-full items-center justify-center">
+      <Megaphone
+        className="customer-seller-notice-megaphone block h-5 w-5 shrink-0"
+        strokeWidth={2}
+        aria-hidden
+      />
+    </span>
+  );
+}
+
 type ConfettiPiece = {
   id: number;
   left: number;
@@ -84,26 +96,14 @@ export function CustomerSellerNoticeBanner({
         </div>
       )}
 
-      <div
-        className={`customer-seller-notice-panel customer-seller-notice-banner-strip shadow-[0_4px_16px_rgba(58,47,38,0.08)] ${
-          rentalMode
-            ? "customer-seller-notice-banner-strip--rental"
-            : "customer-seller-notice-banner-strip--framed"
-        }`}
-      >
+      <div className="customer-seller-notice-panel customer-seller-notice-banner-strip overflow-hidden rounded-[18px] shadow-[0_4px_16px_rgba(58,47,38,0.08)]">
         <button
           type="button"
           onClick={onOpen}
-          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-start transition hover:bg-bakery-card/40 active:scale-[0.99]"
+          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-start transition hover:bg-white/35 active:scale-[0.99]"
         >
           <span className="customer-seller-notice-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-            <span className="inline-flex rtl:scale-x-[-1]">
-              <Megaphone
-                className="customer-seller-notice-megaphone h-5 w-5"
-                strokeWidth={2}
-                aria-hidden
-              />
-            </span>
+            <SellerNoticeMegaphone />
           </span>
           <span className="min-w-0 flex-1">
             <span className="customer-seller-notice-title block text-[15px] font-extrabold">

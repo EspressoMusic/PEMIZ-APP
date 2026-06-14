@@ -241,6 +241,16 @@ export const DEV_STORE_OWNER_NAME = "יעל";
 /** מוצרים לתצוגת dev — רשימה ארוכה לבדיקת גלילה בריבוע */
 export const DEV_PREVIEW_PRODUCTS = [
   {
+    id: "demo-p0",
+    name: "עוגת גבינה",
+    description: "אזל מהמלאי — לדוגמה",
+    imageUrl: null,
+    price: 85,
+    salePrice: null,
+    stock: 0,
+    isActive: true,
+  },
+  {
     id: "demo-p1",
     name: "עוגת שוקולד",
     description: "עוגה עשירה",

@@ -110,7 +110,7 @@ export function CustomerAppointmentOpenSlotsPanel({
                     type="button"
                     onClick={() => onSelect(dateKey, dayOpenSlots)}
                     dir="ltr"
-                    className="flex w-full items-center gap-2 rounded-[18px] border border-bakery-border/35 bg-bakery-card px-3 py-3 text-start transition hover:opacity-95 active:scale-[0.99]"
+                    className="flex w-full items-center gap-2 rounded-[18px] border border-bakery-border/35 bg-bakery-card px-3 py-3 text-start transition-colors duration-150 hover:bg-bakery-cream-hover active:bg-bakery-cream-mid"
                   >
                     <p className="w-[4.25rem] shrink-0 text-[12px] font-extrabold leading-tight text-bakery-ink">
                       {formatSlotDateLabel(dateKey, locale, labels)}

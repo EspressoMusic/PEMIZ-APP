@@ -419,6 +419,10 @@ export type DashboardLabels = {
   productMaxDiscountRequired: string;
   productStockInvalid: string;
   productStockRequired: string;
+  productStockRemaining: string;
+  productStockUnlimitedList: string;
+  productStockLow: string;
+  productStockEdit: string;
   productImageUpload: string;
   productImageUploading: string;
   productImageDropHint: string;
@@ -913,6 +917,10 @@ const HE: DashboardLabels = {
   productMaxDiscountRequired: "יש למלא מקסימום הנחה",
   productStockInvalid: "מלאי חייב להיות מספר שלם (0 ומעלה)",
   productStockRequired: "יש למלא מלאי",
+  productStockRemaining: "נשארו: {n}",
+  productStockUnlimitedList: "ללא הגבלת מלאי",
+  productStockLow: "מלאי נמוך",
+  productStockEdit: "עדכון מלאי",
   productImageUpload: "העלאת תמונה",
   productImageUploading: "מעלה…",
   productImageDropHint: "לחץ או גרור — ואז גזור לריבוע",
@@ -1484,6 +1492,10 @@ const EN: DashboardLabels = {
   productMaxDiscountRequired: "Enter a maximum discount",
   productStockInvalid: "Stock must be a whole number (0 or more)",
   productStockRequired: "Enter stock quantity",
+  productStockRemaining: "{n} left",
+  productStockUnlimitedList: "Unlimited stock",
+  productStockLow: "Low stock",
+  productStockEdit: "Update stock",
   productImageUpload: "Upload image",
   productImageUploading: "Uploading…",
   productImageDropHint: "Click or drag — then crop to a square",

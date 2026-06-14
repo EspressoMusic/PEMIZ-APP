@@ -197,8 +197,10 @@ export function CustomerAppointmentBookingModal({
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3">
           {selectedSlot ? (
-            <p className="text-center text-[15px] font-extrabold leading-snug text-bakery-ink">
-              {formatDayTitle(dateKey, locale)}
+            <div className="rounded-[14px] border border-bakery-border/35 bg-bakery-card px-4 py-3.5 text-center shadow-[0_2px_8px_rgba(58,47,38,0.08)]">
+              <p className="text-[15px] font-extrabold leading-snug text-bakery-ink">
+                {formatDayTitle(dateKey, locale)}
+              </p>
               {!bookingByDay ? (
                 <span
                   className="mt-2 block text-[26px] font-extrabold leading-none tabular-nums text-bakery-ink sm:text-[28px]"
@@ -207,7 +209,7 @@ export function CustomerAppointmentBookingModal({
                   {formatSlotTime(selectedSlot.startAt, locale)}
                 </span>
               ) : null}
-            </p>
+            </div>
           ) : null}
 
           {error ? (

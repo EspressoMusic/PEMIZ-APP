@@ -1,4 +1,4 @@
-import { DevPreviewModeSwitch } from "@/components/dashboard/dev-preview-mode-switch";
+import { DevPreviewModeSwitchLazy } from "@/components/dashboard/dev-preview-mode-switch-lazy";
 import {
   DASHBOARD_LAYOUT_BODY,
   DASHBOARD_LAYOUT_FRAME,
@@ -12,7 +12,7 @@ export default function DevSellerRentalLayout({
   return (
     <div className="dashboard-surface bakery-frame-bg h-dvh overflow-hidden">
       <div className={DASHBOARD_LAYOUT_FRAME}>
-        <DevPreviewModeSwitch />
+        <DevPreviewModeSwitchLazy />
         <div className={DASHBOARD_LAYOUT_BODY}>{children}</div>
       </div>
     </div>

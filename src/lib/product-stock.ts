@@ -1,3 +1,40 @@
+import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
+
+export type ProductStockStatus = "unlimited" | "ok" | "low" | "out";
+
+export function getProductStockStatus(
+  stock: number | null | undefined
+): ProductStockStatus {
+  if (stock == null) return "unlimited";
+  if (stock <= 0) return "out";
+  if (stock <= LOW_STOCK_THRESHOLD) return "low";
+  return "ok";
+}
+
+export function isProductStockAlert(
+  stock: number | null | undefined
+): boolean {
+  const status = getProductStockStatus(stock);
+  return status === "low" || status === "out";
+}
+
+export type SellerStockLabels = {
+  notificationStockOut: string;
+  productStockRemaining: string;
+  productStockUnlimitedList: string;
+  productStockLow: string;
+};
+
+export function formatSellerProductStockLabel(
+  stock: number | null | undefined,
+  labels: SellerStockLabels
+): string {
+  const status = getProductStockStatus(stock);
+  if (status === "unlimited") return labels.productStockUnlimitedList;
+  if (status === "out") return labels.notificationStockOut;
+  return labels.productStockRemaining.replace("{n}", String(stock));
+}
+
 export function isProductInStock(stock: number | null | undefined): boolean {
   return stock == null || stock > 0;
 }

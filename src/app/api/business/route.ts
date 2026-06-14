@@ -32,9 +32,6 @@ export async function POST(req: Request) {
     if (issue?.path[0] === "acceptTerms") {
       return jsonError("יש לאשר את תנאי השימוש ומדיניות הפרטיות");
     }
-    if (issue?.path[0] === "type") {
-      return jsonError("מצב פגישות יהיה זמין בקרוב — בקרוב! יש למה לחכות!");
-    }
     return jsonError(zodFirstError(parsed));
   }
 

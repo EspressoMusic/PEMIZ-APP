@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const MODES = [
   { href: "/dev/seller", label: "חנות מוצרים", match: "/dev/seller" },
@@ -19,10 +20,17 @@ const MODES = [
 
 export function DevPreviewModeSwitch() {
   const pathname = usePathname() ?? "";
-  const active =
-    [...MODES]
-      .sort((a, b) => b.match.length - a.match.length)
-      .find((mode) => pathname.startsWith(mode.match))?.match ?? "/dev/seller";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const active = mounted
+    ? [...MODES]
+        .sort((a, b) => b.match.length - a.match.length)
+        .find((mode) => pathname.startsWith(mode.match))?.match ?? "/dev/seller"
+    : null;
 
   return (
     <nav

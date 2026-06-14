@@ -727,6 +727,47 @@ html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-
   animation: deal-active-pulse 2.6s ease-in-out infinite;
 }
 
+@keyframes customer-sale-price-glint {
+  0%,
+  76%,
+  100% {
+    background-position: 115% center;
+  }
+  82% {
+    background-position: -15% center;
+  }
+}
+
+.customer-product-sale-price {
+  display: inline-block;
+  max-width: 100%;
+  background-image: linear-gradient(
+    110deg,
+    #ff4a55 0%,
+    #ff4a55 49%,
+    #fffef8 50%,
+    #ff4a55 51%,
+    #ff4a55 100%
+  );
+  background-size: 260% 100%;
+  background-position: 115% center;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: customer-sale-price-glint 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .customer-product-sale-price {
+    animation: none;
+    background: none;
+    color: #ff4a55;
+    -webkit-text-fill-color: currentColor;
+    filter: none;
+  }
+}
+
 @keyframes dashboard-water-bubble-rise {
   0% {
     transform: translateY(0) scale(0.4);
@@ -978,6 +1019,31 @@ html:not([data-store-theme="dark"])
   border-radius: 9999px;
   min-height: 52px;
   font-weight: 700;
+}
+
+html:not([data-store-theme="dark"])
+  :is(.dashboard-surface, .auth-surface)
+  a.auth-whatsapp-btn {
+  display: inline-flex;
+  min-height: 52px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: none;
+  background-color: #1e9e57;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background-color 0.14s ease;
+}
+
+html:not([data-store-theme="dark"])
+  :is(.dashboard-surface, .auth-surface)
+  a.auth-whatsapp-btn:hover {
+  background-color: #1a8f4e;
+  color: #fff;
 }
 
 html:not([data-store-theme="dark"])
@@ -2006,12 +2072,18 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   color: #3a2f26;
 }
 
+.customer-seller-notice-banner-strip.customer-seller-notice-panel {
+  background: #faf4e6;
+}
+
 .customer-seller-notice-banner-strip {
-  border: 3px solid rgb(92 74 62 / 0.16);
+  border: 2px solid rgb(92 74 62 / 0.24);
+  border-radius: 16px;
+  background: #faf4e6;
 }
 
 .customer-seller-notice-banner-strip--framed {
-  background: #e6d5b8;
+  background: #faf4e6;
 }
 
 .customer-seller-notice-banner-strip--rental {
@@ -2032,33 +2104,54 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
 }
 
 .customer-seller-notice-icon {
-  background: rgba(92, 74, 62, 0.1);
+  background: #d9c8ac;
+  border: 1.5px solid rgb(92 74 62 / 0.34);
   color: #3a2f26;
+}
+
+.customer-seller-notice-megaphone-shell {
+  transform-origin: center center;
+}
+
+[dir="rtl"] .customer-seller-notice-megaphone-shell {
+  transform: scaleX(-1);
+}
+
+.customer-seller-notice-megaphone {
+  position: relative;
+  transform-origin: center center;
+  animation: seller-notice-megaphone-wiggle 2.8s ease-in-out infinite;
+}
+
+[dir="rtl"] .customer-seller-notice-megaphone {
+  left: 1px;
+  top: 1px;
 }
 
 @keyframes seller-notice-megaphone-wiggle {
   0%,
-  82%,
+  68%,
   100% {
     transform: rotate(0deg);
   }
-  86% {
-    transform: rotate(-14deg);
+  72% {
+    transform: rotate(-10deg);
   }
-  90% {
-    transform: rotate(12deg);
+  76% {
+    transform: rotate(9deg);
   }
-  94% {
-    transform: rotate(-8deg);
+  80% {
+    transform: rotate(-7deg);
   }
-  98% {
+  84% {
     transform: rotate(6deg);
   }
-}
-
-.customer-seller-notice-megaphone {
-  transform-origin: 70% 85%;
-  animation: seller-notice-megaphone-wiggle 3.5s ease-in-out infinite;
+  88% {
+    transform: rotate(-4deg);
+  }
+  92% {
+    transform: rotate(3deg);
+  }
 }
 
 /* Customer chat — WhatsApp-like layout, bakery brown/cream palette */
@@ -2289,10 +2382,6 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   border-top: 1px solid rgba(201, 184, 154, 0.45);
   background: #faf4e6;
   padding: 8px 12px;
-}
-
-[dir="rtl"] .customer-seller-notice-megaphone {
-  transform-origin: 30% 85%;
 }
 
 @media (prefers-reduced-motion: reduce) {
