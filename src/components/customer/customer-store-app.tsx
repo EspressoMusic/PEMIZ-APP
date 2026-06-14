@@ -920,7 +920,6 @@ export function CustomerStoreApp({
     setOrderSuccessOpen(true);
     const nextHistory = appendCustomerOrderHistory(business.slug, orderSnapshot);
     setLocalOrderHistory(nextHistory);
-    setHistoryOrdersOpen(true);
     setActiveOrdersOpen(false);
   }
 
