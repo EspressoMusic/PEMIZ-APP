@@ -4,6 +4,8 @@ import {
   defaultDaySlots,
   orderScheduleToJson,
 } from "@/lib/order-schedule";
+import { calendarConfigFromBusiness } from "@/lib/appointment-calendar-config";
+import { buildSlotsForRange } from "@/lib/appointment-slot-generator";
 import type { StoreChatMessageDto } from "@/lib/store-chat";
 import type { SellerChatThread } from "@/lib/seller-chat-threads";
 
@@ -673,62 +675,85 @@ function devAppointmentSlotEnd(iso: string, minutes: number) {
   return new Date(new Date(iso).getTime() + minutes * 60_000).toISOString();
 }
 
-/** תורים לדמו — תאריכים יחסיים להיום כדי שהיומן תמיד יציג ימים פנויים/תפוסים */
+/** תורים לדמו — משבצות מלאות לפי הגדרות העסק (9:00–18:00, רווח 15 דק׳) */
 export function getDevAppointmentsBusiness() {
-  const day1 = devAppointmentSlotIso(1, 10);
-  const day1b = devAppointmentSlotIso(1, 14);
-  const day2 = devAppointmentSlotIso(2, 11);
-  const dayFull = devAppointmentSlotIso(3, 9);
-  const dayFull2 = devAppointmentSlotIso(5, 15);
+  const baseConfig = calendarConfigFromBusiness(DEV_APPOINTMENTS_BUSINESS);
+  const config = {
+    ...baseConfig,
+    bookingByDay: DEV_APPOINTMENTS_BUSINESS.appointmentBookingByDay ?? false,
+  };
+
+  const generated = buildSlotsForRange(
+    config,
+    DEV_APPOINTMENTS_BUSINESS.orderScheduleEnabled ?? false,
+    DEV_APPOINTMENTS_BUSINESS.orderSchedule ?? null,
+    4
+  );
+
+  const slots = generated.map((slot, index) => ({
+    id: `slot-${index + 1}`,
+    startAt: slot.startAt.toISOString(),
+    endAt: slot.endAt.toISOString(),
+    maxBookings: slot.maxBookings,
+    appointments: [] as { id: string }[],
+  }));
+
+  // דמו: חלק מהמשבצות תפוסות
+  const markFull = (startHour: number, daysAhead: number) => {
+    const target = new Date();
+    target.setHours(0, 0, 0, 0);
+    target.setDate(target.getDate() + daysAhead);
+    target.setHours(startHour, 0, 0, 0);
+    const match = slots.find(
+      (s) => Math.abs(new Date(s.startAt).getTime() - target.getTime()) < 60_000
+    );
+    if (match) {
+      match.maxBookings = 1;
+      match.appointments = [{ id: `appt-full-${startHour}-${daysAhead}` }];
+    }
+  };
+
+  const tomorrowSlot = slots.find((s) => {
+    const d = new Date(s.startAt);
+    const tomorrow = new Date();
+    tomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return (
+      d.getFullYear() === tomorrow.getFullYear() &&
+      d.getMonth() === tomorrow.getMonth() &&
+      d.getDate() === tomorrow.getDate() &&
+      d.getHours() === 10
+    );
+  });
+  if (tomorrowSlot) {
+    tomorrowSlot.maxBookings = 2;
+    tomorrowSlot.appointments = [{ id: "appt-1" }];
+  }
+
+  markFull(14, 1);
+  markFull(9, 3);
+  markFull(15, 5);
 
   return {
     ...DEV_APPOINTMENTS_BUSINESS,
-    slots: [
-      {
-        id: "slot-1",
-        startAt: day1,
-        endAt: devAppointmentSlotEnd(day1, 60),
-        maxBookings: 2,
-        appointments: [{ id: "appt-1" }],
-      },
-      {
-        id: "slot-2",
-        startAt: day1b,
-        endAt: devAppointmentSlotEnd(day1b, 60),
-        maxBookings: 3,
-        appointments: [],
-      },
-      {
-        id: "slot-3",
-        startAt: day2,
-        endAt: devAppointmentSlotEnd(day2, 60),
-        maxBookings: 1,
-        appointments: [],
-      },
-      {
-        id: "slot-full-1",
-        startAt: dayFull,
-        endAt: devAppointmentSlotEnd(dayFull, 60),
-        maxBookings: 2,
-        appointments: [{ id: "appt-f1" }, { id: "appt-f2" }],
-      },
-      {
-        id: "slot-full-2",
-        startAt: dayFull2,
-        endAt: devAppointmentSlotEnd(dayFull2, 60),
-        maxBookings: 1,
-        appointments: [{ id: "appt-f3" }],
-      },
-    ],
+    slots,
   };
 }
 
 export function getDevPreviewAppointmentsSeller() {
   const biz = getDevAppointmentsBusiness();
-  const slotA = biz.slots[0];
-  const slotB = biz.slots[1];
-  const slotFull1 = biz.slots[3];
-  const slotFull2 = biz.slots[4];
+  const partial = biz.slots.find((s) => s.appointments.some((a) => a.id === "appt-1"));
+  const fullSlots = biz.slots.filter(
+    (s) =>
+      s.appointments.length > 0 &&
+      s.maxBookings <= s.appointments.length &&
+      !s.appointments.some((a) => a.id === "appt-1")
+  );
+  const openSlots = biz.slots.filter((s) => s.appointments.length === 0);
+  const slotA = partial ?? openSlots[0];
+  const slotB = openSlots.find((s) => s.id !== slotA?.id) ?? openSlots[1];
+  const slotFull1 = fullSlots[0];
+  const slotFull2 = fullSlots[1];
   if (!slotA || !slotB || !slotFull1 || !slotFull2) {
     return [];
   }

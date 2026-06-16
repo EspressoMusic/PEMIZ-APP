@@ -10,20 +10,28 @@ export async function GET() {
     signupsEnabled: config.signupsEnabled,
     trialClosureEnabled: config.trialClosureEnabled,
     trialWarningEmailsEnabled: config.trialWarningEmailsEnabled,
+    maxAppointmentsPerBusiness: config.maxAppointmentsPerBusiness,
+    maxOrderItemsPerOrder: config.maxOrderItemsPerOrder,
   });
 }
+
+const limitSchema = z.number().int().min(1).max(100_000);
 
 const patchSchema = z
   .object({
     signupsEnabled: z.boolean().optional(),
     trialClosureEnabled: z.boolean().optional(),
     trialWarningEmailsEnabled: z.boolean().optional(),
+    maxAppointmentsPerBusiness: limitSchema.optional(),
+    maxOrderItemsPerOrder: limitSchema.optional(),
   })
   .refine(
     (data) =>
       data.signupsEnabled !== undefined ||
       data.trialClosureEnabled !== undefined ||
-      data.trialWarningEmailsEnabled !== undefined,
+      data.trialWarningEmailsEnabled !== undefined ||
+      data.maxAppointmentsPerBusiness !== undefined ||
+      data.maxOrderItemsPerOrder !== undefined,
     { message: "לא סופקו שדות לעדכון" }
   );
 
@@ -39,5 +47,7 @@ export async function PATCH(req: Request) {
     signupsEnabled: config.signupsEnabled,
     trialClosureEnabled: config.trialClosureEnabled,
     trialWarningEmailsEnabled: config.trialWarningEmailsEnabled,
+    maxAppointmentsPerBusiness: config.maxAppointmentsPerBusiness,
+    maxOrderItemsPerOrder: config.maxOrderItemsPerOrder,
   });
 }

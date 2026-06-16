@@ -40,6 +40,8 @@ const EN = {
   cartEmpty: "Cart is empty",
   orderHistory: "Order history",
   comingSoon: "Coming soon",
+  deviceDataNote:
+    "Your details and order history are saved only on this device — not shared with other users.",
   orderDetails: "Order details",
   orderAgain: "Order again",
   noPastOrders: "No past orders",
@@ -245,6 +247,8 @@ const HE: typeof EN = {
   cartEmpty: "העגלה ריקה",
   orderHistory: "היסטוריית הזמנות",
   comingSoon: "בקרוב",
+  deviceDataNote:
+    "הפרטים והיסטוריית ההזמנות נשמרים רק במכשיר הזה — לא נגישים למשתמשים אחרים.",
   orderDetails: "פרטי הזמנה",
   orderAgain: "הזמן שוב",
   noPastOrders: "אין הזמנות קודמות",

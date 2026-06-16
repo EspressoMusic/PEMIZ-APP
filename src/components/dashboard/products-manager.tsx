@@ -131,29 +131,35 @@ function ProductStockEdit({
           : "border-bakery-border/30 bg-bakery-card/70"
     }`;
 
-    const content = (
-      <>
+    const content =
+      stockStatus === "low" ? (
+        <>
+          <span className="block text-center text-[10px] font-bold text-bakery-error">
+            {labels.productStockLow}
+          </span>
+          <span
+            className="mt-0.5 block text-center text-[11px] font-extrabold leading-snug tabular-nums text-bakery-error"
+            dir="ltr"
+          >
+            {stockLabel}
+          </span>
+        </>
+      ) : (
         <span
-          className={`block text-[11px] font-extrabold leading-snug tabular-nums ${
+          className={`block text-center text-[11px] font-extrabold leading-snug tabular-nums ${
             stockAlert ? "text-bakery-error" : "text-bakery-ink"
           }`}
           dir="ltr"
         >
           {stockLabel}
         </span>
-        {stockStatus === "low" ? (
-          <span className="mt-0.5 block text-[10px] font-bold text-bakery-error">
-            {labels.productStockLow}
-          </span>
-        ) : null}
-      </>
-    );
+      );
 
     return (
       <button
         type="button"
         onClick={openEdit}
-        className={`${boxClassName} cursor-pointer text-start transition hover:brightness-[0.97] active:scale-[0.99]`}
+        className={`${boxClassName} cursor-pointer text-center transition hover:brightness-[0.97] active:scale-[0.99]`}
         aria-label={labels.productStockEdit}
       >
         {content}

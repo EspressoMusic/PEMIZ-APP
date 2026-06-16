@@ -13,7 +13,7 @@ export function DashboardCalendarLimitsSettingsGroup({
 
   return (
     <DashboardActionRow
-      href={`${basePath}/settings/slots`}
+      href={`${basePath}/settings/slots?open=hours`}
       icon={CalendarClock}
       title={labels.appointmentCalendarAndLimits}
     />

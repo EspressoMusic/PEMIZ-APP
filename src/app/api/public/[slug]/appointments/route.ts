@@ -18,6 +18,10 @@ import {
   grantCustomerPhoneAccess,
   requireCustomerPhoneAccess,
 } from "@/lib/customer-phone-access";
+import {
+  appointmentLimitMessage,
+  isBusinessAppointmentLimitReached,
+} from "@/lib/platform-limits";
 
 const postSchema = z.object({
   slotId: z.string(),
@@ -126,6 +130,11 @@ export async function POST(
   if (!slot) return jsonError("משבצת לא נמצאה", 404);
   if (slot.startAt < new Date()) return jsonError("משבצת בעבר");
   if (slotRemaining(slot) <= 0) return jsonError("משבצת מלאה");
+
+  const appointmentLimit = await isBusinessAppointmentLimitReached(business.id);
+  if (appointmentLimit.reached) {
+    return jsonError(appointmentLimitMessage(appointmentLimit.limit), 403);
+  }
 
   const prefix = business.storeLocale === "en" ? "Service:" : "שירות:";
   const noteParts = [`${prefix} ${parsed.data.serviceName.trim()}`];

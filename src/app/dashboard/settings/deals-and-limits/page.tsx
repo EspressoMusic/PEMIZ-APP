@@ -7,5 +7,12 @@ export default async function SettingsDealsAndLimitsPage() {
   if (!user?.business) redirect("/login");
   if (user.business.type !== "STORE") redirect("/dashboard/settings");
 
-  return <DashboardDealsAndLimitsHub />;
+  const b = user.business;
+
+  return (
+    <DashboardDealsAndLimitsHub
+      initialOrderScheduleEnabled={b.orderScheduleEnabled ?? false}
+      initialOrderScheduleJson={b.orderSchedule ?? null}
+    />
+  );
 }

@@ -1,7 +1,5 @@
-import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
-import { DashboardAppointmentCancelSettings } from "@/components/dashboard/dashboard-appointment-cancel-settings";
+import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/dashboard-appointments-calendar-settings";
-import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
 import { DevRentalSellerShell } from "@/components/dashboard/dev-rental-seller-shell";
 import {
   DEV_RENTAL_BUSINESS,
@@ -14,18 +12,17 @@ export default function DevSellerAppointmentsCalendarPage() {
     <DevRentalSellerShell>
       <div className="flex min-h-0 flex-1 flex-col gap-3 pb-2 text-center">
         <div className="px-1 text-start">
-          <DashboardSettingsBackLink basePath={DEV_RENTAL_SELLER_BASE} />
+          <DashboardActionsBackLink basePath={DEV_RENTAL_SELLER_BASE} />
         </div>
         <DashboardAppointmentsCalendarSettings
           previewOnly
+          basePath={DEV_RENTAL_SELLER_BASE}
           initialConfig={calendarConfigFromBusiness(DEV_RENTAL_BUSINESS)}
-        />
-        <DashboardAppointmentCancelSettings initialStoreTerms={null} previewOnly />
-        <DashboardOrderScheduleSettings
-          mode="appointments"
-          initialEnabled={false}
-          initialScheduleJson={null}
-          previewOnly
+          workingDays={{
+            initialEnabled: DEV_RENTAL_BUSINESS.orderScheduleEnabled ?? false,
+            initialScheduleJson: DEV_RENTAL_BUSINESS.orderSchedule ?? null,
+            previewOnly: true,
+          }}
         />
       </div>
     </DevRentalSellerShell>

@@ -62,12 +62,22 @@ export async function getCurrentUser(): Promise<SafeUser | null> {
   const session = await getSession();
   if (!session) return null;
   try {
-    return await withDbTimeout(
+    const user = await withDbTimeout(
       prisma.user.findUnique({
         where: { id: session.userId },
         select: safeUserSelect,
       })
     );
+    if (!user) return null;
+
+    if (!user.business) {
+      const business = await withDbTimeout(
+        prisma.business.findUnique({ where: { ownerId: user.id } })
+      );
+      if (business) return { ...user, business };
+    }
+
+    return user;
   } catch {
     return null;
   }

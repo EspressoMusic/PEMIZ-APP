@@ -8,17 +8,19 @@ import {
   DashboardActionRow,
 } from "@/components/dashboard/dashboard-action-row";
 import { DashboardAccountSettingsGroup } from "@/components/dashboard/dashboard-account-settings-group";
-import { DashboardCalendarLimitsSettingsGroup } from "@/components/dashboard/dashboard-calendar-limits-settings-group";
+import { DashboardAppointmentCancelSettings } from "@/components/dashboard/dashboard-appointment-cancel-settings";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 
 export function DashboardActionsSettingsGroup({
   basePath = "/dashboard",
   previewOnly = false,
   businessType = "STORE",
+  initialStoreTerms = null,
 }: {
   basePath?: string;
   previewOnly?: boolean;
   businessType?: string;
+  initialStoreTerms?: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
@@ -59,14 +61,18 @@ export function DashboardActionsSettingsGroup({
                 title={labels.salesAndProfit}
               />
             ) : null}
-            {isScheduleLikeBusinessType(businessType) ? (
-              <DashboardCalendarLimitsSettingsGroup basePath={basePath} />
-            ) : null}
             <DashboardAccountSettingsGroup
               basePath={basePath}
               previewOnly={previewOnly}
               businessType={businessType}
             />
+            {isScheduleLikeBusinessType(businessType) ? (
+              <DashboardAppointmentCancelSettings
+                embedded
+                initialStoreTerms={initialStoreTerms}
+                previewOnly={previewOnly}
+              />
+            ) : null}
           </ul>
         </div>
       )}

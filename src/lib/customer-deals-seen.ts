@@ -1,14 +1,19 @@
+import {
+  getCustomerDeviceItem,
+  setCustomerDeviceItem,
+} from "@/lib/customer-device-storage";
+
 export function dealsSeenKey(slug: string) {
   return `linky-deals-seen-at-${slug}`;
 }
 
 export function loadDealsLastSeenAt(slug: string): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(dealsSeenKey(slug));
+  return getCustomerDeviceItem(dealsSeenKey(slug));
 }
 
 export function saveDealsLastSeenAt(slug: string, iso: string) {
-  localStorage.setItem(dealsSeenKey(slug), iso);
+  setCustomerDeviceItem(dealsSeenKey(slug), iso);
 }
 
 export function maxDealCreatedAt(

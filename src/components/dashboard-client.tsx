@@ -623,15 +623,20 @@ export function AppointmentsManager({
   initialAppointments = [],
   initialBookingByDay = false,
   historyOnly = false,
+  activeOnly = false,
   sheetHistoryOnly = false,
+  sheetActiveOnly = false,
 }: {
   framed?: boolean;
   previewOnly?: boolean;
   initialAppointments?: DashboardAppointmentView[];
   initialBookingByDay?: boolean;
   historyOnly?: boolean;
+  activeOnly?: boolean;
   /** History list body for an action sheet — no page chrome. */
   sheetHistoryOnly?: boolean;
+  /** Active appointments list for an action sheet — no page chrome. */
+  sheetActiveOnly?: boolean;
 } = {}) {
   const { labels } = useAppLocale();
   const [items, setItems] = useState(initialAppointments);
@@ -743,6 +748,23 @@ export function AppointmentsManager({
     );
   }
 
+  if (sheetActiveOnly) {
+    return (
+      <>
+        <div className={appointmentsModalListClassName}>
+          <AppointmentsList
+            appointments={active}
+            emptyMessage={labels.noActiveAppointments}
+            onHide={hideAppointment}
+            onCustomerClick={openCustomer}
+            bookingByDay={bookingByDay}
+          />
+        </div>
+        {customerModal}
+      </>
+    );
+  }
+
   if (historyOnly) {
     return (
       <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
@@ -769,6 +791,43 @@ export function AppointmentsManager({
             <AppointmentsList
               appointments={history}
               emptyMessage={labels.noAppointmentHistory}
+              onCustomerClick={openCustomer}
+              bookingByDay={bookingByDay}
+            />
+          </div>
+        </div>
+        {customerModal}
+      </div>
+    );
+  }
+
+  if (activeOnly) {
+    return (
+      <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
+        {previewOnly && (
+          <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
+            תצוגה מקדימה — התורים הם דמו לבדיקה, השינויים לא נשמרים בשרת
+          </p>
+        )}
+        <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+          <h2 className="pb-2 text-center text-[17px] font-extrabold text-bakery-ink">
+            {labels.activeAppointments}
+            {active.length > 0 && (
+              <span className="font-semibold text-bakery-muted">
+                {" "}
+                ({active.length})
+              </span>
+            )}
+          </h2>
+          <div
+            className={appointmentsListClassName}
+            role="region"
+            aria-label={labels.activeAppointments}
+          >
+            <AppointmentsList
+              appointments={active}
+              emptyMessage={labels.noActiveAppointments}
+              onHide={hideAppointment}
               onCustomerClick={openCustomer}
               bookingByDay={bookingByDay}
             />

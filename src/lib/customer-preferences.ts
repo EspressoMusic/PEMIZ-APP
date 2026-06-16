@@ -1,5 +1,6 @@
 import type { StoreThemeId } from "@/lib/store-themes";
 import { parseStoreTheme, storeThemeLabel } from "@/lib/store-themes";
+import { getCustomerDeviceItem, setCustomerDeviceItem } from "@/lib/customer-device-storage";
 
 export type CustomerLocale = "en" | "he";
 export type CustomerDisplayTheme = StoreThemeId;
@@ -27,7 +28,7 @@ export function resolveCustomerLocale(
 ): CustomerLocale {
   if (typeof window === "undefined") return ownerLocale;
   try {
-    const raw = localStorage.getItem(storageKey(slug));
+    const raw = getCustomerDeviceItem(storageKey(slug));
     if (!raw) return ownerLocale;
     const parsed = JSON.parse(raw) as Partial<CustomerPreferences>;
     if (parsed.locale === "he" || parsed.locale === "en") return parsed.locale;
@@ -45,7 +46,7 @@ export function loadCustomerPreferences(
     return { ...DEFAULTS, locale: ownerLocale };
   }
   try {
-    const raw = localStorage.getItem(storageKey(slug));
+    const raw = getCustomerDeviceItem(storageKey(slug));
     if (!raw) {
       return { ...DEFAULTS, locale: ownerLocale };
     }
@@ -67,7 +68,7 @@ export function saveCustomerPreferences(
   slug: string,
   prefs: CustomerPreferences
 ) {
-  localStorage.setItem(storageKey(slug), JSON.stringify(prefs));
+  setCustomerDeviceItem(storageKey(slug), JSON.stringify(prefs));
 }
 
 export function themeSubtitle(theme: CustomerDisplayTheme, locale: CustomerLocale) {

@@ -1,5 +1,9 @@
 import type { StoreChatChannel, StoreChatMessageDto } from "@/lib/store-chat";
 import { normalizePhone } from "@/lib/phone";
+import {
+  getCustomerDeviceItem,
+  setCustomerDeviceItem,
+} from "@/lib/customer-device-storage";
 
 function storageKey(slug: string, channel: StoreChatChannel) {
   return `linky-store-chat-${slug}-${channel}`;
@@ -11,7 +15,7 @@ export function loadDevStoreChat(
 ): StoreChatMessageDto[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(storageKey(slug, channel));
+    const raw = getCustomerDeviceItem(storageKey(slug, channel));
     if (!raw) return [];
     const parsed = JSON.parse(raw) as StoreChatMessageDto[];
     return Array.isArray(parsed) ? parsed : [];
@@ -25,7 +29,7 @@ export function saveDevStoreChat(
   channel: StoreChatChannel,
   list: StoreChatMessageDto[]
 ) {
-  localStorage.setItem(storageKey(slug, channel), JSON.stringify(list));
+  setCustomerDeviceItem(storageKey(slug, channel), JSON.stringify(list));
 }
 
 export function appendDevStoreChat(

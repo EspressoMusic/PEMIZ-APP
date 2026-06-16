@@ -79,6 +79,7 @@ export function AppointmentCalendarPanel({
   homeLarge = false,
   squareDays = false,
   squareDaysLarge = false,
+  panelClassName,
 }: {
   monthTitle: string;
   onPrevMonth: () => void;
@@ -102,6 +103,8 @@ export function AppointmentCalendarPanel({
   squareDays?: boolean;
   /** Wider modal calendar — larger squares and tighter side margins. */
   squareDaysLarge?: boolean;
+  /** Override inner calendar panel surface (e.g. lighter home calendar). */
+  panelClassName?: string;
 }) {
   const tight = compactVertical || homeCompact;
   const isSquare = squareDays || squareDaysLarge;
@@ -124,7 +127,7 @@ export function AppointmentCalendarPanel({
       <div
         className={`flex w-full flex-col rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.1)] ${
           homeCompact ? "min-h-0 flex-1" : "min-h-0 flex-1"
-        }`}
+        }${panelClassName ? ` ${panelClassName}` : ""}`}
       >
         <div
           className={`shrink-0 ${

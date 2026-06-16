@@ -741,6 +741,9 @@ html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-
 .customer-product-sale-price {
   display: inline-block;
   max-width: 100%;
+  isolation: isolate;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   background-image: linear-gradient(
     110deg,
     #ff4a55 0%,

@@ -11,6 +11,7 @@ import { DashboardAppointmentsSettingsHubPanel } from "@/components/dashboard/da
 import type { DashboardAppointmentView } from "@/components/dashboard/dashboard-appointment-card";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { isScheduleLikeBusinessType } from "@/lib/types";
+import type { AppointmentCalendarConfig } from "@/lib/appointment-slot-generator";
 
 export function DashboardActionsHub({
   businessType,
@@ -18,12 +19,21 @@ export function DashboardActionsHub({
   previewOnly = false,
   previewAppointments = [] as DashboardAppointmentView[],
   previewBookingByDay = false,
+  initialStoreTerms = null,
+  initialCalendarConfig,
+  initialWorkingDays,
 }: {
   businessType: string;
   basePath?: string;
   previewOnly?: boolean;
   previewAppointments?: DashboardAppointmentView[];
   previewBookingByDay?: boolean;
+  initialStoreTerms?: string | null;
+  initialCalendarConfig?: AppointmentCalendarConfig;
+  initialWorkingDays?: {
+    initialEnabled: boolean;
+    initialScheduleJson: string | null;
+  };
 }) {
   const { labels } = useAppLocale();
   const [customersOpen, setCustomersOpen] = useState(false);
@@ -63,6 +73,7 @@ export function DashboardActionsHub({
               basePath={basePath}
               previewOnly={previewOnly}
               businessType={businessType}
+              initialStoreTerms={initialStoreTerms}
             />
           </ul>
         </div>
@@ -106,6 +117,8 @@ export function DashboardActionsHub({
             previewOnly={previewOnly}
             previewAppointments={previewAppointments}
             previewBookingByDay={previewBookingByDay}
+            initialCalendarConfig={initialCalendarConfig}
+            initialWorkingDays={initialWorkingDays}
           />
         </DashboardActionSheet>
       ) : null}

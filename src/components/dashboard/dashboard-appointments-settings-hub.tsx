@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
-import { ClipboardList, ChevronLeft, History } from "lucide-react";
+import { ClipboardList, CalendarClock, ChevronLeft } from "lucide-react";
 import { DashboardProductsEntry } from "@/components/dashboard/products-manager";
 import {
   DEV_APPOINTMENTS_BUSINESS,
@@ -10,13 +10,18 @@ import {
 } from "@/lib/dev-preview-data";
 import { AppointmentsManager } from "@/components/dashboard-client";
 import {
-  DashboardActionRow,
   DashboardActionRowButton,
 } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/dashboard-appointments-calendar-settings";
 import type { DashboardAppointmentView } from "@/components/dashboard/dashboard-appointment-card";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
+import { calendarConfigFromBusiness } from "@/lib/appointment-calendar-config";
+import {
+  DEFAULT_APPOINTMENT_CALENDAR,
+  type AppointmentCalendarConfig,
+} from "@/lib/appointment-slot-generator";
 
 function DashboardAppointmentsSettingsHubBack({
   basePath = "/dashboard",
@@ -43,7 +48,7 @@ function DashboardAppointmentsSettingsHubBack({
   return <DashboardActionsBackLink basePath={basePath} />;
 }
 
-function DashboardAppointmentHistoryGroup({
+function DashboardAppointmentActiveGroup({
   previewOnly = false,
   previewAppointments = [] as DashboardAppointmentView[],
   previewBookingByDay = false,
@@ -59,22 +64,68 @@ function DashboardAppointmentHistoryGroup({
     <>
       <DashboardActionRowButton
         onClick={() => setOpen(true)}
-        icon={History}
-        title={labels.appointmentHistory}
+        icon={ClipboardList}
+        title={labels.appointments}
       />
       <DashboardActionSheet
         open={open}
         onClose={() => setOpen(false)}
-        title={labels.appointmentHistory}
-        ariaLabel={labels.appointmentHistory}
+        title={labels.activeAppointments}
+        ariaLabel={labels.activeAppointments}
         placement="top"
         showBackButton
       >
         <AppointmentsManager
-          sheetHistoryOnly
+          sheetActiveOnly
           previewOnly={previewOnly}
           initialAppointments={previewAppointments}
           initialBookingByDay={previewBookingByDay}
+        />
+      </DashboardActionSheet>
+    </>
+  );
+}
+
+function DashboardAppointmentCalendarGroup({
+  previewOnly = false,
+  initialConfig = DEFAULT_APPOINTMENT_CALENDAR,
+  workingDays,
+}: {
+  previewOnly?: boolean;
+  initialConfig?: AppointmentCalendarConfig;
+  workingDays?: {
+    initialEnabled: boolean;
+    initialScheduleJson: string | null;
+    previewOnly?: boolean;
+  };
+}) {
+  const [open, setOpen] = useState(false);
+  const { labels } = useAppLocale();
+
+  return (
+    <>
+      <DashboardActionRowButton
+        onClick={() => setOpen(true)}
+        icon={CalendarClock}
+        title={labels.appointmentCalendar}
+        expanded={open}
+        active={open}
+      />
+      <DashboardActionSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={labels.appointmentBookingHours}
+        ariaLabel={labels.appointmentBookingHours}
+        placement="center"
+        showBackButton
+        compact
+        panelClassName="dashboard-appointments-calendar-sheet"
+      >
+        <DashboardAppointmentsCalendarSettings
+          inline
+          previewOnly={previewOnly}
+          initialConfig={initialConfig}
+          workingDays={workingDays}
         />
       </DashboardActionSheet>
     </>
@@ -86,17 +137,40 @@ export function DashboardAppointmentsSettingsHubGrid({
   previewOnly = false,
   previewAppointments = [] as DashboardAppointmentView[],
   previewBookingByDay = false,
+  initialCalendarConfig,
+  initialWorkingDays,
 }: {
   basePath?: string;
   previewOnly?: boolean;
   previewAppointments?: DashboardAppointmentView[];
   previewBookingByDay?: boolean;
+  initialCalendarConfig?: AppointmentCalendarConfig;
+  initialWorkingDays?: {
+    initialEnabled: boolean;
+    initialScheduleJson: string | null;
+  };
 }) {
-  const { labels } = useAppLocale();
   const isDevPreview = basePath.startsWith("/dev/");
-  const devServices = basePath.startsWith("/dev/seller-rental")
-    ? DEV_RENTAL_BUSINESS.products
-    : DEV_APPOINTMENTS_BUSINESS.products;
+  const devBusiness = basePath.startsWith("/dev/seller-rental")
+    ? DEV_RENTAL_BUSINESS
+    : DEV_APPOINTMENTS_BUSINESS;
+  const devServices = devBusiness.products;
+  const calendarConfig =
+    initialCalendarConfig ??
+    (isDevPreview ? calendarConfigFromBusiness(devBusiness) : DEFAULT_APPOINTMENT_CALENDAR);
+  const workingDays = initialWorkingDays
+    ? { ...initialWorkingDays, previewOnly: previewOnly || isDevPreview }
+    : isDevPreview
+      ? {
+          initialEnabled: devBusiness.orderScheduleEnabled ?? false,
+          initialScheduleJson: devBusiness.orderSchedule ?? null,
+          previewOnly: true,
+        }
+      : {
+          initialEnabled: false,
+          initialScheduleJson: null,
+          previewOnly,
+        };
 
   return (
     <ul className="dashboard-settings-style-rows space-y-2 text-start">
@@ -105,12 +179,12 @@ export function DashboardAppointmentsSettingsHubGrid({
         previewOnly={isDevPreview}
         initialProducts={isDevPreview ? devServices : undefined}
       />
-      <DashboardActionRow
-        href={`${basePath}/settings/appointments`}
-        icon={ClipboardList}
-        title={labels.appointments}
+      <DashboardAppointmentCalendarGroup
+        previewOnly={previewOnly || isDevPreview}
+        initialConfig={calendarConfig}
+        workingDays={workingDays}
       />
-      <DashboardAppointmentHistoryGroup
+      <DashboardAppointmentActiveGroup
         previewOnly={previewOnly}
         previewAppointments={previewAppointments}
         previewBookingByDay={previewBookingByDay}
@@ -125,12 +199,19 @@ function DashboardAppointmentsSettingsHubBody({
   previewOnly = false,
   previewAppointments = [] as DashboardAppointmentView[],
   previewBookingByDay = false,
+  initialCalendarConfig,
+  initialWorkingDays,
 }: {
   basePath: string;
   embedded?: boolean;
   previewOnly?: boolean;
   previewAppointments?: DashboardAppointmentView[];
   previewBookingByDay?: boolean;
+  initialCalendarConfig?: AppointmentCalendarConfig;
+  initialWorkingDays?: {
+    initialEnabled: boolean;
+    initialScheduleJson: string | null;
+  };
 }) {
   const grid = (
     <DashboardAppointmentsSettingsHubGrid
@@ -138,6 +219,8 @@ function DashboardAppointmentsSettingsHubBody({
       previewOnly={previewOnly}
       previewAppointments={previewAppointments}
       previewBookingByDay={previewBookingByDay}
+      initialCalendarConfig={initialCalendarConfig}
+      initialWorkingDays={initialWorkingDays}
     />
   );
   if (embedded) return grid;
@@ -154,12 +237,19 @@ export function DashboardAppointmentsSettingsHubPanel({
   previewOnly = false,
   previewAppointments = [] as DashboardAppointmentView[],
   previewBookingByDay = false,
+  initialCalendarConfig,
+  initialWorkingDays,
 }: {
   basePath?: string;
   embedded?: boolean;
   previewOnly?: boolean;
   previewAppointments?: DashboardAppointmentView[];
   previewBookingByDay?: boolean;
+  initialCalendarConfig?: AppointmentCalendarConfig;
+  initialWorkingDays?: {
+    initialEnabled: boolean;
+    initialScheduleJson: string | null;
+  };
 }) {
   if (embedded) {
     return (
@@ -169,6 +259,8 @@ export function DashboardAppointmentsSettingsHubPanel({
         previewOnly={previewOnly}
         previewAppointments={previewAppointments}
         previewBookingByDay={previewBookingByDay}
+        initialCalendarConfig={initialCalendarConfig}
+        initialWorkingDays={initialWorkingDays}
       />
     );
   }
@@ -183,6 +275,8 @@ export function DashboardAppointmentsSettingsHubPanel({
         previewOnly={previewOnly}
         previewAppointments={previewAppointments}
         previewBookingByDay={previewBookingByDay}
+        initialCalendarConfig={initialCalendarConfig}
+        initialWorkingDays={initialWorkingDays}
       />
     </>
   );
@@ -193,11 +287,18 @@ export function DashboardAppointmentsSettingsHub({
   previewOnly = false,
   previewAppointments = [] as DashboardAppointmentView[],
   previewBookingByDay = false,
+  initialCalendarConfig,
+  initialWorkingDays,
 }: {
   basePath?: string;
   previewOnly?: boolean;
   previewAppointments?: DashboardAppointmentView[];
   previewBookingByDay?: boolean;
+  initialCalendarConfig?: AppointmentCalendarConfig;
+  initialWorkingDays?: {
+    initialEnabled: boolean;
+    initialScheduleJson: string | null;
+  };
 }) {
   return (
     <DashboardFullscreenHubShell
@@ -208,6 +309,8 @@ export function DashboardAppointmentsSettingsHub({
         previewOnly={previewOnly}
         previewAppointments={previewAppointments}
         previewBookingByDay={previewBookingByDay}
+        initialCalendarConfig={initialCalendarConfig}
+        initialWorkingDays={initialWorkingDays}
       />
     </DashboardFullscreenHubShell>
   );

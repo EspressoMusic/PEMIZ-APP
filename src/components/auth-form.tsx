@@ -86,7 +86,7 @@ export function AuthForm({
         router.push("/onboarding");
       } else if (data.redirectTo) {
         router.push(data.redirectTo);
-      } else if (!data.hasBusiness) {
+      } else if (data.hasBusiness === false) {
         router.push("/onboarding");
       } else {
         router.push("/dashboard");
@@ -134,10 +134,10 @@ export function AuthForm({
             ) : (
               <Input
                 name="identifier"
-                type="tel"
-                label="טלפון"
+                type="text"
+                label="טלפון או אימייל"
                 required
-                autoComplete="tel"
+                autoComplete="username"
                 dir="ltr"
                 placeholder="050-1234567"
               />

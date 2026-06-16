@@ -11,7 +11,6 @@ import {
   SlidersHorizontal,
   ShieldPlus,
   UserRound,
-  MessagesSquare,
   Settings,
   Smartphone,
 } from "lucide-react";
@@ -86,6 +85,10 @@ import {
 } from "@/lib/customer-order-history";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
 import {
+  buildSellerWhatsAppHref,
+  CustomerWhatsAppContactRow,
+} from "./customer-whatsapp-contact-row";
+import {
   DEFAULT_STORE_PANELS_VISIBLE,
   type StorePanelsVisible,
 } from "@/lib/store-panels-visible";
@@ -143,6 +146,13 @@ import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
 import type { CustomerResolution } from "@/lib/customer-resolution";
 import { updateDevStoreChatResolution } from "@/lib/customer-chat-storage";
 import { isWithinCustomerHistoryWindow } from "@/lib/customer-history-access";
+import {
+  customerInquiryPhoneKey,
+  customerNameKey,
+  getCustomerDeviceItem,
+  initCustomerDeviceStorage,
+  setCustomerDeviceItem,
+} from "@/lib/customer-device-storage";
 
 type MyInquiry = {
   id: string;
@@ -164,7 +174,7 @@ function loadDevInquiryResolutions(
 ): Record<string, { resolution: CustomerResolution; at: string }> {
   if (typeof window === "undefined") return {};
   try {
-    const raw = localStorage.getItem(inquiryResolutionKey(slug));
+    const raw = getCustomerDeviceItem(inquiryResolutionKey(slug));
     if (!raw) return {};
     const parsed = JSON.parse(raw) as Record<
       string,
@@ -186,7 +196,7 @@ function saveDevInquiryResolution(
     resolution,
     at: new Date().toISOString(),
   };
-  localStorage.setItem(inquiryResolutionKey(slug), JSON.stringify(existing));
+  setCustomerDeviceItem(inquiryResolutionKey(slug), JSON.stringify(existing));
 }
 
 function broadcastSeenKey(slug: string) {
@@ -194,7 +204,65 @@ function broadcastSeenKey(slug: string) {
 }
 
 function inquiryPhoneKey(slug: string) {
-  return `linky-inquiry-phone-${slug}`;
+  return customerInquiryPhoneKey(slug);
+}
+
+type SellerNoticeState = {
+  message: string;
+  sentAt: string | null;
+  unread: boolean;
+};
+
+function resolveSellerNoticeFromProps(
+  storeBroadcast: string | null | undefined,
+  storeBroadcastAt: string | null | undefined,
+  broadcastEnabled: boolean
+): SellerNoticeState {
+  const empty: SellerNoticeState = { message: "", sentAt: null, unread: false };
+  if (!broadcastEnabled) return empty;
+
+  const message = storeBroadcast?.trim() ?? "";
+  const sentAt = storeBroadcastAt ?? null;
+  if (!message || !sentAt) return empty;
+
+  return { message, sentAt, unread: true };
+}
+
+function resolveSellerNoticeState(
+  slug: string,
+  storeBroadcast: string | null | undefined,
+  storeBroadcastAt: string | null | undefined,
+  broadcastEnabled: boolean
+): SellerNoticeState {
+  const empty: SellerNoticeState = { message: "", sentAt: null, unread: false };
+  if (!broadcastEnabled) return empty;
+
+  const message = storeBroadcast?.trim() ?? "";
+  const sentAt = storeBroadcastAt ?? null;
+  if (!message || !sentAt) return empty;
+
+  if (typeof window !== "undefined") {
+    const seen = getCustomerDeviceItem(broadcastSeenKey(slug));
+    if (seen === sentAt) return empty;
+  }
+
+  return { message, sentAt, unread: true };
+}
+
+function resolveInitialDisplayPreferences(
+  slug: string,
+  ownerLocale: CustomerLocale,
+  ownerTheme: CustomerDisplayTheme
+) {
+  const prefs = loadCustomerPreferences(slug, ownerLocale);
+  const hasSavedPrefs =
+    typeof window !== "undefined" &&
+    !!getCustomerDeviceItem(`linky-customer-prefs-${slug}`);
+  return {
+    locale: prefs.locale,
+    textScale: prefs.textScale,
+    theme: hasSavedPrefs ? prefs.theme : ownerTheme,
+  };
 }
 
 type Product = {
@@ -278,6 +346,9 @@ export function CustomerStoreApp({
   const isDevRental = business.slug === "demo-rental";
   const isDevSchedule = isDevAppointments || isDevRental;
   const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
+  const ownerTheme = parseStoreTheme(business.storeTheme);
+  const ownerLocale: CustomerLocale =
+    business.storeLocale === "en" ? "en" : "he";
   const effectiveOrderScheduleEnabled =
     panels.orderLimits && (business.orderScheduleEnabled ?? false);
   const showContactSeller =
@@ -316,11 +387,20 @@ export function CustomerStoreApp({
   const prevActiveOrderCountRef = useRef(0);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [orderError, setOrderError] = useState("");
-  const [sellerNoticeUnread, setSellerNoticeUnread] = useState(false);
+  const propsSellerNotice = resolveSellerNoticeFromProps(
+    business.storeBroadcast,
+    business.storeBroadcastAt,
+    panels.broadcast
+  );
+  const [sellerNoticeUnread, setSellerNoticeUnread] = useState(
+    propsSellerNotice.unread
+  );
   const [sellerNoticeExpanded, setSellerNoticeExpanded] = useState(false);
-  const [sellerNoticeMessage, setSellerNoticeMessage] = useState("");
+  const [sellerNoticeMessage, setSellerNoticeMessage] = useState(
+    propsSellerNotice.message
+  );
   const [sellerNoticeSentAt, setSellerNoticeSentAt] = useState<string | null>(
-    null
+    propsSellerNotice.sentAt
   );
   const [myInquiries, setMyInquiries] = useState<MyInquiry[]>([]);
   const [inquiryPhoneVerifyRequired, setInquiryPhoneVerifyRequired] =
@@ -343,15 +423,21 @@ export function CustomerStoreApp({
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState("");
   const [appointmentSuccessOpen, setAppointmentSuccessOpen] = useState(false);
-  const ownerTheme = parseStoreTheme(business.storeTheme);
-  const ownerLocale: CustomerLocale =
-    business.storeLocale === "en" ? "en" : "he";
   const [locale, setLocale] = useState<CustomerLocale>(ownerLocale);
   const [displayTheme, setDisplayTheme] =
     useState<CustomerDisplayTheme>(ownerTheme);
   const [textScale, setTextScale] = useState<CustomerTextScale>("100");
 
   const labels = useMemo(() => getCustomerLabels(locale), [locale]);
+
+  const sellerWhatsAppHref = useMemo(
+    () => buildSellerWhatsAppHref(business.sellerContactPhone, business.name, locale),
+    [business.sellerContactPhone, business.name, locale]
+  );
+
+  useEffect(() => {
+    void initCustomerDeviceStorage();
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = "";
@@ -391,12 +477,41 @@ export function CustomerStoreApp({
     setLocalOrderHistory(loadCustomerOrderHistory(business.slug));
     setCartDeals(pendingDealsToSnapshots(loadPendingDeals(business.slug)));
     setLocalAppointments(loadCustomerAppointmentHistory(business.slug));
+
+    const notice = resolveSellerNoticeState(
+      business.slug,
+      business.storeBroadcast,
+      business.storeBroadcastAt,
+      panels.broadcast
+    );
+    setSellerNoticeMessage(notice.message);
+    setSellerNoticeSentAt(notice.sentAt);
+    setSellerNoticeUnread(notice.unread);
+    setSellerNoticeExpanded(false);
+
+    const prefs = resolveInitialDisplayPreferences(
+      business.slug,
+      ownerLocale,
+      ownerTheme
+    );
+    setLocale(prefs.locale);
+    setTextScale(prefs.textScale);
+    setDisplayTheme(prefs.theme);
+
     const savedPhone =
       typeof window !== "undefined"
-        ? localStorage.getItem(inquiryPhoneKey(business.slug))
+        ? getCustomerDeviceItem(inquiryPhoneKey(business.slug))
         : null;
     void refreshDealRedemptionCounts(savedPhone ?? undefined);
-  }, [business.slug, refreshDealRedemptionCounts]);
+  }, [
+    business.slug,
+    business.storeBroadcast,
+    business.storeBroadcastAt,
+    ownerLocale,
+    ownerTheme,
+    panels.broadcast,
+    refreshDealRedemptionCounts,
+  ]);
 
   const syncPendingDeals = useCallback(() => {
     const pending = loadPendingDeals(business.slug);
@@ -412,21 +527,14 @@ export function CustomerStoreApp({
   }, [syncPendingDeals]);
 
   useEffect(() => {
-    const saved = localStorage.getItem(`linky-customer-${business.slug}`);
+    const saved = getCustomerDeviceItem(customerNameKey(business.slug));
     if (saved) setCustomerName(saved);
-    const savedPhone = localStorage.getItem(inquiryPhoneKey(business.slug));
+    const savedPhone = getCustomerDeviceItem(inquiryPhoneKey(business.slug));
     if (savedPhone) {
       setOrderPhone(savedPhone);
       void refreshDealRedemptionCounts(savedPhone);
     }
-    const prefs = loadCustomerPreferences(business.slug, ownerLocale);
-    const hasPrefs =
-      typeof window !== "undefined" &&
-      !!localStorage.getItem(`linky-customer-prefs-${business.slug}`);
-    setLocale(prefs.locale);
-    setTextScale(prefs.textScale);
-    setDisplayTheme(hasPrefs ? prefs.theme : ownerTheme);
-  }, [business.slug, ownerTheme, ownerLocale, refreshDealRedemptionCounts]);
+  }, [business.slug, refreshDealRedemptionCounts]);
 
   useEffect(() => {
     if (!profileModalOpen) return;
@@ -448,8 +556,8 @@ export function CustomerStoreApp({
     setProfilePhoneError("");
     setCustomerName(name);
     setOrderPhone(phone);
-    localStorage.setItem(`linky-customer-${business.slug}`, name);
-    localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+    setCustomerDeviceItem(customerNameKey(business.slug), name);
+    setCustomerDeviceItem(inquiryPhoneKey(business.slug), phone);
     if (phone) void loadMyInquiries(phone);
     setProfileSavedFlash(true);
     window.setTimeout(() => {
@@ -460,49 +568,36 @@ export function CustomerStoreApp({
 
   useEffect(() => {
     if (unavailable || !panels.broadcast) return;
+    if (business.storeBroadcast?.trim() && business.storeBroadcastAt) return;
 
-    async function checkBroadcast() {
-      let message: string | null = business.storeBroadcast ?? null;
-      let sentAt: string | null = business.storeBroadcastAt ?? null;
+    let cancelled = false;
 
-      if (!message?.trim()) {
-        try {
-          const res = await fetch(`/api/public/${business.slug}/broadcast`);
-          const data = await res.json();
-          if (res.ok && data.message) {
-            message = data.message;
-            sentAt = data.sentAt ?? null;
-          }
-        } catch {
-          return;
-        }
-      }
+    async function fetchBroadcast() {
+      try {
+        const res = await fetch(`/api/public/${business.slug}/broadcast`);
+        const data = await res.json();
+        if (cancelled || !res.ok || !data.message) return;
 
-      if (!message?.trim() || !sentAt) return;
-
-      const seen = localStorage.getItem(broadcastSeenKey(business.slug));
-      if (seen === sentAt) {
-        setSellerNoticeMessage("");
-        setSellerNoticeSentAt(null);
-        setSellerNoticeUnread(false);
+        const notice = resolveSellerNoticeState(
+          business.slug,
+          data.message as string,
+          (data.sentAt as string | null) ?? null,
+          true
+        );
+        setSellerNoticeMessage(notice.message);
+        setSellerNoticeSentAt(notice.sentAt);
+        setSellerNoticeUnread(notice.unread);
         setSellerNoticeExpanded(false);
-        return;
+      } catch {
+        // keep initial state
       }
-
-      setSellerNoticeMessage(message);
-      setSellerNoticeSentAt(sentAt);
-      setSellerNoticeUnread(true);
-      setSellerNoticeExpanded(false);
     }
 
-    checkBroadcast();
-  }, [
-    business.slug,
-    business.storeBroadcast,
-    business.storeBroadcastAt,
-    unavailable,
-    panels.broadcast,
-  ]);
+    void fetchBroadcast();
+    return () => {
+      cancelled = true;
+    };
+  }, [business.slug, business.storeBroadcast, business.storeBroadcastAt, unavailable, panels.broadcast]);
 
   const loadMyInquiries = useCallback(
     async (phoneRaw: string) => {
@@ -560,7 +655,7 @@ export function CustomerStoreApp({
 
   useEffect(() => {
     if (unavailable) return;
-    const stored = localStorage.getItem(inquiryPhoneKey(business.slug));
+    const stored = getCustomerDeviceItem(inquiryPhoneKey(business.slug));
     const phone = orderPhone || stored || "";
     if (phone) loadMyInquiries(phone);
   }, [orderPhone, business.slug, unavailable, loadMyInquiries]);
@@ -568,7 +663,7 @@ export function CustomerStoreApp({
   function dismissSellerNotice() {
     const sentAt = sellerNoticeSentAt ?? business.storeBroadcastAt;
     if (sentAt) {
-      localStorage.setItem(broadcastSeenKey(business.slug), sentAt);
+      setCustomerDeviceItem(broadcastSeenKey(business.slug), sentAt);
     }
     setSellerNoticeMessage("");
     setSellerNoticeSentAt(null);
@@ -902,8 +997,8 @@ export function CustomerStoreApp({
 
     setCustomerName(name);
     setOrderPhone(phone);
-    localStorage.setItem(`linky-customer-${business.slug}`, name);
-    localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+    setCustomerDeviceItem(customerNameKey(business.slug), name);
+    setCustomerDeviceItem(inquiryPhoneKey(business.slug), phone);
     const redeemedDealIds = cartDeals.map((d) => d.id);
     removePendingDeals(business.slug, redeemedDealIds);
     const nextCounts = incrementLocalDealRedemptionCounts(
@@ -954,7 +1049,7 @@ export function CustomerStoreApp({
     const phoneRaw =
       orderPhone ||
       (typeof window !== "undefined"
-        ? localStorage.getItem(inquiryPhoneKey(business.slug))
+        ? getCustomerDeviceItem(inquiryPhoneKey(business.slug))
         : null) ||
       "";
     const phone = parseIsraeliMobilePhone(phoneRaw);
@@ -1014,7 +1109,7 @@ export function CustomerStoreApp({
     const phoneRaw =
       orderPhone ||
       (typeof window !== "undefined"
-        ? localStorage.getItem(inquiryPhoneKey(business.slug))
+        ? getCustomerDeviceItem(inquiryPhoneKey(business.slug))
         : null) ||
       "";
     const phone = parseIsraeliMobilePhone(phoneRaw);
@@ -1081,10 +1176,10 @@ export function CustomerStoreApp({
       const name = String(fd.get("customerName") ?? "").trim();
       if (name.length >= 2) {
         setCustomerName(name);
-        localStorage.setItem(`linky-customer-${business.slug}`, name);
+        setCustomerDeviceItem(customerNameKey(business.slug), name);
       }
       if (phone) {
-        localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+        setCustomerDeviceItem(inquiryPhoneKey(business.slug), phone);
         setOrderPhone(phone);
         await loadMyInquiries(phone);
       }
@@ -1187,8 +1282,8 @@ export function CustomerStoreApp({
 
       setCustomerName(payload.name.trim());
       setOrderPhone(phone);
-      localStorage.setItem(`linky-customer-${business.slug}`, payload.name.trim());
-      localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+      setCustomerDeviceItem(customerNameKey(business.slug), payload.name.trim());
+      setCustomerDeviceItem(inquiryPhoneKey(business.slug), phone);
 
       const next = appendCustomerAppointmentHistory(business.slug, entry);
       setLocalAppointments(next);
@@ -1282,8 +1377,8 @@ export function CustomerStoreApp({
 
       setCustomerName(payload.name.trim());
       setOrderPhone(phone);
-      localStorage.setItem(`linky-customer-${business.slug}`, payload.name.trim());
-      localStorage.setItem(inquiryPhoneKey(business.slug), phone);
+      setCustomerDeviceItem(customerNameKey(business.slug), payload.name.trim());
+      setCustomerDeviceItem(inquiryPhoneKey(business.slug), phone);
 
       const next = appendCustomerAppointmentHistory(business.slug, entry);
       setLocalAppointments(next);
@@ -1580,13 +1675,16 @@ export function CustomerStoreApp({
                   onClick={() => setFaqOpen(true)}
                 />
               ) : null}
-              {showContactSeller ? (
-                <SettingsMenuRow
-                  icon={MessagesSquare}
-                  title={labels.comingSoon}
-                  disabled
+              {business.sellerContactPhone ? (
+                <CustomerWhatsAppContactRow
+                  title={labels.contactOptionWhatsApp}
+                  href={sellerWhatsAppHref}
+                  unavailableLabel={labels.contactOptionWhatsAppUnavailable}
                 />
               ) : null}
+              <p className="px-2 pb-1 text-center text-[12px] font-medium leading-snug text-bakery-muted">
+                {labels.deviceDataNote}
+              </p>
               <SettingsMenuRow
                 icon={Settings}
                 title={labels.comingSoon}
@@ -1786,7 +1884,7 @@ export function CustomerStoreApp({
           const phone =
             orderPhone ||
             (typeof window !== "undefined"
-              ? localStorage.getItem(inquiryPhoneKey(business.slug))
+              ? getCustomerDeviceItem(inquiryPhoneKey(business.slug))
               : null) ||
             "";
           if (phone) void loadMyInquiries(phone);

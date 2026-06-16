@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { AppointmentsManager } from "@/components/dashboard-client";
-import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
+import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 
 export default async function SettingsAppointmentsPage() {
   const user = await getCurrentUser();
@@ -10,9 +10,9 @@ export default async function SettingsAppointmentsPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-      <DashboardSettingsBackLink />
+      <DashboardActionsBackLink />
       <div className="min-h-0 flex-1 overflow-hidden">
-        <AppointmentsManager />
+        <AppointmentsManager activeOnly />
       </div>
     </div>
   );

@@ -6,17 +6,13 @@ import {
   useMemo,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { History, X } from "lucide-react";
-import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
-import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { X } from "lucide-react";
 import {
   APPOINTMENT_DAY_FRAME_SQUARE_LARGE,
   AppointmentCalendarPanel,
 } from "@/components/appointment-calendar-panel";
-import { splitSellerAppointments } from "@/lib/seller-appointment-history";
 import {
   SELLER_SELF_BOOKING_NOTE,
   SELLER_WALK_IN_PHONE,
@@ -56,155 +52,6 @@ export type SellerHomeAppointment = {
 };
 
 type SellerDayStatus = "full" | "open" | "booked" | "empty" | "past";
-
-function DashboardHomeCalendarModal({
-  open,
-  onClose,
-  month,
-  onPrevMonth,
-  onNextMonth,
-  weekdays,
-  weeks,
-  renderDay,
-  labels,
-  locale,
-  historyAppointments,
-  bookingByDay,
-  onCustomerClick,
-}: {
-  open: boolean;
-  onClose: () => void;
-  month: Date;
-  onPrevMonth: () => void;
-  onNextMonth: () => void;
-  weekdays: string[];
-  weeks: ReturnType<typeof buildAppointmentMonthCells>[];
-  renderDay: (cell: { day: number | null; dateKey: string | null }) => ReactNode;
-  labels: {
-    homeCalendarTitle: string;
-    homeCalendarPrevMonth: string;
-    homeCalendarNextMonth: string;
-    homeCalendarHistoryHint: string;
-    appointmentHistory: string;
-    noAppointmentHistory: string;
-    close: string;
-  };
-  locale: "he" | "en";
-  historyAppointments: SellerHomeAppointment[];
-  bookingByDay: boolean;
-  onCustomerClick?: (input: CustomerProfileInput) => void;
-}) {
-  const [historyOpen, setHistoryOpen] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) setHistoryOpen(false);
-  }, [open]);
-
-  if (!open || typeof document === "undefined") return null;
-
-  return createPortal(
-    <>
-    <div
-      className="fixed inset-0 z-[80] flex items-center justify-center p-3"
-      role="dialog"
-      aria-modal="true"
-      aria-label={labels.homeCalendarTitle}
-    >
-      <button
-        type="button"
-        className="absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
-        onClick={onClose}
-        aria-label={labels.close}
-      />
-      <div className="relative flex max-h-[min(94dvh,780px)] w-full max-w-[min(100%,400px)] flex-col overflow-hidden rounded-[28px] border border-[#5C4A3E]/25 bg-[#D2B88E] shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
-        <div className="relative flex min-h-[56px] shrink-0 items-center justify-center border-b border-bakery-border/25 px-12 py-3.5">
-          <h2 className="w-full text-center text-[22px] font-extrabold leading-tight text-bakery-ink sm:text-[24px]">
-            {labels.homeCalendarTitle}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute end-2 top-1/2 -translate-y-1/2 shrink-0 rounded-full p-1.5 text-bakery-muted transition hover:bg-bakery-card/80"
-            aria-label={labels.close}
-          >
-            <X className="h-5 w-5" strokeWidth={2} />
-          </button>
-        </div>
-        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 py-1">
-          <AppointmentCalendarPanel
-            monthTitle={formatAppointmentMonthTitle(month, locale)}
-            onPrevMonth={onPrevMonth}
-            onNextMonth={onNextMonth}
-            prevMonthLabel={labels.homeCalendarPrevMonth}
-            nextMonthLabel={labels.homeCalendarNextMonth}
-            weekdays={weekdays}
-            weeks={weeks}
-            squareDaysLarge
-            renderDay={renderDay}
-          />
-        </div>
-        <div className="shrink-0 border-t border-bakery-border/25 bg-[#D2B88E]/95 px-2.5 pb-2.5 pt-2">
-          <button
-            type="button"
-            onClick={() => setHistoryOpen(true)}
-            className={DASHBOARD_ACTION_ROW_CLASS}
-          >
-            <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-              <History className="h-6 w-6" strokeWidth={1.75} />
-            </span>
-            <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-              {labels.appointmentHistory}
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-      <DashboardActionSheet
-        open={historyOpen}
-        onClose={() => setHistoryOpen(false)}
-        title={labels.appointmentHistory}
-        ariaLabel={labels.appointmentHistory}
-        placement="center"
-        showBackButton
-        elevated
-      >
-        <p className="pb-2 text-center text-[13px] font-semibold leading-snug text-bakery-muted">
-          {labels.homeCalendarHistoryHint}
-        </p>
-        {historyAppointments.length === 0 ? (
-          <p className="py-6 text-center text-[14px] font-semibold text-bakery-muted">
-            {labels.noAppointmentHistory}
-          </p>
-        ) : (
-          <ul className="space-y-2 text-start">
-            {historyAppointments.map((appt) => (
-              <li key={appt.id}>
-                <DashboardAppointmentCard
-                  appointment={appt}
-                  bookingByDay={bookingByDay}
-                  outlined
-                  relativeDateLabels
-                  onCustomerClick={onCustomerClick}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-      </DashboardActionSheet>
-    </>,
-    document.body
-  );
-}
 
 function DashboardDayAppointmentsModal({
   open,
@@ -411,7 +258,6 @@ export function DashboardAppointmentsHomeCalendar({
   const [bookingByDay, setBookingByDay] = useState(initialBookingByDay);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [dayModalOpen, setDayModalOpen] = useState(false);
-  const [calendarModalOpen, setCalendarModalOpen] = useState(false);
   const [bookingSlotId, setBookingSlotId] = useState<string | null>(null);
   const bookingInFlightRef = useRef(new Set<string>());
   const [nowMs, setNowMs] = useState(() => initialReferenceNowMs ?? 0);
@@ -623,7 +469,6 @@ export function DashboardAppointmentsHomeCalendar({
 
   function pickDay(dateKey: string) {
     setSelectedDay(dateKey);
-    setCalendarModalOpen(false);
     setDayModalOpen(true);
   }
 
@@ -652,22 +497,6 @@ export function DashboardAppointmentsHomeCalendar({
   const selectedDaySlots = selectedDay
     ? (slotsByDay.get(selectedDay) ?? [])
     : [];
-
-  const upcomingAppointments = useMemo(() => {
-    const referenceMs = hydrated
-      ? nowMs
-      : (initialReferenceNowMs ?? nowMs);
-    const { active } = splitSellerAppointments(appointments, referenceMs);
-    return active.filter((appt) => appt.status !== "CANCELLED");
-  }, [appointments, nowMs, hydrated, initialReferenceNowMs]);
-
-  const historyAppointments = useMemo(() => {
-    const referenceMs = hydrated
-      ? nowMs
-      : (initialReferenceNowMs ?? nowMs);
-    const { history } = splitSellerAppointments(appointments, referenceMs);
-    return history.filter((appt) => appt.status !== "CANCELLED");
-  }, [appointments, nowMs, hydrated, initialReferenceNowMs]);
 
   const appointmentCustomerOrders = useMemo(
     (): DashboardOrderView[] =>
@@ -724,85 +553,27 @@ export function DashboardAppointmentsHomeCalendar({
         <div
           className="dashboard-card bakery-float-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px] p-2.5 sm:p-3"
           role="region"
-          aria-label={
-            rentalMode
-              ? labels.homeUpcomingRentals
-              : labels.homeUpcomingAppointments
-          }
+          aria-label={labels.homeCalendarTitle}
         >
           <h2 className="shrink-0 pb-1.5 text-center text-[16px] font-extrabold text-bakery-ink sm:text-[17px]">
-            {rentalMode
-              ? labels.homeUpcomingRentals
-              : labels.homeUpcomingAppointments}
+            {labels.homeCalendarTitle}
           </h2>
-          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[18px] bg-transparent p-2 [-webkit-overflow-scrolling:touch]">
-            {upcomingAppointments.length === 0 ? (
-              <p className="py-6 text-center text-[14px] font-semibold text-bakery-muted">
-                {rentalMode
-                  ? labels.homeNoUpcomingRentals
-                  : labels.homeNoUpcomingAppointments}
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {upcomingAppointments.map((appt, index) => (
-                  <li key={appt.id}>
-                    <DashboardAppointmentCard
-                      appointment={appt}
-                      bookingByDay={bookingByDay}
-                      rentalMode={rentalMode}
-                      outlined
-                      homeList
-                      highlightAsNext={hydrated && index === 0}
-                      relativeDateLabels={hydrated}
-                      onCustomerClick={openCustomer}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="shrink-0 px-1 pb-0 pt-1.5">
-            <div className="dashboard-home-header dashboard-home-header--compact">
-              <div className="dashboard-home-header__inner text-center px-2.5 py-2">
-                <button
-                  type="button"
-                  onClick={() => setCalendarModalOpen(true)}
-                  className="dashboard-home-store-link dashboard-home-store-link--compact"
-                  aria-label={labels.homeOpenCalendar}
-                >
-                  <span className="block min-w-0 truncate font-extrabold text-[17px] sm:text-[18px]">
-                    {labels.homeOpenCalendar}
-                  </span>
-                </button>
-              </div>
-            </div>
+          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-0.5 pb-1">
+            <AppointmentCalendarPanel
+              monthTitle={formatAppointmentMonthTitle(month, locale)}
+              onPrevMonth={() => setMonth((m) => appointmentAddMonths(m, -1))}
+              onNextMonth={() => setMonth((m) => appointmentAddMonths(m, 1))}
+              prevMonthLabel={labels.homeCalendarPrevMonth}
+              nextMonthLabel={labels.homeCalendarNextMonth}
+              weekdays={weekdays}
+              weeks={weeks}
+              squareDaysLarge
+              panelClassName="!border-[#5C4A3E]/14 !bg-[#faf8f4] shadow-[0_2px_8px_rgba(78,52,46,0.06)]"
+              renderDay={renderCalendarDay}
+            />
           </div>
         </div>
       </div>
-
-      <DashboardHomeCalendarModal
-        open={calendarModalOpen}
-        onClose={() => setCalendarModalOpen(false)}
-        month={month}
-        onPrevMonth={() => setMonth((m) => appointmentAddMonths(m, -1))}
-        onNextMonth={() => setMonth((m) => appointmentAddMonths(m, 1))}
-        weekdays={weekdays}
-        weeks={weeks}
-        renderDay={renderCalendarDay}
-        historyAppointments={historyAppointments}
-        bookingByDay={bookingByDay}
-        onCustomerClick={openCustomer}
-        labels={{
-          homeCalendarTitle: labels.homeCalendarTitle,
-          homeCalendarPrevMonth: labels.homeCalendarPrevMonth,
-          homeCalendarNextMonth: labels.homeCalendarNextMonth,
-          homeCalendarHistoryHint: labels.homeCalendarHistoryHint,
-          appointmentHistory: labels.appointmentHistory,
-          noAppointmentHistory: labels.noAppointmentHistory,
-          close: labels.close,
-        }}
-        locale={locale}
-      />
 
       <DashboardDayAppointmentsModal
         open={dayModalOpen}

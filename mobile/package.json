@@ -8,14 +8,17 @@
     "cap:open:android": "cap open android",
     "cap:open:ios": "cap open ios",
     "cap:run:android": "cap run android",
-    "cap:run:ios": "cap run ios"
+    "cap:run:ios": "cap run ios",
+    "bundle:android": "cd android && gradlew.bat bundleRelease"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/core": "^7.0.0",
     "@capacitor/ios": "^7.0.0",
+    "@capacitor/preferences": "^7.0.0",
     "@capacitor/splash-screen": "^7.0.0",
-    "@capacitor/status-bar": "^7.0.0"
+    "@capacitor/status-bar": "^7.0.0",
+    "linky": "file:.."
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0",

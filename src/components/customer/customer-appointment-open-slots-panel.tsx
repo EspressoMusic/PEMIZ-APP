@@ -65,7 +65,7 @@ export function CustomerAppointmentOpenSlotsPanel({
           new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
       );
 
-    if (!bookingByDay) return list.slice(0, 5);
+    if (!bookingByDay) return list;
 
     const seen = new Set<string>();
     const byDay: AppointmentSlot[] = [];

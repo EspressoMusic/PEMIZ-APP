@@ -1,0 +1,2 @@
+ALTER TABLE "PlatformConfig" ADD COLUMN "maxAppointmentsPerBusiness" INTEGER NOT NULL DEFAULT 100;
+ALTER TABLE "PlatformConfig" ADD COLUMN "maxOrderItemsPerOrder" INTEGER NOT NULL DEFAULT 200;

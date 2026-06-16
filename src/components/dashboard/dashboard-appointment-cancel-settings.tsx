@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
+import { Clock } from "lucide-react";
+import {
+  DASHBOARD_ACTION_ROW_CLASS,
+  DashboardActionRowButton,
+} from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
 import { Button, Alert, Toggle } from "@/components/ui";
@@ -23,9 +27,12 @@ function clampAmount(unit: AppointmentCancelUnit, value: number) {
 export function DashboardAppointmentCancelSettings({
   initialStoreTerms,
   previewOnly = false,
+  embedded = false,
 }: {
   initialStoreTerms: string | null;
   previewOnly?: boolean;
+  /** Row inside the actions «הגדרות» list (no outer card). */
+  embedded?: boolean;
 }) {
   const initial = useMemo(
     () => parseAppointmentCancelPolicy(initialStoreTerms),
@@ -102,26 +109,36 @@ export function DashboardAppointmentCancelSettings({
 
   return (
     <>
-      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3 text-center">
-        <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-3">
-          <button
-            type="button"
-            onClick={openSheet}
-            aria-expanded={sheetOpen}
-            className={`${DASHBOARD_ACTION_ROW_CLASS} justify-center${
-              sheetOpen ? " bakery-float-tile--active" : ""
-            }`}
-          >
-            <span className="text-[16px] font-extrabold leading-tight text-bakery-ink">
-              {title}
-            </span>
-          </button>
+      {embedded ? (
+        <DashboardActionRowButton
+          onClick={openSheet}
+          icon={Clock}
+          title={title}
+          expanded={sheetOpen}
+          active={sheetOpen}
+        />
+      ) : (
+        <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3 text-center">
+          <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-3">
+            <button
+              type="button"
+              onClick={openSheet}
+              aria-expanded={sheetOpen}
+              className={`${DASHBOARD_ACTION_ROW_CLASS} justify-center${
+                sheetOpen ? " bakery-float-tile--active" : ""
+              }`}
+            >
+              <span className="text-[16px] font-extrabold leading-tight text-bakery-ink">
+                {title}
+              </span>
+            </button>
 
-          <DashboardHelpText>
-            <p className="text-[13px] font-semibold text-bakery-muted">{summary}</p>
-          </DashboardHelpText>
+            <DashboardHelpText>
+              <p className="text-[13px] font-semibold text-bakery-muted">{summary}</p>
+            </DashboardHelpText>
+          </div>
         </div>
-      </div>
+      )}
 
       <DashboardActionSheet
         open={sheetOpen}

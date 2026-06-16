@@ -177,6 +177,9 @@ export function MasterPanel() {
   const [trialClosureEnabled, setTrialClosureEnabled] = useState(true);
   const [trialWarningEmailsEnabled, setTrialWarningEmailsEnabled] =
     useState(true);
+  const [maxAppointmentsPerBusiness, setMaxAppointmentsPerBusiness] =
+    useState(100);
+  const [maxOrderItemsPerOrder, setMaxOrderItemsPerOrder] = useState(200);
   const [platformLoading, setPlatformLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -258,10 +261,18 @@ export function MasterPanel() {
       setTrialWarningEmailsEnabled(
         platform.trialWarningEmailsEnabled !== false
       );
+      if (typeof platform.maxAppointmentsPerBusiness === "number") {
+        setMaxAppointmentsPerBusiness(platform.maxAppointmentsPerBusiness);
+      }
+      if (typeof platform.maxOrderItemsPerOrder === "number") {
+        setMaxOrderItemsPerOrder(platform.maxOrderItemsPerOrder);
+      }
     }
   }
 
-  async function patchPlatform(patch: Record<string, boolean>) {
+  async function patchPlatform(
+    patch: Record<string, boolean | number>
+  ) {
     setPlatformLoading(true);
     const res = await fetch("/api/admin/platform", {
       method: "PATCH",
@@ -280,6 +291,29 @@ export function MasterPanel() {
     if (typeof data.trialWarningEmailsEnabled === "boolean") {
       setTrialWarningEmailsEnabled(data.trialWarningEmailsEnabled);
     }
+    if (typeof data.maxAppointmentsPerBusiness === "number") {
+      setMaxAppointmentsPerBusiness(data.maxAppointmentsPerBusiness);
+    }
+    if (typeof data.maxOrderItemsPerOrder === "number") {
+      setMaxOrderItemsPerOrder(data.maxOrderItemsPerOrder);
+    }
+  }
+
+  async function savePlatformLimits() {
+    const appointments = Number(maxAppointmentsPerBusiness);
+    const orderItems = Number(maxOrderItemsPerOrder);
+    if (
+      !Number.isInteger(appointments) ||
+      appointments < 1 ||
+      !Number.isInteger(orderItems) ||
+      orderItems < 1
+    ) {
+      return;
+    }
+    await patchPlatform({
+      maxAppointmentsPerBusiness: appointments,
+      maxOrderItemsPerOrder: orderItems,
+    });
   }
 
   async function toggleSignups() {
@@ -787,6 +821,51 @@ export function MasterPanel() {
                 התראות רלוונטיות רק כשסגירה אוטומטית מופעלת.
               </p>
             ) : null}
+          </MasterInner>
+        </MasterOuter>
+
+        <MasterOuter>
+          <MasterInner className="space-y-4">
+            <div>
+              <p className="text-[16px] font-extrabold text-bakery-ink">
+                מגבלות קביעת תורים והזמנות
+              </p>
+              <p className="mt-1 text-[14px] text-bakery-muted">
+                מכסה לכל חנות ומגבלת פריטים בהזמנה אחת — חל על כל העסקים בפלטפורמה
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Input
+                label="מקסימום תורים לחנות"
+                type="number"
+                min={1}
+                max={100000}
+                value={maxAppointmentsPerBusiness}
+                onChange={(e) =>
+                  setMaxAppointmentsPerBusiness(Number(e.target.value) || 0)
+                }
+                dir="ltr"
+              />
+              <Input
+                label="מקסימום פריטים בהזמנה"
+                type="number"
+                min={1}
+                max={100000}
+                value={maxOrderItemsPerOrder}
+                onChange={(e) =>
+                  setMaxOrderItemsPerOrder(Number(e.target.value) || 0)
+                }
+                dir="ltr"
+              />
+            </div>
+            <Button
+              variant="primary"
+              onClick={() => void savePlatformLimits()}
+              disabled={platformLoading}
+              className="w-full sm:w-auto"
+            >
+              {platformLoading ? "שומר..." : "שמור מגבלות"}
+            </Button>
           </MasterInner>
         </MasterOuter>
 

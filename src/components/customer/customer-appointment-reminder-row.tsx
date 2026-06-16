@@ -5,6 +5,11 @@ import { BellRing } from "lucide-react";
 import { Toggle } from "@/components/ui";
 import type { CustomerLabels } from "./customer-labels";
 import type { AppointmentSlot } from "./customer-appointment-calendar";
+import {
+  getCustomerDeviceItem,
+  removeCustomerDeviceItem,
+  setCustomerDeviceItem,
+} from "@/lib/customer-device-storage";
 
 function localDateKey(iso: string) {
   const d = new Date(iso);
@@ -98,7 +103,7 @@ export function CustomerAppointmentReminderRow({
 
   useEffect(() => {
     try {
-      setEnabled(Boolean(localStorage.getItem(reminderKey(businessSlug))));
+      setEnabled(Boolean(getCustomerDeviceItem(reminderKey(businessSlug))));
     } catch {
       setEnabled(false);
     }
@@ -109,7 +114,7 @@ export function CustomerAppointmentReminderRow({
   function setReminder(next: boolean) {
     if (!next) {
       try {
-        localStorage.removeItem(reminderKey(businessSlug));
+        removeCustomerDeviceItem(reminderKey(businessSlug));
       } catch {
         /* ignore */
       }
@@ -124,7 +129,7 @@ export function CustomerAppointmentReminderRow({
     }
 
     try {
-      localStorage.setItem(
+      setCustomerDeviceItem(
         reminderKey(businessSlug),
         JSON.stringify({ phone, createdAt: new Date().toISOString() })
       );

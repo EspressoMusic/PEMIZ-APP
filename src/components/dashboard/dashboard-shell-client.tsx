@@ -3,6 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard-nav";
+import { AppointmentStoreWelcomeSetup } from "@/components/dashboard/appointment-store-welcome-setup";
 import { SellerWelcomeGuide } from "@/components/dashboard/seller-welcome-guide";
 import { PwaInstallBanner } from "@/components/pwa/pwa-install-banner";
 import {
@@ -113,6 +114,13 @@ export function DashboardShellClient({
           ) : (
             shellBody
           )}
+          {inSellerApp && tourEnabled ? (
+            <AppointmentStoreWelcomeSetup
+              businessId={businessId}
+              businessType={businessType}
+              basePath={basePath}
+            />
+          ) : null}
         </DashboardUiPreferencesProvider>
       </StoreThemeProvider>
     </AppLocaleProvider>

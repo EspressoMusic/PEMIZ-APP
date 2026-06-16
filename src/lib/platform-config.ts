@@ -7,6 +7,8 @@ const DEFAULT_CONFIG = {
   signupsEnabled: true,
   trialClosureEnabled: true,
   trialWarningEmailsEnabled: true,
+  maxAppointmentsPerBusiness: 100,
+  maxOrderItemsPerOrder: 200,
 };
 
 import { isDatabaseConfigured } from "@/lib/db-env";
@@ -16,6 +18,8 @@ export type PlatformConfigFlags = {
   signupsEnabled: boolean;
   trialClosureEnabled: boolean;
   trialWarningEmailsEnabled: boolean;
+  maxAppointmentsPerBusiness: number;
+  maxOrderItemsPerOrder: number;
 };
 
 function hasDatabaseUrl() {
@@ -35,6 +39,8 @@ export async function getPlatformConfig() {
           signupsEnabled: true,
           trialClosureEnabled: true,
           trialWarningEmailsEnabled: true,
+          maxAppointmentsPerBusiness: 100,
+          maxOrderItemsPerOrder: 200,
         },
         update: {},
       })
@@ -63,6 +69,8 @@ export async function updatePlatformConfig(
       signupsEnabled: patch.signupsEnabled ?? true,
       trialClosureEnabled: patch.trialClosureEnabled ?? true,
       trialWarningEmailsEnabled: patch.trialWarningEmailsEnabled ?? true,
+      maxAppointmentsPerBusiness: patch.maxAppointmentsPerBusiness ?? 100,
+      maxOrderItemsPerOrder: patch.maxOrderItemsPerOrder ?? 200,
     },
     update: patch,
   });

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireCatalogOwner } from "@/lib/dashboard-catalog-auth";
 import { regenerateAppointmentCalendar } from "@/lib/appointment-calendar-regenerate";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 import {
   defaultDaySlots,
   normalizeTimeInput,
@@ -103,7 +104,7 @@ export async function PATCH(req: Request) {
         orderSchedule: scheduleJson,
       },
     });
-    if (updated.type === "APPOINTMENTS") {
+    if (isScheduleLikeBusinessType(updated.type)) {
       await regenerateAppointmentCalendar(updated.id);
     }
   } catch (e) {

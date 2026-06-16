@@ -9,6 +9,7 @@ import {
   isPwaBannerDismissed,
   isStandalonePwa,
 } from "@/lib/pwa";
+import { isNativeCapacitorApp } from "@/lib/native-app";
 
 type BannerCopy = {
   title: string;
@@ -28,7 +29,7 @@ export function PwaInstallBanner({
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (isStandalonePwa() || isPwaBannerDismissed(surface)) return;
+    if (isNativeCapacitorApp() || isStandalonePwa() || isPwaBannerDismissed(surface)) return;
     if (canInstall) setVisible(true);
   }, [canInstall, surface]);
 

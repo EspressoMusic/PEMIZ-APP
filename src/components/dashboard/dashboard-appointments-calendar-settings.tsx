@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type MutableRefObject } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
+import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
 import { Button, Alert, Input } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
@@ -11,6 +13,10 @@ import {
   DEFAULT_APPOINTMENT_CALENDAR,
   type AppointmentCalendarConfig,
 } from "@/lib/appointment-slot-generator";
+import {
+  formatOrderScheduleSummary,
+  parseOrderSchedule,
+} from "@/lib/order-schedule";
 
 function formatCalendarSummary(
   config: AppointmentCalendarConfig,
@@ -32,11 +38,31 @@ function formatCalendarSummary(
 export function DashboardAppointmentsCalendarSettings({
   previewOnly = false,
   initialConfig = DEFAULT_APPOINTMENT_CALENDAR,
+  inline = false,
+  saveHandleRef,
+  workingDays,
+  scheduleSaveHandleRef,
+  basePath = "/dashboard",
 }: {
   previewOnly?: boolean;
   initialConfig?: AppointmentCalendarConfig;
+  /** Show booking-hour fields directly (welcome setup). */
+  inline?: boolean;
+  saveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
+  /** Nest working-days settings inside this panel (appointments calendar). */
+  workingDays?: {
+    initialEnabled: boolean;
+    initialScheduleJson: string | null;
+    previewOnly?: boolean;
+  };
+  scheduleSaveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
+  /** Used to return to actions after closing a hub-opened sheet. */
+  basePath?: string;
 }) {
   const { labels, locale } = useAppLocale();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const openedFromActionsHub = searchParams.get("open") === "hours";
   const [gapMinutes, setGapMinutes] = useState(initialConfig.gapMinutes);
   const [durationMinutes, setDurationMinutes] = useState(
     initialConfig.durationMinutes
@@ -66,6 +92,15 @@ export function DashboardAppointmentsCalendarSettings({
 
   const summary = formatCalendarSummary(config, locale);
 
+  const workingDaysSummary = useMemo(() => {
+    if (!workingDays) return null;
+    const parsed = parseOrderSchedule(
+      workingDays.initialScheduleJson,
+      workingDays.initialEnabled
+    );
+    return formatOrderScheduleSummary(parsed.enabled, parsed.enabled ? workingDays.initialScheduleJson : null);
+  }, [workingDays]);
+
   const load = useCallback(async () => {
     if (previewOnly) return;
     const res = await fetch("/api/dashboard/appointment-calendar");
@@ -86,7 +121,20 @@ export function DashboardAppointmentsCalendarSettings({
     void load();
   }, [previewOnly, load]);
 
-  async function save() {
+  useEffect(() => {
+    if (searchParams.get("open") === "hours") {
+      setSheetOpen(true);
+    }
+  }, [searchParams]);
+
+  function closeSheet() {
+    setSheetOpen(false);
+    if (openedFromActionsHub) {
+      router.replace(`${basePath}/actions`);
+    }
+  }
+
+  async function save(): Promise<boolean> {
     setError("");
     setMessage("");
 
@@ -98,14 +146,14 @@ export function DashboardAppointmentsCalendarSettings({
       Number(config.bookingEnd.split(":")[1]);
     if (endM <= startM) {
       setError(labels.scheduleInvalidHours);
-      return;
+      return false;
     }
 
     if (previewOnly) {
       setMessage(labels.previewSavedHint);
       setTimeout(() => setMessage(""), 3500);
-      setSheetOpen(false);
-      return;
+      closeSheet();
+      return true;
     }
 
     setSaving(true);
@@ -118,7 +166,7 @@ export function DashboardAppointmentsCalendarSettings({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError((data as { error?: string }).error ?? labels.saveError);
-        return;
+        return false;
       }
       const payload = data as { config?: AppointmentCalendarConfig };
       if (payload.config) {
@@ -129,12 +177,110 @@ export function DashboardAppointmentsCalendarSettings({
       }
       setMessage(labels.appointmentCalendarSaved);
       setTimeout(() => setMessage(""), 3000);
-      setSheetOpen(false);
+      closeSheet();
+      return true;
     } catch {
       setError(labels.scheduleServerError);
+      return false;
     } finally {
       setSaving(false);
     }
+  }
+
+  useEffect(() => {
+    if (!saveHandleRef) return;
+    saveHandleRef.current = save;
+    return () => {
+      saveHandleRef.current = null;
+    };
+  });
+
+  const hourEditor = (
+    <div className="flex w-full flex-col items-center gap-4">
+      <div className="w-full space-y-3 text-start">
+        <div className="space-y-3">
+          <Input
+            label={labels.appointmentBookingFrom}
+            type="time"
+            value={bookingStart}
+            onChange={(e) => setBookingStart(e.target.value)}
+            dir="ltr"
+          />
+          <Input
+            label={labels.appointmentBookingUntil}
+            type="time"
+            value={bookingEnd}
+            onChange={(e) => setBookingEnd(e.target.value)}
+            dir="ltr"
+          />
+        </div>
+
+        <Input
+          label={labels.appointmentGapMinutes}
+          type="number"
+          min={0}
+          max={180}
+          value={gapMinutes}
+          onChange={(e) => setGapMinutes(Number(e.target.value) || 0)}
+          dir="ltr"
+        />
+
+        {!bookingByDay ? (
+          <Input
+            label={labels.appointmentDurationMinutes}
+            type="number"
+            min={15}
+            max={240}
+            step={15}
+            value={durationMinutes}
+            onChange={(e) => setDurationMinutes(Number(e.target.value) || 60)}
+            dir="ltr"
+          />
+        ) : null}
+      </div>
+
+      {error ? <Alert variant="error">{error}</Alert> : null}
+      {message ? (
+        <p className="w-full rounded-full border border-bakery-border/45 bg-bakery-input px-4 py-2.5 text-center text-[13px] font-bold text-bakery-ink">
+          {message}
+        </p>
+      ) : null}
+
+      {!saveHandleRef ? (
+        <Button
+          type="button"
+          variant="primary"
+          className="w-full min-h-[44px] rounded-full font-extrabold"
+          disabled={saving}
+          onClick={() => void save()}
+        >
+          {saving ? labels.saving : labels.saveAppointmentCalendar}
+        </Button>
+      ) : null}
+    </div>
+  );
+
+  const workingDaysEditor = workingDays ? (
+    <DashboardOrderScheduleSettings
+      mode="appointments"
+      initialEnabled={workingDays.initialEnabled}
+      initialScheduleJson={workingDays.initialScheduleJson}
+      previewOnly={workingDays.previewOnly ?? previewOnly}
+      nested
+      inline
+      hideSaveButton={Boolean(scheduleSaveHandleRef)}
+      saveHandleRef={scheduleSaveHandleRef}
+    />
+  ) : null;
+
+  if (inline) {
+    return (
+      <div className="space-y-2 text-start">
+        <p className="text-[15px] font-extrabold text-bakery-ink">{title}</p>
+        {hourEditor}
+        {workingDaysEditor}
+      </div>
+    );
   }
 
   return (
@@ -156,13 +302,18 @@ export function DashboardAppointmentsCalendarSettings({
 
           <DashboardHelpText>
             <p className="text-[13px] font-semibold text-bakery-muted">{summary}</p>
+            {workingDaysSummary ? (
+              <p className="mt-1 text-[13px] font-semibold text-bakery-muted">
+                {workingDaysSummary}
+              </p>
+            ) : null}
           </DashboardHelpText>
         </div>
       </div>
 
       <DashboardActionSheet
         open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
+        onClose={closeSheet}
         title={title}
         ariaLabel={title}
         placement="center"
@@ -170,76 +321,8 @@ export function DashboardAppointmentsCalendarSettings({
         compact
         panelClassName="dashboard-appointments-calendar-sheet"
       >
-        <div className="flex w-full flex-col items-center gap-4">
-          <div className="w-full space-y-3 text-start">
-            <div className="space-y-3">
-              <Input
-                label={labels.appointmentBookingFrom}
-                type="time"
-                value={bookingStart}
-                onChange={(e) => setBookingStart(e.target.value)}
-                dir="ltr"
-              />
-              <Input
-                label={labels.appointmentBookingUntil}
-                type="time"
-                value={bookingEnd}
-                onChange={(e) => setBookingEnd(e.target.value)}
-                dir="ltr"
-              />
-            </div>
-
-            <Input
-              label={labels.appointmentGapMinutes}
-              type="number"
-              min={0}
-              max={180}
-              value={gapMinutes}
-              onChange={(e) => setGapMinutes(Number(e.target.value) || 0)}
-              dir="ltr"
-            />
-
-            {!bookingByDay ? (
-              <Input
-                label={labels.appointmentDurationMinutes}
-                type="number"
-                min={15}
-                max={240}
-                step={15}
-                value={durationMinutes}
-                onChange={(e) =>
-                  setDurationMinutes(Number(e.target.value) || 60)
-                }
-                dir="ltr"
-              />
-            ) : null}
-          </div>
-
-          <DashboardHelpText>
-            <p className="text-[12px] font-semibold text-bakery-muted">
-              {locale === "he"
-                ? "לאחר שמירה היומן מתעדכן אוטומטית לפי ימי העבודה, השעות והרווח."
-                : "After saving, the calendar updates automatically from working days, hours, and gap."}
-            </p>
-          </DashboardHelpText>
-
-          {error ? <Alert variant="error">{error}</Alert> : null}
-          {message ? (
-            <p className="w-full rounded-full border border-bakery-border/45 bg-bakery-input px-4 py-2.5 text-center text-[13px] font-bold text-bakery-ink">
-              {message}
-            </p>
-          ) : null}
-
-          <Button
-            type="button"
-            variant="primary"
-            className="w-full min-h-[44px] rounded-full font-extrabold"
-            disabled={saving}
-            onClick={() => void save()}
-          >
-            {saving ? labels.saving : labels.saveAppointmentCalendar}
-          </Button>
-        </div>
+        {hourEditor}
+        {workingDaysEditor}
       </DashboardActionSheet>
     </>
   );

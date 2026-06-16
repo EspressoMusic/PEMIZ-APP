@@ -2,9 +2,8 @@ import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { parseIsraeliMobilePhone } from "@/lib/phone";
-import { syntheticOwnerEmail } from "@/lib/owner-auth-phone";
 import { recordSystemIncident } from "@/lib/system-incidents";
-import { safeUserSelect } from "@/lib/security/user-select";
+import { findLoginCandidates } from "@/lib/owner-login";
 
 const EXPIRY_HOURS = 1;
 
@@ -17,22 +16,8 @@ async function findUserByPhone(phone: string) {
   const normalized = parseIsraeliMobilePhone(phone);
   if (!normalized) return null;
 
-  let user = await prisma.user.findFirst({
-    where: { phone: normalized },
-    select: safeUserSelect,
-  });
-
-  if (!user) {
-    const syntheticEmail = syntheticOwnerEmail(normalized);
-    if (syntheticEmail) {
-      user = await prisma.user.findUnique({
-        where: { email: syntheticEmail },
-        select: safeUserSelect,
-      });
-    }
-  }
-
-  return user;
+  const candidates = await findLoginCandidates(normalized);
+  return candidates.find((user) => user.business) ?? candidates[0] ?? null;
 }
 
 /** Manual reset via email link — kept for admin / legacy token flow. */

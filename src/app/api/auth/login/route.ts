@@ -1,15 +1,15 @@
-import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import type { Role } from "@/lib/types";
 import { jsonError, jsonInfrastructureError, jsonOk, jsonServerError } from "@/lib/api";
 import { studioConsolePath } from "@/lib/studio-access";
 import { databaseConfigHint, isDatabaseConfigured } from "@/lib/db-env";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
-import { safeUserWithPasswordSelect } from "@/lib/security/user-select";
 import { loginSchema, zodFirstError } from "@/lib/validation/schemas";
-import { parseIsraeliMobilePhone } from "@/lib/phone";
-import { syntheticOwnerEmail } from "@/lib/owner-auth-phone";
+import {
+  authenticateOwnerLogin,
+  findLoginCandidates,
+  resolveOwnerBusiness,
+} from "@/lib/owner-login";
 
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, "auth:login", 10, 15 * 60 * 1000);
@@ -31,40 +31,21 @@ export async function POST(req: Request) {
   const identifier = parsed.data.identifier.trim();
 
   try {
-    const phone = parseIsraeliMobilePhone(identifier);
-    let user =
-      phone != null
-        ? await prisma.user.findFirst({
-            where: { phone },
-            select: safeUserWithPasswordSelect,
-          })
-        : null;
-
-    if (!user && phone) {
-      const syntheticEmail = syntheticOwnerEmail(phone);
-      if (syntheticEmail) {
-        user = await prisma.user.findUnique({
-          where: { email: syntheticEmail },
-          select: safeUserWithPasswordSelect,
-        });
-      }
-    }
-
-    if (!user && identifier.includes("@")) {
-      user = await prisma.user.findUnique({
-        where: { email: identifier.toLowerCase() },
-        select: safeUserWithPasswordSelect,
-      });
-    }
-
+    const user = await authenticateOwnerLogin(identifier, parsed.data.password);
     if (!user) {
-      return jsonError("לא קיים משתמש עם הטלפון הזה", 401);
-    }
-
-    const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
-    if (!valid) {
+      const candidates = await findLoginCandidates(identifier);
+      if (candidates.length === 0) {
+        return jsonError(
+          identifier.includes("@")
+            ? "לא קיים משתמש עם הפרטים האלה"
+            : "לא קיים משתמש עם הטלפון הזה",
+          401
+        );
+      }
       return jsonError("הסיסמה שגויה", 401);
     }
+
+    const business = await resolveOwnerBusiness(user);
 
     await createSession({
       userId: user.id,
@@ -79,8 +60,8 @@ export async function POST(req: Request) {
       userId: user.id,
       role: user.role,
       emailVerified: user.emailVerified,
-      hasBusiness: !!user.business,
-      businessActive: user.business?.isActive ?? false,
+      hasBusiness: !!business,
+      businessActive: business?.isActive ?? false,
       redirectTo: consolePath,
     });
   } catch (error) {

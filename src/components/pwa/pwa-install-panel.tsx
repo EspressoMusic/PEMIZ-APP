@@ -2,6 +2,7 @@
 
 import { Download, Share, Smartphone } from "lucide-react";
 import { usePwa } from "@/components/pwa/pwa-context";
+import { useNativeApp } from "@/hooks/use-native-app";
 
 type InstallCopy = {
   title: string;
@@ -21,12 +22,13 @@ const installTapClass =
 
 export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
   const { installed, canInstall, isIos, tryAddToHomeScreen } = usePwa();
+  const nativeApp = useNativeApp();
 
   function handleTap() {
     void tryAddToHomeScreen();
   }
 
-  if (installed) {
+  if (installed || nativeApp) {
     return (
       <div className="rounded-[22px] border border-bakery-success/35 bg-bakery-success/8 px-4 py-4 text-center">
         <p className="text-[16px] font-extrabold text-bakery-ink">{copy.installedTitle}</p>

@@ -1,9 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
-import { DashboardAppointmentCancelSettings } from "@/components/dashboard/dashboard-appointment-cancel-settings";
+import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/dashboard-appointments-calendar-settings";
-import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
 
 export default async function SettingsSlotsPage() {
   const user = await getCurrentUser();
@@ -15,16 +13,13 @@ export default async function SettingsSlotsPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 pb-2 text-center">
       <div className="px-1 text-start">
-        <DashboardSettingsBackLink />
+        <DashboardActionsBackLink />
       </div>
-      <DashboardAppointmentsCalendarSettings />
-      <DashboardAppointmentCancelSettings
-        initialStoreTerms={b.storeTerms ?? null}
-      />
-      <DashboardOrderScheduleSettings
-        mode="appointments"
-        initialEnabled={b.orderScheduleEnabled ?? false}
-        initialScheduleJson={b.orderSchedule ?? null}
+      <DashboardAppointmentsCalendarSettings
+        workingDays={{
+          initialEnabled: b.orderScheduleEnabled ?? false,
+          initialScheduleJson: b.orderSchedule ?? null,
+        }}
       />
     </div>
   );

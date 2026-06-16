@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { CelebrationModal } from "@/components/celebration-modal";
 import { ProductImageField } from "@/components/product-image-field";
-import { Button, Input, Badge, Alert } from "@/components/ui";
+import { Button, Input, Badge, Alert, Toggle } from "@/components/ui";
 import { Gift, Package, Plus, Tags, X, Pencil } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
@@ -693,19 +693,16 @@ export function DealsManager({
                       }
                     />
                   </div>
-                  <label className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-2.5 py-2">
-                    <input
-                      type="checkbox"
-                      checked={dealRedemptionUnlimited}
-                      onChange={(e) =>
-                        setDealRedemptionUnlimited(e.target.checked)
-                      }
-                      className="h-3.5 w-3.5 accent-bakery-primary"
-                    />
+                  <div className="flex shrink-0 items-center gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-2.5 py-2">
                     <span className="text-[12px] font-bold leading-tight text-bakery-ink">
                       {labels.dealRedemptionUnlimited}
                     </span>
-                  </label>
+                    <Toggle
+                      enabled={dealRedemptionUnlimited}
+                      onChange={setDealRedemptionUnlimited}
+                      ariaLabel={labels.dealRedemptionUnlimited}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="space-y-1 text-start">
@@ -840,60 +837,76 @@ export function DealsManager({
             {deals.map((d) => (
               <li
                 key={d.id}
-                className="rounded-[20px] border border-bakery-border/20 bg-[#faf6f0] px-3 py-3 text-start shadow-[0_2px_8px_rgba(78,52,46,0.06)]"
+                className="overflow-hidden rounded-[20px] border border-bakery-border/25 bg-[#faf6f0] shadow-[0_2px_8px_rgba(78,52,46,0.06)]"
               >
-                <div className="relative mb-2.5 flex min-h-[22px] items-center justify-center px-10">
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2">
+                <div className="flex items-center justify-between gap-2 border-b border-bakery-border/20 bg-bakery-card/40 px-3 py-2">
+                  <span
+                    className={`inline-flex min-h-[28px] items-center rounded-[10px] border px-2.5 text-[12px] font-extrabold leading-none ${
+                      d.isActive
+                        ? "border-[#43a047]/35 bg-[#43a047]/12 text-[#2e7d32]"
+                        : "border-[#9a4545]/35 bg-[#9a4545]/10 text-[#9a4545]"
+                    }`}
+                  >
                     {d.isActive ? (
-                      <span
-                        className="deal-active-pulse block h-2.5 w-2.5 rounded-full bg-[#43a047]"
-                        role="status"
-                        aria-label={labels.active}
-                      />
-                    ) : (
-                      <span className="text-[13px] font-extrabold leading-none text-[#9a4545]">
-                        {labels.dealOff}
+                      <span className="inline-flex items-center gap-1.5">
+                        <span
+                          className="deal-active-pulse block h-2 w-2 rounded-full bg-[#43a047]"
+                          role="status"
+                          aria-hidden
+                        />
+                        {labels.active}
                       </span>
+                    ) : (
+                      labels.dealOff
                     )}
-                  </div>
-                  <p
+                  </span>
+                  <span
                     dir="ltr"
-                    className="text-center text-[12px] font-bold tabular-nums text-bakery-muted"
+                    className="rounded-[10px] border border-bakery-border/25 bg-bakery-input/80 px-2.5 py-1 text-[11px] font-bold tabular-nums text-bakery-muted"
                   >
                     {formatDateTime(d.validUntil)}
-                  </p>
+                  </span>
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-[16px] font-extrabold leading-tight text-bakery-ink">
-                    {d.name}
-                  </p>
-                  <p className="text-[13px] font-semibold leading-snug text-bakery-muted">
-                    {(d.products ?? []).map((p) => p.name).join(" + ")}
-                  </p>
-                  <p
-                    dir="ltr"
-                    className="pt-0.5 text-[18px] font-extrabold tabular-nums text-bakery-primary"
-                  >
-                    {formatMoney(d.dealPrice)}
-                  </p>
-                  <p className="text-[12px] font-semibold text-bakery-muted">
-                    {labels.dealRedemptionLimit}:{" "}
-                    {redemptionSummaryLabel(
-                      d.maxRedemptionsPerCustomer ?? 1,
-                      labels
-                    )}
-                  </p>
+                <div className="space-y-2 px-3 py-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="min-w-0 flex-1 text-[16px] font-extrabold leading-snug text-bakery-ink">
+                      {d.name}
+                    </p>
+                    <p
+                      dir="ltr"
+                      className="shrink-0 rounded-[12px] border border-bakery-primary/25 bg-bakery-primary/10 px-2.5 py-1 text-[17px] font-extrabold tabular-nums text-bakery-primary"
+                    >
+                      {formatMoney(d.dealPrice)}
+                    </p>
+                  </div>
+
+                  {(d.products ?? []).length > 0 ? (
+                    <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-2.5 py-2">
+                      <p className="text-[13px] font-semibold leading-snug text-bakery-ink">
+                        {(d.products ?? []).map((p) => p.name).join(" + ")}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-card/60 px-2.5 py-2">
+                    <p className="text-[12px] font-bold text-bakery-muted">
+                      {labels.dealRedemptionLimit}
+                    </p>
+                    <p className="mt-0.5 text-[13px] font-extrabold text-bakery-ink">
+                      {redemptionSummaryLabel(
+                        d.maxRedemptionsPerCustomer ?? 1,
+                        labels
+                      )}
+                    </p>
+                  </div>
                 </div>
 
-                <div
-                  className="mt-3 flex items-center justify-between gap-3"
-                  dir="ltr"
-                >
+                <div className="flex items-center justify-between gap-3 border-t border-bakery-border/20 px-3 py-2">
                   <button
                     type="button"
                     onClick={() => removeDeal(d.id)}
-                    className="min-h-[44px] px-1 text-[14px] font-extrabold text-[#9a4545] transition active:opacity-75"
+                    className="inline-flex min-h-[40px] items-center rounded-[12px] border border-[#9a4545]/30 bg-[#9a4545]/8 px-3 text-[13px] font-extrabold text-[#9a4545] transition active:opacity-75"
                   >
                     {labels.delete}
                   </button>
@@ -903,9 +916,9 @@ export function DealsManager({
                       setDealsListOpen(false);
                       openEditDeal(d);
                     }}
-                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-[#5C4A3E] px-5 text-[14px] font-extrabold text-[#FAF4E6] shadow-[0_2px_8px_rgba(58,47,38,0.18)] transition active:scale-[0.98]"
+                    className="inline-flex min-h-[40px] flex-1 items-center justify-center gap-1.5 rounded-full bg-[#5C4A3E] px-4 text-[14px] font-extrabold text-[#FAF4E6] shadow-[0_2px_8px_rgba(58,47,38,0.18)] transition active:scale-[0.98]"
                   >
-                    <Pencil className="h-4 w-4" strokeWidth={2.25} />
+                    <Pencil className="h-4 w-4 shrink-0" strokeWidth={2.25} />
                     {labels.edit}
                   </button>
                 </div>

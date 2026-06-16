@@ -32,6 +32,11 @@ import {
 } from "@/lib/store-deal-redemption";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { grantCustomerPhoneAccess } from "@/lib/customer-phone-access";
+import {
+  getPlatformLimits,
+  orderItemsLimitMessage,
+  totalOrderItemQuantity,
+} from "@/lib/platform-limits";
 
 function afterOrderPlaced(
   businessId: string,
@@ -93,6 +98,8 @@ export async function POST(
   const phone = parseIsraeliMobilePhone(parsed.data.customerPhone);
   if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);
 
+  const { maxOrderItemsPerOrder } = await getPlatformLimits();
+
   let orderItems: { productId: string; quantity: number; priceAtOrder: number }[] = [];
 
   if (parsed.data.dealId) {
@@ -140,6 +147,10 @@ export async function POST(
       priceAtOrder: row.priceAtOrder,
     }));
 
+    if (totalOrderItemQuantity(orderItems) > maxOrderItemsPerOrder) {
+      return jsonError(orderItemsLimitMessage(maxOrderItemsPerOrder), 403);
+    }
+
     try {
       const order = await prisma.$transaction(async (tx) => {
         const created = await reserveStockAndCreateOrder(
@@ -184,6 +195,10 @@ export async function POST(
       quantity: item.quantity,
       priceAtOrder: getEffectivePrice(product),
     });
+  }
+
+  if (totalOrderItemQuantity(orderItems) > maxOrderItemsPerOrder) {
+    return jsonError(orderItemsLimitMessage(maxOrderItemsPerOrder), 403);
   }
 
   try {

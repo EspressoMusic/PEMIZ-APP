@@ -12,7 +12,10 @@ export default function DevSellerSettingsDealsAndLimitsPage() {
           storeLocale={DEV_STORE_BUSINESS.storeLocale}
           storeTheme={DEV_STORE_BUSINESS.storeTheme}
         >
-          <DashboardDealsAndLimitsHub basePath="/dev/seller" />
+          <DashboardDealsAndLimitsHub
+            basePath="/dev/seller"
+            previewOnly
+          />
         </DashboardShell>
       </div>
     </div>

@@ -19,6 +19,7 @@ import {
 } from "@/components/dashboard/dashboard-settings-tile";
 import { DASHBOARD_SETTINGS_ACTION } from "@/components/dashboard/dashboard-settings-bar";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { useNativeApp } from "@/hooks/use-native-app";
 
 type Props = {
   ownerName: string;
@@ -48,6 +49,7 @@ export function DashboardSettingsView({
   previewCustomerOrders = [],
 }: Props) {
   const { labels } = useAppLocale();
+  const nativeApp = useNativeApp();
   const showStoreQuickLinks =
     showQuickActionRows &&
     (businessType === "STORE" ||
@@ -91,11 +93,13 @@ export function DashboardSettingsView({
                   icon={Bell}
                   title={labels.alerts}
                 />
-                <DashboardActionRow
-                  href={`${basePath}/settings/app`}
-                  icon={Smartphone}
-                  title={labels.installApp}
-                />
+                {!nativeApp ? (
+                  <DashboardActionRow
+                    href={`${basePath}/settings/app`}
+                    icon={Smartphone}
+                    title={labels.installApp}
+                  />
+                ) : null}
               </>
             ) : null}
           </ul>

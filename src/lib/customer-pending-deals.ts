@@ -1,3 +1,9 @@
+import {
+  getCustomerDeviceItem,
+  removeCustomerDeviceItem,
+  setCustomerDeviceItem,
+} from "@/lib/customer-device-storage";
+
 export const PENDING_DEAL_TTL_MS = 24 * 60 * 60 * 1000;
 
 export type PendingDealSnapshot = {
@@ -38,13 +44,13 @@ export function isPendingDealExpired(
 export function loadPendingDeals(slug: string): PendingDealEntry[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(storageKey(slug));
+    const raw = getCustomerDeviceItem(storageKey(slug));
     if (!raw) return [];
     const parsed = JSON.parse(raw) as PendingDealEntry[];
     if (!Array.isArray(parsed)) return [];
     const active = parsed.filter((e) => !isPendingDealExpired(e.redeemedAt));
     if (active.length !== parsed.length) {
-      localStorage.setItem(storageKey(slug), JSON.stringify(active));
+      setCustomerDeviceItem(storageKey(slug), JSON.stringify(active));
     }
     return active;
   } catch {
@@ -55,10 +61,10 @@ export function loadPendingDeals(slug: string): PendingDealEntry[] {
 function savePendingDeals(slug: string, entries: PendingDealEntry[]) {
   if (typeof window === "undefined") return;
   if (entries.length === 0) {
-    localStorage.removeItem(storageKey(slug));
+    removeCustomerDeviceItem(storageKey(slug));
     return;
   }
-  localStorage.setItem(storageKey(slug), JSON.stringify(entries));
+  setCustomerDeviceItem(storageKey(slug), JSON.stringify(entries));
 }
 
 export function addPendingDeal(
@@ -77,7 +83,7 @@ export function addPendingDeal(
 
 export function clearPendingDeals(slug: string) {
   if (typeof window === "undefined") return;
-  localStorage.removeItem(storageKey(slug));
+  removeCustomerDeviceItem(storageKey(slug));
 }
 
 export function removePendingDeals(slug: string, dealIds: string[]) {

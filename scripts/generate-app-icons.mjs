@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const logoPath = join(root, "public/icons/linky-app-logo.png");
-const appIconBackground = "#f9f4eb";
+const appIconBackground = "#E6D4B8";
 const outDir = join(root, "public/icons");
 const publicDir = join(root, "public");
 const appDir = join(root, "src/app");

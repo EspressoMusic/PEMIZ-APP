@@ -742,7 +742,6 @@ export const ProductGridCard = memo(function ProductGridCard({
   const onSale =
     salePrice != null && salePrice > 0 && salePrice < price;
   const display = onSale ? salePrice! : price;
-  const salePriceDelay = `${(name.length % 7) * 0.9}s`;
 
   const atMax = maxQty != null && qty >= maxQty;
 
@@ -774,9 +773,8 @@ export const ProductGridCard = memo(function ProductGridCard({
         <div className="mt-auto grid h-9 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1">
           <span
             className={`min-w-0 truncate text-[17px] font-extrabold leading-none tabular-nums ${
-              onSale ? "customer-product-sale-price" : "text-bakery-ink"
+              onSale ? "text-[#ff4a55]" : "text-bakery-ink"
             }`}
-            style={onSale ? { animationDelay: salePriceDelay } : undefined}
           >
             {formatCustomerMoney(display, locale)}
           </span>
@@ -849,9 +847,8 @@ export const ProductGridCard = memo(function ProductGridCard({
           )}
           <span
             className={`text-[26px] font-extrabold leading-none tabular-nums ${
-              onSale ? "customer-product-sale-price" : "text-bakery-ink"
+              onSale ? "text-[#ff4a55]" : "text-bakery-ink"
             }`}
-            style={onSale ? { animationDelay: salePriceDelay } : undefined}
           >
             {formatCustomerMoney(display, locale)}
           </span>
@@ -903,8 +900,6 @@ export function DealCard({
     0
   );
   const validUntilLabel = `${labels.dealValidUntil} ${formatCustomerOrderDate(validUntil, locale)}`;
-  const dealPriceDelay = `${(name.length % 7) * 0.9}s`;
-  const dealPriceStyle = { animationDelay: dealPriceDelay } as const;
 
   return (
     <>
@@ -967,10 +962,7 @@ export function DealCard({
               {formatCustomerMoney(originalTotal, locale)}
             </p>
           )}
-          <p
-            className="customer-product-sale-price text-center text-[18px] font-extrabold leading-none tabular-nums"
-            style={dealPriceStyle}
-          >
+          <p className="text-center text-[18px] font-extrabold leading-none tabular-nums text-[#ff4a55]">
             {formatCustomerMoney(dealPrice, locale)}
           </p>
           <p className="pt-0.5 text-center text-[11px] font-semibold leading-snug text-bakery-muted">
@@ -1048,10 +1040,7 @@ export function DealCard({
                 {formatCustomerMoney(originalTotal, locale)}
               </p>
             )}
-            <p
-              className="customer-product-sale-price text-center text-[26px] font-extrabold leading-none tabular-nums"
-              style={dealPriceStyle}
-            >
+            <p className="text-center text-[26px] font-extrabold leading-none tabular-nums text-[#ff4a55]">
               {formatCustomerMoney(dealPrice, locale)}
             </p>
             <p className="pt-0.5 text-center text-[12px] font-semibold leading-snug text-bakery-muted">

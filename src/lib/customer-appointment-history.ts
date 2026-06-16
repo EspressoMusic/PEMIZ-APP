@@ -1,4 +1,8 @@
 import type { CustomerLocale } from "@/lib/customer-preferences";
+import {
+  getCustomerDeviceItem,
+  setCustomerDeviceItem,
+} from "@/lib/customer-device-storage";
 
 export type CustomerAppointmentStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
 
@@ -24,7 +28,7 @@ export function loadCustomerAppointmentHistory(
 ): CustomerAppointmentEntry[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(storageKey(slug));
+    const raw = getCustomerDeviceItem(storageKey(slug));
     if (!raw) return [];
     const parsed = JSON.parse(raw) as CustomerAppointmentEntry[];
     return Array.isArray(parsed) ? parsed : [];
@@ -37,7 +41,7 @@ export function saveCustomerAppointmentHistory(
   slug: string,
   entries: CustomerAppointmentEntry[]
 ) {
-  localStorage.setItem(storageKey(slug), JSON.stringify(entries));
+  setCustomerDeviceItem(storageKey(slug), JSON.stringify(entries));
 }
 
 export function appendCustomerAppointmentHistory(

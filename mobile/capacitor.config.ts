@@ -21,7 +21,7 @@ const config = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 1800,
+      launchShowDuration: 900,
       launchAutoHide: true,
       backgroundColor: "#E6D4B8",
       androidScaleType: "CENTER_CROP",

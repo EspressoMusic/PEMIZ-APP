@@ -47,9 +47,11 @@ export function CustomerAppointmentSlotPicker({
   const appLocale = locale === "he" ? "he" : "en";
   const title = formatAppointmentDayTitle(dateKey, appLocale);
   const closed = !isSellerWorkingDay(dateKey, orderScheduleEnabled, orderSchedule);
-  const sortedSlots = [...slots].sort(
-    (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
-  );
+  const sortedSlots = [...slots]
+    .filter((s) => new Date(s.startAt) > new Date())
+    .sort(
+      (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
+    );
   const openSlots = sortedSlots.filter(appointmentSlotIsOpen);
 
   return (

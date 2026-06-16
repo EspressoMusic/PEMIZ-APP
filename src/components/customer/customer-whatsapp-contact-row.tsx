@@ -26,6 +26,7 @@ function WhatsAppIconTile() {
 
 export function CustomerWhatsAppContactRow({
   title,
+  subtitle,
   href,
   unavailableLabel,
 }: {
@@ -37,6 +38,7 @@ export function CustomerWhatsAppContactRow({
   return (
     <SettingsMenuRow
       title={href ? title : unavailableLabel}
+      subtitle={subtitle}
       href={href ?? undefined}
       disabled={!href}
       iconSlot={<WhatsAppIconTile />}

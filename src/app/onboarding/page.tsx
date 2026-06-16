@@ -46,9 +46,14 @@ export default function OnboardingPage() {
     <WebShell>
       <div className="mx-auto w-full max-w-lg px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel>
-          <PageTitle subtitle="בחר סוג עסק — הדשבורד ייפתח מיד לאחר השמירה">
-            פתיחת עסק
-          </PageTitle>
+          <PageTitle>פתיחת עסק</PageTitle>
+          <p className="mb-4 text-[14px] leading-[1.45] text-bakery-muted">
+            כבר פתחת חנות בעבר? ייתכן שנרשמת עם אימייל —{" "}
+            <Link href="/login" className="font-bold text-bakery-ink hover:underline">
+              התחבר/י עם האימייל
+            </Link>
+            .
+          </p>
           {error && (
             <div className="mb-4">
               <Alert variant="error">{error}</Alert>
@@ -56,7 +61,7 @@ export default function OnboardingPage() {
           )}
           <form onSubmit={onSubmit} className="space-y-3">
             <Input name="name" label="שם העסק" required />
-            <Textarea name="description" label="תיאור קצר (אופציונלי)" rows={3} />
+            <Textarea name="description" label="תיאור קצר" rows={3} />
 
             <div>
               <span className="text-[14px] font-bold text-bakery-ink">סוג עסק</span>

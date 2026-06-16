@@ -13,6 +13,7 @@ import {
   type BeforeInstallPromptEvent,
   isStandalonePwa,
 } from "@/lib/pwa";
+import { isNativeCapacitorApp } from "@/lib/native-app";
 
 export type PwaInstallOutcome =
   | "accepted"
@@ -38,6 +39,10 @@ export function PwaProvider({ children }: { children: ReactNode }) {
   const [isIos, setIsIos] = useState(false);
 
   useEffect(() => {
+    if (isNativeCapacitorApp()) {
+      setInstalled(true);
+      return;
+    }
     setInstalled(isStandalonePwa());
     setIsIos(/iphone|ipad|ipod/i.test(window.navigator.userAgent));
 

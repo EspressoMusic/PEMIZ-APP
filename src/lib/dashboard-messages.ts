@@ -345,6 +345,9 @@ export type DashboardLabels = {
   sellerGuideAddService: string;
   sellerGuideAddCalendar: string;
   sellerGuideStepCounter: string;
+  appointmentStoreSetupTitle: string;
+  appointmentStoreSetupIntro: string;
+  appointmentStoreSetupContinue: string;
   sellerGuideWelcomeTipAddProductTitle: string;
   sellerGuideWelcomeTipAddProductBody: string;
   sellerGuideWelcomeTipOrdersTitle: string;
@@ -830,6 +833,10 @@ const HE: DashboardLabels = {
   sellerGuideAddProduct: "הוסף מוצר ראשון",
   sellerGuideAddService: "הוסף שירות ראשון",
   sellerGuideAddCalendar: "הגדר יומן ומשבצות",
+  appointmentStoreSetupTitle: "ימי עבודה ושעות פעילות",
+  appointmentStoreSetupIntro:
+    "לפני שמתחילים — בחרו באילו ימים ושעות לקוחות יוכלו לקבוע תור, ושמרו את ההגדרות.",
+  appointmentStoreSetupContinue: "המשך לסיור בלינקי",
   sellerGuideStepCounter: "שלב {current} מתוך {total}",
   sellerGuideWelcomeTipAddProductTitle: "איך מוסיפים מוצר?",
   sellerGuideWelcomeTipAddProductBody:
@@ -851,7 +858,7 @@ const HE: DashboardLabels = {
     "בבית — יומן חודשי עם ימים פתוחים לקביעה. לוחצים על יום לראות פגישות באותו יום, או «פתיחת יומן» לתצוגה מלאה.",
   sellerGuideWelcomeTipDurationGapTitle: "בונוס: משך שירות ורווח בין פגישות",
   sellerGuideWelcomeTipDurationGapBody:
-    "משך לכל שירות — בשדה «משך השירות» כשמוסיפים שירות. רווח בין פגישות ושעות קביעה: פעולות ← הגדרות ← יומן.",
+    "משך לכל שירות — בשדה «משך השירות» כשמוסיפים שירות. רווח בין פגישות ושעות קביעה: פעולות ← חנות ← יומן.",
   sellerGuideWelcomeTipDealsTitle: "איך מוסיפים דיל?",
   sellerGuideWelcomeTipDealsBody:
     "פעולות ← חנות ← דילים והגבלות ← דילים ← הוסף דיל. בוחרים מוצרים, מחיר ותוקף — ומפרסמים.",
@@ -1405,6 +1412,10 @@ const EN: DashboardLabels = {
   sellerGuideAddProduct: "Add first product",
   sellerGuideAddService: "Add first service",
   sellerGuideAddCalendar: "Set up calendar & slots",
+  appointmentStoreSetupTitle: "Working days & booking hours",
+  appointmentStoreSetupIntro:
+    "Before you start — choose which days and hours customers can book, then save your settings.",
+  appointmentStoreSetupContinue: "Continue to the Linky tour",
   sellerGuideStepCounter: "Step {current} of {total}",
   sellerGuideWelcomeTipAddProductTitle: "How do I add a product?",
   sellerGuideWelcomeTipAddProductBody:
@@ -1426,7 +1437,7 @@ const EN: DashboardLabels = {
     "On Home — a monthly calendar with open booking days. Tap a day to see that day's appointments, or Open calendar for the full view.",
   sellerGuideWelcomeTipDurationGapTitle: "Bonus: duration & gap between appointments",
   sellerGuideWelcomeTipDurationGapBody:
-    "Per-service duration — in the Add service form. Gap between appointments and booking hours: Actions → Settings → Calendar.",
+    "Per-service duration — in the Add service form. Gap between appointments and booking hours: Actions → Store → Calendar.",
   sellerGuideWelcomeTipDealsTitle: "How do I add a deal?",
   sellerGuideWelcomeTipDealsBody:
     "Actions → Store → Deals & limits → Deals → Add deal. Pick products, price, and expiry — then publish.",

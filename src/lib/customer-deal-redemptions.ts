@@ -1,3 +1,9 @@
+import {
+  getCustomerDeviceItem,
+  removeCustomerDeviceItem,
+  setCustomerDeviceItem,
+} from "@/lib/customer-device-storage";
+
 function storageKey(slug: string) {
   return `linky-deal-redemptions-${slug}`;
 }
@@ -7,7 +13,7 @@ export function loadLocalDealRedemptionCounts(
 ): Record<string, number> {
   if (typeof window === "undefined") return {};
   try {
-    const raw = localStorage.getItem(storageKey(slug));
+    const raw = getCustomerDeviceItem(storageKey(slug));
     if (!raw) return {};
     const parsed = JSON.parse(raw) as Record<string, number>;
     return parsed && typeof parsed === "object" ? parsed : {};
@@ -22,10 +28,10 @@ export function saveLocalDealRedemptionCounts(
 ) {
   if (typeof window === "undefined") return;
   if (Object.keys(counts).length === 0) {
-    localStorage.removeItem(storageKey(slug));
+    removeCustomerDeviceItem(storageKey(slug));
     return;
   }
-  localStorage.setItem(storageKey(slug), JSON.stringify(counts));
+  setCustomerDeviceItem(storageKey(slug), JSON.stringify(counts));
 }
 
 export function mergeDealRedemptionCounts(

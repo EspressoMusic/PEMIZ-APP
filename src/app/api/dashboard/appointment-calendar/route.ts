@@ -2,13 +2,13 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireBusinessOwner } from "@/lib/dashboard-auth";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 import {
   calendarConfigFromBusiness,
   calendarConfigToBusinessData,
 } from "@/lib/appointment-calendar-config";
 import { regenerateAppointmentCalendar } from "@/lib/appointment-calendar-regenerate";
 import { normalizeTimeInput } from "@/lib/order-schedule";
-import { effectiveServiceDurationMinutes } from "@/lib/service-duration";
 
 const patchSchema = z.object({
   gapMinutes: z.number().int().min(0).max(180).optional(),
@@ -22,23 +22,12 @@ const patchSchema = z.object({
 export async function GET() {
   const ctx = await requireBusinessOwner();
   if (!ctx.ok) return ctx.response;
-  if (ctx.user.business.type !== "APPOINTMENTS") {
+  if (!isScheduleLikeBusinessType(ctx.user.business.type)) {
     return jsonError("עסק לא במצב תורים", 400);
   }
 
   const b = ctx.user.business;
-  const products = await prisma.product.findMany({
-    where: { businessId: b.id, isActive: true },
-    select: { serviceDurationMinutes: true, isActive: true },
-  });
-  const baseConfig = calendarConfigFromBusiness(b);
-  const config = {
-    ...baseConfig,
-    durationMinutes: effectiveServiceDurationMinutes(
-      products,
-      baseConfig.durationMinutes
-    ),
-  };
+  const config = calendarConfigFromBusiness(b);
 
   const slots = await prisma.appointmentSlot.findMany({
     where: {
@@ -67,7 +56,7 @@ export async function GET() {
 export async function PATCH(req: Request) {
   const ctx = await requireBusinessOwner();
   if (!ctx.ok) return ctx.response;
-  if (ctx.user.business.type !== "APPOINTMENTS") {
+  if (!isScheduleLikeBusinessType(ctx.user.business.type)) {
     return jsonError("עסק לא במצב תורים", 400);
   }
 
@@ -108,17 +97,7 @@ export async function PATCH(req: Request) {
     await regenerateAppointmentCalendar(updated.id);
   }
 
-  const products = await prisma.product.findMany({
-    where: { businessId: updated.id, isActive: true },
-    select: { serviceDurationMinutes: true, isActive: true },
-  });
-  const config = {
-    ...calendarConfigFromBusiness(updated),
-    durationMinutes: effectiveServiceDurationMinutes(
-      products,
-      calendarConfigFromBusiness(updated).durationMinutes
-    ),
-  };
+  const config = calendarConfigFromBusiness(updated);
 
   const slots = await prisma.appointmentSlot.findMany({
     where: {

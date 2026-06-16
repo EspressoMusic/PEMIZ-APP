@@ -17,13 +17,17 @@
     "vapid:generate": "node scripts/generate-vapid-keys.mjs",
     "mobile:install": "npm install --prefix mobile",
     "mobile:sync": "npm run --prefix mobile cap:sync",
+    "mobile:prepare:play": "node mobile/scripts/prepare-play-release.mjs",
     "mobile:android": "npm run --prefix mobile cap:open:android",
+    "mobile:bundle": "cd mobile/android && gradlew.bat bundleRelease",
+    "mobile:apk": "cd mobile/android && gradlew.bat assembleDebug",
     "mobile:ios": "npm run --prefix mobile cap:open:ios"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@capacitor/preferences": "^7.0.0",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.3",

@@ -1,4 +1,8 @@
 import type { CustomerLocale } from "@/lib/customer-preferences";
+import {
+  getCustomerDeviceItem,
+  setCustomerDeviceItem,
+} from "@/lib/customer-device-storage";
 
 export type OrderPreviewLine = {
   name: string;
@@ -26,7 +30,7 @@ export function loadCustomerOrderHistory(
 ): CustomerOrderHistoryEntry[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(storageKey(slug));
+    const raw = getCustomerDeviceItem(storageKey(slug));
     if (!raw) return [];
     const parsed = JSON.parse(raw) as CustomerOrderHistoryEntry[];
     return Array.isArray(parsed) ? parsed : [];
@@ -41,7 +45,7 @@ export function appendCustomerOrderHistory(
 ): CustomerOrderHistoryEntry[] {
   const prev = loadCustomerOrderHistory(slug);
   const next = [entry, ...prev];
-  localStorage.setItem(storageKey(slug), JSON.stringify(next));
+  setCustomerDeviceItem(storageKey(slug), JSON.stringify(next));
   return next;
 }
 
