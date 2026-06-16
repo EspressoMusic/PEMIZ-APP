@@ -20,6 +20,8 @@ export type DashboardLabels = {
   appointmentCalendar: string;
   appointmentCalendarAndLimits: string;
   appointmentGapMinutes: string;
+  appointmentGapBetweenMeetings: string;
+  appointmentCalendarShowWeekend: string;
   appointmentDurationMinutes: string;
   appointmentBookingHours: string;
   appointmentBookingFrom: string;
@@ -151,6 +153,7 @@ export type DashboardLabels = {
   noOrders: string;
   noOrdersYet: string;
   total: string;
+  prepSummaryButton: string;
   confirmOrder: string;
   completeOrder: string;
   cancelOrder: string;
@@ -168,6 +171,7 @@ export type DashboardLabels = {
   confirmAndSave: string;
   backToEdit: string;
   addDeal: string;
+  addNewDeal: string;
   existingDeals: string;
   dealOff: string;
   noExistingDeals: string;
@@ -179,6 +183,7 @@ export type DashboardLabels = {
   edit: string;
   delete: string;
   active: string;
+  status: string;
   inactive: string;
   hidden: string;
   show: string;
@@ -555,6 +560,8 @@ const HE: DashboardLabels = {
   appointmentCalendar: "יומן",
   appointmentCalendarAndLimits: "יומן והגבלות",
   appointmentGapMinutes: "רווח בין פגישות (דקות)",
+  appointmentGapBetweenMeetings: "רווח בין כל פגישה",
+  appointmentCalendarShowWeekend: "הצג שישי ושבת ביומן",
   appointmentDurationMinutes: "משך כל פגישה (דקות)",
   appointmentBookingHours: "שעות לקביעת תורים",
   appointmentBookingFrom: "משעה",
@@ -565,12 +572,12 @@ const HE: DashboardLabels = {
   settings: "הגדרות",
   accountAndLink: "חשבון וחנות",
   storePanelsTitle: "מה יופיע באתר הלקוחות",
-  storePanelDeals: "מבצעים (דילים)",
+  storePanelDeals: "מבצעים",
   storePanelBroadcast: "הודעות והתראות ללקוחות",
-  storePanelChat: "צ'אט",
+  storePanelChat: "פנייה בוואטסאפ",
   storePanelInquiries: "פניות",
   storePanelFaq: "שאלות נפוצות",
-  storePanelOrderLimits: "הגבלות הזמנה (שעות פעילות)",
+  storePanelOrderLimits: "הגבלות הזמנה",
   storePanelsSaveFailed: "שמירת ההגדרות נכשלה",
   extras: "פרטים נוספים",
   customers: "לקוחות",
@@ -621,6 +628,7 @@ const HE: DashboardLabels = {
   noOrders: "אין הזמנות.",
   noOrdersYet: "אין הזמנות עדיין.",
   total: "סה״כ",
+  prepSummaryButton: "סיכום",
   confirmOrder: "אשר",
   completeOrder: "סמן כהושלם",
   cancelOrder: "בטל",
@@ -638,6 +646,7 @@ const HE: DashboardLabels = {
   confirmAndSave: "אישור ושמירה",
   backToEdit: "חזרה לעריכה",
   addDeal: "הוסף דיל",
+  addNewDeal: "הוסף דיל חדש",
   existingDeals: "דילים קיימים",
   dealOff: "כבוי",
   noExistingDeals: "אין דילים עדיין",
@@ -649,6 +658,7 @@ const HE: DashboardLabels = {
   edit: "ערוך",
   delete: "מחק",
   active: "פעיל",
+  status: "מצב",
   inactive: "מושבת",
   hidden: "מוסתר",
   show: "הצג",
@@ -1133,6 +1143,8 @@ const EN: DashboardLabels = {
   appointmentCalendar: "Calendar",
   appointmentCalendarAndLimits: "Calendar & limits",
   appointmentGapMinutes: "Gap between appointments (minutes)",
+  appointmentGapBetweenMeetings: "Gap between each appointment",
+  appointmentCalendarShowWeekend: "Show Friday and Saturday in calendar",
   appointmentDurationMinutes: "Appointment length (minutes)",
   appointmentBookingHours: "Booking hours",
   appointmentBookingFrom: "From",
@@ -1145,10 +1157,10 @@ const EN: DashboardLabels = {
   storePanelsTitle: "What customers see on your store",
   storePanelDeals: "Deals",
   storePanelBroadcast: "Messages & alerts to customers",
-  storePanelChat: "Chat",
+  storePanelChat: "WhatsApp contact",
   storePanelInquiries: "Inquiries",
   storePanelFaq: "FAQ",
-  storePanelOrderLimits: "Order limits (opening hours)",
+  storePanelOrderLimits: "Order limits",
   storePanelsSaveFailed: "Could not save panel settings",
   extras: "More details",
   customers: "Customers",
@@ -1199,6 +1211,7 @@ const EN: DashboardLabels = {
   noOrders: "No orders.",
   noOrdersYet: "No orders yet.",
   total: "Total",
+  prepSummaryButton: "Summary",
   confirmOrder: "Confirm",
   completeOrder: "Mark completed",
   cancelOrder: "Cancel",
@@ -1216,6 +1229,7 @@ const EN: DashboardLabels = {
   confirmAndSave: "Confirm & save",
   backToEdit: "Back to edit",
   addDeal: "Add deal",
+  addNewDeal: "Add new deal",
   existingDeals: "Existing deals",
   dealOff: "Off",
   noExistingDeals: "No deals yet",
@@ -1227,6 +1241,7 @@ const EN: DashboardLabels = {
   edit: "Edit",
   delete: "Delete",
   active: "Active",
+  status: "Status",
   inactive: "Inactive",
   hidden: "Hidden",
   show: "Show",

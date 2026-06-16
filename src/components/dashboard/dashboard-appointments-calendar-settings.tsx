@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type MutableRefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
 import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
-import { Button, Alert, Input } from "@/components/ui";
+import { Button, Alert, Input, Toggle } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   clampAppointmentCalendarConfig,
@@ -27,12 +27,18 @@ function formatCalendarSummary(
     if (config.bookingByDay) {
       return `${range} · הזמנה לפי ימים`;
     }
-    return `${range} · רווח ${config.gapMinutes} דק׳ · משך ${config.durationMinutes} דק׳`;
+    const gap =
+      config.gapMinutes > 0 ? ` · רווח ${config.gapMinutes} דק׳` : "";
+    const weekend = config.showWeekend ? " · כולל שישי ושבת" : " · א׳–ה׳";
+    return `${range} · משך ${config.durationMinutes} דק׳${gap}${weekend}`;
   }
   if (config.bookingByDay) {
     return `${range} · book by day`;
   }
-  return `${range} · ${config.gapMinutes} min gap · ${config.durationMinutes} min slots`;
+  const gap =
+    config.gapMinutes > 0 ? ` · ${config.gapMinutes} min gap` : "";
+  const weekend = config.showWeekend ? " · incl. Fri–Sat" : " · Sun–Thu";
+  return `${range} · ${config.durationMinutes} min slots${gap}${weekend}`;
 }
 
 export function DashboardAppointmentsCalendarSettings({
@@ -64,6 +70,7 @@ export function DashboardAppointmentsCalendarSettings({
   const searchParams = useSearchParams();
   const openedFromActionsHub = searchParams.get("open") === "hours";
   const [gapMinutes, setGapMinutes] = useState(initialConfig.gapMinutes);
+  const [gapEnabled, setGapEnabled] = useState(initialConfig.gapMinutes > 0);
   const [durationMinutes, setDurationMinutes] = useState(
     initialConfig.durationMinutes
   );
@@ -72,22 +79,42 @@ export function DashboardAppointmentsCalendarSettings({
   const [bookingByDay, setBookingByDay] = useState(
     initialConfig.bookingByDay ?? false
   );
+  const [showWeekend, setShowWeekend] = useState(
+    initialConfig.showWeekend ?? false
+  );
   const [sheetOpen, setSheetOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const title = labels.appointmentBookingHours;
+  const internalScheduleSaveRef = useRef<(() => Promise<boolean>) | null>(null);
+  const resolvedScheduleSaveRef = scheduleSaveHandleRef ?? internalScheduleSaveRef;
+  const parentOrchestratesSaves = Boolean(
+    saveHandleRef && scheduleSaveHandleRef
+  );
+
+  const effectiveGapMinutes = gapEnabled ? gapMinutes : 0;
+  const effectiveBookingStart = workingDays ? "00:00" : bookingStart;
+  const effectiveBookingEnd = workingDays ? "23:59" : bookingEnd;
 
   const config = useMemo(
     () =>
       clampAppointmentCalendarConfig({
-        gapMinutes,
+        gapMinutes: effectiveGapMinutes,
         durationMinutes,
-        bookingStart,
-        bookingEnd,
+        bookingStart: effectiveBookingStart,
+        bookingEnd: effectiveBookingEnd,
         bookingByDay,
+        showWeekend,
       }),
-    [gapMinutes, durationMinutes, bookingStart, bookingEnd, bookingByDay]
+    [
+      effectiveGapMinutes,
+      durationMinutes,
+      effectiveBookingStart,
+      effectiveBookingEnd,
+      bookingByDay,
+      showWeekend,
+    ]
   );
 
   const summary = formatCalendarSummary(config, locale);
@@ -109,10 +136,12 @@ export function DashboardAppointmentsCalendarSettings({
     const payload = data as { config?: AppointmentCalendarConfig };
     if (payload.config) {
       setGapMinutes(payload.config.gapMinutes);
+      setGapEnabled(payload.config.gapMinutes > 0);
       setDurationMinutes(payload.config.durationMinutes);
       setBookingStart(payload.config.bookingStart);
       setBookingEnd(payload.config.bookingEnd);
       setBookingByDay(payload.config.bookingByDay ?? false);
+      setShowWeekend(payload.config.showWeekend ?? false);
     }
   }, [previewOnly]);
 
@@ -150,6 +179,14 @@ export function DashboardAppointmentsCalendarSettings({
     }
 
     if (previewOnly) {
+      if (
+        workingDays &&
+        !parentOrchestratesSaves &&
+        resolvedScheduleSaveRef.current
+      ) {
+        const scheduleOk = await resolvedScheduleSaveRef.current();
+        if (!scheduleOk) return false;
+      }
       setMessage(labels.previewSavedHint);
       setTimeout(() => setMessage(""), 3500);
       closeSheet();
@@ -158,6 +195,17 @@ export function DashboardAppointmentsCalendarSettings({
 
     setSaving(true);
     try {
+      if (
+        workingDays &&
+        !parentOrchestratesSaves &&
+        resolvedScheduleSaveRef.current
+      ) {
+        const scheduleOk = await resolvedScheduleSaveRef.current();
+        if (!scheduleOk) {
+          return false;
+        }
+      }
+
       const res = await fetch("/api/dashboard/appointment-calendar", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -171,9 +219,11 @@ export function DashboardAppointmentsCalendarSettings({
       const payload = data as { config?: AppointmentCalendarConfig };
       if (payload.config) {
         setGapMinutes(payload.config.gapMinutes);
+        setGapEnabled(payload.config.gapMinutes > 0);
         setDurationMinutes(payload.config.durationMinutes);
         setBookingStart(payload.config.bookingStart);
         setBookingEnd(payload.config.bookingEnd);
+        setShowWeekend(payload.config.showWeekend ?? false);
       }
       setMessage(labels.appointmentCalendarSaved);
       setTimeout(() => setMessage(""), 3000);
@@ -195,47 +245,103 @@ export function DashboardAppointmentsCalendarSettings({
     };
   });
 
-  const hourEditor = (
+  function handleGapToggle(next: boolean) {
+    setGapEnabled(next);
+    if (next && gapMinutes === 0) {
+      setGapMinutes(15);
+    }
+  }
+
+  const workingDaysEditor = workingDays ? (
+    <DashboardOrderScheduleSettings
+      mode="appointments"
+      initialEnabled={workingDays.initialEnabled}
+      initialScheduleJson={workingDays.initialScheduleJson}
+      previewOnly={workingDays.previewOnly ?? previewOnly}
+      nested
+      inline
+      sectionLead
+      hideSaveButton
+      saveHandleRef={resolvedScheduleSaveRef}
+    />
+  ) : null;
+
+  const calendarSettingsForm = (
     <div className="flex w-full flex-col items-center gap-4">
-      <div className="w-full space-y-3 text-start">
-        <div className="space-y-3">
-          <Input
-            label={labels.appointmentBookingFrom}
-            type="time"
-            value={bookingStart}
-            onChange={(e) => setBookingStart(e.target.value)}
-            dir="ltr"
-          />
-          <Input
-            label={labels.appointmentBookingUntil}
-            type="time"
-            value={bookingEnd}
-            onChange={(e) => setBookingEnd(e.target.value)}
-            dir="ltr"
+      <div className="w-full space-y-4 text-start">
+        {workingDaysEditor}
+
+        {!bookingByDay ? (
+          <div className="overflow-hidden rounded-[20px] border border-bakery-border/35 bg-bakery-card/70 p-3 shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)]">
+            <Input
+              label={labels.appointmentDurationMinutes}
+              type="number"
+              min={15}
+              max={240}
+              step={15}
+              value={durationMinutes}
+              onChange={(e) => setDurationMinutes(Number(e.target.value) || 60)}
+              dir="ltr"
+            />
+          </div>
+        ) : null}
+
+        {!bookingByDay ? (
+          <div className="space-y-3">
+            <div className="dashboard-action-square flex w-full items-center justify-between gap-3 rounded-[22px] px-3 py-3.5 text-start">
+              <span className="min-w-0 text-[15px] font-extrabold leading-snug text-bakery-ink">
+                {labels.appointmentGapBetweenMeetings}
+              </span>
+              <Toggle
+                enabled={gapEnabled}
+                onChange={handleGapToggle}
+                ariaLabel={labels.appointmentGapBetweenMeetings}
+              />
+            </div>
+            {gapEnabled ? (
+              <div className="overflow-hidden rounded-[20px] border border-bakery-border/35 bg-bakery-card/70 p-3 shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)]">
+                <Input
+                  label={labels.appointmentGapMinutes}
+                  type="number"
+                  min={0}
+                  max={180}
+                  value={gapMinutes}
+                  onChange={(e) => setGapMinutes(Number(e.target.value) || 0)}
+                  dir="ltr"
+                />
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="dashboard-action-square flex w-full items-center justify-between gap-3 rounded-[22px] px-3 py-3.5 text-start">
+          <span className="min-w-0 text-[15px] font-extrabold leading-snug text-bakery-ink">
+            {labels.appointmentCalendarShowWeekend}
+          </span>
+          <Toggle
+            enabled={showWeekend}
+            onChange={setShowWeekend}
+            ariaLabel={labels.appointmentCalendarShowWeekend}
           />
         </div>
 
-        <Input
-          label={labels.appointmentGapMinutes}
-          type="number"
-          min={0}
-          max={180}
-          value={gapMinutes}
-          onChange={(e) => setGapMinutes(Number(e.target.value) || 0)}
-          dir="ltr"
-        />
-
-        {!bookingByDay ? (
-          <Input
-            label={labels.appointmentDurationMinutes}
-            type="number"
-            min={15}
-            max={240}
-            step={15}
-            value={durationMinutes}
-            onChange={(e) => setDurationMinutes(Number(e.target.value) || 60)}
-            dir="ltr"
-          />
+        {!workingDays ? (
+          <div className="space-y-3 border-t border-bakery-border/25 pt-4">
+            <Input
+              label={labels.appointmentBookingFrom}
+              type="time"
+              value={bookingStart}
+              onChange={(e) => setBookingStart(e.target.value)}
+              dir="ltr"
+            />
+            <Input
+              label={labels.appointmentBookingUntil}
+              type="time"
+              value={bookingEnd}
+              onChange={(e) => setBookingEnd(e.target.value)}
+              dir="ltr"
+            />
+          </div>
         ) : null}
       </div>
 
@@ -260,27 +366,8 @@ export function DashboardAppointmentsCalendarSettings({
     </div>
   );
 
-  const workingDaysEditor = workingDays ? (
-    <DashboardOrderScheduleSettings
-      mode="appointments"
-      initialEnabled={workingDays.initialEnabled}
-      initialScheduleJson={workingDays.initialScheduleJson}
-      previewOnly={workingDays.previewOnly ?? previewOnly}
-      nested
-      inline
-      hideSaveButton={Boolean(scheduleSaveHandleRef)}
-      saveHandleRef={scheduleSaveHandleRef}
-    />
-  ) : null;
-
   if (inline) {
-    return (
-      <div className="space-y-2 text-start">
-        <p className="text-[15px] font-extrabold text-bakery-ink">{title}</p>
-        {hourEditor}
-        {workingDaysEditor}
-      </div>
-    );
+    return <div className="space-y-2 text-start">{calendarSettingsForm}</div>;
   }
 
   return (
@@ -321,8 +408,7 @@ export function DashboardAppointmentsCalendarSettings({
         compact
         panelClassName="dashboard-appointments-calendar-sheet"
       >
-        {hourEditor}
-        {workingDaysEditor}
+        {calendarSettingsForm}
       </DashboardActionSheet>
     </>
   );

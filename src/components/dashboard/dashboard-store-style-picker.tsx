@@ -114,8 +114,12 @@ export function DashboardStoreStylePicker({
         open={open}
         onClose={() => setOpen(false)}
         ariaLabel={labels.styleColorLanguage}
-        placement="top"
+        placement="center"
         showBackButton
+        compact
+        fitContent
+        warmPanel
+        panelClassName="dashboard-order-schedule-sheet"
       >
         <div className="space-y-4">
           <p className="text-center text-[14px] font-bold text-bakery-ink">
@@ -181,8 +185,8 @@ export function DashboardStoreStylePicker({
 
           <div className="bakery-float-tile space-y-3 rounded-[18px] p-4 text-start">
             <div className="flex items-start gap-3">
-              <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-                <BookOpen className="h-6 w-6" strokeWidth={1.75} />
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/20 bg-[#faf6f0]">
+                <BookOpen className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-[15px] font-extrabold text-bakery-ink">

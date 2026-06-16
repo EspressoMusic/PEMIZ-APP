@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
-import { ArrowRight, Bell, Send, X } from "lucide-react";
+import { Bell, Send, X } from "lucide-react";
 import { Alert, Textarea } from "@/components/ui";
 import {
   DEV_PREVIEW_ORDERS,
@@ -43,17 +43,55 @@ function formatChatTime(iso: string, locale: string) {
   );
 }
 
+function dismissedNotificationsKey(businessSlug: string) {
+  return `linky-dashboard-notifications-dismissed:${businessSlug}`;
+}
+
+function readDismissedNotificationIds(businessSlug: string) {
+  if (typeof sessionStorage === "undefined") return new Set<string>();
+  try {
+    const raw = sessionStorage.getItem(dismissedNotificationsKey(businessSlug));
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set<string>();
+  } catch {
+    return new Set<string>();
+  }
+}
+
+function writeDismissedNotificationIds(
+  businessSlug: string,
+  ids: Set<string>
+) {
+  try {
+    sessionStorage.setItem(
+      dismissedNotificationsKey(businessSlug),
+      JSON.stringify([...ids])
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
+function withoutDismissedNotifications(
+  items: DashboardNotification[],
+  dismissed: Set<string>
+) {
+  return items.filter((item) => !dismissed.has(item.id));
+}
+
 export function DashboardInquiryBell({
   businessSlug,
   basePath = "/dashboard",
   previewOnly = false,
   businessType = "STORE",
+  darkTile = false,
 }: {
   businessSlug: string;
   inquiriesHref?: string;
   basePath?: string;
   previewOnly?: boolean;
   businessType?: BusinessType;
+  /** Dark brown tile (e.g. on home orders panel). */
+  darkTile?: boolean;
 }) {
   const isScheduleLike = isScheduleLikeBusinessType(businessType);
   const { labels, formatDateTime, locale } = useAppLocale();
@@ -87,28 +125,45 @@ export function DashboardInquiryBell({
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState("");
   const chatScrollRef = useRef<HTMLDivElement>(null);
+  const dismissedNotificationIdsRef = useRef(
+    readDismissedNotificationIds(businessSlug)
+  );
+
+  const dismissNotificationFromList = useCallback(
+    (notificationId: string) => {
+      dismissedNotificationIdsRef.current.add(notificationId);
+      writeDismissedNotificationIds(
+        businessSlug,
+        dismissedNotificationIdsRef.current
+      );
+      setNotifications((prev) =>
+        prev.filter((notification) => notification.id !== notificationId)
+      );
+    },
+    [businessSlug]
+  );
 
   const load = useCallback(async () => {
+    const dismissed = dismissedNotificationIdsRef.current;
     if (previewOnly) {
       const notificationLabels = getDashboardLabels(locale);
-      setNotifications(
+      const items =
         businessType === "RENTAL"
           ? buildDevRentalDashboardNotifications(notificationLabels)
           : businessType === "APPOINTMENTS"
             ? buildDevAppointmentsDashboardNotifications(notificationLabels)
-            : buildDevDashboardNotifications(notificationLabels)
-      );
+            : buildDevDashboardNotifications(notificationLabels);
+      setNotifications(withoutDismissedNotifications(items, dismissed));
       return;
     }
     const res = await fetch("/api/dashboard/notifications");
     const data = await res.json();
     if (!res.ok) return;
     const items: DashboardNotification[] = data.notifications ?? [];
-    setNotifications(
-      isScheduleLike
-        ? items.filter((item) => !isStoreOnlyNotificationKind(item.kind))
-        : items
-    );
+    const filtered = isScheduleLike
+      ? items.filter((item) => !isStoreOnlyNotificationKind(item.kind))
+      : items;
+    setNotifications(withoutDismissedNotifications(filtered, dismissed));
   }, [previewOnly, isScheduleLike, businessType, locale]);
 
   useEffect(() => {
@@ -140,6 +195,7 @@ export function DashboardInquiryBell({
   }
 
   function openNotification(item: DashboardNotification) {
+    dismissNotificationFromList(item.id);
     setActive(item);
     setReplyDraft("");
     setReplyError("");
@@ -161,10 +217,9 @@ export function DashboardInquiryBell({
   }
 
   async function dismissInquiry(inquiryId: string) {
+    const notificationId = `inquiry:${inquiryId}`;
     if (previewOnly) {
-      setNotifications((prev) =>
-        prev.filter((n) => n.inquiryId !== inquiryId)
-      );
+      dismissNotificationFromList(notificationId);
       if (active?.inquiryId === inquiryId) backToList();
       return;
     }
@@ -172,9 +227,7 @@ export function DashboardInquiryBell({
       method: "DELETE",
     });
     if (!res.ok) return;
-    setNotifications((prev) =>
-      prev.filter((n) => n.inquiryId !== inquiryId)
-    );
+    dismissNotificationFromList(notificationId);
     if (active?.inquiryId === inquiryId) backToList();
   }
 
@@ -189,9 +242,7 @@ export function DashboardInquiryBell({
     setSendingReply(true);
     try {
       if (previewOnly) {
-        setNotifications((prev) =>
-          prev.filter((n) => n.inquiryId !== active.inquiryId)
-        );
+        dismissNotificationFromList(active.id);
         backToList();
         return;
       }
@@ -331,23 +382,6 @@ export function DashboardInquiryBell({
 
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="shrink-0 border-b border-bakery-border/20 px-4 py-2.5">
-          <button
-            type="button"
-            onClick={backToList}
-            className="inline-flex items-center gap-1 text-[14px] font-bold text-bakery-ink"
-          >
-            <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
-            {labels.notificationBackToList}
-          </button>
-          <p className="mt-2 text-center text-[15px] font-extrabold text-bakery-ink">
-            {notificationKindLabel(active.kind, labels)}
-          </p>
-          <p className="text-center text-[13px] font-semibold text-bakery-muted">
-            {active.subtitle}
-          </p>
-        </div>
-
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
           {active.kind === "inquiry" && (
             <div className="space-y-3">
@@ -568,7 +602,11 @@ export function DashboardInquiryBell({
         aria-label={labels.close}
       />
       <div className="dashboard-card dashboard-modal-card relative z-10 flex max-h-[min(85dvh,560px)] w-full max-w-md flex-col overflow-hidden">
-        <div className="relative shrink-0 border-b border-bakery-border/25 px-4 py-3">
+        <div
+          className={`relative shrink-0 px-4 py-3 ${
+            active ? "pb-2 pt-2" : "border-b border-bakery-border/25"
+          }`}
+        >
           <button
             type="button"
             onClick={closePanel}
@@ -577,18 +615,18 @@ export function DashboardInquiryBell({
           >
             <X className="h-6 w-6" />
           </button>
-          <div className="px-10 text-center">
-            <h2 className="text-[18px] font-extrabold text-bakery-ink">
-              {labels.notificationTitle}
-            </h2>
-            {!active && (
+          {!active ? (
+            <div className="px-10 text-center">
+              <h2 className="text-[18px] font-extrabold text-bakery-ink">
+                {labels.notificationTitle}
+              </h2>
               <p className="text-[13px] font-semibold text-bakery-muted">
                 {hasAlerts
                   ? String(notifications.length)
                   : labels.notificationEmpty}
               </p>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
 
         {active ? (
@@ -600,7 +638,7 @@ export function DashboardInquiryBell({
                 {labels.notificationEmpty}
               </p>
             ) : (
-              <ul className="mx-auto flex w-full max-w-[240px] flex-col gap-2">
+              <ul className="flex w-full flex-col gap-2">
                 {notifications.map((item) => (
                   <li key={item.id}>{renderNotificationBar(item)}</li>
                 ))}
@@ -617,9 +655,11 @@ export function DashboardInquiryBell({
       <button
         type="button"
         onClick={openPanel}
-        className={`bakery-icon-tile relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] transition ${
-          hasAlerts ? "animate-bell-wiggle" : ""
-        }`}
+        className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] transition ${
+          darkTile
+            ? "bg-bakery-primary shadow-[var(--shadow-bakery-btn)] hover:opacity-95 [&_svg]:text-bakery-on-primary"
+            : "bakery-icon-tile"
+        } ${hasAlerts ? "animate-bell-wiggle" : ""}`}
         aria-label={
           hasAlerts
             ? `${labels.notificationTitle} (${notifications.length})`
@@ -627,7 +667,12 @@ export function DashboardInquiryBell({
         }
       >
         <Bell className="h-6 w-6" strokeWidth={2} />
-        {hasAlerts && <span className="dashboard-inquiry-dot" aria-hidden />}
+        {hasAlerts && (
+          <span
+            className={`dashboard-inquiry-dot ${darkTile ? "dashboard-inquiry-dot--dark-tile" : ""}`}
+            aria-hidden
+          />
+        )}
       </button>
 
       {typeof document !== "undefined" && panel

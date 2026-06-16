@@ -12,6 +12,7 @@ export type AppointmentCalendarConfig = {
   bookingStart: string;
   bookingEnd: string;
   bookingByDay?: boolean;
+  showWeekend?: boolean;
 };
 
 export type GeneratedSlot = {
@@ -25,6 +26,7 @@ export const DEFAULT_APPOINTMENT_CALENDAR: AppointmentCalendarConfig = {
   durationMinutes: 60,
   bookingStart: "09:00",
   bookingEnd: "18:00",
+  showWeekend: false,
 };
 
 function timeToMinutes(t: string): number {
@@ -58,6 +60,7 @@ export function clampAppointmentCalendarConfig(
     bookingStart,
     bookingEnd,
     bookingByDay: Boolean(input.bookingByDay),
+    showWeekend: Boolean(input.showWeekend),
   };
 }
 

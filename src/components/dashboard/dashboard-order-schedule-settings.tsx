@@ -22,9 +22,11 @@ export function DashboardOrderScheduleSettings({
   previewOnly = false,
   mode = "store",
   inline = false,
+  embeddedInSheet = false,
   nested = false,
   hideSaveButton = false,
   saveHandleRef,
+  sectionLead = false,
 }: {
   initialEnabled: boolean;
   initialScheduleJson: string | null;
@@ -32,8 +34,12 @@ export function DashboardOrderScheduleSettings({
   mode?: "store" | "appointments";
   /** Show the day/time editor directly (welcome setup). */
   inline?: boolean;
+  /** Editor only inside a parent action sheet (no duplicate title). */
+  embeddedInSheet?: boolean;
   /** Render inside a parent card/section (no outer dashboard-card). */
   nested?: boolean;
+  /** First block in a stacked form (no top divider). */
+  sectionLead?: boolean;
   /** Hide the save button (parent saves programmatically). */
   hideSaveButton?: boolean;
   /** Optional ref for programmatic save (welcome setup). */
@@ -276,13 +282,18 @@ export function DashboardOrderScheduleSettings({
     </>
   );
 
+  if (embeddedInSheet) {
+    return dayEditor;
+  }
+
   if (inline && nested) {
     return (
-      <div className="space-y-2 border-t border-bakery-border/25 pt-4 text-start">
+      <div
+        className={`space-y-2 text-start${
+          sectionLead ? "" : " border-t border-bakery-border/25 pt-4"
+        }`}
+      >
         <p className="text-[15px] font-extrabold text-bakery-ink">{toggleTitle}</p>
-        <p className="text-[12px] font-semibold text-bakery-muted">
-          {labels.workingDaysPickHint}
-        </p>
         {dayEditor}
       </div>
     );
@@ -292,9 +303,6 @@ export function DashboardOrderScheduleSettings({
     return (
       <div className="space-y-2 text-start">
         <p className="text-[15px] font-extrabold text-bakery-ink">{toggleTitle}</p>
-        <p className="text-[12px] font-semibold text-bakery-muted">
-          {labels.workingDaysPickHint}
-        </p>
         {dayEditor}
       </div>
     );

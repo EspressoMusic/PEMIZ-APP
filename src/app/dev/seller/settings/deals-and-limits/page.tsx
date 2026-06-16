@@ -1,4 +1,4 @@
-import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
+import { DEV_PREVIEW_DEALS, DEV_PREVIEW_PRODUCTS, DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardDealsAndLimitsHub } from "@/components/dashboard/dashboard-deals-and-limits-hub";
 
@@ -15,6 +15,8 @@ export default function DevSellerSettingsDealsAndLimitsPage() {
           <DashboardDealsAndLimitsHub
             basePath="/dev/seller"
             previewOnly
+            initialProducts={DEV_PREVIEW_PRODUCTS}
+            initialDeals={DEV_PREVIEW_DEALS}
           />
         </DashboardShell>
       </div>

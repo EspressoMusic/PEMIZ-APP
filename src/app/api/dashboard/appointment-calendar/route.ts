@@ -16,6 +16,7 @@ const patchSchema = z.object({
   bookingStart: z.string().optional(),
   bookingEnd: z.string().optional(),
   bookingByDay: z.boolean().optional(),
+  showWeekend: z.boolean().optional(),
   regenerate: z.boolean().optional(),
 });
 

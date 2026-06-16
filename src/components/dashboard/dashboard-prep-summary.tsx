@@ -1,17 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Package, X } from "lucide-react";
+import { Button } from "@/components/ui";
 import {
   customerProfileInitial,
   useDashboardCustomerProfile,
   type CustomerProfileInput,
 } from "@/components/dashboard/dashboard-customer-profile";
 import {
+  DashboardOrdersList,
+  type DashboardOrderView,
+} from "@/components/dashboard/dashboard-order-card";
+import {
   groupPrepLinesByCustomer,
+  mapPendingOrdersFromRecords,
+  type PendingOrderRecord,
   type PrepProductSummary,
 } from "@/lib/dashboard-prep-summary";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
 
 function ProductThumb({
@@ -44,6 +52,19 @@ function ProductThumb({
       />
     </span>
   );
+}
+
+function orderStatusLabel(
+  status: string,
+  labels: DashboardLabels
+): string {
+  const map: Record<string, string> = {
+    PENDING: labels.pending,
+    CONFIRMED: labels.confirmed,
+    COMPLETED: labels.completed,
+    CANCELLED: labels.cancelled,
+  };
+  return map[status] ?? status;
 }
 
 function PrepDetailModal({
@@ -185,182 +206,211 @@ function PrepDetailModal({
 
 export function DashboardPrepSummary({
   initialProducts,
+  initialOrders,
+  initialPendingOrders,
   loadFromApi = false,
-  compact = false,
-  fillHeight = false,
+  previewOnly = false,
+  inquiryBell,
 }: {
   initialProducts: PrepProductSummary[];
+  initialOrders?: DashboardOrderView[];
+  initialPendingOrders?: PendingOrderRecord[];
   loadFromApi?: boolean;
-  compact?: boolean;
-  /** דף בית — ממלא גובה עם ריבועים גדולים */
-  fillHeight?: boolean;
+  previewOnly?: boolean;
+  inquiryBell?: ReactNode;
 }) {
-  const { labels } = useAppLocale();
-  const { openCustomer, modal: customerModal } = useDashboardCustomerProfile();
-  const spread = fillHeight && !compact;
+  const { labels, locale } = useAppLocale();
+  const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
+    previewOnly,
+    previewOrders: initialOrders,
+  });
   const [products, setProducts] = useState(initialProducts);
-  const [selected, setSelected] = useState<PrepProductSummary | null>(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [orders, setOrders] = useState<DashboardOrderView[]>(() => {
+    if (initialOrders) return initialOrders;
+    if (initialPendingOrders) {
+      return mapPendingOrdersFromRecords(initialPendingOrders, locale);
+    }
+    return [];
+  });
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<PrepProductSummary | null>(
+    null
+  );
 
   useEffect(() => {
     setProducts(initialProducts);
   }, [initialProducts]);
 
-  const refreshProducts = useCallback(async () => {
-    const res = await fetch("/api/dashboard/prep-summary");
-    const data = await res.json();
-    if (res.ok && data.products) {
-      setProducts(data.products);
-      return data.products as PrepProductSummary[];
+  useEffect(() => {
+    if (initialOrders) {
+      setOrders(initialOrders);
+      return;
     }
-    return null;
-  }, []);
+    if (initialPendingOrders) {
+      setOrders(mapPendingOrdersFromRecords(initialPendingOrders, locale));
+    }
+  }, [initialOrders, initialPendingOrders, locale]);
+
+  const refresh = useCallback(async () => {
+    const [ordersRes, prepRes] = await Promise.all([
+      fetch("/api/dashboard/orders"),
+      fetch("/api/dashboard/prep-summary"),
+    ]);
+    const ordersData = await ordersRes.json().catch(() => ({}));
+    const prepData = await prepRes.json().catch(() => ({}));
+    if (prepRes.ok && prepData.products) {
+      setProducts(prepData.products as PrepProductSummary[]);
+    }
+    if (ordersRes.ok && ordersData.orders) {
+      const mapped = mapPendingOrdersFromRecords(
+        ordersData.orders.filter(
+          (o: { status: string }) => o.status === "PENDING"
+        ),
+        locale
+      );
+      setOrders(mapped);
+    }
+  }, [locale]);
 
   useEffect(() => {
     if (!loadFromApi) return;
-    void refreshProducts();
-  }, [loadFromApi, refreshProducts]);
+    void refresh();
+  }, [loadFromApi, refresh]);
 
-  useEffect(() => {
-    if (!selected) return;
-    const updated = products.find((p) => p.productId === selected.productId);
-    if (updated) setSelected(updated);
-  }, [products, selected?.productId]);
-
-  async function openProductDetail(product: PrepProductSummary) {
-    setLoadingDetail(true);
-    try {
-      if (loadFromApi) {
-        const list = await refreshProducts();
-        const fresh = list?.find((p) => p.productId === product.productId);
-        setSelected(fresh ?? product);
-      } else {
-        setSelected(product);
-      }
-    } finally {
-      setLoadingDetail(false);
+  async function setOrderStatus(orderId: string, status: string) {
+    if (previewOnly) {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? {
+                ...o,
+                status,
+                statusLabel: orderStatusLabel(status, labels),
+              }
+            : o
+        )
+      );
+      return;
     }
+    await fetch("/api/dashboard/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, status }),
+    });
+    await refresh();
   }
 
   const grandTotal = products.reduce((s, p) => s + p.totalQuantity, 0);
 
-  const productTiles = products.map((p) => (
-    <button
-      key={p.productId}
-      type="button"
-      disabled={loadingDetail}
-      onClick={() => void openProductDetail(p)}
-      className={`dashboard-prep-product-tile flex flex-col items-center justify-center transition active:scale-[0.98] disabled:opacity-60 ${
-        spread
-          ? "min-h-[5.5rem] gap-2 rounded-[20px] p-3 sm:min-h-[6.5rem]"
-          : compact
-            ? "gap-1 rounded-[16px] px-2 py-2"
-            : "aspect-square gap-2 rounded-[20px] p-3"
-      }`}
-    >
-      <ProductThumb
-        name={p.name}
-        imageUrl={p.imageUrl}
-        compact={compact && !spread}
-      />
-      <span
-        className={`line-clamp-2 font-extrabold leading-tight text-bakery-ink ${
-          compact && !spread ? "text-[10px]" : "text-[12px] sm:text-[13px]"
-        }`}
-      >
-        {p.name}
-      </span>
-      <span
-        className={`font-extrabold leading-none text-bakery-primary ${
-          compact && !spread ? "text-[16px]" : "text-[22px]"
-        }`}
-      >
-        ×{p.totalQuantity}
-      </span>
-    </button>
-  ));
-
   return (
-    <div
-      className={`w-full text-center ${
-        compact || spread ? "flex h-full min-h-0 max-h-full flex-col" : ""
-      }`}
-    >
-      <div
-        className={`dashboard-card bakery-float-panel rounded-[32px] ${
-          spread || compact
-            ? "flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden p-0"
-            : "p-0"
-        } ${!spread && !compact ? "px-4 py-4 sm:px-5 sm:py-5" : ""}`}
-      >
-        {products.length === 0 ? (
+    <div className="flex h-full min-h-0 max-h-full w-full flex-col text-center">
+      <div className="dashboard-card bakery-float-panel relative flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden rounded-[32px] p-0">
+        {inquiryBell ? (
+          <div className="absolute end-3 top-3 z-10">{inquiryBell}</div>
+        ) : null}
+        {orders.length === 0 ? (
           <div
-            className={`flex flex-col items-center justify-center ${
-              compact ? "px-3 py-4" : "px-4 py-8"
+            className={`flex flex-1 flex-col items-center justify-center px-4 py-8 ${
+              inquiryBell ? "pt-14" : ""
             }`}
           >
             <Package
-              className={`text-bakery-ink/70 ${compact ? "h-8 w-8" : "h-12 w-12"}`}
+              className="h-12 w-12 text-bakery-ink/70"
               strokeWidth={1.75}
             />
-            <p
-              className={`font-semibold text-bakery-muted ${
-                compact ? "mt-2 text-[12px]" : "mt-3 text-[14px]"
-              }`}
-            >
+            <p className="mt-3 text-[14px] font-semibold text-bakery-muted">
               {labels.noActiveOrders}
             </p>
           </div>
         ) : (
-          <>
-            <div className="dashboard-prep-top-band shrink-0 text-center">
-              <p
-                className={
-                  compact
-                    ? "text-[22px] font-extrabold leading-none text-bakery-primary"
-                    : "text-[28px] font-extrabold leading-none text-bakery-primary"
-                }
-              >
-                {grandTotal}
-                <span
-                  className={`ms-1 font-bold text-bakery-ink ${
-                    compact ? "text-[12px]" : "text-[14px]"
-                  }`}
-                >
-                  {labels.units}
-                </span>
-              </p>
-            </div>
-            {spread || compact ? (
-              <div
-                className={`no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-2.5 pt-2 sm:px-4 sm:pb-3 ${
-                  spread ? "sm:pt-3" : ""
-                }`}
-              >
-                <div
-                  className={`grid grid-cols-2 content-start ${
-                    spread ? "gap-3" : "gap-2"
-                  }`}
-                >
-                  {productTiles}
-                </div>
-              </div>
-            ) : (
-              <div className="px-4 pb-4 pt-3">
-                <div className="grid grid-cols-2 gap-3">{productTiles}</div>
-              </div>
-            )}
-          </>
+          <div
+            className={`no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-2.5 sm:px-4 ${
+              inquiryBell ? "pt-14" : ""
+            }`}
+          >
+            <DashboardOrdersList
+              orders={orders}
+              onStatusChange={setOrderStatus}
+              onCustomerClick={openCustomer}
+              showPrices
+            />
+          </div>
         )}
+
+        {products.length > 0 ? (
+          <div className="shrink-0 border-t border-bakery-border/20 px-3 py-2.5 sm:px-4">
+            <Button
+              type="button"
+              variant="primary"
+              className="w-full min-h-[44px] rounded-full font-extrabold"
+              onClick={() => setSummaryOpen(true)}
+            >
+              {labels.prepSummaryButton}
+            </Button>
+          </div>
+        ) : null}
       </div>
 
-      {selected && (
+      <DashboardActionSheet
+        open={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        title={labels.prepSummaryButton}
+        ariaLabel={labels.prepSummaryButton}
+        placement="center"
+        showBackButton
+        compact
+        fitContent
+        warmPanel
+        panelClassName="dashboard-order-schedule-sheet"
+      >
+        <div className="space-y-2.5 text-start">
+          <ul className="space-y-2">
+            {products.map((p) => (
+              <li key={p.productId}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSummaryOpen(false);
+                    setSelectedProduct(p);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-2.5 py-2 text-start transition hover:bg-bakery-card active:scale-[0.99]"
+                >
+                  <ProductThumb
+                    name={p.name}
+                    imageUrl={p.imageUrl}
+                    compact
+                  />
+                  <span className="min-w-0 flex-1 truncate text-[14px] font-extrabold text-bakery-ink">
+                    {p.name}
+                  </span>
+                  <span className="shrink-0 text-[16px] font-extrabold tabular-nums text-bakery-primary">
+                    ×{p.totalQuantity}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="rounded-[14px] border border-bakery-primary/25 bg-bakery-primary/10 px-3 py-2.5 text-center">
+            <p className="text-[12px] font-bold text-bakery-muted">
+              {labels.total}
+            </p>
+            <p className="text-[22px] font-extrabold leading-none text-bakery-primary">
+              {grandTotal}
+              <span className="ms-1 text-[14px] font-bold text-bakery-ink">
+                {labels.units}
+              </span>
+            </p>
+          </div>
+        </div>
+      </DashboardActionSheet>
+
+      {selectedProduct && (
         <PrepDetailModal
-          product={selected}
+          product={selectedProduct}
           labels={labels}
           anonymousLabel={labels.anonymousCustomer}
           onCustomerClick={openCustomer}
-          onClose={() => setSelected(null)}
+          onClose={() => setSelectedProduct(null)}
         />
       )}
       {customerModal}

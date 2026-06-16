@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { CelebrationModal } from "@/components/celebration-modal";
 import { ProductImageField } from "@/components/product-image-field";
 import { Button, Input, Badge, Alert, Toggle } from "@/components/ui";
-import { Gift, Package, Plus, Tags, X, Pencil } from "lucide-react";
+import { Gift, Info, Package, Plus, Tags, X, Pencil } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
 import { MAX_DEAL_PRODUCT_LINES } from "@/lib/store-deal";
 
@@ -120,14 +121,222 @@ function toPreviewProducts(
   }));
 }
 
+const AddDealCard = memo(function AddDealCard({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="dashboard-product-list-card w-full overflow-hidden rounded-[14px] p-0 text-center transition hover:brightness-[0.98] active:scale-[0.98]"
+    >
+      <div className="flex h-[5.75rem] w-full flex-col items-center justify-center">
+        <span className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-bakery-border/35 bg-bakery-cream-light/90">
+          <Plus className="h-6 w-6 text-[#614136]" strokeWidth={1.75} />
+        </span>
+      </div>
+      <div className="flex min-h-[4rem] flex-col items-center justify-center gap-1.5 px-2 py-2">
+        <p className="text-[18px] font-extrabold leading-snug text-bakery-ink">
+          {label}
+        </p>
+      </div>
+    </button>
+  );
+});
+
+function formatDealProductsSummary(deal: Deal) {
+  if ((deal.items ?? []).length > 0) {
+    return (deal.items ?? [])
+      .map((item) => {
+        const name = item.product?.name ?? "";
+        const qty = Math.max(1, item.quantity ?? 1);
+        return qty > 1 ? `${name} ×${qty}` : name;
+      })
+      .join(" + ");
+  }
+  return (deal.products ?? []).map((p) => p.name).join(" + ");
+}
+
+const DealListItem = memo(function DealListItem({
+  deal: d,
+  labels,
+  formatMoney,
+  formatDateTime,
+  onEdit,
+  onDelete,
+}: {
+  deal: Deal;
+  labels: ReturnType<typeof useAppLocale>["labels"];
+  formatMoney: (n: number) => string;
+  formatDateTime: (iso: string) => string;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const [detailOpen, setDetailOpen] = useState(false);
+  const productSummary = formatDealProductsSummary(d);
+
+  return (
+    <>
+      <li className="overflow-hidden rounded-[16px] border border-bakery-border/25 bg-[#faf6f0] shadow-[0_2px_8px_rgba(78,52,46,0.06)]">
+        <div className="flex items-start gap-2 px-3 py-2.5">
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span
+                className={`inline-flex min-h-[26px] items-center rounded-[10px] border px-2 text-[11px] font-extrabold leading-none ${
+                  d.isActive
+                    ? "border-[#43a047]/35 bg-[#43a047]/12 text-[#2e7d32]"
+                    : "border-[#9a4545]/35 bg-[#9a4545]/10 text-[#9a4545]"
+                }`}
+              >
+                {d.isActive ? (
+                  <span className="inline-flex items-center gap-1">
+                    <span
+                      className="deal-active-pulse block h-1.5 w-1.5 rounded-full bg-[#43a047]"
+                      aria-hidden
+                    />
+                    {labels.active}
+                  </span>
+                ) : (
+                  labels.dealOff
+                )}
+              </span>
+              <p
+                dir="ltr"
+                className="shrink-0 text-[16px] font-extrabold tabular-nums text-bakery-primary"
+              >
+                {formatMoney(d.dealPrice)}
+              </p>
+            </div>
+            <p className="text-[15px] font-extrabold leading-snug text-bakery-ink">
+              {d.name}
+            </p>
+            {productSummary ? (
+              <p className="text-[12px] font-semibold leading-snug text-bakery-muted">
+                {productSummary}
+              </p>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            onClick={() => setDetailOpen(true)}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/90 text-bakery-ink transition hover:bg-bakery-card active:scale-[0.96]"
+            aria-label={`${labels.extras} — ${d.name}`}
+          >
+            <Info className="h-4 w-4" strokeWidth={2.25} />
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between gap-2 border-t border-bakery-border/20 px-3 py-2">
+          <button
+            type="button"
+            onClick={onDelete}
+            className="inline-flex min-h-[36px] items-center rounded-[10px] border border-[#9a4545]/30 bg-[#9a4545]/8 px-3 text-[12px] font-extrabold text-[#9a4545] transition active:opacity-75"
+          >
+            {labels.delete}
+          </button>
+          <button
+            type="button"
+            onClick={onEdit}
+            className="inline-flex min-h-[36px] flex-1 items-center justify-center gap-1.5 rounded-full bg-[#5C4A3E] px-3 text-[13px] font-extrabold text-[#FAF4E6] shadow-[0_2px_8px_rgba(58,47,38,0.18)] transition active:scale-[0.98]"
+          >
+            <Pencil className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} />
+            {labels.edit}
+          </button>
+        </div>
+      </li>
+
+      <DashboardActionSheet
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        title={d.name}
+        ariaLabel={`${labels.extras} — ${d.name}`}
+        placement="center"
+        showBackButton
+        compact
+        fitContent
+        warmPanel
+        panelClassName="dashboard-order-schedule-sheet"
+      >
+        <div className="space-y-2.5 text-center">
+          {d.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={d.imageUrl}
+              alt=""
+              className="mx-auto aspect-[4/3] w-full max-w-[220px] rounded-[14px] object-cover"
+            />
+          ) : null}
+          <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-2.5 py-2 text-center">
+            <p className="text-[12px] font-bold text-bakery-muted">
+              {labels.status}
+            </p>
+            <p className="mt-0.5 text-[14px] font-extrabold text-bakery-ink">
+              {d.isActive ? labels.active : labels.dealOff}
+            </p>
+          </div>
+          <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-2.5 py-2 text-center">
+            <p className="text-[12px] font-bold text-bakery-muted">
+              {labels.dealPrice}
+            </p>
+            <p className="mt-0.5 text-[16px] font-extrabold tabular-nums text-bakery-primary">
+              {formatMoney(d.dealPrice)}
+            </p>
+          </div>
+          {productSummary ? (
+            <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-2.5 py-2 text-center">
+              <p className="text-[12px] font-bold text-bakery-muted">
+                {labels.products}
+              </p>
+              <p className="mt-0.5 text-[14px] font-semibold leading-snug text-bakery-ink">
+                {productSummary}
+              </p>
+            </div>
+          ) : null}
+          <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-2.5 py-2 text-center">
+            <p className="text-[12px] font-bold text-bakery-muted">
+              {labels.dealDate}
+            </p>
+            <p className="mt-0.5 text-[14px] font-extrabold tabular-nums text-bakery-ink">
+              {formatDateTime(d.validUntil)}
+            </p>
+          </div>
+          <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-2.5 py-2 text-center">
+            <p className="text-[12px] font-bold text-bakery-muted">
+              {labels.dealRedemptionLimit}
+            </p>
+            <p className="mt-0.5 text-[14px] font-extrabold text-bakery-ink">
+              {redemptionSummaryLabel(
+                d.maxRedemptionsPerCustomer ?? 1,
+                labels
+              )}
+            </p>
+          </div>
+        </div>
+      </DashboardActionSheet>
+    </>
+  );
+});
+
 export function DealsManager({
   previewOnly = false,
   initialProducts,
   initialDeals,
+  autoOpenList = false,
+  standaloneList = false,
+  onStandaloneClose,
 }: {
   previewOnly?: boolean;
   initialProducts?: Parameters<typeof toPreviewProducts>[0];
   initialDeals?: Deal[];
+  /** פותח ישר את רשימת הדילים (עמוד ייעודי) */
+  autoOpenList?: boolean;
+  /** מודל בלבד מתפריט דילים והגבלות */
+  standaloneList?: boolean;
+  onStandaloneClose?: () => void;
 } = {}) {
   const dealFormRef = useRef<HTMLFormElement>(null);
   const savingRef = useRef(false);
@@ -171,7 +380,9 @@ export function DealsManager({
   } | null>(null);
   const [dealSuccessOpen, setDealSuccessOpen] = useState(false);
   const [dealSuccessName, setDealSuccessName] = useState("");
-  const [dealsListOpen, setDealsListOpen] = useState(false);
+  const [dealsListOpen, setDealsListOpen] = useState(
+    autoOpenList || standaloneList
+  );
   const [dealRedemptionUnlimited, setDealRedemptionUnlimited] = useState(false);
   const [dealRedemptionCount, setDealRedemptionCount] = useState(1);
 
@@ -211,6 +422,13 @@ export function DealsManager({
     setDealRedemptionCount(1);
     savingRef.current = false;
     dealFormRef.current?.reset();
+  }
+
+  function closeDealForm() {
+    resetWizard();
+    if (autoOpenList || standaloneList) {
+      setDealsListOpen(true);
+    }
   }
 
   function openNewDealForm() {
@@ -394,6 +612,9 @@ export function DealsManager({
       const createdNew = !editingDealId;
       const savedName = confirmDraft.name;
       resetWizard();
+      if (autoOpenList || standaloneList) {
+        setDealsListOpen(true);
+      }
       await load();
       if (createdNew) {
         setDealSuccessName(savedName);
@@ -431,66 +652,54 @@ export function DealsManager({
 
   const dealFormOpen = wizardStep !== null;
 
-  return (
-    <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
-      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
-        <button
-          type="button"
-          onClick={openNewDealForm}
-          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
-        >
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <Gift className="h-6 w-6" strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {labels.addDeal}
-          </span>
-        </button>
-      </div>
+  const dealsListContent = (
+    <div className="flex flex-col gap-2.5 text-start">
+      <AddDealCard label={labels.addNewDeal} onClick={openNewDealForm} />
+      {deals.length === 0 ? (
+        <p className="py-2 text-center text-[14px] text-bakery-muted">
+          {labels.noExistingDeals}
+        </p>
+      ) : (
+        <ul className="space-y-2.5">
+          {deals.map((d) => (
+            <DealListItem
+              key={d.id}
+              deal={d}
+              labels={labels}
+              formatMoney={formatMoney}
+              formatDateTime={formatDateTime}
+              onDelete={() => void removeDeal(d.id)}
+              onEdit={() => {
+                setDealsListOpen(false);
+                openEditDeal(d);
+              }}
+            />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 
-      <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
-        <button
-          type="button"
-          onClick={() => {
-            resetWizard();
-            setDealsListOpen(true);
-          }}
-          className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
-        >
-          <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-            <Tags className="h-6 w-6" strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {labels.existingDeals}
-            {deals.length > 0 && (
-              <span className="font-semibold text-bakery-muted">
-                {" "}
-                ({deals.length})
-              </span>
-            )}
-          </span>
-        </button>
-      </div>
-
-      <DashboardActionSheet
-        open={dealFormOpen}
-        onClose={resetWizard}
-        title={
-          wizardStep === "confirm"
-            ? labels.confirmBeforeSave
-            : editingDealId
-              ? labels.edit
-              : labels.addDeal
-        }
-        ariaLabel={labels.addDeal}
-        placement="upper"
-        showBackButton
-        backButtonOutside
-        compact
-        fitContent
-        warmPanel
-        panelClassName="dashboard-deal-form-sheet"
-      >
+  const dealFormSheet = (
+    <DashboardActionSheet
+      open={dealFormOpen}
+      onClose={closeDealForm}
+      title={
+        wizardStep === "confirm"
+          ? labels.confirmBeforeSave
+          : editingDealId
+            ? labels.edit
+            : labels.addDeal
+      }
+      ariaLabel={labels.addDeal}
+      placement="upper"
+      showBackButton
+      backButtonOutside
+      compact
+      fitContent
+      warmPanel
+      panelClassName="dashboard-deal-form-sheet"
+    >
           {wizardStep === "form" && (
             <form
               ref={dealFormRef}
@@ -818,116 +1027,29 @@ export function DealsManager({
             </div>
           )}
       </DashboardActionSheet>
+  );
 
-      <DashboardActionSheet
-        open={dealsListOpen}
-        onClose={() => setDealsListOpen(false)}
-        title={labels.existingDeals}
-        ariaLabel={labels.existingDeals}
-        placement="center"
-        showBackButton
-        warmPanel
-      >
-        {deals.length === 0 ? (
-          <p className="py-6 text-center text-[14px] text-bakery-muted">
-            {labels.noExistingDeals}
-          </p>
-        ) : (
-          <ul className="space-y-2.5">
-            {deals.map((d) => (
-              <li
-                key={d.id}
-                className="overflow-hidden rounded-[20px] border border-bakery-border/25 bg-[#faf6f0] shadow-[0_2px_8px_rgba(78,52,46,0.06)]"
-              >
-                <div className="flex items-center justify-between gap-2 border-b border-bakery-border/20 bg-bakery-card/40 px-3 py-2">
-                  <span
-                    className={`inline-flex min-h-[28px] items-center rounded-[10px] border px-2.5 text-[12px] font-extrabold leading-none ${
-                      d.isActive
-                        ? "border-[#43a047]/35 bg-[#43a047]/12 text-[#2e7d32]"
-                        : "border-[#9a4545]/35 bg-[#9a4545]/10 text-[#9a4545]"
-                    }`}
-                  >
-                    {d.isActive ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <span
-                          className="deal-active-pulse block h-2 w-2 rounded-full bg-[#43a047]"
-                          role="status"
-                          aria-hidden
-                        />
-                        {labels.active}
-                      </span>
-                    ) : (
-                      labels.dealOff
-                    )}
-                  </span>
-                  <span
-                    dir="ltr"
-                    className="rounded-[10px] border border-bakery-border/25 bg-bakery-input/80 px-2.5 py-1 text-[11px] font-bold tabular-nums text-bakery-muted"
-                  >
-                    {formatDateTime(d.validUntil)}
-                  </span>
-                </div>
+  const dealsListSheet = (
+    <DashboardActionSheet
+      open={dealsListOpen}
+      onClose={() => {
+        setDealsListOpen(false);
+        if (standaloneList) onStandaloneClose?.();
+      }}
+      ariaLabel={labels.deals}
+      placement="center"
+      showBackButton
+      compact
+      expanded={false}
+      warmPanel
+      panelClassName="dashboard-order-schedule-sheet"
+    >
+      {dealsListContent}
+    </DashboardActionSheet>
+  );
 
-                <div className="space-y-2 px-3 py-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="min-w-0 flex-1 text-[16px] font-extrabold leading-snug text-bakery-ink">
-                      {d.name}
-                    </p>
-                    <p
-                      dir="ltr"
-                      className="shrink-0 rounded-[12px] border border-bakery-primary/25 bg-bakery-primary/10 px-2.5 py-1 text-[17px] font-extrabold tabular-nums text-bakery-primary"
-                    >
-                      {formatMoney(d.dealPrice)}
-                    </p>
-                  </div>
-
-                  {(d.products ?? []).length > 0 ? (
-                    <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-2.5 py-2">
-                      <p className="text-[13px] font-semibold leading-snug text-bakery-ink">
-                        {(d.products ?? []).map((p) => p.name).join(" + ")}
-                      </p>
-                    </div>
-                  ) : null}
-
-                  <div className="rounded-[14px] border border-bakery-border/30 bg-bakery-card/60 px-2.5 py-2">
-                    <p className="text-[12px] font-bold text-bakery-muted">
-                      {labels.dealRedemptionLimit}
-                    </p>
-                    <p className="mt-0.5 text-[13px] font-extrabold text-bakery-ink">
-                      {redemptionSummaryLabel(
-                        d.maxRedemptionsPerCustomer ?? 1,
-                        labels
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-3 border-t border-bakery-border/20 px-3 py-2">
-                  <button
-                    type="button"
-                    onClick={() => removeDeal(d.id)}
-                    className="inline-flex min-h-[40px] items-center rounded-[12px] border border-[#9a4545]/30 bg-[#9a4545]/8 px-3 text-[13px] font-extrabold text-[#9a4545] transition active:opacity-75"
-                  >
-                    {labels.delete}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDealsListOpen(false);
-                      openEditDeal(d);
-                    }}
-                    className="inline-flex min-h-[40px] flex-1 items-center justify-center gap-1.5 rounded-full bg-[#5C4A3E] px-4 text-[14px] font-extrabold text-[#FAF4E6] shadow-[0_2px_8px_rgba(58,47,38,0.18)] transition active:scale-[0.98]"
-                  >
-                    <Pencil className="h-4 w-4 shrink-0" strokeWidth={2.25} />
-                    {labels.edit}
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </DashboardActionSheet>
-
+  const dealFeedback = (
+    <>
       <DashboardConfettiBackground active={dealSuccessOpen} />
 
       <CelebrationModal
@@ -939,6 +1061,101 @@ export function DealsManager({
         buttonLabel="מעולה"
         closeAriaLabel={labels.close}
       />
+    </>
+  );
+
+  if (standaloneList) {
+    return (
+      <>
+        {dealsListSheet}
+        {dealFormSheet}
+        {dealFeedback}
+      </>
+    );
+  }
+
+  return (
+    <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
+      {!autoOpenList ? (
+        <>
+          <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+            <button
+              type="button"
+              onClick={openNewDealForm}
+              className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+            >
+              <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+                <Gift className="h-6 w-6" strokeWidth={1.75} />
+              </span>
+              <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+                {labels.addDeal}
+              </span>
+            </button>
+          </div>
+
+          <div className="dashboard-card bakery-float-panel min-h-0 shrink-0 rounded-[32px] p-3">
+            <button
+              type="button"
+              onClick={() => {
+                resetWizard();
+                setDealsListOpen(true);
+              }}
+              className="dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+            >
+              <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+                <Tags className="h-6 w-6" strokeWidth={1.75} />
+              </span>
+              <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
+                {labels.existingDeals}
+                {deals.length > 0 && (
+                  <span className="font-semibold text-bakery-muted">
+                    {" "}
+                    ({deals.length})
+                  </span>
+                )}
+              </span>
+            </button>
+          </div>
+        </>
+      ) : null}
+
+      {dealFormSheet}
+      {dealsListSheet}
+      {dealFeedback}
     </div>
+  );
+}
+
+export function DashboardDealsEntry({
+  previewOnly = false,
+  initialProducts,
+  initialDeals,
+}: {
+  previewOnly?: boolean;
+  initialProducts?: Parameters<typeof toPreviewProducts>[0];
+  initialDeals?: Deal[];
+}) {
+  const [open, setOpen] = useState(false);
+  const { labels } = useAppLocale();
+
+  return (
+    <>
+      <DashboardActionRowButton
+        onClick={() => setOpen(true)}
+        icon={Gift}
+        title={labels.deals}
+        expanded={open}
+        active={open}
+      />
+      {open ? (
+        <DealsManager
+          standaloneList
+          previewOnly={previewOnly}
+          initialProducts={initialProducts}
+          initialDeals={initialDeals}
+          onStandaloneClose={() => setOpen(false)}
+        />
+      ) : null}
+    </>
   );
 }

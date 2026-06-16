@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { publicBusinessUrl } from "@/lib/business";
 import { Alert } from "@/components/ui";
 import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
-import { getPrepSummaryForBusiness } from "@/lib/dashboard-prep-summary";
+import { getPendingOrdersForBusiness, getPrepSummaryForBusiness } from "@/lib/dashboard-prep-summary";
 import { parseBusinessType } from "@/lib/types";
 
 export default async function DashboardPage() {
@@ -13,6 +13,8 @@ export default async function DashboardPage() {
   const b = user.business;
   const prepProducts =
     b.type === "STORE" ? await getPrepSummaryForBusiness(b.id) : [];
+  const pendingOrders =
+    b.type === "STORE" ? await getPendingOrdersForBusiness(b.id) : [];
 
   return (
     <>
@@ -32,6 +34,7 @@ export default async function DashboardPage() {
         previewHref={`/b/${b.slug}`}
         showPrepSummary={b.type === "STORE"}
         prepProducts={prepProducts}
+        initialPendingOrders={pendingOrders}
       />
     </>
   );

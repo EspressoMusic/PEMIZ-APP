@@ -17,6 +17,9 @@ export const APPOINTMENT_DAY_FRAME_SQUARE =
 export const APPOINTMENT_DAY_FRAME_SQUARE_LARGE =
   "relative flex aspect-square w-full items-center justify-center rounded-[14px] border-[2.5px] text-center text-[20px] font-extrabold leading-none tabular-nums transition sm:text-[22px]";
 
+export const APPOINTMENT_DAY_FRAME_SQUARE_LARGE_FILL =
+  "relative flex h-full min-h-0 w-full items-center justify-center rounded-[14px] border-[2.5px] text-center text-[20px] font-extrabold leading-none tabular-nums transition sm:text-[22px]";
+
 export const APPOINTMENT_DAY_FRAME_COMPACT =
   "relative flex h-full min-h-[2.75rem] w-full items-center justify-center rounded-[12px] border-[2px] text-[16px] font-extrabold transition sm:min-h-[3rem] sm:text-[17px]";
 
@@ -34,6 +37,7 @@ export function AppointmentCalendarEmptyDay({
   homeLarge = false,
   square = false,
   squareLarge = false,
+  fillHeight = false,
 }: {
   weekIndex: number;
   cellIndex: number;
@@ -42,13 +46,16 @@ export function AppointmentCalendarEmptyDay({
   homeLarge?: boolean;
   square?: boolean;
   squareLarge?: boolean;
+  fillHeight?: boolean;
 }) {
   return (
     <span
       key={`empty-${weekIndex}-${cellIndex}`}
       className={
         squareLarge
-          ? "aspect-square w-full rounded-[14px] border-[2.5px] border-transparent"
+          ? fillHeight
+            ? "h-full min-h-0 w-full rounded-[14px] border-[2.5px] border-transparent"
+            : "aspect-square w-full rounded-[14px] border-[2.5px] border-transparent"
           : square
             ? "aspect-square w-full rounded-[12px] border-[2px] border-transparent"
           : home
@@ -79,6 +86,9 @@ export function AppointmentCalendarPanel({
   homeLarge = false,
   squareDays = false,
   squareDaysLarge = false,
+  fillHeight = false,
+  lightNavButtons = false,
+  weekColumnCount = 7,
   panelClassName,
 }: {
   monthTitle: string;
@@ -103,11 +113,23 @@ export function AppointmentCalendarPanel({
   squareDays?: boolean;
   /** Wider modal calendar — larger squares and tighter side margins. */
   squareDaysLarge?: boolean;
+  /** Stretch square day cells to fill available vertical space (seller home). */
+  fillHeight?: boolean;
+  /** Lighter prev/next month controls (seller home calendar). */
+  lightNavButtons?: boolean;
+  /** 5 hides Fri/Sat columns; 7 shows full week. */
+  weekColumnCount?: 5 | 7;
   /** Override inner calendar panel surface (e.g. lighter home calendar). */
   panelClassName?: string;
 }) {
   const tight = compactVertical || homeCompact;
   const isSquare = squareDays || squareDaysLarge;
+  const stretchSquare = fillHeight && squareDaysLarge;
+  const navButtonClass = lightNavButtons
+    ? "border-bakery-border/20 bg-bakery-cream-light/90 text-bakery-muted"
+    : "border-bakery-border/35 bg-bakery-card text-bakery-ink";
+  const navIconClass = lightNavButtons ? "text-bakery-muted/75" : "";
+  const weekGridClass = weekColumnCount === 5 ? "grid-cols-5" : "grid-cols-7";
   const dayGap = squareDaysLarge
     ? "gap-2.5"
     : squareDays
@@ -131,7 +153,15 @@ export function AppointmentCalendarPanel({
       >
         <div
           className={`shrink-0 ${
-            squareDaysLarge ? "px-2 pb-1.5 pt-2" : homeCompact ? "px-3 pb-1 pt-1.5" : tight ? "px-3 pb-1.5 pt-2" : "px-3 pb-2 pt-2.5"
+            stretchSquare
+              ? "px-2 pb-1 pt-0"
+              : squareDaysLarge
+                ? "px-2 pb-1.5 pt-2"
+                : homeCompact
+                  ? "px-3 pb-1 pt-1.5"
+                  : tight
+                    ? "px-3 pb-1.5 pt-2"
+                    : "px-3 pb-2 pt-2.5"
           }`}
         >
           <div
@@ -142,13 +172,13 @@ export function AppointmentCalendarPanel({
             <button
               type="button"
               onClick={onPrevMonth}
-              className={`flex shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/35 bg-bakery-card text-bakery-ink transition active:scale-95 ${
+              className={`flex shrink-0 items-center justify-center rounded-[14px] border transition active:scale-95 ${navButtonClass} ${
                 squareDaysLarge ? "h-11 w-11" : homeCompact ? "h-9 w-9" : tight ? "h-10 w-10" : "h-11 w-11"
               }`}
               aria-label={prevMonthLabel}
             >
               <ChevronLeft
-                className={`rtl:rotate-180 ${
+                className={`rtl:rotate-180 ${navIconClass} ${
                   squareDaysLarge ? "h-6 w-6" : homeCompact ? "h-4 w-4" : tight ? "h-5 w-5" : "h-6 w-6"
                 }`}
                 strokeWidth={2}
@@ -170,13 +200,13 @@ export function AppointmentCalendarPanel({
             <button
               type="button"
               onClick={onNextMonth}
-              className={`flex shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/35 bg-bakery-card text-bakery-ink transition active:scale-95 ${
+              className={`flex shrink-0 items-center justify-center rounded-[14px] border transition active:scale-95 ${navButtonClass} ${
                 squareDaysLarge ? "h-11 w-11" : homeCompact ? "h-9 w-9" : tight ? "h-10 w-10" : "h-11 w-11"
               }`}
               aria-label={nextMonthLabel}
             >
               <ChevronRight
-                className={`rtl:rotate-180 ${
+                className={`rtl:rotate-180 ${navIconClass} ${
                   squareDaysLarge ? "h-6 w-6" : homeCompact ? "h-4 w-4" : tight ? "h-5 w-5" : "h-6 w-6"
                 }`}
                 strokeWidth={2}
@@ -187,17 +217,19 @@ export function AppointmentCalendarPanel({
 
         <div
           className={`flex flex-col ${
-            squareDaysLarge
-              ? "mx-1 min-h-0 flex-1 px-0 pb-2"
-              : homeLarge
-                ? "mx-3 min-h-0 flex-1 px-2.5 pb-2.5"
-                : homeCompact
-                  ? "mx-2 mb-0 min-h-0 flex-1 px-0.5 sm:mx-3"
-                  : `mx-2 min-h-0 flex-1 px-0.5 sm:mx-3 ${tight ? "mb-1.5" : "mb-2"}`
+            stretchSquare
+              ? "min-h-0 flex-1 px-2 pb-2"
+              : squareDaysLarge
+                ? "mx-1 min-h-0 flex-1 px-0 pb-2"
+                : homeLarge
+                  ? "mx-3 min-h-0 flex-1 px-2.5 pb-2.5"
+                  : homeCompact
+                    ? "mx-2 mb-0 min-h-0 flex-1 px-0.5 sm:mx-3"
+                    : `mx-2 min-h-0 flex-1 px-0.5 sm:mx-3 ${tight ? "mb-1.5" : "mb-2"}`
           }`}
         >
           <div
-            className={`grid grid-cols-7 text-center ${
+            className={`grid ${weekGridClass} text-center ${
               squareDaysLarge
                 ? "mb-2.5 gap-2.5"
                 : isSquare
@@ -231,32 +263,36 @@ export function AppointmentCalendarPanel({
 
           <div
             className={`flex min-h-0 flex-col ${
-              isSquare
-                ? squareDaysLarge
-                  ? "gap-2.5"
-                  : "gap-2"
-                : homeLarge
-                  ? "flex-1 gap-1.5"
-                  : homeCompact
-                    ? "min-h-0 flex-1 gap-1"
-                    : tight
-                      ? "min-h-0 flex-1 gap-1.5"
-                      : "min-h-0 flex-1 justify-evenly gap-1 sm:gap-1.5"
+              stretchSquare
+                ? "min-h-0 flex-1 gap-2"
+                : isSquare
+                  ? squareDaysLarge
+                    ? "gap-2.5"
+                    : "gap-2"
+                  : homeLarge
+                    ? "flex-1 gap-1.5"
+                    : homeCompact
+                      ? "min-h-0 flex-1 gap-1"
+                      : tight
+                        ? "min-h-0 flex-1 gap-1.5"
+                        : "min-h-0 flex-1 justify-evenly gap-1 sm:gap-1.5"
             }`}
           >
             {weeks.map((week, weekIndex) => (
               <div
                 key={weekIndex}
-                className={`grid grid-cols-7 ${
-                  isSquare
-                    ? dayGap
-                    : homeLarge
-                      ? `min-h-0 flex-1 ${dayGap}`
-                      : homeCompact
+                className={`grid ${weekGridClass} ${
+                  stretchSquare
+                    ? `min-h-0 flex-1 ${dayGap}`
+                    : isSquare
+                      ? dayGap
+                      : homeLarge
                         ? `min-h-0 flex-1 ${dayGap}`
-                        : tight
+                        : homeCompact
                           ? `min-h-0 flex-1 ${dayGap}`
-                          : `max-h-14 min-h-0 flex-1 ${dayGap}`
+                          : tight
+                            ? `min-h-0 flex-1 ${dayGap}`
+                            : `max-h-14 min-h-0 flex-1 ${dayGap}`
                 }`}
               >
                 {week.map((cell, cellIndex) =>
@@ -270,6 +306,7 @@ export function AppointmentCalendarPanel({
                       homeLarge={homeLarge}
                       square={isSquare}
                       squareLarge={squareDaysLarge}
+                      fillHeight={stretchSquare}
                     />
                   ) : (
                     renderDay(cell, weekIndex, cellIndex)

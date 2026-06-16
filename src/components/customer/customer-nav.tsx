@@ -18,7 +18,7 @@ export function CustomerNav({
   onSelect: (index: number) => void;
 }) {
   return (
-    <aside className="sticky top-0 z-30 w-full shrink-0 bg-bakery-scaffold/95 pb-1 pt-[max(0.25rem,env(safe-area-inset-top))] backdrop-blur-sm lg:static lg:z-auto lg:w-52 lg:bg-transparent lg:pb-0 lg:pt-0 lg:backdrop-blur-none">
+    <aside className="sticky top-0 z-30 w-full shrink-0 bg-bakery-scaffold/95 pb-1 pt-[max(0.25rem,var(--app-safe-top))] backdrop-blur-sm lg:static lg:z-auto lg:w-52 lg:bg-transparent lg:pb-0 lg:pt-0 lg:backdrop-blur-none">
       <nav className="no-scrollbar flex flex-nowrap gap-1 overflow-x-auto overscroll-x-contain rounded-[22px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-sheet p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch] lg:flex-col lg:overflow-visible">
         {items.map((item, i) => {
           const active = i === selectedIndex;

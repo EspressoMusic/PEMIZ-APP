@@ -8,7 +8,10 @@ import {
   type SellerHomeAppointment,
 } from "@/components/dashboard/dashboard-appointments-home-calendar";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import type { PrepProductSummary } from "@/lib/dashboard-prep-summary";
+import type {
+  PendingOrderRecord,
+  PrepProductSummary,
+} from "@/lib/dashboard-prep-summary";
 import type { CalendarSlot } from "@/lib/appointment-calendar-shared";
 import {
   isRentalBusinessType,
@@ -24,6 +27,8 @@ export function DashboardHomeView({
   customerLink,
   previewHref,
   prepProducts,
+  initialPendingOrders,
+  initialOrders,
   showPrepSummary,
   prepRefreshFromApi = false,
   businessSlug,
@@ -37,6 +42,8 @@ export function DashboardHomeView({
   customerLink: string;
   previewHref?: string;
   prepProducts?: PrepProductSummary[];
+  initialPendingOrders?: PendingOrderRecord[];
+  initialOrders?: import("@/components/dashboard/dashboard-order-card").DashboardOrderView[];
   showPrepSummary?: boolean;
   prepRefreshFromApi?: boolean;
   businessSlug: string;
@@ -49,11 +56,22 @@ export function DashboardHomeView({
     appointments: SellerHomeAppointment[];
     bookingByDay?: boolean;
     referenceNowMs?: number;
+    showWeekend?: boolean;
   };
 }) {
   const { labels } = useAppLocale();
   const isAppointments = isScheduleLikeBusinessType(businessType);
   const isRental = isRentalBusinessType(businessType);
+  const inquiryBell = (
+    <DashboardInquiryBell
+      businessSlug={businessSlug}
+      basePath={basePath}
+      inquiriesHref={inquiriesHref}
+      previewOnly={inquiryBellPreview}
+      businessType={businessType}
+      darkTile
+    />
+  );
 
   return (
     <div
@@ -61,46 +79,25 @@ export function DashboardHomeView({
         isAppointments ? "py-0.5" : "h-full py-3 sm:py-4"
       } ${center}`}
     >
-      <div className={`${homeStack} shrink-0`}>
-        <div
-          className={
-            isAppointments
-              ? "dashboard-home-header dashboard-home-header--appointments"
-              : "dashboard-home-header"
-          }
-        >
-          <div
-            className={`dashboard-home-header__inner relative flex items-center justify-center pe-14 text-center ${
-              isAppointments ? "px-3 py-3" : "px-3 py-3.5"
-            }`}
-          >
-            {ownerName.trim() ? (
-              <h1
-                className={`w-full truncate text-center font-extrabold leading-tight text-bakery-ink ${
-                  isAppointments ? "text-[17px]" : "text-[16px]"
-                }`}
-              >
-                {labels.hello}, {ownerName.trim()}!
-              </h1>
-            ) : null}
-            <div className="absolute end-3 inset-y-0 flex items-center">
-              <DashboardInquiryBell
-                businessSlug={businessSlug}
-                basePath={basePath}
-                inquiriesHref={inquiriesHref}
-                previewOnly={inquiryBellPreview}
-                businessType={businessType}
-              />
-            </div>
+      <div className={`${homeStack} shrink-0 ${isAppointments ? "pb-1.5" : "pb-2"}`}>
+        <div className="dashboard-home-header dashboard-home-header--greeting relative flex items-center justify-center px-4 py-4">
+          <div className="absolute end-3 top-1/2 z-10 -translate-y-1/2">
+            {inquiryBell}
           </div>
+          {ownerName.trim() ? (
+            <h1 className="w-full truncate px-14 text-center text-[18px] font-extrabold leading-tight text-bakery-ink sm:text-[19px]">
+              {labels.hello}, {ownerName.trim()}!
+            </h1>
+          ) : (
+            <span className="block min-h-[2.75rem] w-full" aria-hidden />
+          )}
         </div>
       </div>
-
       <div
         className={`${homeStack} min-h-0 flex-1 overflow-hidden ${
           isAppointments
-            ? "mt-1.5 flex min-h-0 flex-1 flex-col gap-2"
-            : "mt-2 grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_auto] gap-2 sm:mt-2.5"
+            ? "flex min-h-0 flex-1 flex-col gap-2"
+            : "grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_auto] gap-2"
         }`}
       >
         {isAppointments ? (
@@ -111,6 +108,7 @@ export function DashboardHomeView({
               initialAppointments={appointmentsCalendarPreview?.appointments}
               initialBookingByDay={appointmentsCalendarPreview?.bookingByDay}
               initialReferenceNowMs={appointmentsCalendarPreview?.referenceNowMs}
+              initialShowWeekend={appointmentsCalendarPreview?.showWeekend}
               rentalMode={isRental}
             />
           </div>
@@ -118,8 +116,10 @@ export function DashboardHomeView({
           <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
             <DashboardPrepSummary
               initialProducts={prepProducts}
+              initialOrders={initialOrders}
+              initialPendingOrders={initialPendingOrders}
               loadFromApi={prepRefreshFromApi}
-              fillHeight
+              previewOnly={inquiryBellPreview}
             />
           </div>
         ) : (

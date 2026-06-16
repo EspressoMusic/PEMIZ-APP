@@ -421,6 +421,31 @@ const ProductCard = memo(function ProductCard({
   );
 });
 
+const AddProductCard = memo(function AddProductCard({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="dashboard-product-list-card overflow-hidden rounded-[14px] p-0 text-center transition hover:brightness-[0.98] active:scale-[0.98]"
+    >
+      <div className="flex h-[5.75rem] w-full flex-col items-center justify-center">
+        <Plus className="h-7 w-7 text-[#614136]" strokeWidth={1.75} />
+      </div>
+      <div className="flex min-h-[4.5rem] flex-col items-center justify-center gap-1.5 px-2 py-2">
+        <p className="text-[15px] font-extrabold leading-snug text-bakery-ink">
+          {label}
+        </p>
+      </div>
+    </button>
+  );
+});
+
 function ProductsPreviewBanner() {
   return (
     <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
@@ -726,19 +751,26 @@ export function ProductsManager({
     [previewOnly, products, locale, labels.saveError]
   );
 
-  const productsListAddButton = (
-    <button
-      type="button"
-      onClick={() => setAddFormOpen(true)}
-      className="dashboard-action-square mb-2 flex w-full shrink-0 items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
-    >
-      <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
-        <Plus className="h-6 w-6" strokeWidth={1.75} />
-      </span>
-      <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
-        {addLabel}
-      </span>
-    </button>
+  const productsGrid = (
+    <div className="grid grid-cols-2 gap-2">
+      <AddProductCard label={addLabel} onClick={() => setAddFormOpen(true)} />
+      {products.map((p) => (
+        <ProductCard
+          key={p.id}
+          product={p}
+          labels={labels}
+          locale={locale}
+          formatMoney={formatMoney}
+          previewOnly={previewOnly}
+          onHide={() => void setProductActive(p.id, p.isActive)}
+          onDelete={() => void deleteProduct(p.id, p.name)}
+          onStockSave={(stock) => updateProductStock(p.id, stock)}
+          onImageUpload={(url) => updateProductImage(p.id, url)}
+          showStock={!isServices}
+          showDuration={isServices}
+        />
+      ))}
+    </div>
   );
 
   const addFormSheet = (
@@ -919,31 +951,12 @@ export function ProductsManager({
       warmPanel
     >
       {previewOnly ? <ProductsPreviewBanner /> : null}
-      {productsListAddButton}
+      {productsGrid}
       {products.length === 0 ? (
-        <p className="py-6 text-center text-[14px] text-bakery-muted">
+        <p className="py-4 text-center text-[14px] text-bakery-muted">
           {emptyLabel}
         </p>
-      ) : (
-        <div className="grid grid-cols-2 gap-2">
-          {products.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={p}
-              labels={labels}
-              locale={locale}
-              formatMoney={formatMoney}
-              previewOnly={previewOnly}
-              onHide={() => void setProductActive(p.id, p.isActive)}
-              onDelete={() => void deleteProduct(p.id, p.name)}
-              onStockSave={(stock) => updateProductStock(p.id, stock)}
-              onImageUpload={(url) => updateProductImage(p.id, url)}
-              showStock={!isServices}
-              showDuration={isServices}
-            />
-          ))}
-        </div>
-      )}
+      ) : null}
     </DashboardActionSheet>
   );
 

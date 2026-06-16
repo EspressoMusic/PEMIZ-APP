@@ -2,6 +2,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
 import { demoPrepSummary } from "@/lib/dashboard-prep-summary";
 import {
+  DEV_PREVIEW_ORDERS,
   DEV_STORE_BUSINESS,
   DEV_STORE_OWNER_NAME,
 } from "@/lib/dev-preview-data";
@@ -22,6 +23,9 @@ export default function DevSellerPreviewPage() {
             previewHref="/dev/customer"
             showPrepSummary
             prepProducts={demoPrepSummary()}
+            initialOrders={DEV_PREVIEW_ORDERS.filter(
+              (order) => order.status === "PENDING"
+            )}
             prepRefreshFromApi={false}
             inquiriesHref="/dev/seller/customers/inquiries"
             inquiryBellPreview

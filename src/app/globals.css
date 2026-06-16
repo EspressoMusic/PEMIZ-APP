@@ -355,6 +355,19 @@ button.bg-bakery-error:hover {
   padding-right: max(1rem, env(safe-area-inset-right));
 }
 
+:root {
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.app-safe-top {
+  padding-top: max(0.5rem, var(--app-safe-top));
+}
+
+html.linky-native-app .app-safe-top {
+  padding-top: max(0.75rem, var(--app-safe-top));
+}
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -1744,7 +1757,12 @@ html:not([data-store-theme="dark"])
 }
 
 .dashboard-home-header--appointments {
-  padding: 0.4375rem;
+  min-height: 3.25rem;
+}
+
+.dashboard-home-header--greeting {
+  min-height: 4.25rem;
+  padding: 0;
 }
 
 .dashboard-home-header--appointments .dashboard-home-header__inner {
@@ -1823,6 +1841,10 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   border-radius: 9999px;
   background: #a65d5d;
   box-shadow: 0 0 0 2px var(--bakery-prep-cream);
+}
+
+.dashboard-inquiry-dot--dark-tile {
+  box-shadow: 0 0 0 2px var(--bakery-primary);
 }
 
 .dashboard-shell-main {

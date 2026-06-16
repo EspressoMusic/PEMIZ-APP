@@ -168,7 +168,7 @@ export function CustomerAppointmentCalendar({
       return `${dayNormal} cursor-pointer hover:bg-bakery-cream-light active:scale-[0.98]`;
     }
     if (status === "full") {
-      return "cursor-pointer border-[#5C4A3E]/22 bg-[#b85c5c] text-[#faf4e6] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] active:scale-[0.98]";
+      return "cursor-pointer border-bakery-error bg-bakery-error text-white shadow-[0_3px_10px_rgba(168,88,88,0.35)] active:scale-[0.98]";
     }
     if (status === "closed") {
       return "cursor-pointer border-[#5C4A3E]/22 bg-bakery-card/35 text-bakery-muted/40 active:scale-[0.98]";

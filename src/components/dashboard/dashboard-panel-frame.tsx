@@ -5,7 +5,7 @@ export const DASHBOARD_MOBILE_STACK = "mx-auto w-full max-w-[360px]";
 
 /** מעטפת עמוד מוכר — גובה מלא מעל סרגל תחתון */
 export const DASHBOARD_LAYOUT_FRAME =
-  "app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-2 sm:py-3 lg:px-[14px]";
+  "app-safe-x app-safe-top mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden pb-2 sm:pb-3 lg:px-[14px]";
 
 export const DASHBOARD_LAYOUT_BODY =
   "flex min-h-0 flex-1 flex-col overflow-hidden";
@@ -92,7 +92,7 @@ export function DashboardFullscreenHubShell({
       className={`${DASHBOARD_PAGE_ROOT} -mt-2 flex min-h-0 flex-1 flex-col sm:mt-0`}
     >
       <div className="dashboard-card bakery-action-sheet-panel bakery-action-sheet-panel--warm bakery-action-sheet-panel--fullscreen flex min-h-0 flex-1 flex-col overflow-hidden sm:rounded-[32px]">
-        <div className="shrink-0 px-3 pb-1 pt-3 text-start">{backLink}</div>
+        <div className="shrink-0 px-3 pb-1 pt-[max(0.75rem,var(--app-safe-top))] text-start">{backLink}</div>
         <div className="dashboard-action-sheet-body flex min-h-0 flex-1 flex-col overflow-y-auto p-3 pt-1">
           {children}
         </div>

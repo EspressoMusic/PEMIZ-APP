@@ -23,7 +23,7 @@ export type { OrderPreviewLine };
 /** Matches [CustomerTabBody] — 12px top safe area */
 export function CustomerTabBody({ children }: { children: ReactNode }) {
   return (
-    <div className="pt-[max(0.75rem,env(safe-area-inset-top))]">{children}</div>
+    <div className="pt-[max(0.75rem,var(--app-safe-top))]">{children}</div>
   );
 }
 

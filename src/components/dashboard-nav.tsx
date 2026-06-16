@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Zap } from "lucide-react";
@@ -23,7 +24,12 @@ export function DashboardNav({
   activeTab?: "home" | "actions";
 }) {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
   const { labels } = useAppLocale();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const homeHref = homeHrefOverride ?? basePath;
   const actionsHref = actionsHrefOverride ?? `${basePath}/actions`;
   const defaultLinks = [
@@ -63,7 +69,8 @@ export function DashboardNav({
     >
       <div className={`flex w-full pt-2 ${DASHBOARD_MOBILE_STACK} px-4`}>
         {links.map((l) => {
-          const active = l.key === "home" ? isHome : isActions;
+          const routeActive = l.key === "home" ? isHome : isActions;
+          const active = mounted && routeActive;
           const Icon = l.icon;
           return (
             <Link

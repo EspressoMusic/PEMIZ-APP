@@ -174,6 +174,11 @@ export function DashboardAppointmentsSettingsHubGrid({
 
   return (
     <ul className="dashboard-settings-style-rows space-y-2 text-start">
+      <DashboardAppointmentActiveGroup
+        previewOnly={previewOnly}
+        previewAppointments={previewAppointments}
+        previewBookingByDay={previewBookingByDay}
+      />
       <DashboardProductsEntry
         mode="services"
         previewOnly={isDevPreview}
@@ -183,11 +188,6 @@ export function DashboardAppointmentsSettingsHubGrid({
         previewOnly={previewOnly || isDevPreview}
         initialConfig={calendarConfig}
         workingDays={workingDays}
-      />
-      <DashboardAppointmentActiveGroup
-        previewOnly={previewOnly}
-        previewAppointments={previewAppointments}
-        previewBookingByDay={previewBookingByDay}
       />
     </ul>
   );

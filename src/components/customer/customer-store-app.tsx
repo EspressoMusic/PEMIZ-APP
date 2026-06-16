@@ -3,15 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
-  Check,
-  ChevronDown,
   HelpCircle,
-  History,
   Receipt,
   SlidersHorizontal,
   ShieldPlus,
   UserRound,
-  Settings,
   Smartphone,
 } from "lucide-react";
 import { Button, Input, Textarea } from "@/components/ui";
@@ -1529,75 +1525,42 @@ export function CustomerStoreApp({
     setContactModalOpen(true);
   }
 
-  function renderScheduleAppointmentsPanel() {
+  function renderMyAppointmentsSection() {
     return (
-      <>
-        {phoneVerifyPrompt ? (
-          <CustomerPhoneVerification
-            slug={business.slug}
-            phone={phoneVerifyPrompt}
-            locale={locale}
-            labels={labels}
-            compact
-            onVerified={() => {
-              setPhoneVerifyPrompt(null);
-              if (pendingCancelAppointmentId) {
-                const id = pendingCancelAppointmentId;
-                setPendingCancelAppointmentId(null);
-                void cancelMyAppointment(id);
-              }
-            }}
-          />
-        ) : null}
-        <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
-          <SettingsCollapsibleSection
-            title={isRental ? labels.myRentals : labels.myAppointments}
-            icon={Receipt}
-            expanded={activeOrdersOpen}
-            onToggle={() => setActiveOrdersOpen((open) => !open)}
-          >
-            {activeAppointments.length === 0 ? (
-              <HubEmptyText>
-                {isRental ? labels.noActiveRentals : labels.noActiveAppts}
-              </HubEmptyText>
-            ) : (
-              <ul className="space-y-2">
-                {activeAppointments.map((appt) => (
-                  <li key={appt.id}>
-                    <AppointmentPreviewCard
-                      serviceName={appt.serviceName}
-                      startAt={appt.startAt}
-                      endAt={appt.endAt}
-                      rentalMode={isRental}
-                      status={appt.status}
-                      locale={locale}
-                      labels={labels}
-                      canCancel={canCustomerCancelAppointment(
-                        appt.startAt,
-                        appointmentCancelPolicy,
-                        appt.status
-                      )}
-                      onCancel={() => void cancelMyAppointment(appt.id)}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </SettingsCollapsibleSection>
-          <SettingsMenuRow
-            icon={History}
-            title={labels.comingSoon}
-            disabled
-            trailing={
-              <Check
-                className="h-6 w-6 shrink-0 text-bakery-ink"
-                strokeWidth={2.5}
-                aria-hidden
-              />
-            }
-          />
-        </div>
-      </>
+      <SettingsCollapsibleSection
+        title={isRental ? labels.myRentals : labels.myAppointments}
+        icon={Receipt}
+        expanded={activeOrdersOpen}
+        onToggle={() => setActiveOrdersOpen((open) => !open)}
+      >
+        {activeAppointments.length === 0 ? (
+          <HubEmptyText>
+            {isRental ? labels.noActiveRentals : labels.noActiveAppts}
+          </HubEmptyText>
+        ) : (
+          <ul className="space-y-2">
+            {activeAppointments.map((appt) => (
+              <li key={appt.id}>
+                <AppointmentPreviewCard
+                  serviceName={appt.serviceName}
+                  startAt={appt.startAt}
+                  endAt={appt.endAt}
+                  rentalMode={isRental}
+                  status={appt.status}
+                  locale={locale}
+                  labels={labels}
+                  canCancel={canCustomerCancelAppointment(
+                    appt.startAt,
+                    appointmentCancelPolicy,
+                    appt.status
+                  )}
+                  onCancel={() => void cancelMyAppointment(appt.id)}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </SettingsCollapsibleSection>
     );
   }
 
@@ -1665,9 +1628,26 @@ export function CustomerStoreApp({
 
       case "settings":
         return (
-          <div className="space-y-4 pb-2">
-            {isScheduleLike ? renderScheduleAppointmentsPanel() : null}
+          <div className="space-y-3 pb-2">
+            {isScheduleLike && phoneVerifyPrompt ? (
+              <CustomerPhoneVerification
+                slug={business.slug}
+                phone={phoneVerifyPrompt}
+                locale={locale}
+                labels={labels}
+                compact
+                onVerified={() => {
+                  setPhoneVerifyPrompt(null);
+                  if (pendingCancelAppointmentId) {
+                    const id = pendingCancelAppointmentId;
+                    setPendingCancelAppointmentId(null);
+                    void cancelMyAppointment(id);
+                  }
+                }}
+              />
+            ) : null}
             <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
+              {isScheduleLike ? renderMyAppointmentsSection() : null}
               {panels.faq ? (
                 <SettingsMenuRow
                   icon={HelpCircle}
@@ -1682,21 +1662,6 @@ export function CustomerStoreApp({
                   unavailableLabel={labels.contactOptionWhatsAppUnavailable}
                 />
               ) : null}
-              <p className="px-2 pb-1 text-center text-[12px] font-medium leading-snug text-bakery-muted">
-                {labels.deviceDataNote}
-              </p>
-              <SettingsMenuRow
-                icon={Settings}
-                title={labels.comingSoon}
-                disabled
-                trailing={
-                  <ChevronDown
-                    className="h-6 w-6 shrink-0 text-bakery-muted"
-                    strokeWidth={2}
-                    aria-hidden
-                  />
-                }
-              />
             </div>
           </div>
         );
@@ -1790,7 +1755,7 @@ export function CustomerStoreApp({
     <div
       lang={rootLang}
       dir={rootDir}
-      className={`customer-store-root ${themeClass} ${textScaleClass} flex h-full min-h-0 w-full flex-col overflow-hidden`}
+      className={`customer-store-root app-safe-top ${themeClass} ${textScaleClass} flex h-full min-h-0 w-full flex-col overflow-hidden`}
     >
       {isScheduleLike ? (
         <div

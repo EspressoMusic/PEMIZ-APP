@@ -47,13 +47,6 @@ export default function OnboardingPage() {
       <div className="mx-auto w-full max-w-lg px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel>
           <PageTitle>פתיחת עסק</PageTitle>
-          <p className="mb-4 text-[14px] leading-[1.45] text-bakery-muted">
-            כבר פתחת חנות בעבר? ייתכן שנרשמת עם אימייל —{" "}
-            <Link href="/login" className="font-bold text-bakery-ink hover:underline">
-              התחבר/י עם האימייל
-            </Link>
-            .
-          </p>
           {error && (
             <div className="mb-4">
               <Alert variant="error">{error}</Alert>

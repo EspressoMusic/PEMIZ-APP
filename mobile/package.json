@@ -17,8 +17,7 @@
     "@capacitor/ios": "^7.0.0",
     "@capacitor/preferences": "^7.0.0",
     "@capacitor/splash-screen": "^7.0.0",
-    "@capacitor/status-bar": "^7.0.0",
-    "linky": "file:.."
+    "@capacitor/status-bar": "^7.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0",

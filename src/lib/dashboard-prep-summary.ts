@@ -1,3 +1,6 @@
+import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
+import type { AppLocale } from "@/lib/app-locale";
+import { getDashboardLabels } from "@/lib/app-locale";
 import { prisma } from "@/lib/prisma";
 
 export type PrepOrderLine = {
@@ -113,6 +116,64 @@ export async function getPrepSummaryForBusiness(
   return [...byProduct.values()].sort(
     (a, b) => b.totalQuantity - a.totalQuantity
   );
+}
+
+export type PendingOrderRecord = {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  status: string;
+  createdAt: string | Date;
+  items: {
+    quantity: number;
+    priceAtOrder: number;
+    product: { name: string; imageUrl: string | null };
+  }[];
+};
+
+export async function getPendingOrdersForBusiness(
+  businessId: string
+): Promise<PendingOrderRecord[]> {
+  return prisma.order.findMany({
+    where: {
+      businessId,
+      status: { in: [...PREP_STATUSES] },
+    },
+    include: {
+      items: { include: { product: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export function mapPendingOrdersFromRecords(
+  records: PendingOrderRecord[],
+  locale: AppLocale
+): DashboardOrderView[] {
+  const labels = getDashboardLabels(locale);
+  const statusMap: Record<string, string> = {
+    PENDING: labels.pending,
+    CONFIRMED: labels.confirmed,
+    COMPLETED: labels.completed,
+    CANCELLED: labels.cancelled,
+  };
+  return records.map((o) => ({
+    id: o.id,
+    customerName: o.customerName,
+    customerPhone: o.customerPhone,
+    status: o.status,
+    statusLabel: statusMap[o.status] ?? o.status,
+    createdAt:
+      typeof o.createdAt === "string"
+        ? o.createdAt
+        : o.createdAt.toISOString(),
+    items: o.items.map((it) => ({
+      name: it.product.name,
+      quantity: it.quantity,
+      lineTotal: it.priceAtOrder * it.quantity,
+      imageUrl: it.product.imageUrl,
+    })),
+  }));
 }
 
 export function demoPrepSummary(): PrepProductSummary[] {

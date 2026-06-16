@@ -5,7 +5,7 @@ import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { forgotPasswordSchema, zodFirstError } from "@/lib/validation/schemas";
 
 const SUCCESS_MESSAGE =
-  "הבקשה נשלחה למתכנת. הוא ייצור איתך קשר ויעביר לך סיסמה חדשה.";
+  "הבקשה התקבלה. צוות התמיכה ישלח לך סיסמה חדשה לטלפון שביקשת — השתמש/י בה להתחברות.";
 
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, "auth:forgot-password", 5, 15 * 60 * 1000);

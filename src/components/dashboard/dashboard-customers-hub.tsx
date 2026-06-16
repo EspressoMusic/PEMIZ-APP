@@ -2,16 +2,10 @@
 
 import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
 import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
-import { HelpCircle, MessagesSquare } from "lucide-react";
+import { HelpCircle, Inbox } from "lucide-react";
 import { DashboardBroadcastEntry } from "@/components/dashboard/dashboard-store-broadcast";
 import {
-  DEV_APPOINTMENTS_BUSINESS,
-  DEV_RENTAL_BUSINESS,
-  DEV_STORE_BUSINESS,
-} from "@/lib/dev-preview-data";
-import {
   DashboardActionRow,
-  DashboardActionRowButton,
 } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
@@ -25,30 +19,14 @@ export function DashboardCustomersHubGrid({
 }) {
   const { labels } = useAppLocale();
   const isDevPreview = basePath.startsWith("/dev/");
-  const devBroadcast = basePath.startsWith("/dev/seller-rental")
-    ? DEV_RENTAL_BUSINESS
-    : basePath.startsWith("/dev/seller-appointments")
-      ? DEV_APPOINTMENTS_BUSINESS
-      : DEV_STORE_BUSINESS;
 
   const list = (
     <ul className="dashboard-settings-style-rows space-y-2 text-start">
-      <DashboardBroadcastEntry
-        previewOnly={isDevPreview}
-        initialMessage={
-          isDevPreview ? (devBroadcast.storeBroadcast ?? "") : ""
-        }
-        initialSentAt={
-          isDevPreview ? (devBroadcast.storeBroadcastAt ?? null) : null
-        }
-        initialHistory={
-          isDevPreview ? (devBroadcast.storeBroadcastHistory ?? []) : []
-        }
-      />
-      <DashboardActionRowButton
-        icon={MessagesSquare}
-        title={labels.comingSoon}
-        disabled
+      <DashboardBroadcastEntry previewOnly={isDevPreview} />
+      <DashboardActionRow
+        href={`${basePath}/customers/inquiries`}
+        icon={Inbox}
+        title={labels.customerInquiries}
       />
       <DashboardActionRow
         href={`${basePath}/faq`}

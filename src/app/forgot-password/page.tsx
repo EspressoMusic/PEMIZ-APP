@@ -8,7 +8,7 @@ import { WebShell } from "@/components/web-shell";
 import { buildWhatsAppChatUrl } from "@/lib/phone";
 
 const SUCCESS_MESSAGE =
-  "הבקשה נשלחה למתכנת. הוא ייצור איתך קשר ויעביר לך סיסמה חדשה.";
+  "הבקשה התקבלה. צוות התמיכה ישלח לך סיסמה חדשה לטלפון שביקשת — השתמש/י בה להתחברות.";
 
 const DEVELOPER_WHATSAPP = "0586122187";
 
@@ -63,7 +63,10 @@ export default function ForgotPasswordPage() {
       <div className="auth-surface mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel className="dashboard-card sm:p-8">
           <PageTitle>שכחת סיסמה?</PageTitle>
-
+          <p className="mb-4 text-center text-[14px] leading-[1.45] text-bakery-muted">
+            הזן/י את מספר הטלפון של החשבון. לאחר השליחה תקבל/י סיסמה חדשה מצוות
+            התמיכה.
+          </p>
           {error && (
             <div className="mb-4">
               <Alert variant="error">{error}</Alert>

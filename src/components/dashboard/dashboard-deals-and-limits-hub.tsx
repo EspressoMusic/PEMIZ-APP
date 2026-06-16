@@ -1,16 +1,15 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import { useState } from "react";
 import {
   DASHBOARD_PAGE_ROOT,
   DASHBOARD_SCROLL_MAIN,
 } from "@/components/dashboard/dashboard-panel-frame";
-import { Clock, Gift } from "lucide-react";
-import {
-  DashboardActionRow,
-  DashboardActionRowButton,
-} from "@/components/dashboard/dashboard-action-row";
+import { Clock } from "lucide-react";
+import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardDealsEntry } from "@/components/dashboard/deals-manager";
 import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
@@ -44,10 +43,11 @@ function DashboardStoreLimitsGroup({
         placement="center"
         showBackButton
         compact
+        fitContent
         panelClassName="dashboard-order-schedule-sheet"
       >
         <DashboardOrderScheduleSettings
-          inline
+          embeddedInSheet
           previewOnly={previewOnly}
           initialEnabled={initialEnabled}
           initialScheduleJson={initialScheduleJson}
@@ -58,24 +58,24 @@ function DashboardStoreLimitsGroup({
 }
 
 export function DashboardDealsAndLimitsHubGrid({
-  basePath = "/dashboard",
   previewOnly = false,
   initialOrderScheduleEnabled = false,
   initialOrderScheduleJson = null,
+  initialProducts,
+  initialDeals,
 }: {
-  basePath?: string;
   previewOnly?: boolean;
   initialOrderScheduleEnabled?: boolean;
   initialOrderScheduleJson?: string | null;
+  initialProducts?: ComponentProps<typeof DashboardDealsEntry>["initialProducts"];
+  initialDeals?: ComponentProps<typeof DashboardDealsEntry>["initialDeals"];
 }) {
-  const { labels } = useAppLocale();
-
   return (
     <ul className="space-y-2 text-start">
-      <DashboardActionRow
-        href={`${basePath}/settings/deals`}
-        icon={Gift}
-        title={labels.deals}
+      <DashboardDealsEntry
+        previewOnly={previewOnly}
+        initialProducts={initialProducts}
+        initialDeals={initialDeals}
       />
       <DashboardStoreLimitsGroup
         previewOnly={previewOnly}
@@ -91,11 +91,15 @@ export function DashboardDealsAndLimitsHub({
   previewOnly = false,
   initialOrderScheduleEnabled = false,
   initialOrderScheduleJson = null,
+  initialProducts,
+  initialDeals,
 }: {
   basePath?: string;
   previewOnly?: boolean;
   initialOrderScheduleEnabled?: boolean;
   initialOrderScheduleJson?: string | null;
+  initialProducts?: ComponentProps<typeof DashboardDealsEntry>["initialProducts"];
+  initialDeals?: ComponentProps<typeof DashboardDealsEntry>["initialDeals"];
 }) {
   return (
     <div className={`${DASHBOARD_PAGE_ROOT} justify-start text-center`}>
@@ -105,10 +109,11 @@ export function DashboardDealsAndLimitsHub({
         </div>
         <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <DashboardDealsAndLimitsHubGrid
-            basePath={basePath}
             previewOnly={previewOnly}
             initialOrderScheduleEnabled={initialOrderScheduleEnabled}
             initialOrderScheduleJson={initialOrderScheduleJson}
+            initialProducts={initialProducts}
+            initialDeals={initialDeals}
           />
         </div>
       </div>

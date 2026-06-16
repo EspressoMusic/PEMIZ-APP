@@ -22,6 +22,8 @@ export function DashboardActionSheet({
   fitContent = false,
   panelClassName,
   backButtonOutside = false,
+  /** Centered line at top of compact header (e.g. order date). */
+  headerNote,
   /** Full-height sheet from top to bottom; disabled automatically when fitContent. */
   expanded = true,
 }: {
@@ -44,6 +46,7 @@ export function DashboardActionSheet({
   panelClassName?: string;
   /** עם compact — מציב את «חזרה» מעל המלבן ולא בתוך הכותרת */
   backButtonOutside?: boolean;
+  headerNote?: string;
   expanded?: boolean;
 }) {
   const { labels } = useAppLocale();
@@ -108,7 +111,7 @@ export function DashboardActionSheet({
 
   return createPortal(
     <div
-      className={`fixed inset-0 flex ${fullViewport ? "p-0 sm:p-4" : "p-3 sm:p-4"} ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
+      className={`fixed inset-0 flex ${fullViewport ? "app-safe-top" : ""} ${fullViewport ? "p-0 sm:p-4" : "p-3 sm:p-4"} ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel ?? title ?? closeLabel}
@@ -158,7 +161,18 @@ export function DashboardActionSheet({
                 </h2>
               </div>
             ) : (
-              <div className="shrink-0 px-3 pb-1 pt-3 text-start">{backControl}</div>
+              <div className="shrink-0 px-3 pb-1 pt-3">
+                {headerNote ? (
+                  <div className="relative">
+                    <div className="absolute start-0 top-0">{backControl}</div>
+                    <p className="text-center text-[12px] font-semibold text-bakery-muted">
+                      {headerNote}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-start">{backControl}</div>
+                )}
+              </div>
             )
           ) : title ? (
             <h2

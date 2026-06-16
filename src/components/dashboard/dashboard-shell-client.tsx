@@ -45,6 +45,13 @@ function isDashboardHomeRoute(pathname: string, basePath: string) {
   return pathname === basePath || pathname === `${basePath}/`;
 }
 
+function isDashboardActionsHubRoute(pathname: string, basePath: string) {
+  return (
+    pathname === `${basePath}/actions` ||
+    pathname === `${basePath}/actions/`
+  );
+}
+
 export function DashboardShellClient({
   children,
   businessType,
@@ -63,6 +70,8 @@ export function DashboardShellClient({
   const pathname = usePathname();
   const inSellerApp = isSellerAppRoute(pathname, basePath);
   const isHomeRoute = isDashboardHomeRoute(pathname, basePath);
+  const isActionsHubRoute = isDashboardActionsHubRoute(pathname, basePath);
+  const lockMainScroll = isHomeRoute || isActionsHubRoute;
   const tourEnabled =
     businessId !== "dev-preview" || businessId.startsWith("dev-guide-preview");
 
@@ -85,7 +94,7 @@ export function DashboardShellClient({
         >
           <div
             className={`no-scrollbar min-h-0 flex-1 overscroll-contain ${
-              isHomeRoute
+              lockMainScroll
                 ? "flex flex-col overflow-hidden pb-0"
                 : `${DASHBOARD_SCROLL_MAIN} pb-[max(1rem,env(safe-area-inset-bottom))]`
             }`}

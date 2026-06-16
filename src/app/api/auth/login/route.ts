@@ -35,12 +35,7 @@ export async function POST(req: Request) {
     if (!user) {
       const candidates = await findLoginCandidates(identifier);
       if (candidates.length === 0) {
-        return jsonError(
-          identifier.includes("@")
-            ? "לא קיים משתמש עם הפרטים האלה"
-            : "לא קיים משתמש עם הטלפון הזה",
-          401
-        );
+        return jsonError("לא קיים משתמש עם הטלפון הזה", 401);
       }
       return jsonError("הסיסמה שגויה", 401);
     }

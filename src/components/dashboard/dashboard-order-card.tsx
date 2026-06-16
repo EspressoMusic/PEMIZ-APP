@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { ChevronDown, Package } from "lucide-react";
+import { Package } from "lucide-react";
 import { Button } from "@/components/ui";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   customerProfileInitial,
@@ -26,11 +27,6 @@ export type DashboardOrderView = {
   customerJoinedAt?: string;
   items: DashboardOrderItemView[];
 };
-
-const ORDER_STATUS_ACTION_KEYS = [
-  { status: "CONFIRMED", key: "confirmOrder" as const },
-  { status: "CANCELLED", key: "cancelOrder" as const },
-];
 
 function OrderProductThumb({
   name,
@@ -62,6 +58,111 @@ function OrderProductThumb({
   );
 }
 
+function DashboardOrderDetails({
+  order,
+  total,
+  showPrices,
+  showActions,
+  onStatusChange,
+  onClose,
+}: {
+  order: DashboardOrderView;
+  total: number;
+  showPrices: boolean;
+  showActions: boolean;
+  onStatusChange?: (orderId: string, status: string) => void;
+  onClose: () => void;
+}) {
+  const { labels, formatMoney } = useAppLocale();
+
+  return (
+    <div className="space-y-2.5 text-start">
+      <div className="flex items-center gap-3 rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/90 px-3 py-2.5">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-bakery-border/35 bg-bakery-on-primary text-[16px] font-extrabold text-bakery-primary">
+          {customerProfileInitial(
+            order.customerName,
+            labels.anonymousCustomer
+          )}
+        </span>
+        <p className="min-w-0 flex-1 truncate text-[16px] font-extrabold text-bakery-ink">
+          {order.customerName}
+        </p>
+      </div>
+
+      <ul className="space-y-2">
+        {order.items.map((it, i) => (
+          <li
+            key={`${order.id}-${i}`}
+            className="flex items-center gap-3 rounded-[14px] bg-bakery-input px-2.5 py-2"
+          >
+            <OrderProductThumb
+              name={it.name}
+              imageUrl={it.imageUrl}
+              quantity={it.quantity}
+            />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[14px] font-extrabold text-bakery-ink">
+                {it.name}
+              </p>
+              <p className="text-[12px] font-semibold text-bakery-muted">
+                {it.quantity}{" "}
+                {it.quantity === 1 ? labels.unit : labels.units}
+              </p>
+            </div>
+            {showPrices && (
+              <p
+                dir="ltr"
+                className="shrink-0 text-[14px] font-extrabold tabular-nums text-bakery-primary"
+              >
+                {formatMoney(it.lineTotal)}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      {showPrices && (
+        <div className="flex items-center justify-between gap-2 border-t border-bakery-border/25 pt-2.5">
+          <p className="text-[11px] font-bold text-bakery-muted">
+            {labels.total}
+          </p>
+          <p
+            dir="ltr"
+            className="text-[18px] font-extrabold tabular-nums text-bakery-ink"
+          >
+            {formatMoney(total)}
+          </p>
+        </div>
+      )}
+
+      {showActions && (
+        <div className="grid grid-cols-2 gap-2 border-t border-bakery-border/25 pt-2.5">
+          <Button
+            variant="primary"
+            className="min-h-[34px] w-full rounded-full px-3 py-1.5 text-[13px] font-extrabold"
+            onClick={() => {
+              onStatusChange?.(order.id, "CONFIRMED");
+              onClose();
+            }}
+          >
+            {labels.confirmOrder}
+          </Button>
+          <button
+            type="button"
+            className="inline-flex min-h-[34px] w-full items-center justify-center rounded-full border border-bakery-error bg-transparent px-3 py-1.5 text-[13px] font-extrabold text-bakery-error transition hover:bg-bakery-error/5 active:scale-[0.99]"
+            onClick={() => {
+              onStatusChange?.(order.id, "CANCELLED");
+              onClose();
+            }}
+          >
+            {labels.cancelOrder}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function DashboardOrderCard({
   order,
   open,
@@ -77,7 +178,7 @@ export function DashboardOrderCard({
   onCustomerClick?: (input: CustomerProfileInput) => void;
   showPrices?: boolean;
 }) {
-  const { labels, formatDateTime, formatMoney } = useAppLocale();
+  const { labels, formatDateTime } = useAppLocale();
   const total = order.items.reduce((s, it) => s + it.lineTotal, 0);
   const createdShort = order.createdAt
     ? formatDateTime(order.createdAt)
@@ -87,19 +188,27 @@ export function DashboardOrderCard({
   return (
     <div className="w-full">
       <div
-        className={`dashboard-action-square flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition ${
-          open ? "bakery-float-tile--active" : ""
-        }`}
+        role="button"
+        tabIndex={0}
+        onClick={() => onOpenChange(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onOpenChange(true);
+          }
+        }}
+        className="dashboard-action-square flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
       >
         <button
           type="button"
-          onClick={() =>
+          onClick={(e) => {
+            e.stopPropagation();
             onCustomerClick?.({
               customerName: order.customerName,
               customerPhone: order.customerPhone,
               fallbackDate: order.customerJoinedAt ?? order.createdAt,
-            })
-          }
+            });
+          }}
           className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-bakery-border/35 bg-bakery-on-primary text-[18px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)] transition hover:opacity-90 active:scale-[0.98]"
           aria-label={`${labels.customer}: ${order.customerName}`}
         >
@@ -108,95 +217,32 @@ export function DashboardOrderCard({
             labels.anonymousCustomer
           )}
         </button>
-        <button
-          type="button"
-          onClick={() => onOpenChange(!open)}
-          aria-expanded={open}
-          className="flex min-w-0 flex-1 items-center gap-1.5 text-start"
-        >
-          <span className="min-w-0 flex-1 truncate text-[16px] font-extrabold leading-tight text-bakery-ink">
-            {order.customerName}
-          </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform duration-200 ${
-              open ? "rotate-180" : ""
-            }`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
-        </button>
+        <span className="min-w-0 flex-1 truncate text-[16px] font-extrabold leading-tight text-bakery-ink">
+          {order.customerName}
+        </span>
       </div>
 
-      {open && (
-        <div className="mt-2 space-y-2.5 rounded-[18px] border border-bakery-border/40 bg-bakery-card/50 p-2.5 text-start shadow-[var(--shadow-bakery-card)]">
-          {createdShort && (
-            <p className="px-1 text-[12px] font-semibold text-bakery-muted">
-              {createdShort}
-            </p>
-          )}
-          <ul className="space-y-2">
-            {order.items.map((it, i) => (
-              <li
-                key={`${order.id}-${i}`}
-                className="flex items-center gap-3 rounded-[14px] bg-bakery-input px-2.5 py-2"
-              >
-                <OrderProductThumb
-                  name={it.name}
-                  imageUrl={it.imageUrl}
-                  quantity={it.quantity}
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[14px] font-extrabold text-bakery-ink">
-                    {it.name}
-                  </p>
-                  <p className="text-[12px] font-semibold text-bakery-muted">
-                    {it.quantity}{" "}
-                    {it.quantity === 1 ? labels.unit : labels.units}
-                  </p>
-                </div>
-                {showPrices && (
-                  <p
-                    dir="ltr"
-                    className="shrink-0 text-[14px] font-extrabold tabular-nums text-bakery-primary"
-                  >
-                    {formatMoney(it.lineTotal)}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          {showPrices && (
-            <div className="flex items-center justify-between gap-2 border-t border-bakery-border/25 pt-2.5">
-              <p className="text-[11px] font-bold text-bakery-muted">
-                {labels.total}
-              </p>
-              <p
-                dir="ltr"
-                className="text-[18px] font-extrabold tabular-nums text-bakery-ink"
-              >
-                {formatMoney(total)}
-              </p>
-            </div>
-          )}
-
-          {showActions && (
-            <div className="grid grid-cols-2 gap-2 border-t border-bakery-border/25 pt-2.5">
-              {ORDER_STATUS_ACTION_KEYS.map(({ status, key }) => (
-                <Button
-                  key={status}
-                  variant="primary"
-                  className="min-h-[44px] w-full rounded-full font-extrabold"
-                  onClick={() => onStatusChange(order.id, status)}
-                >
-                  {labels[key]}
-                </Button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
+      <DashboardActionSheet
+        open={open}
+        onClose={() => onOpenChange(false)}
+        ariaLabel={order.customerName}
+        placement="center"
+        showBackButton
+        compact
+        fitContent
+        warmPanel
+        headerNote={createdShort ?? undefined}
+        panelClassName="dashboard-order-schedule-sheet"
+      >
+        <DashboardOrderDetails
+          order={order}
+          total={total}
+          showPrices={showPrices}
+          showActions={Boolean(showActions)}
+          onStatusChange={onStatusChange}
+          onClose={() => onOpenChange(false)}
+        />
+      </DashboardActionSheet>
     </div>
   );
 }

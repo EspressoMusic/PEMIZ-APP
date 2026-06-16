@@ -134,10 +134,10 @@ export function AuthForm({
             ) : (
               <Input
                 name="identifier"
-                type="text"
-                label="טלפון או אימייל"
+                type="tel"
+                label="טלפון"
                 required
-                autoComplete="username"
+                autoComplete="tel"
                 dir="ltr"
                 placeholder="050-1234567"
               />
@@ -161,6 +161,9 @@ export function AuthForm({
                 >
                   שכחת סיסמה?
                 </Link>
+                <span className="mt-1 block text-[12px] font-medium text-bakery-muted">
+                  תקבל/י סיסמה חדשה מצוות התמיכה
+                </span>
               </p>
             ) : null}
             <Button type="submit" className="mt-2 w-full" disabled={loading}>

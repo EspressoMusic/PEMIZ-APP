@@ -10,7 +10,7 @@ import {
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import {
-  APPOINTMENT_DAY_FRAME_SQUARE_LARGE,
+  APPOINTMENT_DAY_FRAME_SQUARE_LARGE_FILL,
   AppointmentCalendarPanel,
 } from "@/components/appointment-calendar-panel";
 import {
@@ -29,12 +29,13 @@ import {
 } from "@/components/dashboard/dashboard-customer-profile";
 import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
 import {
+  buildAppointmentMonthWeeks,
+  filterAppointmentWeekdayLabels,
   APPOINTMENT_WEEKDAYS_EN,
   APPOINTMENT_WEEKDAYS_HE,
   appointmentAddMonths,
   appointmentLocalDateKey,
   appointmentStartOfMonth,
-  buildAppointmentMonthCells,
   calendarSlotIsOpen,
   formatAppointmentDayTitle,
   formatAppointmentMonthTitle,
@@ -171,10 +172,6 @@ function DashboardDayAppointmentsModal({
                       slot.startAt,
                       locale
                     );
-                    const endTime = formatAppointmentSlotTime(
-                      slot.endAt,
-                      locale
-                    );
                     return (
                       <li key={slot.id}>
                         <button
@@ -183,26 +180,14 @@ function DashboardDayAppointmentsModal({
                           disabled={!onQuickBookSlot || isBooking}
                           dir="ltr"
                           className={`dashboard-action-square flex w-full items-center gap-2 rounded-[22px] px-3 py-3.5 text-start transition hover:opacity-95 active:scale-[0.99] disabled:opacity-60 !border-[3px] !border-[#5C4A3E]/18 ${DASHBOARD_DAY_PANEL_HALO}`}
-                          aria-label={`${labels.homeCalendarQuickBook}: ${startTime} – ${endTime}`}
+                          aria-label={`${labels.homeCalendarQuickBook}: ${startTime}`}
                         >
-                          <p className="w-[4.25rem] shrink-0 text-[12px] font-extrabold leading-tight text-bakery-muted">
-                            {labels.homeCalendarSlotOpen}
-                          </p>
-
                           <span
-                            className="w-[4.5rem] shrink-0 text-center text-[22px] font-extrabold leading-none tabular-nums text-bakery-ink sm:text-[24px]"
+                            className="min-w-0 flex-1 text-center text-[22px] font-extrabold leading-none tabular-nums text-bakery-ink sm:text-[24px]"
                             dir="ltr"
                           >
                             {startTime}
                           </span>
-
-                          <p
-                            className="min-w-0 flex-1 truncate text-center text-[13px] font-bold tabular-nums text-bakery-ink"
-                            dir="ltr"
-                          >
-                            <span className="text-bakery-muted">–</span>{" "}
-                            {endTime}
-                          </p>
 
                           <p
                             className="shrink-0 text-right text-[15px] font-extrabold leading-tight text-bakery-primary"
@@ -241,6 +226,7 @@ export function DashboardAppointmentsHomeCalendar({
   initialBookingByDay = false,
   initialReferenceNowMs,
   rentalMode = false,
+  initialShowWeekend = false,
 }: {
   previewOnly?: boolean;
   initialSlots?: CalendarSlot[];
@@ -249,6 +235,7 @@ export function DashboardAppointmentsHomeCalendar({
   /** Server-frozen clock for preview SSR/hydration parity. */
   initialReferenceNowMs?: number;
   rentalMode?: boolean;
+  initialShowWeekend?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
   const [hydrated, setHydrated] = useState(false);
@@ -256,6 +243,7 @@ export function DashboardAppointmentsHomeCalendar({
   const [slots, setSlots] = useState(initialSlots);
   const [appointments, setAppointments] = useState(initialAppointments);
   const [bookingByDay, setBookingByDay] = useState(initialBookingByDay);
+  const [showWeekend, setShowWeekend] = useState(initialShowWeekend);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [dayModalOpen, setDayModalOpen] = useState(false);
   const [bookingSlotId, setBookingSlotId] = useState<string | null>(null);
@@ -278,6 +266,7 @@ export function DashboardAppointmentsHomeCalendar({
       setSlots(initialSlots);
       setAppointments(initialAppointments);
       setBookingByDay(initialBookingByDay);
+      setShowWeekend(initialShowWeekend);
       return;
     }
 
@@ -300,12 +289,11 @@ export function DashboardAppointmentsHomeCalendar({
         );
       }
       if (calendarRes.ok) {
-        setBookingByDay(
-          Boolean(
-            (calendarData as { config?: { bookingByDay?: boolean } }).config
-              ?.bookingByDay
-          )
-        );
+        const calendarPayload = calendarData as {
+          config?: { bookingByDay?: boolean; showWeekend?: boolean };
+        };
+        setBookingByDay(Boolean(calendarPayload.config?.bookingByDay));
+        setShowWeekend(Boolean(calendarPayload.config?.showWeekend));
       }
     }
 
@@ -313,7 +301,13 @@ export function DashboardAppointmentsHomeCalendar({
     return () => {
       cancelled = true;
     };
-  }, [previewOnly, initialSlots, initialAppointments, initialBookingByDay]);
+  }, [
+    previewOnly,
+    initialSlots,
+    initialAppointments,
+    initialBookingByDay,
+    initialShowWeekend,
+  ]);
 
   const quickBookSlot = useCallback(
     async (slotId: string) => {
@@ -439,15 +433,13 @@ export function DashboardAppointmentsHomeCalendar({
     return map;
   }, [appointments]);
 
-  const monthCells = useMemo(() => buildAppointmentMonthCells(month), [month]);
-  const weeks = useMemo(() => {
-    const rows: (typeof monthCells)[] = [];
-    for (let i = 0; i < monthCells.length; i += 7) {
-      rows.push(monthCells.slice(i, i + 7));
-    }
-    return rows;
-  }, [monthCells]);
-  const weekdays = locale === "he" ? APPOINTMENT_WEEKDAYS_HE : APPOINTMENT_WEEKDAYS_EN;
+  const weeks = useMemo(
+    () => buildAppointmentMonthWeeks(month, showWeekend),
+    [month, showWeekend]
+  );
+  const weekdayLabels =
+    locale === "he" ? APPOINTMENT_WEEKDAYS_HE : APPOINTMENT_WEEKDAYS_EN;
+  const weekdays = filterAppointmentWeekdayLabels(weekdayLabels, showWeekend);
 
   function dayStatus(dateKey: string): SellerDayStatus {
     const daySlots = slotsByDay.get(dateKey) ?? [];
@@ -455,14 +447,25 @@ export function DashboardAppointmentsHomeCalendar({
       appointmentsByDay.get(dateKey)?.filter((a) => a.status !== "CANCELLED") ??
       [];
     const futureSlots = daySlots.filter((s) => new Date(s.startAt) > new Date());
+    const allSlotsBooked =
+      daySlots.length > 0 &&
+      daySlots.every((slot) => slot.appointments.length >= slot.maxBookings);
 
     if (dateKey < todayKey) {
       return dayAppointments.length > 0 || daySlots.length > 0 ? "booked" : "past";
     }
+    if (
+      futureSlots.length > 0 &&
+      !futureSlots.some(calendarSlotIsOpen)
+    ) {
+      return "full";
+    }
+    if (allSlotsBooked) {
+      return "full";
+    }
     if (futureSlots.length === 0) {
       return dayAppointments.length > 0 ? "booked" : "empty";
     }
-    if (!futureSlots.some(calendarSlotIsOpen)) return "full";
     if (dayAppointments.length > 0) return "booked";
     return "open";
   }
@@ -473,17 +476,17 @@ export function DashboardAppointmentsHomeCalendar({
   }
 
   const dayNormal =
-    "border-[#5C4A3E]/22 bg-bakery-card text-bakery-ink";
+    "border-[#5C4A3E]/22 bg-white text-bakery-ink";
 
   function dayClass(status: SellerDayStatus, selected: boolean) {
     if (selected) {
       return "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.18)]";
     }
     if (status === "full") {
-      return "cursor-pointer border-[#5C4A3E]/22 bg-[#b85c5c] text-[#faf4e6] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] active:scale-[0.98]";
+      return "cursor-pointer border-bakery-error bg-bakery-error text-white shadow-[0_3px_10px_rgba(168,88,88,0.35)] active:scale-[0.98]";
     }
     if (status === "open" || status === "booked") {
-      return `${dayNormal} cursor-pointer hover:bg-bakery-cream-light active:scale-[0.98]`;
+      return `${dayNormal} cursor-pointer hover:bg-white active:scale-[0.98]`;
     }
     if (status === "past") {
       return `cursor-pointer ${dayNormal} opacity-45 active:scale-[0.98]`;
@@ -535,7 +538,7 @@ export function DashboardAppointmentsHomeCalendar({
         key={dateKey}
         type="button"
         onClick={() => pickDay(dateKey)}
-        className={`${APPOINTMENT_DAY_FRAME_SQUARE_LARGE} ${dayClass(status, selected)}${
+        className={`${APPOINTMENT_DAY_FRAME_SQUARE_LARGE_FILL} ${dayClass(status, selected)}${
           isToday
             ? " outline outline-[3px] outline-black outline-offset-0"
             : ""
@@ -549,16 +552,13 @@ export function DashboardAppointmentsHomeCalendar({
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex h-full min-h-0 max-h-full w-full flex-1 flex-col overflow-hidden">
         <div
-          className="dashboard-card bakery-float-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px] p-2.5 sm:p-3"
+          className="dashboard-card bakery-float-panel relative flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden rounded-[32px] p-0"
           role="region"
           aria-label={labels.homeCalendarTitle}
         >
-          <h2 className="shrink-0 pb-1.5 text-center text-[16px] font-extrabold text-bakery-ink sm:text-[17px]">
-            {labels.homeCalendarTitle}
-          </h2>
-          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-0.5 pb-1">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <AppointmentCalendarPanel
               monthTitle={formatAppointmentMonthTitle(month, locale)}
               onPrevMonth={() => setMonth((m) => appointmentAddMonths(m, -1))}
@@ -568,7 +568,10 @@ export function DashboardAppointmentsHomeCalendar({
               weekdays={weekdays}
               weeks={weeks}
               squareDaysLarge
-              panelClassName="!border-[#5C4A3E]/14 !bg-[#faf8f4] shadow-[0_2px_8px_rgba(78,52,46,0.06)]"
+              fillHeight
+              lightNavButtons
+              weekColumnCount={showWeekend ? 7 : 5}
+              panelClassName="!rounded-none !border-0 !bg-transparent !shadow-none"
               renderDay={renderCalendarDay}
             />
           </div>

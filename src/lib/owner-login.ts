@@ -20,14 +20,11 @@ function loginMatchConditions(identifier: string): Prisma.UserWhereInput[] {
 
   if (phone) conditions.push({ phone });
   if (syntheticEmail) conditions.push({ email: syntheticEmail });
-  if (trimmed.includes("@")) {
-    conditions.push({ email: trimmed.toLowerCase() });
-  }
 
   return conditions;
 }
 
-/** All owner accounts that might match a login identifier (phone or email). */
+/** All owner accounts that match a login phone number. */
 export async function findLoginCandidates(
   identifier: string
 ): Promise<LoginUser[]> {
