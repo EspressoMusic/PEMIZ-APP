@@ -412,11 +412,6 @@ export function CustomerContactModal({
                 minLength={5}
                 disabled={inquirySubmitting}
               />
-              <p className="text-center text-[12px] font-semibold text-bakery-muted">
-                {locale === "he"
-                  ? "פירוט הפנייה: לפחות 5 תווים"
-                  : "Details: at least 5 characters"}
-              </p>
               <Button
                 type="submit"
                 className="w-full min-h-[48px]"
