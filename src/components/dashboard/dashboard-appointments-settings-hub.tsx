@@ -90,6 +90,7 @@ function DashboardAppointmentCalendarGroup({
   previewOnly = false,
   initialConfig = DEFAULT_APPOINTMENT_CALENDAR,
   workingDays,
+  basePath = "/dashboard",
 }: {
   previewOnly?: boolean;
   initialConfig?: AppointmentCalendarConfig;
@@ -98,6 +99,7 @@ function DashboardAppointmentCalendarGroup({
     initialScheduleJson: string | null;
     previewOnly?: boolean;
   };
+  basePath?: string;
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
@@ -126,6 +128,7 @@ function DashboardAppointmentCalendarGroup({
           previewOnly={previewOnly}
           initialConfig={initialConfig}
           workingDays={workingDays}
+          basePath={basePath}
         />
       </DashboardActionSheet>
     </>
@@ -188,6 +191,7 @@ export function DashboardAppointmentsSettingsHubGrid({
         previewOnly={previewOnly || isDevPreview}
         initialConfig={calendarConfig}
         workingDays={workingDays}
+        basePath={basePath}
       />
     </ul>
   );

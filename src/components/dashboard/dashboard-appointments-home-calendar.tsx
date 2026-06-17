@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import {
   APPOINTMENT_DAY_FRAME_SQUARE_LARGE_FILL,
@@ -42,6 +37,12 @@ import {
   formatAppointmentSlotTime,
   type CalendarSlot,
 } from "@/lib/appointment-calendar-shared";
+import { sellerHomeCalendarShowsWeekend } from "@/lib/order-schedule";
+import {
+  isDashboardHomePath,
+  LINKY_ORDER_SCHEDULE_UPDATED_EVENT,
+  readDevWorkingDaysOverride,
+} from "@/lib/order-schedule-sync";
 
 export type SellerHomeAppointment = {
   id: string;
@@ -226,7 +227,9 @@ export function DashboardAppointmentsHomeCalendar({
   initialBookingByDay = false,
   initialReferenceNowMs,
   rentalMode = false,
-  initialShowWeekend = false,
+  initialOrderScheduleEnabled = false,
+  initialOrderSchedule = null,
+  basePath = "/dashboard",
 }: {
   previewOnly?: boolean;
   initialSlots?: CalendarSlot[];
@@ -235,15 +238,24 @@ export function DashboardAppointmentsHomeCalendar({
   /** Server-frozen clock for preview SSR/hydration parity. */
   initialReferenceNowMs?: number;
   rentalMode?: boolean;
-  initialShowWeekend?: boolean;
+  initialOrderScheduleEnabled?: boolean;
+  initialOrderSchedule?: string | null;
+  basePath?: string;
 }) {
   const { labels, locale } = useAppLocale();
+  const pathname = usePathname();
+  const isHomePath = isDashboardHomePath(pathname, basePath);
   const [hydrated, setHydrated] = useState(false);
   const [month, setMonth] = useState(() => appointmentStartOfMonth(new Date()));
   const [slots, setSlots] = useState(initialSlots);
   const [appointments, setAppointments] = useState(initialAppointments);
   const [bookingByDay, setBookingByDay] = useState(initialBookingByDay);
-  const [showWeekend, setShowWeekend] = useState(initialShowWeekend);
+  const [orderScheduleEnabled, setOrderScheduleEnabled] = useState(
+    initialOrderScheduleEnabled
+  );
+  const [orderSchedule, setOrderSchedule] = useState<string | null>(
+    initialOrderSchedule
+  );
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [dayModalOpen, setDayModalOpen] = useState(false);
   const [bookingSlotId, setBookingSlotId] = useState<string | null>(null);
@@ -261,40 +273,75 @@ export function DashboardAppointmentsHomeCalendar({
     ? appointmentLocalDateKey(new Date(nowMs).toISOString())
     : "";
 
+  const applyOrderSchedule = useCallback(
+    (enabled: boolean, json: string | null) => {
+      setOrderScheduleEnabled(enabled);
+      setOrderSchedule(json);
+    },
+    []
+  );
+
+  const applyPreviewOrderSchedule = useCallback(() => {
+    const stored = readDevWorkingDaysOverride(
+      basePath,
+      initialOrderScheduleEnabled,
+      initialOrderSchedule
+    );
+    applyOrderSchedule(stored.enabled, stored.json);
+  }, [
+    applyOrderSchedule,
+    basePath,
+    initialOrderSchedule,
+    initialOrderScheduleEnabled,
+  ]);
+
+  const loadLiveData = useCallback(async () => {
+    const [slotsRes, apptsRes, calendarRes] = await Promise.all([
+      fetch("/api/dashboard/slots", { cache: "no-store" }),
+      fetch("/api/dashboard/appointments", { cache: "no-store" }),
+      fetch("/api/dashboard/appointment-calendar", { cache: "no-store" }),
+    ]);
+    const slotsData = await slotsRes.json().catch(() => ({}));
+    const apptsData = await apptsRes.json().catch(() => ({}));
+    const calendarData = await calendarRes.json().catch(() => ({}));
+    if (slotsRes.ok) {
+      setSlots((slotsData as { slots?: CalendarSlot[] }).slots ?? []);
+    }
+    if (apptsRes.ok) {
+      setAppointments(
+        (apptsData as { appointments?: SellerHomeAppointment[] }).appointments ??
+          []
+      );
+    }
+    if (calendarRes.ok) {
+      const calendarPayload = calendarData as {
+        config?: { bookingByDay?: boolean };
+        orderScheduleEnabled?: boolean;
+        orderSchedule?: string | null;
+      };
+      setBookingByDay(Boolean(calendarPayload.config?.bookingByDay));
+      applyOrderSchedule(
+        Boolean(calendarPayload.orderScheduleEnabled),
+        calendarPayload.orderSchedule ?? null
+      );
+    }
+  }, [applyOrderSchedule]);
+
   useEffect(() => {
     if (previewOnly) {
       setSlots(initialSlots);
       setAppointments(initialAppointments);
       setBookingByDay(initialBookingByDay);
-      setShowWeekend(initialShowWeekend);
+      applyPreviewOrderSchedule();
       return;
     }
 
+    if (!isHomePath) return;
+
     let cancelled = false;
     async function load() {
-      const [slotsRes, apptsRes, calendarRes] = await Promise.all([
-        fetch("/api/dashboard/slots"),
-        fetch("/api/dashboard/appointments"),
-        fetch("/api/dashboard/appointment-calendar"),
-      ]);
-      const slotsData = await slotsRes.json().catch(() => ({}));
-      const apptsData = await apptsRes.json().catch(() => ({}));
-      const calendarData = await calendarRes.json().catch(() => ({}));
+      await loadLiveData();
       if (cancelled) return;
-      if (slotsRes.ok) setSlots((slotsData as { slots?: CalendarSlot[] }).slots ?? []);
-      if (apptsRes.ok) {
-        setAppointments(
-          (apptsData as { appointments?: SellerHomeAppointment[] }).appointments ??
-            []
-        );
-      }
-      if (calendarRes.ok) {
-        const calendarPayload = calendarData as {
-          config?: { bookingByDay?: boolean; showWeekend?: boolean };
-        };
-        setBookingByDay(Boolean(calendarPayload.config?.bookingByDay));
-        setShowWeekend(Boolean(calendarPayload.config?.showWeekend));
-      }
     }
 
     void load();
@@ -303,11 +350,38 @@ export function DashboardAppointmentsHomeCalendar({
     };
   }, [
     previewOnly,
+    isHomePath,
+    loadLiveData,
+    applyPreviewOrderSchedule,
     initialSlots,
     initialAppointments,
     initialBookingByDay,
-    initialShowWeekend,
   ]);
+
+  useEffect(() => {
+    function onScheduleUpdated() {
+      if (previewOnly) {
+        applyPreviewOrderSchedule();
+        return;
+      }
+      if (isHomePath) {
+        void loadLiveData();
+      }
+    }
+
+    window.addEventListener(LINKY_ORDER_SCHEDULE_UPDATED_EVENT, onScheduleUpdated);
+    return () => {
+      window.removeEventListener(
+        LINKY_ORDER_SCHEDULE_UPDATED_EVENT,
+        onScheduleUpdated
+      );
+    };
+  }, [previewOnly, isHomePath, loadLiveData, applyPreviewOrderSchedule]);
+
+  const showWeekend = useMemo(
+    () => sellerHomeCalendarShowsWeekend(orderScheduleEnabled, orderSchedule),
+    [orderScheduleEnabled, orderSchedule]
+  );
 
   const quickBookSlot = useCallback(
     async (slotId: string) => {

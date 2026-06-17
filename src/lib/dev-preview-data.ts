@@ -588,7 +588,7 @@ export const DEV_APPOINTMENTS_BUSINESS = {
   storeLocale: "he" as const,
   storePolicy: "תורים בימים א׳–ה׳. איחור מעל 10 דקות עלול לבטל את התור.",
   storeTerms: "ביטול תור עד 24 שעות לפני המועד ללא חיוב.",
-  appointmentSlotGapMinutes: 15,
+  appointmentSlotGapMinutes: 0,
   appointmentSlotDurationMinutes: 60,
   appointmentBookingStart: "09:00",
   appointmentBookingEnd: "18:00",
@@ -829,6 +829,8 @@ export function getDevSellerHomeCalendarPreview() {
     slots: biz.slots,
     appointments: getDevPreviewAppointmentsSeller(),
     bookingByDay: DEV_APPOINTMENTS_BUSINESS.appointmentBookingByDay ?? false,
+    orderScheduleEnabled: DEV_APPOINTMENTS_BUSINESS.orderScheduleEnabled ?? false,
+    orderSchedule: DEV_APPOINTMENTS_BUSINESS.orderSchedule ?? null,
     /** Frozen at request time so SSR and hydration use the same "now". */
     referenceNowMs: Date.now(),
   };
@@ -1096,6 +1098,8 @@ export function getDevSellerHomeRentalCalendarPreview() {
     slots: biz.slots,
     appointments: getDevPreviewRentalSeller(),
     bookingByDay: DEV_RENTAL_BUSINESS.appointmentBookingByDay ?? false,
+    orderScheduleEnabled: DEV_RENTAL_BUSINESS.orderScheduleEnabled ?? false,
+    orderSchedule: DEV_RENTAL_BUSINESS.orderSchedule ?? null,
     referenceNowMs: Date.now(),
   };
 }

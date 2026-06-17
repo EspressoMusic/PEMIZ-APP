@@ -14,6 +14,10 @@ import {
   parseOrderSchedule,
   type OrderDaySlot,
 } from "@/lib/order-schedule";
+import {
+  notifyOrderScheduleUpdated,
+  writeDevWorkingDaysOverride,
+} from "@/lib/order-schedule-sync";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardOrderScheduleSettings({
@@ -27,6 +31,7 @@ export function DashboardOrderScheduleSettings({
   hideSaveButton = false,
   saveHandleRef,
   sectionLead = false,
+  basePath = "/dashboard",
 }: {
   initialEnabled: boolean;
   initialScheduleJson: string | null;
@@ -44,6 +49,7 @@ export function DashboardOrderScheduleSettings({
   hideSaveButton?: boolean;
   /** Optional ref for programmatic save (welcome setup). */
   saveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
+  basePath?: string;
 }) {
   const initial = useMemo(
     () => parseOrderSchedule(initialScheduleJson, initialEnabled),
@@ -109,6 +115,13 @@ export function DashboardOrderScheduleSettings({
     setMessage("");
 
     if (previewOnly) {
+      const persistEnabled = isAppointments ? true : enabled;
+      writeDevWorkingDaysOverride(
+        basePath,
+        persistEnabled,
+        persistEnabled ? orderScheduleToJson(daySlots) : null
+      );
+      notifyOrderScheduleUpdated();
       setMessage(labels.previewSavedHint);
       setTimeout(() => setMessage(""), 3500);
       return true;
@@ -152,6 +165,7 @@ export function DashboardOrderScheduleSettings({
       setMessage(labels.messageSent);
       setTimeout(() => setMessage(""), 3000);
       setSheetOpen(false);
+      notifyOrderScheduleUpdated();
       return true;
     } catch {
       setError(labels.scheduleServerError);

@@ -29,16 +29,14 @@ function formatCalendarSummary(
     }
     const gap =
       config.gapMinutes > 0 ? ` · רווח ${config.gapMinutes} דק׳` : "";
-    const weekend = config.showWeekend ? " · כולל שישי ושבת" : " · א׳–ה׳";
-    return `${range} · משך ${config.durationMinutes} דק׳${gap}${weekend}`;
+    return `${range} · משך ${config.durationMinutes} דק׳${gap}`;
   }
   if (config.bookingByDay) {
     return `${range} · book by day`;
   }
   const gap =
     config.gapMinutes > 0 ? ` · ${config.gapMinutes} min gap` : "";
-  const weekend = config.showWeekend ? " · incl. Fri–Sat" : " · Sun–Thu";
-  return `${range} · ${config.durationMinutes} min slots${gap}${weekend}`;
+  return `${range} · ${config.durationMinutes} min slots${gap}`;
 }
 
 export function DashboardAppointmentsCalendarSettings({
@@ -79,9 +77,6 @@ export function DashboardAppointmentsCalendarSettings({
   const [bookingByDay, setBookingByDay] = useState(
     initialConfig.bookingByDay ?? false
   );
-  const [showWeekend, setShowWeekend] = useState(
-    initialConfig.showWeekend ?? false
-  );
   const [sheetOpen, setSheetOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -105,7 +100,6 @@ export function DashboardAppointmentsCalendarSettings({
         bookingStart: effectiveBookingStart,
         bookingEnd: effectiveBookingEnd,
         bookingByDay,
-        showWeekend,
       }),
     [
       effectiveGapMinutes,
@@ -113,7 +107,6 @@ export function DashboardAppointmentsCalendarSettings({
       effectiveBookingStart,
       effectiveBookingEnd,
       bookingByDay,
-      showWeekend,
     ]
   );
 
@@ -141,7 +134,6 @@ export function DashboardAppointmentsCalendarSettings({
       setBookingStart(payload.config.bookingStart);
       setBookingEnd(payload.config.bookingEnd);
       setBookingByDay(payload.config.bookingByDay ?? false);
-      setShowWeekend(payload.config.showWeekend ?? false);
     }
   }, [previewOnly]);
 
@@ -223,7 +215,6 @@ export function DashboardAppointmentsCalendarSettings({
         setDurationMinutes(payload.config.durationMinutes);
         setBookingStart(payload.config.bookingStart);
         setBookingEnd(payload.config.bookingEnd);
-        setShowWeekend(payload.config.showWeekend ?? false);
       }
       setMessage(labels.appointmentCalendarSaved);
       setTimeout(() => setMessage(""), 3000);
@@ -263,6 +254,7 @@ export function DashboardAppointmentsCalendarSettings({
       sectionLead
       hideSaveButton
       saveHandleRef={resolvedScheduleSaveRef}
+      basePath={basePath}
     />
   ) : null;
 
@@ -313,17 +305,6 @@ export function DashboardAppointmentsCalendarSettings({
             ) : null}
           </div>
         ) : null}
-
-        <div className="dashboard-action-square flex w-full items-center justify-between gap-3 rounded-[22px] px-3 py-3.5 text-start">
-          <span className="min-w-0 text-[15px] font-extrabold leading-snug text-bakery-ink">
-            {labels.appointmentCalendarShowWeekend}
-          </span>
-          <Toggle
-            enabled={showWeekend}
-            onChange={setShowWeekend}
-            ariaLabel={labels.appointmentCalendarShowWeekend}
-          />
-        </div>
 
         {!workingDays ? (
           <div className="space-y-3 border-t border-bakery-border/25 pt-4">

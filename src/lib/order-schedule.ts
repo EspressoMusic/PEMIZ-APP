@@ -299,3 +299,15 @@ export function isSellerWorkingDay(
   const slot = schedule.daySlots.find((s) => s.day === weekday);
   return slot?.open ?? false;
 }
+
+/** Seller home calendar: show Fri/Sat columns when either day is open in working days. */
+export function sellerHomeCalendarShowsWeekend(
+  orderScheduleEnabled: boolean,
+  orderScheduleJson: string | null | undefined
+): boolean {
+  if (!orderScheduleEnabled) return true;
+  const schedule = parseOrderSchedule(orderScheduleJson, true);
+  const friday = schedule.daySlots.find((slot) => slot.day === 5);
+  const saturday = schedule.daySlots.find((slot) => slot.day === 6);
+  return Boolean(friday?.open || saturday?.open);
+}

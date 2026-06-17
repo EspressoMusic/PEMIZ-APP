@@ -12,7 +12,6 @@ export type AppointmentCalendarConfig = {
   bookingStart: string;
   bookingEnd: string;
   bookingByDay?: boolean;
-  showWeekend?: boolean;
 };
 
 export type GeneratedSlot = {
@@ -22,11 +21,10 @@ export type GeneratedSlot = {
 };
 
 export const DEFAULT_APPOINTMENT_CALENDAR: AppointmentCalendarConfig = {
-  gapMinutes: 15,
+  gapMinutes: 0,
   durationMinutes: 60,
   bookingStart: "09:00",
   bookingEnd: "18:00",
-  showWeekend: false,
 };
 
 function timeToMinutes(t: string): number {
@@ -52,7 +50,7 @@ export function clampAppointmentCalendarConfig(
       : null) ?? DEFAULT_APPOINTMENT_CALENDAR.bookingEnd;
 
   return {
-    gapMinutes: Math.min(180, Math.max(0, Math.round(input.gapMinutes ?? 15))),
+    gapMinutes: Math.min(180, Math.max(0, Math.round(input.gapMinutes ?? 0))),
     durationMinutes: Math.min(
       240,
       Math.max(15, Math.round(input.durationMinutes ?? 60))
@@ -60,7 +58,6 @@ export function clampAppointmentCalendarConfig(
     bookingStart,
     bookingEnd,
     bookingByDay: Boolean(input.bookingByDay),
-    showWeekend: Boolean(input.showWeekend),
   };
 }
 

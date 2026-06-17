@@ -21,7 +21,6 @@ export type DashboardLabels = {
   appointmentCalendarAndLimits: string;
   appointmentGapMinutes: string;
   appointmentGapBetweenMeetings: string;
-  appointmentCalendarShowWeekend: string;
   appointmentDurationMinutes: string;
   appointmentBookingHours: string;
   appointmentBookingFrom: string;
@@ -561,7 +560,6 @@ const HE: DashboardLabels = {
   appointmentCalendarAndLimits: "יומן והגבלות",
   appointmentGapMinutes: "רווח בין פגישות (דקות)",
   appointmentGapBetweenMeetings: "רווח בין כל פגישה",
-  appointmentCalendarShowWeekend: "הצג שישי ושבת ביומן",
   appointmentDurationMinutes: "משך כל פגישה (דקות)",
   appointmentBookingHours: "שעות לקביעת תורים",
   appointmentBookingFrom: "משעה",
@@ -1144,7 +1142,6 @@ const EN: DashboardLabels = {
   appointmentCalendarAndLimits: "Calendar & limits",
   appointmentGapMinutes: "Gap between appointments (minutes)",
   appointmentGapBetweenMeetings: "Gap between each appointment",
-  appointmentCalendarShowWeekend: "Show Friday and Saturday in calendar",
   appointmentDurationMinutes: "Appointment length (minutes)",
   appointmentBookingHours: "Booking hours",
   appointmentBookingFrom: "From",

@@ -95,12 +95,11 @@ model Business {
   storeBroadcastHistory  String?
   orderScheduleEnabled   Boolean  @default(false)
   orderSchedule          String?
-  appointmentSlotGapMinutes      Int    @default(15)
+  appointmentSlotGapMinutes      Int    @default(0)
   appointmentSlotDurationMinutes Int    @default(60)
   appointmentBookingStart        String  @default("09:00")
   appointmentBookingEnd          String  @default("18:00")
   appointmentBookingByDay        Boolean @default(false)
-  appointmentCalendarShowWeekend Boolean @default(false)
   sellerAlertsEnabled    Boolean  @default(false)
   sellerAlertOnInquiry   Boolean  @default(true)
   sellerAlertOnChat      Boolean  @default(true)

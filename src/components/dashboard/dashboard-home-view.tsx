@@ -56,7 +56,8 @@ export function DashboardHomeView({
     appointments: SellerHomeAppointment[];
     bookingByDay?: boolean;
     referenceNowMs?: number;
-    showWeekend?: boolean;
+    orderScheduleEnabled?: boolean;
+    orderSchedule?: string | null;
   };
 }) {
   const { labels } = useAppLocale();
@@ -108,7 +109,11 @@ export function DashboardHomeView({
               initialAppointments={appointmentsCalendarPreview?.appointments}
               initialBookingByDay={appointmentsCalendarPreview?.bookingByDay}
               initialReferenceNowMs={appointmentsCalendarPreview?.referenceNowMs}
-              initialShowWeekend={appointmentsCalendarPreview?.showWeekend}
+              initialOrderScheduleEnabled={
+                appointmentsCalendarPreview?.orderScheduleEnabled
+              }
+              initialOrderSchedule={appointmentsCalendarPreview?.orderSchedule}
+              basePath={basePath}
               rentalMode={isRental}
             />
           </div>

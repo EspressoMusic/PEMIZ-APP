@@ -10,7 +10,6 @@ type BusinessCalendarFields = {
   appointmentBookingStart?: string | null;
   appointmentBookingEnd?: string | null;
   appointmentBookingByDay?: boolean | null;
-  appointmentCalendarShowWeekend?: boolean | null;
 };
 
 export function calendarConfigFromBusiness(
@@ -29,7 +28,6 @@ export function calendarConfigFromBusiness(
     bookingEnd:
       business.appointmentBookingEnd ?? DEFAULT_APPOINTMENT_CALENDAR.bookingEnd,
     bookingByDay: business.appointmentBookingByDay ?? false,
-    showWeekend: business.appointmentCalendarShowWeekend ?? false,
   });
 }
 
@@ -41,6 +39,5 @@ export function calendarConfigToBusinessData(config: AppointmentCalendarConfig) 
     appointmentBookingStart: clamped.bookingStart,
     appointmentBookingEnd: clamped.bookingEnd,
     appointmentBookingByDay: clamped.bookingByDay ?? false,
-    appointmentCalendarShowWeekend: clamped.showWeekend ?? false,
   };
 }
