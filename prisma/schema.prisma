@@ -87,7 +87,7 @@ model Business {
   description     String?
   type            String
   storeTheme             String   @default("calm")
-  storeLocale            String   @default("he")
+  storeLocale            String   @default("en")
   storePolicy            String?
   storeTerms             String?
   storeBroadcast         String?
@@ -111,6 +111,10 @@ model Business {
   approvedAt      DateTime?
   subscriptionActiveAt   DateTime?
   subscriptionPlan       String?
+  subscriptionStripeCustomerId     String?
+  subscriptionStripeSubscriptionId String?
+  subscriptionCurrentPeriodStart   DateTime?
+  subscriptionCurrentPeriodEnd     DateTime?
   trialWarned7dAt        DateTime?
   trialWarned3dAt        DateTime?
   trialWarned1dAt        DateTime?

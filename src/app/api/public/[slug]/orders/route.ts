@@ -37,6 +37,7 @@ import {
   orderItemsLimitMessage,
   totalOrderItemQuantity,
 } from "@/lib/platform-limits";
+import { assertCanAcceptCustomerBooking } from "@/lib/subscription-usage";
 
 function afterOrderPlaced(
   businessId: string,
@@ -81,7 +82,13 @@ export async function POST(
   });
 
   if (!business) return jsonError("עסק לא נמצא", 404);
-  if (!business.isActive) return jsonError("This business is currently unavailable.", 403);
+
+  const bookingCheck = await assertCanAcceptCustomerBooking(
+    business,
+    business.storeLocale === "he" ? "he" : "en"
+  );
+  if (!bookingCheck.ok) return jsonError(bookingCheck.message, 403);
+
   if (business.type !== "STORE") return jsonError("עסק זה אינו מקבל הזמנות", 400);
 
   const panels = storePanelsFromBusiness(business);

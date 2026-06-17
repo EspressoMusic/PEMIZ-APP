@@ -1,4 +1,4 @@
-export const BUSINESS_TRIAL_DAYS = 30;
+export const BUSINESS_TRIAL_DAYS = 14;
 
 export function trialWarningScheduleLabelHe() {
   return "התראות אוטומטיות לפני סגירה: שבוע, 3 ימים ויום אחרון (מייל + דחיפה)";

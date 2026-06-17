@@ -5,14 +5,15 @@ export type SubscriptionPlanId = "premium" | "ultimate";
 export type SubscriptionPlan = {
   id: SubscriptionPlanId;
   price: Record<AppLocale, number>;
+  monthlyOrderLimit: number;
   featureKeys: readonly [string, string, string];
 };
 
-/** Same list price; Hebrew store shows ₪, English shows $. */
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: "premium",
     price: { he: 49, en: 49 },
+    monthlyOrderLimit: 500,
     featureKeys: [
       "subscriptionPremiumFeature1",
       "subscriptionPremiumFeature2",
@@ -21,7 +22,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   },
   {
     id: "ultimate",
-    price: { he: 99, en: 99 },
+    price: { he: 89, en: 89 },
+    monthlyOrderLimit: 1000,
     featureKeys: [
       "subscriptionUltimateFeature1",
       "subscriptionUltimateFeature2",
@@ -30,6 +32,21 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   },
 ];
 
+export function parseSubscriptionPlanId(
+  value: string | null | undefined
+): SubscriptionPlanId | null {
+  if (value === "premium" || value === "ultimate") return value;
+  return null;
+}
+
+export function getSubscriptionPlan(
+  planId: SubscriptionPlanId
+): SubscriptionPlan {
+  const plan = SUBSCRIPTION_PLANS.find((row) => row.id === planId);
+  if (!plan) throw new Error(`Unknown plan: ${planId}`);
+  return plan;
+}
+
 export function formatPlanPrice(amount: number, locale: AppLocale): string {
   const value = Math.round(amount);
   return locale === "he" ? `₪${value}` : `$${value}`;
@@ -37,4 +54,12 @@ export function formatPlanPrice(amount: number, locale: AppLocale): string {
 
 export function planPrice(plan: SubscriptionPlan, locale: AppLocale): number {
   return plan.price[locale];
+}
+
+export function monthlyOrderLimitForPlan(
+  planId: string | null | undefined
+): number | null {
+  const parsed = parseSubscriptionPlanId(planId);
+  if (!parsed) return null;
+  return getSubscriptionPlan(parsed).monthlyOrderLimit;
 }

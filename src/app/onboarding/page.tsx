@@ -16,7 +16,7 @@ export default function OnboardingPage() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!acceptTerms) {
-      setError("יש לאשר את תנאי השימוש ומדיניות הפרטיות");
+      setError("Please accept the Terms of Service and Privacy Policy");
       return;
     }
     setError("");
@@ -46,18 +46,18 @@ export default function OnboardingPage() {
     <WebShell>
       <div className="mx-auto w-full max-w-lg px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel>
-          <PageTitle>פתיחת עסק</PageTitle>
+          <PageTitle>Open your business</PageTitle>
           {error && (
             <div className="mb-4">
               <Alert variant="error">{error}</Alert>
             </div>
           )}
           <form onSubmit={onSubmit} className="space-y-3">
-            <Input name="name" label="שם העסק" required />
-            <Textarea name="description" label="תיאור קצר" rows={3} />
+            <Input name="name" label="Business name" required />
+            <Textarea name="description" label="Short description" rows={3} />
 
             <div>
-              <span className="text-[14px] font-bold text-bakery-ink">סוג עסק</span>
+              <span className="text-[14px] font-bold text-bakery-ink">Store type</span>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -68,7 +68,7 @@ export default function OnboardingPage() {
                       : "border-bakery-border/40 bg-bakery-card text-bakery-muted"
                   }`}
                 >
-                  חנות מוצרים
+                  Product store
                 </button>
                 <button
                   type="button"
@@ -79,33 +79,32 @@ export default function OnboardingPage() {
                       : "border-bakery-border/40 bg-bakery-card text-bakery-muted"
                   }`}
                 >
-                  קביעת תורים
+                  Appointments
                 </button>
               </div>
             </div>
 
             <div className="flex items-start justify-between gap-3 text-[14px] leading-[1.45]">
               <span className="min-w-0 flex-1 text-bakery-muted">
-                קראתי ואני מסכים/ה ל
+                I have read and agree to the{" "}
                 <Link href="/terms" className="font-bold text-bakery-ink hover:underline">
-                  {" "}
-                  תנאי השימוש
+                  Terms of Service
                 </Link>{" "}
-                ו
+                and{" "}
                 <Link href="/privacy" className="font-bold text-bakery-ink hover:underline">
-                  מדיניות הפרטיות
+                  Privacy Policy
                 </Link>
                 .
               </span>
               <Toggle
                 enabled={acceptTerms}
                 onChange={setAcceptTerms}
-                ariaLabel="אישור תנאי שימוש ומדיניות פרטיות"
+                ariaLabel="Accept terms and privacy policy"
               />
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "יוצר..." : "פתח עסק"}
+              {loading ? "Creating..." : "Open store"}
             </Button>
           </form>
         </Panel>

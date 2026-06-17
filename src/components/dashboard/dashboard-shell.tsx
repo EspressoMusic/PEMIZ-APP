@@ -6,7 +6,7 @@ export function DashboardShell({
   businessType,
   businessId,
   basePath = "/dashboard",
-  storeLocale = "he",
+  storeLocale = "en",
   storeTheme = "calm",
 }: {
   children: ReactNode;

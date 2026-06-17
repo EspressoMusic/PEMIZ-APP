@@ -9,7 +9,7 @@ const THEME_KEY = "linky-dashboard-theme";
 const LOCALE_KEY = "linky-dashboard-locale";
 
 /** Runs in <head> before paint — avoids calm (brown) flash when theme is dark/light */
-export const DASHBOARD_APPEARANCE_BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var t=sessionStorage.getItem("${THEME_KEY}");if(t==="dark"||t==="light"||t==="calm")d.setAttribute("data-store-theme",t);var l=sessionStorage.getItem("${LOCALE_KEY}");if(l==="en"||l==="he"){d.setAttribute("data-locale",l);d.lang=l;d.dir=l==="en"?"ltr":"rtl";}}catch(e){}})();`;
+export const DASHBOARD_APPEARANCE_BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var t=sessionStorage.getItem("${THEME_KEY}");if(t==="dark"||t==="light"||t==="calm")d.setAttribute("data-store-theme",t);var l=sessionStorage.getItem("${LOCALE_KEY}");if(l==="en"||l==="he"){d.setAttribute("data-locale",l);d.lang=l;d.dir=l==="en"?"ltr":"rtl";}else{d.setAttribute("data-locale","en");d.lang="en";d.dir="ltr";}}catch(e){}})();`;
 
 export function writeDashboardThemeCookie(theme: StoreThemeId) {
   if (typeof document === "undefined") return;

@@ -43,6 +43,7 @@ export async function POST(req: Request) {
       slug,
       description: parsed.data.description,
       type: parsed.data.type,
+      storeLocale: "en",
       ownerId: user.id,
       termsAcceptedAt: new Date(),
       isActive: true,

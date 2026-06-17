@@ -23,80 +23,80 @@ export default function DevPreviewPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-8 p-6">
       <div>
-        <h1 className="text-2xl font-semibold text-bakery-ink">תצוגה מקומית — Linky</h1>
+        <h1 className="text-2xl font-semibold text-bakery-ink">Local preview — Linky</h1>
         <p className="mt-2 text-sm text-bakery-muted">
-          עריכה ב-Cursor + שמירה → הדף מתעדכן. בלי התחברות ומסד נתונים.
+          Edit in Cursor, save, and the page refreshes. No login or database required.
         </p>
       </div>
 
       <section className="flex flex-col gap-3 rounded-2xl border border-bakery-border/40 bg-bakery-cream-light/60 p-4">
-        <h2 className="text-sm font-bold text-bakery-ink">מוכר — עריכת עיצוב (מומלץ)</h2>
+        <h2 className="text-sm font-bold text-bakery-ink">Seller — design preview (recommended)</h2>
         <Link
           href="/dev/seller-appointments"
           className="rounded-xl bg-bakery-primary px-4 py-3 text-center text-sm font-bold text-bakery-on-primary"
         >
-          דשבורד מוכר — חנות פגישות
+          Seller dashboard — appointments store
         </Link>
         <Link
           href="/dev/seller-rental"
           className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
         >
-          דשבורד מוכר — חנות השכרה
+          Seller dashboard — rental store
         </Link>
         <Link
           href="/dev/seller"
           className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
         >
-          דשבורד מוכר — חנות מוצרים
+          Seller dashboard — product store
         </Link>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Link
             href="/dev/guide"
             className="flex-1 rounded-xl border border-bakery-border/60 px-4 py-2.5 text-center text-xs font-bold text-bakery-ink"
           >
-            מדריך הרשמה — מוצרים
+            Onboarding guide — products
           </Link>
           <Link
             href="/dev/guide/appointments"
             className="flex-1 rounded-xl border border-bakery-border/60 px-4 py-2.5 text-center text-xs font-bold text-bakery-ink"
           >
-            מדריך הרשמה — פגישות
+            Onboarding guide — appointments
           </Link>
         </div>
         <p className="text-xs text-bakery-muted">
-          שלושה סוגי חנות נפרדים (מוצרים, פגישות, השכרה). /login דורש Supabase ב-.env.local
+          Three store types (products, appointments, rental). /login requires Supabase in .env.local
         </p>
       </section>
 
       <section className="flex flex-col gap-3 rounded-2xl border border-bakery-border/40 bg-bakery-cream-light/60 p-4">
-        <h2 className="text-sm font-bold text-bakery-ink">לקוח — עריכת עיצוב</h2>
+        <h2 className="text-sm font-bold text-bakery-ink">Customer — design preview</h2>
         <Link
           href="/dev/customer"
           className="rounded-xl bg-bakery-primary px-4 py-3 text-center text-sm font-bold text-bakery-on-primary"
         >
-          פתח חנות לקוח (תצוגה)
+          Open customer store (preview)
         </Link>
         <Link
           href="/dev/customer-appointments"
           className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
         >
-          פתח עסק תורים (תצוגה)
+          Open appointments store (preview)
         </Link>
         <Link
           href="/dev/customer-rental"
           className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
         >
-          פתח עסק השכרה (תצוגה)
+          Open rental store (preview)
         </Link>
         {storeHref && (
           <Link
             href={storeHref}
             className="rounded-xl border border-bakery-border px-4 py-3 text-center text-sm font-medium text-bakery-ink"
           >
-            חנות אמיתית (/b/{slug.trim()}) — דורש DB
+            Live store (/b/{slug.trim()}) — requires DB
           </Link>
         )}
-        <label className="text-xs text-bakery-muted">סלאג (אופציונלי, ל-DB)</label>
+        <label className="text-xs text-bakery-muted">Slug (optional, for DB)</label>
         <input
           type="text"
           value={slug}
@@ -108,14 +108,14 @@ export default function DevPreviewPage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium text-bakery-muted">אתר חי (התחברות עובדת)</h2>
+        <h2 className="text-sm font-medium text-bakery-muted">Live site (login works)</h2>
         <a
           href={`${PROD_URL}/login`}
           target="_blank"
           rel="noreferrer"
           className="rounded-xl border border-bakery-border px-4 py-3 text-center text-sm font-medium text-bakery-ink"
         >
-          מוכר ב-Vercel ↗
+          Seller on Vercel ↗
         </a>
       </section>
     </main>

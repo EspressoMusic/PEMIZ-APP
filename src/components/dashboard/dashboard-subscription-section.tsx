@@ -16,6 +16,7 @@ import {
   type SubscriptionPlanId,
 } from "@/lib/subscription-plans";
 import type { DashboardLabels } from "@/lib/app-locale";
+import { useSubscriptionCheckout } from "@/components/dashboard/use-subscription-checkout";
 
 function featureLabel(labels: DashboardLabels, key: string): string {
   switch (key) {
@@ -43,16 +44,14 @@ export function DashboardSubscriptionSection({
 }) {
   const { labels, locale } = useAppLocale();
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const { payingPlan, message, setMessage, startCheckout } =
+    useSubscriptionCheckout();
 
   function choosePlan(planId: SubscriptionPlanId) {
     if (previewOnly) {
-      setMessage(labels.subscriptionPreviewOnly);
-      setTimeout(() => setMessage(""), 2800);
       return;
     }
-    setMessage(labels.subscriptionComingSoon);
-    setTimeout(() => setMessage(""), 2800);
+    void startCheckout(planId, labels.subscriptionComingSoon);
   }
 
   return (
@@ -104,6 +103,7 @@ export function DashboardSubscriptionSection({
                   ? labels.subscriptionPremium
                   : labels.subscriptionUltimate;
               const price = formatPlanPrice(planPrice(plan, locale), locale);
+              const loading = payingPlan === plan.id;
 
               return (
                 <div
@@ -131,10 +131,15 @@ export function DashboardSubscriptionSection({
                   </ul>
                   <button
                     type="button"
-                    className="bakery-cta-3d bakery-cta-3d--primary mt-4 w-full !rounded-full !py-3 text-[15px] font-extrabold"
+                    disabled={loading || previewOnly}
+                    className="bakery-cta-3d bakery-cta-3d--primary mt-4 w-full !rounded-full !py-3 text-[15px] font-extrabold disabled:opacity-60"
                     onClick={() => choosePlan(plan.id)}
                   >
-                    {labels.subscriptionChoose}
+                    {loading
+                      ? labels.saving
+                      : previewOnly
+                        ? labels.subscriptionPreviewOnly
+                        : labels.subscriptionChoose}
                   </button>
                 </div>
               );

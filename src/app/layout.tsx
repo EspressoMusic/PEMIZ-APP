@@ -8,9 +8,9 @@ import {
 import { PwaRoot } from "@/components/pwa/pwa-root";
 
 export const metadata: Metadata = {
-  title: "Linky — עמוד דיגיטלי לעסק שלך",
+  title: "Linky — Your business, online",
   description:
-    "פלטפורמת SaaS לעסקים קטנים: קישור ללקוחות, הזמנות, תורים ופניות בדשבורד פשוט.",
+    "SaaS for small businesses: customer link, orders, appointments, and a simple seller dashboard.",
   manifest: "/manifest.webmanifest",
   applicationName: "Linky",
   appleWebApp: {
@@ -53,8 +53,8 @@ export default async function RootLayout({
 
   return (
     <html
-      lang={locale ?? "he"}
-      dir={locale === "en" ? "ltr" : "rtl"}
+      lang={locale ?? "en"}
+      dir={locale === "he" ? "rtl" : "ltr"}
       className="h-full overflow-x-hidden antialiased"
       data-store-theme={theme ?? undefined}
       data-locale={locale ?? undefined}

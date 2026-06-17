@@ -501,7 +501,7 @@ export const DEV_STORE_BUSINESS = {
     },
   ],
   storeTheme: "calm",
-  storeLocale: "he" as const,
+  storeLocale: "en" as const,
   storePolicy:
     "משלוחים בתוך העיר בימים א׳–ה׳. הזמנה עד 18:00 למחרת בבוקר.",
   storeTerms:
@@ -585,7 +585,7 @@ export const DEV_APPOINTMENTS_BUSINESS = {
     },
   ],
   storeTheme: "calm",
-  storeLocale: "he" as const,
+  storeLocale: "en" as const,
   storePolicy: "תורים בימים א׳–ה׳. איחור מעל 10 דקות עלול לבטל את התור.",
   storeTerms: "ביטול תור עד 24 שעות לפני המועד ללא חיוב.",
   appointmentSlotGapMinutes: 0,
@@ -911,7 +911,7 @@ export const DEV_RENTAL_BUSINESS = {
     },
   ],
   storeTheme: "calm",
-  storeLocale: "he" as const,
+  storeLocale: "en" as const,
   storePolicy: "השכרה בימים א׳–ו׳. כניסה מ-15:00, יציאה עד 11:00.",
   storeTerms: "ביטול עד 48 שעות לפני תחילת ההשכרה.",
   appointmentSlotGapMinutes: 0,

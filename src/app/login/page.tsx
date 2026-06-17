@@ -9,12 +9,12 @@ export default function LoginPage() {
       mode="login"
       footer={
         <p className="mt-6 text-center text-[17px] leading-snug text-bakery-muted">
-          אין חשבון?{" "}
+          No account?{" "}
           <Link
             href="/signup"
             className="text-[19px] font-extrabold text-bakery-primary underline-offset-2 hover:underline"
           >
-            הרשמה
+            Sign up
           </Link>
         </p>
       }

@@ -22,6 +22,7 @@ import {
   appointmentLimitMessage,
   isBusinessAppointmentLimitReached,
 } from "@/lib/platform-limits";
+import { assertCanAcceptCustomerBooking } from "@/lib/subscription-usage";
 
 const postSchema = z.object({
   slotId: z.string(),
@@ -112,7 +113,13 @@ export async function POST(
   });
 
   if (!business) return jsonError("עסק לא נמצא", 404);
-  if (!business.isActive) return jsonError("This business is currently unavailable.", 403);
+
+  const bookingCheck = await assertCanAcceptCustomerBooking(
+    business,
+    business.storeLocale === "he" ? "he" : "en"
+  );
+  if (!bookingCheck.ok) return jsonError(bookingCheck.message, 403);
+
   if (business.type !== "APPOINTMENTS" && business.type !== "RENTAL") {
     return jsonError("עסק זה אינו מקבל תורים", 400);
   }

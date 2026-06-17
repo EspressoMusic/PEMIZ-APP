@@ -23,7 +23,7 @@ export function AuthForm({
 
   useEffect(() => {
     if (mode === "login" && searchParams.get("reset") === "1") {
-      setInfo("הסיסמה עודכנה — אפשר להתחבר עם הסיסמה החדשה");
+      setInfo("Password updated — you can sign in with your new password");
     }
   }, [mode, searchParams]);
 
@@ -73,11 +73,11 @@ export function AuthForm({
           data.error ??
             (res.status === 401
               ? mode === "login"
-                ? "לא הצלחנו להתחבר — בדוק טלפון וסיסמה"
-                : "לא הצלחנו ליצור חשבון"
+                ? "Could not sign in — check phone and password"
+                : "Could not create account"
               : res.status >= 500
-                ? "יש תקלה טכנית זמנית במערכת. נסה שוב מאוחר יותר."
-                : "משהו השתבש — נסה שוב")
+                ? "Temporary server issue. Please try again later."
+                : "Something went wrong — try again")
         );
         return;
       }
@@ -93,7 +93,7 @@ export function AuthForm({
       }
       router.refresh();
     } catch {
-      setError("אין חיבור לשרת — בדוק אינטרנט ונסה שוב");
+      setError("No server connection — check your internet and try again");
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export function AuthForm({
       <div className="auth-surface mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel className="dashboard-card sm:p-8">
           <PageTitle>
-            {mode === "login" ? "התחברות" : "פתיחת חשבון"}
+            {mode === "login" ? "Sign in" : "Create account"}
           </PageTitle>
           {error && (
             <div className="mb-4">
@@ -119,13 +119,13 @@ export function AuthForm({
           )}
           <form onSubmit={onSubmit} className="space-y-3">
             {mode === "signup" && (
-              <Input name="name" label="שם מלא" required autoComplete="name" />
+              <Input name="name" label="Full name" required autoComplete="name" />
             )}
             {mode === "signup" ? (
               <Input
                 name="phone"
                 type="tel"
-                label="טלפון נייד"
+                label="Mobile phone"
                 required
                 autoComplete="tel"
                 dir="ltr"
@@ -135,7 +135,7 @@ export function AuthForm({
               <Input
                 name="identifier"
                 type="tel"
-                label="טלפון"
+                label="Phone"
                 required
                 autoComplete="tel"
                 dir="ltr"
@@ -145,7 +145,7 @@ export function AuthForm({
             <Input
               name="password"
               type="password"
-              label="סיסמה"
+              label="Password"
               required
               minLength={6}
               autoComplete={
@@ -159,20 +159,20 @@ export function AuthForm({
                   href="/forgot-password"
                   className="text-[14px] font-bold text-bakery-primary underline-offset-2 hover:underline"
                 >
-                  שכחת סיסמה?
+                  Forgot password?
                 </Link>
                 <span className="mt-1 block text-[12px] font-medium text-bakery-muted">
-                  תקבל/י סיסמה חדשה מצוות התמיכה
+                  Support will send you a new password
                 </span>
               </p>
             ) : null}
             <Button type="submit" className="mt-2 w-full" disabled={loading}>
-              {loading ? "רגע..." : mode === "login" ? "התחבר" : "הירשם"}
+              {loading ? "One moment..." : mode === "login" ? "Sign in" : "Sign up"}
             </Button>
           </form>
           {mode === "signup" && (
             <p className="mt-4 text-center text-[12px] leading-[1.35] text-bakery-muted">
-              בהרשמה אתה מסכים לתנאי השימוש ומדיניות הפרטיות
+              By signing up you agree to the Terms of Service and Privacy Policy
             </p>
           )}
         </Panel>

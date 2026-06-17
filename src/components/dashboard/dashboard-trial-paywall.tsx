@@ -10,6 +10,7 @@ import {
   type SubscriptionPlanId,
 } from "@/lib/subscription-plans";
 import type { DashboardLabels } from "@/lib/app-locale";
+import { useSubscriptionCheckout } from "@/components/dashboard/use-subscription-checkout";
 
 function featureLabel(labels: DashboardLabels, key: string): string {
   switch (key) {
@@ -36,25 +37,10 @@ export function DashboardTrialPaywall({
   trialEndsAt: string;
 }) {
   const { labels, locale } = useAppLocale();
-  const [message, setMessage] = useState("");
-  const [payingPlan, setPayingPlan] = useState<SubscriptionPlanId | null>(null);
+  const { payingPlan, message, startCheckout } = useSubscriptionCheckout();
 
   async function payMonthly(planId: SubscriptionPlanId) {
-    setPayingPlan(planId);
-    setMessage("");
-    try {
-      const res = await fetch("/api/dashboard/subscription/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId }),
-      });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      setMessage(data.error ?? labels.subscriptionComingSoon);
-    } catch {
-      setMessage(labels.subscriptionComingSoon);
-    } finally {
-      setPayingPlan(null);
-    }
+    await startCheckout(planId, labels.subscriptionComingSoon);
   }
 
   return (

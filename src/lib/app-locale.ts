@@ -10,7 +10,7 @@ export type AppLocale = CustomerLocale;
 export type { DashboardLabels };
 
 export function normalizeAppLocale(value: string | null | undefined): AppLocale {
-  return value === "en" ? "en" : "he";
+  return value === "he" ? "he" : "en";
 }
 
 export function localeTag(locale: AppLocale): string {
