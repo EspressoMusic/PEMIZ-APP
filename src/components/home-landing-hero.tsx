@@ -46,31 +46,31 @@ export function HomeLandingHero({ signupsEnabled }: { signupsEnabled: boolean })
       <section className="app-safe-x flex flex-1 flex-col items-center justify-center px-4 py-10 sm:py-16">
         <div className="auth-surface mx-auto flex w-full max-w-[min(100%,28rem)] flex-col items-center sm:max-w-[26rem]">
           <Image
-            src="/icons/linky-app-logo.png?v=transparent"
+            src="/icons/linky-app-logo.png"
             alt="BiziLink"
             width={176}
             height={176}
             priority
             unoptimized
-            className="home-landing-logo mb-5 h-32 w-32 object-contain sm:mb-7 sm:h-40 sm:w-40"
+            className="mb-5 h-32 w-32 object-contain sm:mb-7 sm:h-40 sm:w-40"
           />
           <Panel className="dashboard-card w-full sm:p-8">
           <h1
             className={`${homeTitleFont.className} home-landing-title mb-6 text-center text-[28px] leading-[1.15] text-bakery-ink sm:mb-8 sm:text-[34px]`}
           >
-            ברוכים הבאים ל:{" "}
+            Welcome to{" "}
             <HomeBizilinkBrand onPointerEnter={stopConfetti} />
           </h1>
           {!signupsEnabled && (
             <div className="mb-5">
-              <Alert variant="info">ההרשמה לחנויות חדשות סגורה כרגע.</Alert>
+              <Alert variant="info">New store sign-ups are closed right now.</Alert>
             </div>
           )}
           <div className="flex flex-col items-stretch gap-3 sm:gap-4">
             {signupsEnabled ? (
               <Link href="/signup" className="block w-full">
                 <Button className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home !w-full !rounded-full !shadow-none hover:!opacity-100">
-                  פתיחת חנות
+                  Open a store
                 </Button>
               </Link>
             ) : (
@@ -78,7 +78,7 @@ export function HomeLandingHero({ signupsEnabled }: { signupsEnabled: boolean })
                 disabled
                 className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home !w-full !rounded-full !opacity-50"
               >
-                פתיחת חנות
+                Open a store
               </Button>
             )}
             <Link href="/login" className="block w-full">
@@ -86,7 +86,7 @@ export function HomeLandingHero({ signupsEnabled }: { signupsEnabled: boolean })
                 variant="secondary"
                 className="bakery-cta-3d bakery-cta-3d--secondary bakery-cta-3d--home !w-full !rounded-full !border-2 !shadow-none hover:!bg-transparent"
               >
-                התחברות
+                Sign in
               </Button>
             </Link>
           </div>

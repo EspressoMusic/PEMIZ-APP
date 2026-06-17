@@ -8,13 +8,13 @@ import { WebShell } from "@/components/web-shell";
 import { buildWhatsAppChatUrl } from "@/lib/phone";
 
 const SUCCESS_MESSAGE =
-  "הבקשה התקבלה. צוות התמיכה ישלח לך סיסמה חדשה לטלפון שביקשת — השתמש/י בה להתחברות.";
+  "Request received. Support will send a new password to the phone number you provided — use it to sign in.";
 
 const DEVELOPER_WHATSAPP = "0586122187";
 
 const whatsappHref = buildWhatsAppChatUrl(
   DEVELOPER_WHATSAPP,
-  "שלום, ביקשתי איפוס סיסמה בלינקי"
+  "Hi, I requested a password reset on Linky"
 );
 
 export default function ForgotPasswordPage() {
@@ -45,14 +45,14 @@ export default function ForgotPasswordPage() {
       };
 
       if (!res.ok) {
-        setError(data.error ?? "משהו השתבש — נסה שוב");
+        setError(data.error ?? "Something went wrong — try again");
         return;
       }
 
       setDone(true);
       setInfo(data.message ?? SUCCESS_MESSAGE);
     } catch {
-      setError("אין חיבור לשרת — בדוק אינטרנט ונסה שוב");
+      setError("No server connection — check your internet and try again");
     } finally {
       setLoading(false);
     }
@@ -62,10 +62,10 @@ export default function ForgotPasswordPage() {
     <WebShell lockViewport>
       <div className="auth-surface mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel className="dashboard-card sm:p-8">
-          <PageTitle>שכחת סיסמה?</PageTitle>
+          <PageTitle>Forgot your password?</PageTitle>
           <p className="mb-4 text-center text-[14px] leading-[1.45] text-bakery-muted">
-            הזן/י את מספר הטלפון של החשבון. לאחר השליחה תקבל/י סיסמה חדשה מצוות
-            התמיכה.
+            Enter the mobile number for your account. After you submit, support
+            will send you a new password.
           </p>
           {error && (
             <div className="mb-4">
@@ -87,14 +87,14 @@ export default function ForgotPasswordPage() {
               <Input
                 name="phone"
                 type="tel"
-                label="טלפון נייד"
+                label="Mobile phone"
                 required
                 autoComplete="tel"
                 dir="ltr"
                 placeholder="050-1234567"
               />
               <Button type="submit" className="mt-2 w-full" disabled={loading}>
-                {loading ? "שולח..." : "שלח בקשה"}
+                {loading ? "Sending..." : "Send request"}
               </Button>
             </form>
           ) : (
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
                 className="w-full"
                 onClick={() => router.push("/login")}
               >
-                אוקיי.. הבנתי
+                Got it
               </Button>
               {whatsappHref ? (
                 <a
@@ -113,7 +113,7 @@ export default function ForgotPasswordPage() {
                   rel="noopener noreferrer"
                   className="auth-whatsapp-btn"
                 >
-                  פנייה בוואטסאפ
+                  Contact on WhatsApp
                 </a>
               ) : null}
             </div>
@@ -125,7 +125,7 @@ export default function ForgotPasswordPage() {
             href="/login"
             className="text-[19px] font-extrabold text-bakery-primary underline-offset-2 hover:underline"
           >
-            חזרה להתחברות
+            Back to sign in
           </Link>
         </p>
       </div>

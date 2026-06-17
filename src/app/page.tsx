@@ -12,11 +12,11 @@ export default async function HomePage() {
 
       <footer className="relative z-10 shrink-0 border-t border-bakery-border/25 bg-bakery-scaffold/30 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center text-[14px] text-bakery-muted backdrop-blur-[3px] sm:py-8">
         <Link href="/privacy" className="font-medium hover:text-bakery-ink">
-          מדיניות פרטיות
+          Privacy Policy
         </Link>
         {" · "}
         <Link href="/terms" className="font-medium hover:text-bakery-ink">
-          תנאי שימוש
+          Terms of Service
         </Link>
       </footer>
     </HomeLandingShell>

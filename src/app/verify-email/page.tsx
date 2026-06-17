@@ -48,16 +48,16 @@ export default function VerifyEmailPage() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
-      setError(data.error ?? "שגיאה");
+      setError(data.error ?? "Error");
       return;
     }
-    setInfo("נשלח מייל אימות. בדוק את תיבת הדואר (וגם ספאם).");
+    setInfo("Verification email sent. Check your inbox (and spam folder).");
   }
 
   if (checking) {
     return (
       <WebShell>
-        <div className="py-20 text-center text-bakery-muted">טוען...</div>
+        <div className="py-20 text-center text-bakery-muted">Loading...</div>
       </WebShell>
     );
   }
@@ -66,14 +66,14 @@ export default function VerifyEmailPage() {
     <WebShell>
       <div className="mx-auto max-w-md px-4 py-12">
         <Panel>
-          <PageTitle subtitle="לאחר האימות החנות תיפתח והדשבורד יהיה זמין במלואו">
-            אימות אימייל
+          <PageTitle subtitle="After verification your store will open and the full dashboard will be available">
+            Verify email
           </PageTitle>
 
           {businessName && (
             <p className="mb-4 text-[15px] text-bakery-muted">
-              החנות <strong className="text-bakery-ink">{businessName}</strong> נוצרה
-              וממתינה לאימות אימייל.
+              Store <strong className="text-bakery-ink">{businessName}</strong> was
+              created and is waiting for email verification.
             </p>
           )}
 
@@ -95,17 +95,18 @@ export default function VerifyEmailPage() {
           )}
 
           <p className="mb-4 text-[14px] leading-[1.45] text-bakery-muted">
-            שלחנו אליך קישור אימות במייל. אחרי לחיצה על הקישור החנות תופעל ותוכל
-            לנהל מוצרים, הזמנות ותורים מהדשבורד.
+            We sent you a verification link by email. After you click the link,
+            your store will be activated and you can manage products, orders,
+            and appointments from the dashboard.
           </p>
 
           <Button className="w-full" onClick={resend} disabled={loading}>
-            {loading ? "שולח..." : "שלח שוב מייל אימות"}
+            {loading ? "Sending..." : "Resend verification email"}
           </Button>
 
           <p className="mt-6 text-center text-[14px] text-bakery-muted">
             <Link href="/login" className="font-bold hover:text-bakery-ink">
-              התחברות עם חשבון אחר
+              Sign in with a different account
             </Link>
           </p>
         </Panel>

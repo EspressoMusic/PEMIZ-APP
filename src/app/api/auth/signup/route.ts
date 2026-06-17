@@ -8,7 +8,7 @@ import { isDatabaseConfigured, databaseConfigHint } from "@/lib/db-env";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { safeUserSelect } from "@/lib/security/user-select";
 import { signupSchema, zodFirstError } from "@/lib/validation/schemas";
-import { parseIsraeliMobilePhone, INVALID_PHONE_MESSAGE_HE } from "@/lib/phone";
+import { parseIsraeliMobilePhone, INVALID_PHONE_MESSAGE_EN } from "@/lib/phone";
 import { syntheticOwnerEmail } from "@/lib/owner-auth-phone";
 
 export async function POST(req: Request) {
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   if (limited) return limited;
 
   if (!(await isSignupEnabled())) {
-    return jsonError("ההרשמה סגורה כרגע. נסו שוב מאוחר יותר.", 403);
+    return jsonError("Sign-ups are closed right now. Please try again later.", 403);
   }
 
   const body = await req.json().catch(() => null);
@@ -33,10 +33,10 @@ export async function POST(req: Request) {
   }
 
   const phone = parseIsraeliMobilePhone(parsed.data.phone);
-  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE, 400);
+  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_EN, 400);
 
   const email = syntheticOwnerEmail(phone);
-  if (!email) return jsonError(INVALID_PHONE_MESSAGE_HE, 400);
+  if (!email) return jsonError(INVALID_PHONE_MESSAGE_EN, 400);
 
   try {
     const existingByPhone = await prisma.user.findFirst({
@@ -46,11 +46,11 @@ export async function POST(req: Request) {
     if (existingByPhone) {
       if (!existingByPhone.business) {
         return jsonError(
-          "הטלפון כבר רשום, אך החנות עדיין לא נוצרה. התחבר/י עם אותה סיסמה כדי להמשיך.",
+          "This phone is already registered, but the store was not created yet. Sign in with the same password to continue.",
           409
         );
       }
-      return jsonError("כבר קיים משתמש עם הטלפון הזה", 409);
+      return jsonError("An account with this phone number already exists", 409);
     }
 
     const existingByEmail = await prisma.user.findUnique({
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       select: { id: true },
     });
     if (existingByEmail) {
-      return jsonError("כבר קיים משתמש עם הטלפון הזה", 409);
+      return jsonError("An account with this phone number already exists", 409);
     }
 
     const passwordHash = await bcrypt.hash(parsed.data.password, 12);

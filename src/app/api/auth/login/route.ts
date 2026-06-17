@@ -35,9 +35,9 @@ export async function POST(req: Request) {
     if (!user) {
       const candidates = await findLoginCandidates(identifier);
       if (candidates.length === 0) {
-        return jsonError("לא קיים משתמש עם הטלפון הזה", 401);
+        return jsonError("No account found with this phone number", 401);
       }
-      return jsonError("הסיסמה שגויה", 401);
+      return jsonError("Incorrect password", 401);
     }
 
     const business = await resolveOwnerBusiness(user);

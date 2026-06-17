@@ -83,11 +83,13 @@ export function CustomerContactModal({
   onSubmitInquiryResolution,
   onSubmitChatResolution,
   onSubmitInquiry,
+  directEntry = false,
 }: {
   open: boolean;
   onClose: () => void;
   view: ContactView;
   onViewChange: (view: ContactView) => void;
+  directEntry?: boolean;
   slug: string;
   storeName: string;
   sellerContactPhone?: string | null;
@@ -393,6 +395,7 @@ export function CustomerContactModal({
                 type="tel"
                 value={contactPhone}
                 onChange={(e) => setContactPhone(e.target.value)}
+                required
                 disabled={inquirySubmitting}
               />
               <Input
@@ -677,14 +680,16 @@ export function CustomerContactModal({
             onClose={onClose}
             closeLabel={closeLabel}
             leading={
-              <button
-                type="button"
-                onClick={() => onViewChange("menu")}
-                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[14px] font-semibold text-bakery-ink"
-              >
-                <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
-                {labels.back}
-              </button>
+              directEntry && view === "inquiry" ? undefined : (
+                <button
+                  type="button"
+                  onClick={() => onViewChange("menu")}
+                  className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[14px] font-semibold text-bakery-ink"
+                >
+                  <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
+                  {labels.back}
+                </button>
+              )
             }
           />
         )

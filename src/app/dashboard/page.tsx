@@ -21,8 +21,9 @@ export default async function DashboardPage() {
       {!b.isActive && (
         <div className="mb-4 text-center">
         <Alert variant="error">
-          העסק מושבת על ידי מנהל המערכת. לקוחות רואים: &quot;This business is
-          currently unavailable.&quot; פנה/י למנהל הפלטפורמה.
+          This business was disabled by the platform admin. Customers see:
+          &quot;This business is currently unavailable.&quot; Contact the
+          platform administrator.
         </Alert>
         </div>
       )}

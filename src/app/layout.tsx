@@ -54,7 +54,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale ?? "en"}
-      dir={locale === "he" ? "rtl" : "ltr"}
+      dir="ltr"
       className="h-full overflow-x-hidden antialiased"
       data-store-theme={theme ?? undefined}
       data-locale={locale ?? undefined}

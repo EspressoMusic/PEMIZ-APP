@@ -57,7 +57,7 @@ const schema = z.object({
     .array(
       z.object({
         productId: z.string(),
-        quantity: z.number().int().min(1).max(50),
+        quantity: z.number().int().min(1).max(100),
       })
     )
     .optional(),

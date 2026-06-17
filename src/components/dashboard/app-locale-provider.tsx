@@ -21,7 +21,6 @@ import {
   type DashboardLabels,
 } from "@/lib/app-locale";
 import {
-  hydrateDashboardLocale,
   writeDashboardLocaleSession,
 } from "@/lib/dashboard-appearance-session";
 
@@ -56,17 +55,9 @@ export function AppLocaleProvider({
   }, []);
 
   useLayoutEffect(() => {
-    const fromDom = document.documentElement.dataset.locale;
-    const hydrated =
-      fromDom === "en" || fromDom === "he"
-        ? fromDom
-        : hydrateDashboardLocale(initialLocale);
-    const normalized = normalizeAppLocale(hydrated);
-    setLocaleState(normalized);
-    applyDocumentLocale(normalized);
-    if (fromDom !== "he" && fromDom !== "en" && normalized === "en") {
-      writeDashboardLocaleSession("en");
-    }
+    setLocaleState("en");
+    applyDocumentLocale("en");
+    writeDashboardLocaleSession("en");
   }, [initialLocale]);
 
   const value = useMemo(

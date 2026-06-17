@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState, type ReactNode } from "react";
+import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, Info, Tag, type LucideIcon } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatCustomerMoney } from "@/lib/customer-money";
@@ -19,6 +19,145 @@ import { formatAppointmentDateTime } from "@/lib/customer-appointment-history";
 import { formatRentalPeriodLine } from "@/lib/rental-period";
 
 export type { OrderPreviewLine };
+
+const QUANTITY_STEPPER_MAX = 100;
+
+function clampQuantity(value: number, max: number) {
+  return Math.max(0, Math.min(max, value));
+}
+
+function parseQuantityInput(raw: string, max: number): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return 0;
+  if (!/^\d+$/.test(trimmed)) return null;
+  const parsed = Number.parseInt(trimmed, 10);
+  if (Number.isNaN(parsed)) return null;
+  return clampQuantity(parsed, max);
+}
+
+export function CustomerQuantityStepper({
+  qty,
+  max = QUANTITY_STEPPER_MAX,
+  onDec,
+  onInc,
+  onChange,
+  ariaLabel,
+  size = "default",
+}: {
+  qty: number;
+  max?: number;
+  onDec: () => void;
+  onInc: () => void;
+  onChange: (value: number) => void;
+  ariaLabel?: string;
+  size?: "default" | "compact";
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(String(qty));
+  const inputRef = useRef<HTMLInputElement>(null);
+  const effectiveMax = Math.min(QUANTITY_STEPPER_MAX, Math.max(0, max));
+  const atMax = qty >= effectiveMax;
+  const compact = size === "compact";
+
+  useEffect(() => {
+    if (!editing) setDraft(String(qty));
+  }, [qty, editing]);
+
+  function commitDraft() {
+    const next = parseQuantityInput(draft, effectiveMax);
+    if (next !== null) onChange(next);
+    setEditing(false);
+  }
+
+  function beginEdit() {
+    setDraft(String(qty));
+    setEditing(true);
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    });
+  }
+
+  const shellClass = compact
+    ? "h-[28px] rounded-xl"
+    : "h-[34px] rounded-2xl";
+  const btnClass = compact
+    ? "h-[28px] w-6 text-[14px]"
+    : "h-[34px] w-8 text-[17px]";
+  const valueClass = compact
+    ? "h-[28px] min-w-[1.5rem] text-[14px]"
+    : "h-[34px] min-w-[2.5rem] text-[17px]";
+  const inputWidthClass = compact ? "w-7" : "w-10";
+
+  return (
+    <div
+      className={`flex max-w-full shrink-0 items-center border border-bakery-border/40 bg-bakery-card/95 ${shellClass}`}
+    >
+      <button
+        type="button"
+        className={`flex items-center justify-center font-extrabold text-bakery-ink disabled:opacity-40 ${btnClass}`}
+        onClick={onDec}
+        disabled={qty <= 0}
+        aria-label="Decrease quantity"
+      >
+        −
+      </button>
+      {editing ? (
+        <input
+          ref={inputRef}
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={effectiveMax}
+          value={draft}
+          aria-label={ariaLabel ?? "Quantity"}
+          className={`border-0 bg-transparent text-center font-extrabold tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${inputWidthClass} ${valueClass} ${
+            qty > 0 ? "text-black" : "text-bakery-ink"
+          }`}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commitDraft}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              commitDraft();
+            }
+            if (e.key === "Escape") {
+              setEditing(false);
+              setDraft(String(qty));
+            }
+          }}
+          onWheel={(e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 1 : -1;
+            const next = clampQuantity(qty + delta, effectiveMax);
+            onChange(next);
+            setDraft(String(next));
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={beginEdit}
+          aria-label={ariaLabel ?? "Edit quantity"}
+          className={`flex items-center justify-center px-0.5 text-center font-extrabold tabular-nums ${valueClass} ${
+            qty > 0 ? "text-black" : "text-bakery-ink"
+          }`}
+        >
+          {qty}
+        </button>
+      )}
+      <button
+        type="button"
+        className={`flex items-center justify-center font-extrabold text-bakery-ink disabled:opacity-40 ${btnClass}`}
+        onClick={onInc}
+        disabled={atMax}
+        aria-label="Increase quantity"
+      >
+        +
+      </button>
+    </div>
+  );
+}
 
 /** Matches [CustomerTabBody] — 12px top safe area */
 export function CustomerTabBody({ children }: { children: ReactNode }) {
@@ -722,6 +861,7 @@ export const ProductGridCard = memo(function ProductGridCard({
   maxQty,
   onDec,
   onInc,
+  onQtyChange,
 }: {
   name: string;
   description: string | null;
@@ -737,13 +877,17 @@ export const ProductGridCard = memo(function ProductGridCard({
   maxQty?: number;
   onDec: () => void;
   onInc: () => void;
+  onQtyChange: (value: number) => void;
 }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const onSale =
     salePrice != null && salePrice > 0 && salePrice < price;
   const display = onSale ? salePrice! : price;
 
-  const atMax = maxQty != null && qty >= maxQty;
+  const stepperMax = Math.min(
+    QUANTITY_STEPPER_MAX,
+    maxQty ?? QUANTITY_STEPPER_MAX
+  );
 
   return (
     <>
@@ -770,9 +914,9 @@ export const ProductGridCard = memo(function ProductGridCard({
             <Info className="h-3.5 w-3.5" strokeWidth={2.5} />
           </button>
         </div>
-        <div className="mt-auto grid h-9 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1">
+        <div className="mt-auto grid h-8 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1">
           <span
-            className={`min-w-0 truncate text-[17px] font-extrabold leading-none tabular-nums ${
+            className={`min-w-0 whitespace-nowrap text-[17px] font-extrabold leading-none tabular-nums ${
               onSale ? "text-[#ff4a55]" : "text-bakery-ink"
             }`}
           >
@@ -783,31 +927,15 @@ export const ProductGridCard = memo(function ProductGridCard({
               {outOfStockLabel}
             </span>
           ) : (
-            <div className="flex h-[28px] max-w-full shrink-0 items-center rounded-2xl border border-bakery-border/40 bg-bakery-card/95">
-              <button
-                type="button"
-                className="flex h-[28px] w-6 items-center justify-center text-[15px] font-extrabold text-bakery-ink disabled:opacity-40"
-                onClick={onDec}
-                disabled={qty <= 0}
-              >
-                −
-              </button>
-              <span
-                className={`min-w-[1.125rem] text-center text-[15px] font-extrabold tabular-nums ${
-                  qty > 0 ? "text-black" : "text-bakery-ink"
-                }`}
-              >
-                {qty}
-              </span>
-              <button
-                type="button"
-                className="flex h-[28px] w-6 items-center justify-center text-[15px] font-extrabold text-bakery-ink disabled:opacity-40"
-                onClick={onInc}
-                disabled={atMax}
-              >
-                +
-              </button>
-            </div>
+            <CustomerQuantityStepper
+              qty={qty}
+              max={stepperMax}
+              onDec={onDec}
+              onInc={onInc}
+              onChange={onQtyChange}
+              ariaLabel={`Quantity for ${name}`}
+              size="compact"
+            />
           )}
         </div>
       </div>

@@ -3,7 +3,7 @@ import { jsonError, jsonOk } from "@/lib/api";
 
 export async function GET() {
   const user = await getCurrentUser();
-  if (!user) return jsonError("לא מחובר", 401);
+  if (!user) return jsonError("Not signed in", 401);
 
   return jsonOk({
     user: {

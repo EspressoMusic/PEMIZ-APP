@@ -164,26 +164,7 @@ html[data-locale="he"] body {
   filter: brightness(1.08);
 }
 
-.home-landing-logo {
-  animation: home-landing-logo-float 4.5s ease-in-out infinite;
-  will-change: transform;
-}
-
-@keyframes home-landing-logo-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-landing-logo {
-    animation: none;
-  }
-}
+/* Logo stays fixed — no float animation on landing */
 
 /* Matte red / warn — flat fills, no glossy button shadow */
 button.master-btn-matte-warn,

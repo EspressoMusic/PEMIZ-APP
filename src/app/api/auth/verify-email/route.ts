@@ -5,7 +5,7 @@ import { jsonError, jsonOk } from "@/lib/api";
 
 export async function GET(req: Request) {
   const token = new URL(req.url).searchParams.get("token");
-  if (!token) return jsonError("חסר token", 400);
+  if (!token) return jsonError("Missing token", 400);
 
   const result = await verifyEmailToken(token);
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -21,12 +21,12 @@ export async function GET(req: Request) {
 
 export async function POST() {
   const user = await getCurrentUser();
-  if (!user) return jsonError("לא מחובר", 401);
-  if (!user.business) return jsonError("אין חנות", 404);
+  if (!user) return jsonError("Not signed in", 401);
+  if (!user.business) return jsonError("No store found", 404);
   if (user.emailVerified) return jsonOk({ alreadyVerified: true });
 
   await sendOwnerVerificationEmail(user.id);
   return jsonOk({
-    message: "נשלח מייל אימות",
+    message: "Verification email sent",
   });
 }

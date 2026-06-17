@@ -1,4 +1,5 @@
 import type { CustomerLocale } from "@/lib/customer-preferences";
+import { resolveSiteLocale } from "@/lib/site-locale";
 import {
   DASHBOARD_LABELS,
   getOrderDayLabels,
@@ -10,7 +11,8 @@ export type AppLocale = CustomerLocale;
 export type { DashboardLabels };
 
 export function normalizeAppLocale(value: string | null | undefined): AppLocale {
-  return value === "he" ? "he" : "en";
+  void value;
+  return resolveSiteLocale();
 }
 
 export function localeTag(locale: AppLocale): string {

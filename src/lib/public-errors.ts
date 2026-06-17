@@ -13,7 +13,7 @@ export function platformSupportContact(): string | null {
   return contact || null;
 }
 
-export function publicSupportMessage(locale: PublicErrorLocale = "he"): string {
+export function publicSupportMessage(locale: PublicErrorLocale = "en"): string {
   const contact = platformSupportContact();
   if (locale === "en") {
     return contact
@@ -25,6 +25,6 @@ export function publicSupportMessage(locale: PublicErrorLocale = "he"): string {
     : "לעזרה צור קשר עם מנהל המערכת.";
 }
 
-export function publicSystemErrorMessage(locale: PublicErrorLocale = "he"): string {
+export function publicSystemErrorMessage(locale: PublicErrorLocale = "en"): string {
   return `${PUBLIC_SYSTEM_ERROR[locale]} ${publicSupportMessage(locale)}`;
 }

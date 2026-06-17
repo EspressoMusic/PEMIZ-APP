@@ -1,5 +1,5 @@
-import type { StoreThemeId } from "@/lib/store-themes";
-import { parseStoreTheme, storeThemeLabel } from "@/lib/store-themes";
+import { resolveSiteLocale, SITE_LOCALE } from "@/lib/site-locale";
+import { parseStoreTheme, storeThemeLabel, type StoreThemeId } from "@/lib/store-themes";
 import { getCustomerDeviceItem, setCustomerDeviceItem } from "@/lib/customer-device-storage";
 
 export type CustomerLocale = "en" | "he";
@@ -13,7 +13,7 @@ export type CustomerPreferences = {
 };
 
 const DEFAULTS: CustomerPreferences = {
-  locale: "en",
+  locale: SITE_LOCALE,
   theme: "calm",
   textScale: "100",
 };
@@ -26,33 +26,26 @@ export function resolveCustomerLocale(
   slug: string,
   ownerLocale: CustomerLocale
 ): CustomerLocale {
-  if (typeof window === "undefined") return ownerLocale;
-  try {
-    const raw = getCustomerDeviceItem(storageKey(slug));
-    if (!raw) return ownerLocale;
-    const parsed = JSON.parse(raw) as Partial<CustomerPreferences>;
-    if (parsed.locale === "he" || parsed.locale === "en") return parsed.locale;
-    return ownerLocale;
-  } catch {
-    return ownerLocale;
-  }
+  void slug;
+  void ownerLocale;
+  return resolveSiteLocale();
 }
 
 export function loadCustomerPreferences(
   slug: string,
-  ownerLocale: CustomerLocale = "en"
+  ownerLocale: CustomerLocale = SITE_LOCALE
 ): CustomerPreferences {
   if (typeof window === "undefined") {
-    return { ...DEFAULTS, locale: ownerLocale };
+    return { ...DEFAULTS, locale: SITE_LOCALE };
   }
   try {
     const raw = getCustomerDeviceItem(storageKey(slug));
     if (!raw) {
-      return { ...DEFAULTS, locale: ownerLocale };
+      return { ...DEFAULTS, locale: SITE_LOCALE };
     }
     const parsed = JSON.parse(raw) as Partial<CustomerPreferences>;
     return {
-      locale: resolveCustomerLocale(slug, ownerLocale),
+      locale: SITE_LOCALE,
       theme: parseStoreTheme(parsed.theme),
       textScale:
         parsed.textScale === "110" || parsed.textScale === "125"
@@ -60,7 +53,7 @@ export function loadCustomerPreferences(
           : "100",
     };
   } catch {
-    return { ...DEFAULTS, locale: ownerLocale };
+    return { ...DEFAULTS, locale: SITE_LOCALE };
   }
 }
 
@@ -68,7 +61,10 @@ export function saveCustomerPreferences(
   slug: string,
   prefs: CustomerPreferences
 ) {
-  setCustomerDeviceItem(storageKey(slug), JSON.stringify(prefs));
+  setCustomerDeviceItem(
+    storageKey(slug),
+    JSON.stringify({ ...prefs, locale: SITE_LOCALE })
+  );
 }
 
 export function themeSubtitle(theme: CustomerDisplayTheme, locale: CustomerLocale) {

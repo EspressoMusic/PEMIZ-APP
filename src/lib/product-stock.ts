@@ -56,7 +56,7 @@ export function formatStockLabel(stock: number | null | undefined): string {
 export const OUT_OF_STOCK_MESSAGE = "המוצר אזל מהמלאי";
 
 /** Max units per product line in a single order (matches public orders API). */
-const ORDER_LINE_QTY_CAP = 50;
+const ORDER_LINE_QTY_CAP = 100;
 
 export function maxOrderQuantity(
   stock: number | null | undefined,

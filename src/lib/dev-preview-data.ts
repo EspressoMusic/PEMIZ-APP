@@ -12,47 +12,47 @@ import type { SellerChatThread } from "@/lib/seller-chat-threads";
 export const DEV_PREVIEW_SELLER_THREADS: SellerChatThread[] = [
   {
     customerPhone: "0501234567",
-    customerName: "יעל כהן",
-    lastMessage: "שלום, יש עוגה ללא גלוטן?",
+    customerName: "Yael Cohen",
+    lastMessage: "Hi, do you have gluten-free cake?",
     lastAt: "2026-06-03T09:15:00.000Z",
     unreadFromCustomer: true,
   },
   {
     customerPhone: "0529876543",
-    customerName: "דני לוי",
-    lastMessage: "תודה על המשלוח!",
+    customerName: "Danny Levy",
+    lastMessage: "Thanks for the delivery!",
     lastAt: "2026-06-02T18:40:00.000Z",
     unreadFromCustomer: false,
   },
 ];
 
-/** הודעות לצ'אט פרטי בתצוגת dev (לפי טלפון מנורמל) */
+/** Private chat messages for dev preview (by normalized phone) */
 export const DEV_PREVIEW_SELLER_CHAT: StoreChatMessageDto[] = [
   {
     id: "demo-seller-1",
     channel: "SELLER",
     customerPhone: "0501234567",
-    customerName: "יעל כהן",
+    customerName: "Yael Cohen",
     authorRole: "CUSTOMER",
-    body: "שלום, יש עוגה ללא גלוטן?",
+    body: "Hi, do you have gluten-free cake?",
     createdAt: "2026-06-03T09:10:00.000Z",
   },
   {
     id: "demo-seller-2",
     channel: "SELLER",
     customerPhone: "0501234567",
-    customerName: "המאפייה שלי (תצוגה)",
+    customerName: "My Bakery (Preview)",
     authorRole: "SELLER",
-    body: "כן! יש עוגת שוקולד וקרואסון — מומלץ להזמין יום מראש.",
+    body: "Yes! We have chocolate cake and croissants — best to order a day ahead.",
     createdAt: "2026-06-03T09:12:00.000Z",
   },
   {
     id: "demo-seller-3",
     channel: "SELLER",
     customerPhone: "0529876543",
-    customerName: "דני לוי",
+    customerName: "Danny Levy",
     authorRole: "CUSTOMER",
-    body: "תודה על המשלוח!",
+    body: "Thanks for the delivery!",
     createdAt: "2026-06-02T18:35:00.000Z",
   },
 ];
@@ -60,61 +60,61 @@ export const DEV_PREVIEW_SELLER_CHAT: StoreChatMessageDto[] = [
 export const DEV_PREVIEW_INQUIRIES = [
   {
     id: "inq-1",
-    customerName: "יעל כהן",
+    customerName: "Yael Cohen",
     customerPhone: "050-1234567",
-    subject: "משלוח ביום שישי",
-    message: "יש אפשרות למשלוח ביום שישי?",
+    subject: "Friday delivery",
+    message: "Is Friday delivery available?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
   },
   {
     id: "inq-2",
-    customerName: "דני לוי",
+    customerName: "Danny Levy",
     customerPhone: "052-9876543",
-    subject: "מוצרים ללא גלוטן",
-    message: "האם יש עוגות ללא גלוטן?",
+    subject: "Gluten-free products",
+    message: "Do you have gluten-free cakes?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: "inq-3",
-    customerName: "מיכל אברהם",
+    customerName: "Michal Abraham",
     customerPhone: "054-1112233",
-    subject: "הזמנה לאירוע",
-    message: "צריך 30 יחידות ליום חמישי — אפשר להכין?",
+    subject: "Event order",
+    message: "Need 30 units for Thursday — can you prepare them?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: "inq-4",
-    customerName: "אורי שמש",
+    customerName: "Ori Shemesh",
     customerPhone: "053-4455667",
-    subject: "שעות פעילות",
-    message: "עד איזה שעה אפשר לאסוף הזמנה היום?",
+    subject: "Business hours",
+    message: "What time can I pick up an order today?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: "inq-5",
-    customerName: "נועה גל",
+    customerName: "Noa Gal",
     customerPhone: "058-9988776",
-    subject: "הנחה לכמות",
-    message: "יש הנחה על הזמנה מעל 10 יחידות?",
+    subject: "Bulk discount",
+    message: "Is there a discount on orders over 10 units?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: "inq-6",
-    customerName: "רון דוד",
+    customerName: "Ron David",
     customerPhone: "050-3344556",
-    subject: "תודה על המשלוח",
-    message: "ההזמנה הגיעה מעולה, תודה רבה!",
-    sellerReply: "שמחים לשמוע! נשמח לראותך שוב בקרוב.",
+    subject: "Thanks for the delivery",
+    message: "The order arrived perfectly, thank you so much!",
+    sellerReply: "Glad to hear it! We'd love to see you again soon.",
     sellerReplyAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
   },
@@ -123,21 +123,21 @@ export const DEV_PREVIEW_INQUIRIES = [
 export const DEV_PREVIEW_ORDERS = [
   {
     id: "ord-demo-1",
-    customerName: "ברבוסה",
+    customerName: "Barbosa",
     customerPhone: "0586122187",
     customerJoinedAt: "2025-11-12T10:00:00.000Z",
     status: "PENDING",
-    statusLabel: "ממתין",
+    statusLabel: "Pending",
     createdAt: "2026-06-04T17:20:00.000Z",
     items: [
       {
-        name: "יאמי",
+        name: "Yummy",
         quantity: 1,
         lineTotal: 100,
         imageUrl: null as string | null,
       },
       {
-        name: "כגעג",
+        name: "Demo Item",
         quantity: 1,
         lineTotal: 345,
         imageUrl: null as string | null,
@@ -146,20 +146,20 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-2",
-    customerName: "שילה",
+    customerName: "Shila",
     customerPhone: "0527654321",
     status: "PENDING",
-    statusLabel: "ממתין",
+    statusLabel: "Pending",
     createdAt: "2026-06-03T09:47:00.000Z",
     items: [
       {
-        name: "כגעג",
+        name: "Demo Item",
         quantity: 1,
         lineTotal: 345,
         imageUrl: null as string | null,
       },
       {
-        name: "כגעג",
+        name: "Demo Item",
         quantity: 1,
         lineTotal: 345,
         imageUrl: null as string | null,
@@ -168,20 +168,20 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-3",
-    customerName: "יעל כהן",
+    customerName: "Yael Cohen",
     customerPhone: "050-1234567",
     status: "CONFIRMED",
-    statusLabel: "אושר",
+    statusLabel: "Confirmed",
     createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
     items: [
       {
-        name: "עוגת שוקולד",
+        name: "Chocolate Cake",
         quantity: 1,
         lineTotal: 99,
         imageUrl: null as string | null,
       },
       {
-        name: "קרואסון",
+        name: "Croissant",
         quantity: 2,
         lineTotal: 36,
         imageUrl: null as string | null,
@@ -190,14 +190,14 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-4",
-    customerName: "מיכל אברהם",
+    customerName: "Michal Abraham",
     customerPhone: "054-1112233",
     status: "COMPLETED",
-    statusLabel: "הושלם",
+    statusLabel: "Completed",
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     items: [
       {
-        name: "קרואסון",
+        name: "Croissant",
         quantity: 3,
         lineTotal: 54,
         imageUrl: null as string | null,
@@ -209,11 +209,11 @@ export const DEV_PREVIEW_ORDERS = [
     customerName: "",
     customerPhone: "053-4445566",
     status: "COMPLETED",
-    statusLabel: "הושלם",
+    statusLabel: "Completed",
     createdAt: "2026-05-28T14:15:00.000Z",
     items: [
       {
-        name: "עוגת גבינה",
+        name: "Cheesecake",
         quantity: 1,
         lineTotal: 85,
         imageUrl: null as string | null,
@@ -222,14 +222,14 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-5",
-    customerName: "דני לוי",
+    customerName: "Danny Levy",
     customerPhone: "052-9876543",
     status: "CANCELLED",
-    statusLabel: "בוטל",
+    statusLabel: "Cancelled",
     createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
     items: [
       {
-        name: "לחם מחמצת",
+        name: "Sourdough Bread",
         quantity: 1,
         lineTotal: 28,
         imageUrl: null as string | null,
@@ -238,14 +238,14 @@ export const DEV_PREVIEW_ORDERS = [
   },
 ];
 
-export const DEV_STORE_OWNER_NAME = "יעל";
+export const DEV_STORE_OWNER_NAME = "Yael";
 
-/** מוצרים לתצוגת dev — רשימה ארוכה לבדיקת גלילה בריבוע */
+/** Products for dev preview — long list for scroll testing in grid */
 export const DEV_PREVIEW_PRODUCTS = [
   {
     id: "demo-p0",
-    name: "עוגת גבינה",
-    description: "אזל מהמלאי — לדוגמה",
+    name: "Cheesecake",
+    description: "Out of stock — example",
     imageUrl: null,
     price: 85,
     salePrice: null,
@@ -254,8 +254,8 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
   {
     id: "demo-p1",
-    name: "עוגת שוקולד",
-    description: "עוגה עשירה",
+    name: "Chocolate Cake",
+    description: "Rich cake",
     imageUrl: null,
     price: 120,
     salePrice: 99,
@@ -264,7 +264,7 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
   {
     id: "demo-p2",
-    name: "קרואסון",
+    name: "Croissant",
     description: null,
     imageUrl: null,
     price: 18,
@@ -274,7 +274,7 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
   {
     id: "demo-p3",
-    name: "עוגיות שקדים",
+    name: "Almond Cookies",
     description: null,
     imageUrl: null,
     price: 32,
@@ -284,7 +284,7 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
   {
     id: "demo-p4",
-    name: "לחם מחמצת",
+    name: "Sourdough Bread",
     description: null,
     imageUrl: null,
     price: 28,
@@ -294,7 +294,7 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
   {
     id: "demo-p5",
-    name: "מאפין אוכמניות",
+    name: "Blueberry Muffin",
     description: null,
     imageUrl: null,
     price: 14,
@@ -304,7 +304,7 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
   {
     id: "demo-p6",
-    name: "טארט לימון",
+    name: "Lemon Tart",
     description: null,
     imageUrl: null,
     price: 45,
@@ -314,7 +314,7 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
   {
     id: "demo-p7",
-    name: "רוגלך",
+    name: "Rugelach",
     description: null,
     imageUrl: null,
     price: 22,
@@ -324,7 +324,7 @@ export const DEV_PREVIEW_PRODUCTS = [
   },
   {
     id: "demo-p8",
-    name: "בצלווא",
+    name: "Challah",
     description: null,
     imageUrl: null,
     price: 16,
@@ -348,11 +348,11 @@ function devPreviewDealProduct(id: string) {
   };
 }
 
-/** דילים לתצוגת מוכר dev — בדיקת רשימת דילים קיימים */
+/** Deals for dev seller preview — existing deals list testing */
 export const DEV_PREVIEW_DEALS = [
   {
     id: "demo-deal-1",
-    name: "מבצע בוקר זוגי",
+    name: "Couple's Morning Deal",
     imageUrl: null,
     dealPrice: 28,
     validUntil: "2026-07-15T23:59:59.000Z",
@@ -365,7 +365,7 @@ export const DEV_PREVIEW_DEALS = [
   },
   {
     id: "demo-deal-2",
-    name: "חבילת קינוחים משפחתית",
+    name: "Family Dessert Pack",
     imageUrl: null,
     dealPrice: 125,
     validUntil: "2026-08-01T23:59:59.000Z",
@@ -378,7 +378,7 @@ export const DEV_PREVIEW_DEALS = [
   },
   {
     id: "demo-deal-3",
-    name: "לחם ומאפה",
+    name: "Bread and Pastry",
     imageUrl: null,
     dealPrice: 38,
     validUntil: "2026-05-20T23:59:59.000Z",
@@ -399,7 +399,7 @@ export function devPreviewCustomerProducts() {
 
 export const DEV_STORE_BUSINESS = {
   slug: "demo-store",
-  name: "המאפייה שלי (תצוגה)",
+  name: "My Bakery (Preview)",
   description: null,
   type: "STORE" as const,
   sellerContactPhone: "050-1234567",
@@ -407,7 +407,7 @@ export const DEV_STORE_BUSINESS = {
   deals: [
     {
       id: "deal-active",
-      name: "מבצע פעיל (דמו)",
+      name: "Active Deal (Demo)",
       imageUrl: null,
       dealPrice: 110,
       validUntil: "2027-12-31T23:59:59.000Z",
@@ -416,7 +416,7 @@ export const DEV_STORE_BUSINESS = {
       products: [
         {
           id: "1",
-          name: "עוגת שוקולד",
+          name: "Chocolate Cake",
           imageUrl: null,
           price: 120,
           salePrice: 99,
@@ -425,7 +425,7 @@ export const DEV_STORE_BUSINESS = {
         },
         {
           id: "2",
-          name: "קרואסון",
+          name: "Croissant",
           imageUrl: null,
           price: 18,
           salePrice: null,
@@ -436,7 +436,7 @@ export const DEV_STORE_BUSINESS = {
     },
     {
       id: "deal-oos",
-      name: "מבצע אזל מהמלאי (דמו)",
+      name: "Out of Stock Deal (Demo)",
       imageUrl: null,
       dealPrice: 42,
       validUntil: "2027-12-31T23:59:59.000Z",
@@ -445,7 +445,7 @@ export const DEV_STORE_BUSINESS = {
       products: [
         {
           id: "2",
-          name: "קרואסון",
+          name: "Croissant",
           imageUrl: null,
           price: 18,
           salePrice: null,
@@ -454,7 +454,7 @@ export const DEV_STORE_BUSINESS = {
         },
         {
           id: "demo-p4",
-          name: "לחם מחמצת",
+          name: "Sourdough Bread",
           imageUrl: null,
           price: 28,
           salePrice: null,
@@ -474,48 +474,48 @@ export const DEV_STORE_BUSINESS = {
   faqItems: [
     {
       id: "faq-1",
-      question: "כמה זמן לוקח משלוח?",
-      answer: "45–90 דקות לפי אזור ועומס.",
+      question: "How long does delivery take?",
+      answer: "45–90 minutes depending on area and demand.",
     },
     {
       id: "faq-2",
-      question: "האם יש מוצרים ללא גלוטן?",
-      answer: "כן — עוגת שוקולד וקרואסון. מומלץ להזמין יום מראש.",
+      question: "Do you have gluten-free products?",
+      answer: "Yes — chocolate cake and croissants. Best to order a day ahead.",
     },
   ],
   storeUrl: "http://localhost:3000/dev/customer",
-  storeBroadcast: "מבצע השבוע: 10% הנחה על כל המוצרים עד יום שישי!",
+  storeBroadcast: "This week's deal: 10% off all products until Friday!",
   storeBroadcastAt: "2026-06-01T12:00:00.000Z",
   storeBroadcastHistory: [
     {
-      message: "מבצע השבוע: 10% הנחה על כל המוצרים עד יום שישי!",
+      message: "This week's deal: 10% off all products until Friday!",
       sentAt: "2026-06-01T12:00:00.000Z",
     },
     {
-      message: "פתיחה מחודשת — מגיעים עם מתנה לכל מזמין!",
+      message: "Grand reopening — a gift for every customer who orders!",
       sentAt: "2026-05-20T09:30:00.000Z",
     },
     {
-      message: "חג שמח! הזמינו מראש עוגות לחג.",
+      message: "Happy holiday! Pre-order holiday cakes now.",
       sentAt: "2026-05-10T16:00:00.000Z",
     },
   ],
   storeTheme: "calm",
   storeLocale: "en" as const,
   storePolicy:
-    "משלוחים בתוך העיר בימים א׳–ה׳. הזמנה עד 18:00 למחרת בבוקר.",
+    "Deliveries within the city Sun–Thu. Order by 6:00 PM for next-morning delivery.",
   storeTerms:
-    "ההזמנה מהווה הסכמה לתנאי השימוש. ביטול עד 24 שעות לפני מועד האיסוף.",
+    "Placing an order constitutes agreement to the terms of use. Cancel up to 24 hours before pickup time.",
   demoOrders: {
     active: [],
     history: [
       {
         id: "demo-order-history",
         placedAt: "2026-05-28T14:15:00.000Z",
-        statusLabel: "הושלמה",
+        statusLabel: "Completed",
         lines: [
           {
-            name: "עוגת שוקולד",
+            name: "Chocolate Cake",
             imageUrl: null,
             qty: 1,
             lineTotal: 99,
@@ -529,15 +529,15 @@ export const DEV_STORE_BUSINESS = {
 
 export const DEV_APPOINTMENTS_BUSINESS = {
   slug: "demo-appointments",
-  name: "סטודיו יופי (תצוגה)",
-  description: "תורים לטיפולי פנים, עיצוב שיער ומניקור.",
+  name: "Beauty Studio (Preview)",
+  description: "Appointments for facials, hair styling, and manicures.",
   type: "APPOINTMENTS" as const,
   sellerContactPhone: "050-7654321",
   products: [
     {
       id: "svc-1",
-      name: "טיפול פנים",
-      description: "ניקוי עמוק ולחות",
+      name: "Facial Treatment",
+      description: "Deep cleanse and hydration",
       imageUrl: null,
       price: 180,
       salePrice: null,
@@ -546,7 +546,7 @@ export const DEV_APPOINTMENTS_BUSINESS = {
     },
     {
       id: "svc-2",
-      name: "תספורת גברים",
+      name: "Men's Haircut",
       description: null,
       imageUrl: null,
       price: 90,
@@ -566,28 +566,28 @@ export const DEV_APPOINTMENTS_BUSINESS = {
   faqItems: [
     {
       id: "faq-appt-1",
-      question: "איך מבטלים תור?",
-      answer: "עד 24 שעות לפני המועד — דרך צ'אט או טלפון.",
+      question: "How do I cancel an appointment?",
+      answer: "Up to 24 hours before the appointment — via chat or phone.",
     },
     {
       id: "faq-appt-2",
-      question: "האם יש חניה?",
-      answer: "כן, חניה חינם ללקוחות במגרש הסמוך.",
+      question: "Is parking available?",
+      answer: "Yes, free parking for customers in the adjacent lot.",
     },
   ],
   storeUrl: "http://localhost:3000/dev/customer-appointments",
-  storeBroadcast: "תור נוח ביום ראשון — מקומות אחרונים!",
+  storeBroadcast: "Convenient Sunday appointments — last spots available!",
   storeBroadcastAt: "2026-06-01T10:00:00.000Z",
   storeBroadcastHistory: [
     {
-      message: "תור נוח ביום ראשון — מקומות אחרונים!",
+      message: "Convenient Sunday appointments — last spots available!",
       sentAt: "2026-06-01T10:00:00.000Z",
     },
   ],
   storeTheme: "calm",
   storeLocale: "en" as const,
-  storePolicy: "תורים בימים א׳–ה׳. איחור מעל 10 דקות עלול לבטל את התור.",
-  storeTerms: "ביטול תור עד 24 שעות לפני המועד ללא חיוב.",
+  storePolicy: "Appointments Sun–Thu. Arriving more than 10 minutes late may cancel the appointment.",
+  storeTerms: "Cancel an appointment up to 24 hours before the scheduled time at no charge.",
   appointmentSlotGapMinutes: 0,
   appointmentSlotDurationMinutes: 60,
   appointmentBookingStart: "09:00",
@@ -611,35 +611,35 @@ export const DEV_APPOINTMENTS_SELLER_SHELL = {
   storeTheme: DEV_APPOINTMENTS_BUSINESS.storeTheme,
 };
 
-export const DEV_APPOINTMENTS_OWNER_NAME = "מיה";
+export const DEV_APPOINTMENTS_OWNER_NAME = "Mia";
 
 export const DEV_APPOINTMENTS_PREVIEW_INQUIRIES = [
   {
     id: "appt-inq-1",
-    customerName: "יעל כהן",
+    customerName: "Yael Cohen",
     customerPhone: "050-1234567",
-    subject: "שינוי שעת תור",
-    message: "אפשר להזיז את התור שלי ליום חמישי בבוקר?",
+    subject: "Reschedule appointment",
+    message: "Can I move my appointment to Thursday morning?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
   },
   {
     id: "appt-inq-2",
-    customerName: "דני לוי",
+    customerName: "Danny Levy",
     customerPhone: "052-9876543",
-    subject: "ביטול תור",
-    message: "צריך לבטל את התור למחר — אפשר?",
+    subject: "Cancel appointment",
+    message: "I need to cancel tomorrow's appointment — is that possible?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: "appt-inq-3",
-    customerName: "רון שטרן",
+    customerName: "Ron Stern",
     customerPhone: "054-1112233",
-    subject: "שאלה על שירות",
-    message: "כמה זמן לוקח טיפול צבע מלא?",
+    subject: "Service question",
+    message: "How long does a full color treatment take?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
@@ -649,15 +649,15 @@ export const DEV_APPOINTMENTS_PREVIEW_INQUIRIES = [
 export const DEV_APPOINTMENTS_PREVIEW_SELLER_THREADS: SellerChatThread[] = [
   {
     customerPhone: "0501234567",
-    customerName: "יעל כהן",
-    lastMessage: "יש תור פנוי ליום ראשון בבוקר?",
+    customerName: "Yael Cohen",
+    lastMessage: "Any openings Sunday morning?",
     lastAt: "2026-06-03T09:15:00.000Z",
     unreadFromCustomer: true,
   },
   {
     customerPhone: "0534445566",
-    customerName: "נועה ברק",
-    lastMessage: "תודה, אאשר את השעה",
+    customerName: "Noa Barak",
+    lastMessage: "Thanks, I'll confirm the time",
     lastAt: "2026-06-02T16:20:00.000Z",
     unreadFromCustomer: false,
   },
@@ -675,7 +675,7 @@ function devAppointmentSlotEnd(iso: string, minutes: number) {
   return new Date(new Date(iso).getTime() + minutes * 60_000).toISOString();
 }
 
-/** תורים לדמו — משבצות מלאות לפי הגדרות העסק (9:00–18:00, רווח 15 דק׳) */
+/** Demo appointments — full slots per business settings (9:00–18:00, 15 min gap) */
 export function getDevAppointmentsBusiness() {
   const baseConfig = calendarConfigFromBusiness(DEV_APPOINTMENTS_BUSINESS);
   const config = {
@@ -698,7 +698,7 @@ export function getDevAppointmentsBusiness() {
     appointments: [] as { id: string }[],
   }));
 
-  // דמו: חלק מהמשבצות תפוסות
+  // Demo: some slots are fully booked
   const markFull = (startHour: number, daysAhead: number) => {
     const target = new Date();
     target.setHours(0, 0, 0, 0);
@@ -761,10 +761,10 @@ export function getDevPreviewAppointmentsSeller() {
   return [
     {
       id: "appt-seller-1",
-      customerName: "יעל כהן",
+      customerName: "Yael Cohen",
       customerPhone: "0501234567",
       status: "CONFIRMED",
-      notes: "שירות: תספורת\nרוצה תספורת קצרה",
+      notes: "Service: Haircut\nWants a short cut",
       slot: {
         startAt: slotA.startAt,
         endAt: slotA.endAt,
@@ -772,7 +772,7 @@ export function getDevPreviewAppointmentsSeller() {
     },
     {
       id: "appt-seller-2",
-      customerName: "דני לוי",
+      customerName: "Danny Levy",
       customerPhone: "0529876543",
       status: "CONFIRMED",
       slot: {
@@ -782,7 +782,7 @@ export function getDevPreviewAppointmentsSeller() {
     },
     {
       id: "appt-f1",
-      customerName: "רון שטרן",
+      customerName: "Ron Stern",
       customerPhone: "0541112222",
       status: "CONFIRMED",
       slot: {
@@ -792,7 +792,7 @@ export function getDevPreviewAppointmentsSeller() {
     },
     {
       id: "appt-f2",
-      customerName: "נועה ברק",
+      customerName: "Noa Barak",
       customerPhone: "0534445566",
       status: "CONFIRMED",
       slot: {
@@ -802,7 +802,7 @@ export function getDevPreviewAppointmentsSeller() {
     },
     {
       id: "appt-f3",
-      customerName: "איתי מזרחי",
+      customerName: "Itai Mizrahi",
       customerPhone: "0587778899",
       status: "CONFIRMED",
       slot: {
@@ -812,7 +812,7 @@ export function getDevPreviewAppointmentsSeller() {
     },
     {
       id: "appt-history-1",
-      customerName: "מיכל אברהם",
+      customerName: "Michal Abraham",
       customerPhone: "0523334455",
       status: "CONFIRMED",
       slot: {
@@ -855,15 +855,15 @@ export function getDevPreviewCustomerOrdersFromAppointments() {
 
 export const DEV_RENTAL_BUSINESS = {
   slug: "demo-rental",
-  name: "וילה לים (תצוגה)",
-  description: "השכרת וילה לימים, חצי יום או סופ״ש — לפי זמינות.",
+  name: "Sea Villa (Preview)",
+  description: "Villa rental by full day, half day, or weekend — subject to availability.",
   type: "RENTAL" as const,
   sellerContactPhone: "052-1112233",
   products: [
     {
       id: "rent-1",
-      name: "וילה מלאה — יום שלם",
-      description: "עד 8 אורחים, בריכה ומטבח מאובזר",
+      name: "Full Villa — Full Day",
+      description: "Up to 8 guests, pool and fully equipped kitchen",
       imageUrl: null,
       price: 1200,
       salePrice: null,
@@ -872,8 +872,8 @@ export const DEV_RENTAL_BUSINESS = {
     },
     {
       id: "rent-2",
-      name: "חצי יום — בוקר",
-      description: "כניסה מ-08:00 עד 14:00",
+      name: "Half Day — Morning",
+      description: "Check-in from 08:00 until 14:00",
       imageUrl: null,
       price: 650,
       salePrice: 590,
@@ -892,28 +892,28 @@ export const DEV_RENTAL_BUSINESS = {
   faqItems: [
     {
       id: "faq-rent-1",
-      question: "איך מבטלים הזמנה?",
-      answer: "עד 48 שעות לפני תחילת ההשכרה — ללא חיוב.",
+      question: "How do I cancel a booking?",
+      answer: "Up to 48 hours before the rental start — no charge.",
     },
     {
       id: "faq-rent-2",
-      question: "מה כולל המחיר?",
-      answer: "מים, חשמל, מצעים ומגבות — ללא ארוחת בוקר.",
+      question: "What is included in the price?",
+      answer: "Water, electricity, linens, and towels — breakfast not included.",
     },
   ],
   storeUrl: "http://localhost:3000/dev/customer-rental",
-  storeBroadcast: "סופ״ש פנוי ביום ו׳ — הזמינו עכשיו!",
+  storeBroadcast: "Weekend available this Friday — book now!",
   storeBroadcastAt: "2026-06-01T10:00:00.000Z",
   storeBroadcastHistory: [
     {
-      message: "סופ״ש פנוי ביום ו׳ — הזמינו עכשיו!",
+      message: "Weekend available this Friday — book now!",
       sentAt: "2026-06-01T10:00:00.000Z",
     },
   ],
   storeTheme: "calm",
   storeLocale: "en" as const,
-  storePolicy: "השכרה בימים א׳–ו׳. כניסה מ-15:00, יציאה עד 11:00.",
-  storeTerms: "ביטול עד 48 שעות לפני תחילת ההשכרה.",
+  storePolicy: "Rentals Sun–Fri. Check-in from 3:00 PM, check-out by 11:00 AM.",
+  storeTerms: "Cancel up to 48 hours before the rental start.",
   appointmentSlotGapMinutes: 0,
   appointmentSlotDurationMinutes: 1440,
   appointmentBookingStart: "00:00",
@@ -937,25 +937,25 @@ export const DEV_RENTAL_SELLER_SHELL = {
   storeTheme: DEV_RENTAL_BUSINESS.storeTheme,
 };
 
-export const DEV_RENTAL_OWNER_NAME = "דן";
+export const DEV_RENTAL_OWNER_NAME = "Dan";
 
 export const DEV_RENTAL_PREVIEW_INQUIRIES = [
   {
     id: "rent-inq-1",
-    customerName: "יעל כהן",
+    customerName: "Yael Cohen",
     customerPhone: "050-1234567",
-    subject: "השכרה לסופ״ש",
-    message: "יש וילה פנויה לסופ״ש הקרוב ל-6 אנשים?",
+    subject: "Weekend rental",
+    message: "Is a villa available this coming weekend for 6 people?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
   },
   {
     id: "rent-inq-2",
-    customerName: "דני לוי",
+    customerName: "Danny Levy",
     customerPhone: "052-9876543",
-    subject: "חצי יום",
-    message: "אפשר להשכיר רק לחצי יום ביום חמישי?",
+    subject: "Half day",
+    message: "Can I rent for just a half day on Thursday?",
     sellerReply: null,
     sellerReplyAt: null,
     createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
@@ -965,15 +965,15 @@ export const DEV_RENTAL_PREVIEW_INQUIRIES = [
 export const DEV_RENTAL_PREVIEW_SELLER_THREADS: SellerChatThread[] = [
   {
     customerPhone: "0501234567",
-    customerName: "יעל כהן",
-    lastMessage: "יש זמינות ל-3 לילות באוגוסט?",
+    customerName: "Yael Cohen",
+    lastMessage: "Any availability for 3 nights in August?",
     lastAt: "2026-06-03T09:15:00.000Z",
     unreadFromCustomer: true,
   },
   {
     customerPhone: "0534445566",
-    customerName: "נועה ברק",
-    lastMessage: "מעולה, נאשר את התאריכים",
+    customerName: "Noa Barak",
+    lastMessage: "Great, we'll confirm the dates",
     lastAt: "2026-06-02T16:20:00.000Z",
     unreadFromCustomer: false,
   },
@@ -1051,42 +1051,42 @@ export function getDevPreviewRentalSeller() {
   return [
     {
       id: "rent-seller-1",
-      customerName: "יעל כהן",
+      customerName: "Yael Cohen",
       customerPhone: "0501234567",
       status: "CONFIRMED",
-      notes: "שירות: וילה מלאה — יום שלם\nהשכרה: 3 לילות",
+      notes: "Service: Full Villa — Full Day\nRental: 3 nights",
       slot: stayA,
     },
     {
       id: "rent-seller-2",
-      customerName: "דני לוי",
+      customerName: "Danny Levy",
       customerPhone: "0529876543",
       status: "CONFIRMED",
-      notes: "שירות: חצי יום — בוקר\nהשכרה: 2 לילות",
+      notes: "Service: Half Day — Morning\nRental: 2 nights",
       slot: stayB,
     },
     {
       id: "rent-appt-f1",
-      customerName: "רון שטרן",
+      customerName: "Ron Stern",
       customerPhone: "0541112222",
       status: "CONFIRMED",
-      notes: "שירות: וילה מלאה\nהשכרה: 2 לילות",
+      notes: "Service: Full Villa\nRental: 2 nights",
       slot: stayFull1,
     },
     {
       id: "rent-appt-f2",
-      customerName: "איתי מזרחי",
+      customerName: "Itai Mizrahi",
       customerPhone: "0587778899",
       status: "CONFIRMED",
-      notes: "שירות: וילה מלאה\nהשכרה: 4 לילות",
+      notes: "Service: Full Villa\nRental: 4 nights",
       slot: stayFull2,
     },
     {
       id: "rent-history-1",
-      customerName: "מיכל אברהם",
+      customerName: "Michal Abraham",
       customerPhone: "0523334455",
       status: "CONFIRMED",
-      notes: "שירות: וילה מלאה\nהשכרה: 2 לילות",
+      notes: "Service: Full Villa\nRental: 2 nights",
       slot: pastStay,
     },
   ];

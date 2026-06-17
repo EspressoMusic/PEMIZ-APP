@@ -17,7 +17,7 @@ export function ResetPasswordForm() {
     const value = searchParams.get("token") ?? "";
     setToken(value);
     if (!value) {
-      setError("קישור לא תקין — בקש קישור חדש מאיפוס סיסמה");
+      setError("Invalid link — request a new one from forgot password");
     }
   }, [searchParams]);
 
@@ -33,7 +33,7 @@ export function ResetPasswordForm() {
     const confirm = fd.get("confirmPassword");
 
     if (password !== confirm) {
-      setError("הסיסמאות לא תואמות");
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
@@ -47,14 +47,14 @@ export function ResetPasswordForm() {
       const data = (await res.json().catch(() => ({}))) as { error?: string };
 
       if (!res.ok) {
-        setError(data.error ?? "לא הצלחנו לעדכן את הסיסמה");
+        setError(data.error ?? "Could not update your password");
         return;
       }
 
       router.push("/login?reset=1");
       router.refresh();
     } catch {
-      setError("אין חיבור לשרת — בדוק אינטרנט ונסה שוב");
+      setError("No server connection — check your internet and try again");
     } finally {
       setLoading(false);
     }
@@ -64,8 +64,8 @@ export function ResetPasswordForm() {
     <WebShell lockViewport>
       <div className="auth-surface mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel className="dashboard-card sm:p-8">
-          <PageTitle subtitle="בחר סיסמה חדשה לחשבון שלך">
-            סיסמה חדשה
+          <PageTitle subtitle="Choose a new password for your account">
+            New password
           </PageTitle>
 
           {error && (
@@ -78,7 +78,7 @@ export function ResetPasswordForm() {
             <Input
               name="password"
               type="password"
-              label="סיסמה חדשה"
+              label="New password"
               required
               minLength={8}
               autoComplete="new-password"
@@ -88,7 +88,7 @@ export function ResetPasswordForm() {
             <Input
               name="confirmPassword"
               type="password"
-              label="אימות סיסמה"
+              label="Confirm password"
               required
               minLength={8}
               autoComplete="new-password"
@@ -100,7 +100,7 @@ export function ResetPasswordForm() {
               className="mt-2 w-full"
               disabled={loading || !token}
             >
-              {loading ? "שומר..." : "עדכן סיסמה"}
+              {loading ? "Saving..." : "Update password"}
             </Button>
           </form>
         </Panel>
@@ -110,7 +110,7 @@ export function ResetPasswordForm() {
             href="/forgot-password"
             className="text-[19px] font-extrabold text-bakery-primary underline-offset-2 hover:underline"
           >
-            בקש קישור חדש
+            Request a new link
           </Link>
         </p>
       </div>

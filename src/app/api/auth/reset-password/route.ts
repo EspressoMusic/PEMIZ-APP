@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     if (!result.ok) {
       return jsonError(result.error, 400);
     }
-    return jsonOk({ message: "הסיסמה עודכנה — אפשר להתחבר" });
+    return jsonOk({ message: "Password updated — you can sign in now" });
   } catch (error) {
     return jsonServerError(error, "auth:reset-password");
   }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   HelpCircle,
+  MessagesSquare,
   Receipt,
   SlidersHorizontal,
   ShieldPlus,
@@ -27,6 +28,7 @@ import { CustomerFaqSheet } from "./customer-faq-sheet";
 import { CustomerDisplaySheet } from "./customer-display-sheet";
 import { CustomerLegalSheet } from "./customer-legal-sheet";
 import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
+import { CustomerCookieConsent } from "./customer-cookie-consent";
 import { OrderCheckoutModal } from "./order-checkout-modal";
 import { CustomerCartCheckoutBar } from "./customer-cart-checkout-bar";
 import { cn } from "@/lib/utils";
@@ -343,8 +345,7 @@ export function CustomerStoreApp({
   const isDevSchedule = isDevAppointments || isDevRental;
   const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
   const ownerTheme = parseStoreTheme(business.storeTheme);
-  const ownerLocale: CustomerLocale =
-    business.storeLocale === "en" ? "en" : "he";
+  const ownerLocale: CustomerLocale = "en";
   const effectiveOrderScheduleEnabled =
     panels.orderLimits && (business.orderScheduleEnabled ?? false);
   const showContactSeller =
@@ -357,6 +358,7 @@ export function CustomerStoreApp({
   const [dealsLastSeenAt, setDealsLastSeenAt] = useState<string | null>(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactView, setContactView] = useState<ContactView>("menu");
+  const [contactDirectEntry, setContactDirectEntry] = useState(false);
   const [cart, setCart] = useState<Record<string, number>>({});
   const [customerName, setCustomerName] = useState("");
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -707,7 +709,7 @@ export function CustomerStoreApp({
     }>
   ) {
     const next = {
-      locale: patch.locale ?? locale,
+      locale: "en" as CustomerLocale,
       theme: patch.theme ?? displayTheme,
       textScale: patch.textScale ?? textScale,
     };
@@ -1141,7 +1143,15 @@ export function CustomerStoreApp({
     const form = e.currentTarget;
     const fd = new FormData(form);
     const phone = String(fd.get("customerPhone") ?? "").trim();
-    if (phone && !isValidPhone(phone)) {
+    if (!phone) {
+      setInquirySubmitError(
+        locale === "he" ? "יש להזין מספר טלפון" : "Phone is required"
+      );
+      inquirySubmitLockRef.current = false;
+      setInquirySubmitting(false);
+      return;
+    }
+    if (!isValidPhone(phone)) {
       setInquirySubmitError(labels.invalidPhone);
       inquirySubmitLockRef.current = false;
       setInquirySubmitting(false);
@@ -1180,6 +1190,8 @@ export function CustomerStoreApp({
         await loadMyInquiries(phone);
       }
       form.reset();
+      setContactModalOpen(false);
+      setContactDirectEntry(false);
       setInquirySuccessOpen(true);
     } catch {
       setInquirySubmitError(labels.inquirySubmitError);
@@ -1444,7 +1456,10 @@ export function CustomerStoreApp({
   }, []);
 
   const productCartHandlers = useMemo(() => {
-    const map: Record<string, { onDec: () => void; onInc: () => void }> = {};
+    const map: Record<
+      string,
+      { onDec: () => void; onInc: () => void; onQtyChange: (value: number) => void }
+    > = {};
     for (const p of business.products) {
       const id = p.id;
       const maxQty = maxOrderQuantity(p.stock);
@@ -1455,6 +1470,11 @@ export function CustomerStoreApp({
             [id]: Math.max(0, (c[id] ?? 0) - 1),
           })),
         onInc: () => incrementProductInCart(id, maxQty),
+        onQtyChange: (value: number) =>
+          setCart((c) => ({
+            ...c,
+            [id]: Math.max(0, Math.min(maxQty, value)),
+          })),
       };
     }
     return map;
@@ -1487,6 +1507,7 @@ export function CustomerStoreApp({
               maxQty={maxQty}
               onDec={handlers?.onDec ?? (() => {})}
               onInc={handlers?.onInc ?? (() => {})}
+              onQtyChange={handlers?.onQtyChange ?? (() => {})}
             />
           );
         })}
@@ -1521,8 +1542,21 @@ export function CustomerStoreApp({
   }
 
   function openContactModal() {
+    setContactDirectEntry(false);
     setContactView("menu");
     setContactModalOpen(true);
+  }
+
+  function openInquiryModal() {
+    setContactDirectEntry(true);
+    setContactView("inquiry");
+    setContactModalOpen(true);
+  }
+
+  function closeContactModal() {
+    setContactModalOpen(false);
+    setContactDirectEntry(false);
+    setContactView("menu");
   }
 
   function renderMyAppointmentsSection() {
@@ -1655,6 +1689,13 @@ export function CustomerStoreApp({
                   onClick={() => setFaqOpen(true)}
                 />
               ) : null}
+              {panels.inquiries ? (
+                <SettingsMenuRow
+                  icon={MessagesSquare}
+                  title={labels.contactOptionInquiry}
+                  onClick={openInquiryModal}
+                />
+              ) : null}
               {business.sellerContactPhone ? (
                 <CustomerWhatsAppContactRow
                   title={labels.contactOptionWhatsApp}
@@ -1671,8 +1712,8 @@ export function CustomerStoreApp({
     }
   }
 
-  const rootLang = locale === "he" ? "he" : "en";
-  const rootDir = locale === "he" ? "rtl" : "ltr";
+  const rootLang = "en";
+  const rootDir = "ltr";
   const themeClass = customerThemeClass(displayTheme);
 
   const textScaleClass =
@@ -1826,9 +1867,10 @@ export function CustomerStoreApp({
       {contactModalOpen && (
       <CustomerContactModal
         open
-        onClose={() => setContactModalOpen(false)}
+        onClose={closeContactModal}
         view={contactView}
         onViewChange={setContactView}
+        directEntry={contactDirectEntry}
         slug={business.slug}
         storeName={business.name}
         sellerContactPhone={business.sellerContactPhone}
@@ -2069,6 +2111,8 @@ export function CustomerStoreApp({
         buttonLabel={labels.sellerNoticeGotIt}
         closeAriaLabel={locale === "he" ? "סגור" : "Close"}
       />
+
+      <CustomerCookieConsent businessSlug={business.slug} locale={locale} />
     </div>
   );
 }

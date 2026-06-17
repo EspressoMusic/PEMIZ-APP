@@ -36,8 +36,11 @@ export function writeDashboardThemeSession(theme: StoreThemeId) {
   writeDashboardThemeCookie(parsed);
 }
 
-export function hydrateDashboardLocale(server: string | null | undefined): AppLocale {
-  return readDashboardLocaleSession() ?? normalizeAppLocale(server);
+export function hydrateDashboardLocale(
+  server: string | null | undefined
+): AppLocale {
+  void server;
+  return "en";
 }
 
 export function hydrateDashboardTheme(server: string | null | undefined): StoreThemeId {
