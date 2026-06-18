@@ -8,14 +8,14 @@ import {
 import { PwaRoot } from "@/components/pwa/pwa-root";
 
 export const metadata: Metadata = {
-  title: "Linky — Your business, online",
+  title: "Peymiz — Your business, online",
   description:
     "SaaS for small businesses: customer link, orders, appointments, and a simple seller dashboard.",
   manifest: "/manifest.webmanifest",
-  applicationName: "Linky",
+  applicationName: "Peymiz",
   appleWebApp: {
     capable: true,
-    title: "Linky",
+    title: "Peymiz",
     statusBarStyle: "default",
   },
   icons: {

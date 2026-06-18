@@ -13,6 +13,8 @@ import {
   MarketingLocaleProvider,
   useMarketingLocale,
 } from "./marketing-locale-provider";
+import { MarketingSideConfetti } from "./marketing-side-confetti";
+import { MarketingPlanPrice } from "./marketing-plan-price";
 
 const BENEFIT_ICONS = [
   (
@@ -82,6 +84,8 @@ function MarketingSiteContent() {
     scrollToSection,
     handleContactSubmit,
     formSent,
+    footerConfettiActive,
+    footerConfettiBurst,
   } = useMarketingSiteEffects();
 
   return (
@@ -93,6 +97,10 @@ function MarketingSiteContent() {
       dir={locale === "he" ? "rtl" : "ltr"}
       suppressHydrationWarning
     >
+      <MarketingSideConfetti
+        active={footerConfettiActive}
+        burst={footerConfettiBurst}
+      />
       <div
         className="scroll-progress"
         id="scrollProgress"
@@ -340,11 +348,11 @@ function MarketingSiteContent() {
             </article>
             <article className="price-card" data-reveal="scale" data-tilt>
               <div className="price-badge">{copy.premiumBadge}</div>
-              <div className="price-amount">
-                <span className="currency">$</span>
-                <strong>49</strong>
-                <span className="period">{copy.premiumPeriod}</span>
-              </div>
+              <MarketingPlanPrice
+                planId="premium"
+                locale={locale}
+                period={copy.premiumPeriod}
+              />
               <ul className="price-features">
                 {copy.premiumFeatures.map((item) => (
                   <li key={item}>{item}</li>
@@ -356,11 +364,11 @@ function MarketingSiteContent() {
             </article>
             <article className="price-card" data-reveal="scale" data-tilt>
               <div className="price-badge">{copy.ultimateBadge}</div>
-              <div className="price-amount">
-                <span className="currency">$</span>
-                <strong>89</strong>
-                <span className="period">{copy.ultimatePeriod}</span>
-              </div>
+              <MarketingPlanPrice
+                planId="ultimate"
+                locale={locale}
+                period={copy.ultimatePeriod}
+              />
               <ul className="price-features">
                 {copy.ultimateFeatures.map((item) => (
                   <li key={item}>{item}</li>
@@ -371,9 +379,6 @@ function MarketingSiteContent() {
               </Link>
             </article>
           </div>
-          <p className="pricing-note" data-reveal>
-            {copy.pricingNote}
-          </p>
         </div>
       </section>
 
@@ -384,12 +389,12 @@ function MarketingSiteContent() {
               <Image
                 src="/marketing/logo-transparent.png"
                 alt="Open BiziLink app"
-                width={120}
-                height={120}
+                width={180}
+                height={180}
                 className="app-cta-logo"
               />
               <span className="app-cta-caption">
-                <svg className="app-cta-arrow" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                <svg className="app-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                   <path d="M12 19V5M6 11l6-6 6 6" />
                 </svg>
                 <span className="app-cta-label">{copy.tryNow}</span>

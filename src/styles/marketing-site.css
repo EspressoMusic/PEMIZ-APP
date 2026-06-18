@@ -831,7 +831,7 @@ section { position: relative; padding: 120px 0; }
 
 /* App CTA */
 .app-cta-section {
-  padding: 0 0 72px;
+  padding: 12px 0 88px;
 }
 
 .app-cta-inner {
@@ -843,7 +843,7 @@ section { position: relative; padding: 120px 0; }
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 18px;
   text-decoration: none;
   color: inherit;
   transition: transform 0.3s var(--ease);
@@ -854,11 +854,11 @@ section { position: relative; padding: 120px 0; }
 }
 
 .app-cta-logo {
-  width: clamp(112px, 16vw, 148px);
+  width: clamp(168px, 24vw, 220px);
   height: auto;
   display: block;
   object-fit: contain;
-  filter: drop-shadow(0 14px 36px rgba(138, 79, 255, 0.42));
+  filter: drop-shadow(0 16px 42px rgba(138, 79, 255, 0.48));
   transition: transform 0.35s var(--ease), filter 0.35s var(--ease);
 }
 
@@ -871,17 +871,19 @@ section { position: relative; padding: 120px 0; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .app-cta-arrow {
+  width: 28px;
+  height: 28px;
   color: var(--accent-2);
   animation: appCtaArrowBounce 1.6s ease-in-out infinite;
 }
 
 .app-cta-label {
   font-family: var(--font-display);
-  font-size: clamp(17px, 2.2vw, 20px);
+  font-size: clamp(22px, 3.2vw, 28px);
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1131,7 +1133,7 @@ section { position: relative; padding: 120px 0; }
   background: linear-gradient(120deg, var(--heading), var(--accent-2));
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.price-amount .period { align-self: flex-end; font-size: 14px; color: var(--muted); margin-bottom: 10px; margin-left: 4px; }
+.price-amount .period { align-self: flex-end; font-size: 14px; color: var(--muted); margin-bottom: 10px; margin-inline-start: 4px; }
 .price-features {
   list-style: none; padding: 0; margin: 0 0 32px; display: flex; flex-direction: column; gap: 12px;
 }
@@ -1142,6 +1144,57 @@ section { position: relative; padding: 120px 0; }
   content: "✦"; position: absolute; left: 0; color: var(--accent-2); font-size: 12px;
 }
 .price-btn { width: 100%; justify-content: center; }
+
+.marketing-side-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.marketing-confetti-piece {
+  position: absolute;
+  border-radius: 2px;
+  opacity: 0;
+  animation-timing-function: cubic-bezier(0.22, 0.72, 0.18, 1);
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+.marketing-confetti-piece--left {
+  left: -10px;
+  animation-name: marketing-confetti-from-left;
+}
+
+.marketing-confetti-piece--right {
+  right: -10px;
+  animation-name: marketing-confetti-from-right;
+}
+
+@keyframes marketing-confetti-from-left {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(calc(42vw + var(--confetti-drift, 0px)), var(--confetti-lift, 55vh), 0)
+      rotate(var(--confetti-rotate, 540deg));
+    opacity: 0;
+  }
+}
+
+@keyframes marketing-confetti-from-right {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(calc(-42vw + var(--confetti-drift, 0px)), var(--confetti-lift, 55vh), 0)
+      rotate(var(--confetti-rotate, -540deg));
+    opacity: 0;
+  }
+}
 
 /* Section scroll effects */
 section[data-scroll-section] { transition: transform .6s var(--ease), opacity .6s var(--ease); }

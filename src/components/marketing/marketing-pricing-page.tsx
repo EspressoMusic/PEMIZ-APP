@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MarketingFixedPlanPrice } from "@/components/marketing/marketing-plan-price";
 import "@/styles/marketing-site.css";
 import {
   MarketingPublicFooter,
@@ -38,11 +39,7 @@ export function MarketingPricingPage() {
           <div className="pricing-grid" style={{ maxWidth: 420, margin: "0 auto" }}>
             <article className="price-card featured">
               <div className="price-badge popular">Basic Plan</div>
-              <div className="price-amount">
-                <span className="currency">$</span>
-                <strong>19</strong>
-                <span className="period">/ month</span>
-              </div>
+              <MarketingFixedPlanPrice amount={19} locale="he" period="/ month" />
               <ul className="price-features">
                 <li>Access to the Peymiz dashboard</li>
                 <li>Customer orders, appointments &amp; messages</li>

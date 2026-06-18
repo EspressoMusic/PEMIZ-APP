@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const THEME_KEY = "bizilink-marketing-theme";
+const FOOTER_CONFETTI_MS = 4200;
 
 export function useMarketingSiteEffects() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -13,6 +14,10 @@ export function useMarketingSiteEffects() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("home");
   const [formSent, setFormSent] = useState(false);
+  const [footerConfettiActive, setFooterConfettiActive] = useState(false);
+  const [footerConfettiBurst, setFooterConfettiBurst] = useState(0);
+  const wasAtBottomRef = useRef(false);
+  const confettiTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(THEME_KEY) as "dark" | "light" | null;
@@ -139,6 +144,22 @@ export function useMarketingSiteEffects() {
       setBackTopVisible(sy > 600);
       setNavbarScrolled(sy > 60);
 
+      const atBottom = height > 0 && sy >= height - 40;
+      if (atBottom && !wasAtBottomRef.current) {
+        wasAtBottomRef.current = true;
+        setFooterConfettiBurst((n) => n + 1);
+        setFooterConfettiActive(true);
+        if (confettiTimerRef.current != null) {
+          window.clearTimeout(confettiTimerRef.current);
+        }
+        confettiTimerRef.current = window.setTimeout(() => {
+          setFooterConfettiActive(false);
+          confettiTimerRef.current = null;
+        }, FOOTER_CONFETTI_MS);
+      } else if (!atBottom && sy < height - 160) {
+        wasAtBottomRef.current = false;
+      }
+
       const offset = sy + 120;
       let current = "home";
       root.querySelectorAll("section[id]").forEach((section) => {
@@ -169,6 +190,9 @@ export function useMarketingSiteEffects() {
       observer.disconnect();
       sectionObserver.disconnect();
       window.removeEventListener("scroll", onScroll);
+      if (confettiTimerRef.current != null) {
+        window.clearTimeout(confettiTimerRef.current);
+      }
     };
   }, [loaderGone]);
 
@@ -209,5 +233,7 @@ export function useMarketingSiteEffects() {
     scrollToSection,
     handleContactSubmit,
     formSent,
+    footerConfettiActive,
+    footerConfettiBurst,
   };
 }
