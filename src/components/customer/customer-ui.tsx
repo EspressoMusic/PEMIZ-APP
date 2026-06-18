@@ -811,9 +811,9 @@ export function ProductCatalogRow({
         className="h-[88px] w-[88px] shrink-0 rounded-2xl"
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        <h3 className="text-left text-[18px] font-extrabold text-bakery-ink">{name}</h3>
+        <h3 className="text-start text-[18px] font-extrabold text-bakery-ink">{name}</h3>
         {description && (
-          <p className="mt-1 line-clamp-2 text-left text-[14px] leading-[1.45] text-bakery-muted">
+          <p className="mt-1 line-clamp-2 text-start text-[14px] leading-[1.45] text-bakery-muted">
             {description}
           </p>
         )}

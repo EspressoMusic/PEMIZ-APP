@@ -20,6 +20,7 @@ export function CelebrationModal({
   detail,
   buttonLabel,
   closeAriaLabel = "Close",
+  locale,
 }: {
   open: boolean;
   onClose: () => void;
@@ -28,6 +29,7 @@ export function CelebrationModal({
   detail?: string;
   buttonLabel: string;
   closeAriaLabel?: string;
+  locale?: "he" | "en";
 }) {
   const pieces = useMemo<Piece[]>(() => {
     const colors = ["#e6d4b8", "#5c4a3e", "#43a047", "#b94040", "#7eb8ff", "#f4f0e8"];
@@ -51,12 +53,17 @@ export function CelebrationModal({
 
   if (!open) return null;
 
+  const dir = locale === "he" ? "rtl" : "ltr";
+  const lang = locale === "he" ? "he" : "en";
+
   return (
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="celebration-modal-title"
+      dir={dir}
+      lang={lang}
     >
       <button
         type="button"

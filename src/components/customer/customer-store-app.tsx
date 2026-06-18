@@ -345,7 +345,8 @@ export function CustomerStoreApp({
   const isDevSchedule = isDevAppointments || isDevRental;
   const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
   const ownerTheme = parseStoreTheme(business.storeTheme);
-  const ownerLocale: CustomerLocale = "en";
+  const ownerLocale: CustomerLocale =
+    business.storeLocale === "en" ? "en" : "he";
   const effectiveOrderScheduleEnabled =
     panels.orderLimits && (business.orderScheduleEnabled ?? false);
   const showContactSeller =
@@ -709,7 +710,7 @@ export function CustomerStoreApp({
     }>
   ) {
     const next = {
-      locale: "en" as CustomerLocale,
+      locale: patch.locale ?? locale,
       theme: patch.theme ?? displayTheme,
       textScale: patch.textScale ?? textScale,
     };
@@ -1712,8 +1713,8 @@ export function CustomerStoreApp({
     }
   }
 
-  const rootLang = "en";
-  const rootDir = "ltr";
+  const rootLang = locale === "he" ? "he" : "en";
+  const rootDir = locale === "he" ? "rtl" : "ltr";
   const themeClass = customerThemeClass(displayTheme);
 
   const textScaleClass =
@@ -1988,6 +1989,7 @@ export function CustomerStoreApp({
         detail={labels.orderSuccessDetail}
         buttonLabel={labels.great}
         closeAriaLabel={labels.close}
+        locale={locale}
       />
       )}
 
@@ -2007,6 +2009,7 @@ export function CustomerStoreApp({
           }
           buttonLabel={labels.great}
           closeAriaLabel={labels.close}
+          locale={locale}
         />
       )}
 
@@ -2110,6 +2113,7 @@ export function CustomerStoreApp({
         detail={labels.inquirySentDetail}
         buttonLabel={labels.sellerNoticeGotIt}
         closeAriaLabel={locale === "he" ? "סגור" : "Close"}
+        locale={locale}
       />
 
       <CustomerCookieConsent businessSlug={business.slug} locale={locale} />
