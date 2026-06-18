@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { appBaseUrl } from "@/lib/billing/app-base-url";
 import type {
+  BillingPortalInput,
   SubscriptionBillingProvider,
   SubscriptionCheckoutInput,
   SubscriptionCheckoutResult,
@@ -99,6 +100,36 @@ export const stripeBillingProvider: SubscriptionBillingProvider = {
         ok: false,
         status: 500,
         message: "Could not start checkout",
+      };
+    }
+
+    return { ok: true, url: session.url };
+  },
+
+  async createBillingPortalSession(
+    input: BillingPortalInput
+  ): Promise<SubscriptionCheckoutResult> {
+    const stripe = getStripe();
+    if (!stripe) {
+      return {
+        ok: false,
+        status: 501,
+        message:
+          "Stripe billing portal is not configured yet. Contact support.",
+      };
+    }
+
+    const base = appBaseUrl();
+    const session = await stripe.billingPortal.sessions.create({
+      customer: input.externalCustomerId,
+      return_url: `${base}/dashboard/settings`,
+    });
+
+    if (!session.url) {
+      return {
+        ok: false,
+        status: 500,
+        message: "Could not open billing portal",
       };
     }
 

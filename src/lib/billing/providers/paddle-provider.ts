@@ -1,4 +1,5 @@
 import type {
+  BillingPortalInput,
   SubscriptionBillingProvider,
   SubscriptionCheckoutInput,
   SubscriptionCheckoutResult,
@@ -130,6 +131,42 @@ export const paddleBillingProvider: SubscriptionBillingProvider = {
     }
 
     return { ok: true, url: checkoutUrl };
+  },
+
+  async createBillingPortalSession(
+    input: BillingPortalInput
+  ): Promise<SubscriptionCheckoutResult> {
+    const body: { subscription_ids?: string[] } = {};
+    const subscriptionId = input.externalSubscriptionId?.trim();
+    if (subscriptionId) {
+      body.subscription_ids = [subscriptionId];
+    }
+
+    const created = await paddleRequest<{
+      urls?: { general?: { overview?: string | null } };
+    }>(`/customers/${input.externalCustomerId}/portal-sessions`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+
+    if (!created.ok) {
+      return {
+        ok: false,
+        status: created.status,
+        message: created.message,
+      };
+    }
+
+    const portalUrl = created.data.urls?.general?.overview?.trim();
+    if (!portalUrl) {
+      return {
+        ok: false,
+        status: 500,
+        message: "Paddle did not return a billing portal URL.",
+      };
+    }
+
+    return { ok: true, url: portalUrl };
   },
 };
 

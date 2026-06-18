@@ -508,6 +508,13 @@ img { max-width: 100%; display: block; }
     margin-top: 8px;
   }
 
+  .nav-inner:not(:has(.public-nav-links)) .nav-auth-mobile {
+    display: inline-flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
   .nav-inner:not(:has(.public-nav-links)) .nav-actions {
     flex-shrink: 0;
     margin-inline-start: auto;
@@ -518,7 +525,9 @@ img { max-width: 100%; display: block; }
     display: flex !important;
   }
 
-  .nav-inner:not(:has(.public-nav-links)) .nav-cta {
+  .nav-inner:not(:has(.public-nav-links)) .nav-cta,
+  .nav-inner:not(:has(.public-nav-links)) .nav-sign-in,
+  .nav-inner:not(:has(.public-nav-links)) .nav-sign-up {
     display: none;
   }
 
@@ -546,6 +555,24 @@ img { max-width: 100%; display: block; }
 
 .nav-cta-mobile {
   display: none;
+}
+
+.nav-auth-mobile {
+  display: none;
+}
+
+.nav-sign-in {
+  height: 42px;
+  padding: 0 16px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.nav-sign-up {
+  height: 42px;
+  padding: 0 18px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 /* Hero */

@@ -75,6 +75,16 @@ export type DashboardLabels = {
   trialExpiredHint: string;
   trialExpiredEndedOn: string;
   subscriptionPayMonthly: string;
+  subscriptionStatusTitle: string;
+  subscriptionActivePlan: string;
+  subscriptionTrialRemaining: string;
+  subscriptionRenewsOn: string;
+  subscriptionUsageThisMonth: string;
+  subscriptionUsageOf: string;
+  subscriptionManageBilling: string;
+  subscriptionNoBillingYet: string;
+  subscriptionPortalError: string;
+  subscriptionTrialExpiredShort: string;
   alertsEnableTitle: string;
   alertsEnableHint: string;
   alertOnCustomerInquiry: string;
@@ -1079,6 +1089,16 @@ const HE: DashboardLabels = {
     "אחרי 14 ימי ניסיון חינם יש לבחור מנוי חודשי כדי להשאיר את החנות פעילה.",
   trialExpiredEndedOn: "תקופת הניסיון הסתיימה ב־",
   subscriptionPayMonthly: "שלם מנוי חודשי",
+  subscriptionStatusTitle: "סטטוס מנוי",
+  subscriptionActivePlan: "חבילה פעילה",
+  subscriptionTrialRemaining: "ימים לסיום הניסיון",
+  subscriptionRenewsOn: "חידוש ב-",
+  subscriptionUsageThisMonth: "שימוש החודש",
+  subscriptionUsageOf: "מתוך",
+  subscriptionManageBilling: "נהל מנוי וחיובים",
+  subscriptionNoBillingYet: "אין חיובים עדיין — בחרו חבילה למטה",
+  subscriptionPortalError: "לא הצלחנו לפתוח את פורטל החיובים",
+  subscriptionTrialExpiredShort: "תקופת הניסיון הסתיימה",
   alertsEnableTitle: "הפעלת התראות",
   alertsEnableHint: "בחרו על אילו אירועים תרצו לקבל התראה",
   alertOnCustomerInquiry: "התראה על פניית לקוח",
@@ -1665,6 +1685,16 @@ const EN: DashboardLabels = {
     "After your 14-day free trial, choose a monthly plan to keep your store active.",
   trialExpiredEndedOn: "Trial ended on ",
   subscriptionPayMonthly: "Pay monthly subscription",
+  subscriptionStatusTitle: "Subscription status",
+  subscriptionActivePlan: "Active plan",
+  subscriptionTrialRemaining: "Trial days left",
+  subscriptionRenewsOn: "Renews on",
+  subscriptionUsageThisMonth: "This month's usage",
+  subscriptionUsageOf: "of",
+  subscriptionManageBilling: "Manage subscription & billing",
+  subscriptionNoBillingYet: "No billing yet — choose a plan below",
+  subscriptionPortalError: "Could not open the billing portal",
+  subscriptionTrialExpiredShort: "Your free trial has ended",
   alertsEnableTitle: "Enable alerts",
   alertsEnableHint: "Choose which events should trigger a notification",
   alertOnCustomerInquiry: "Alert on customer inquiry",

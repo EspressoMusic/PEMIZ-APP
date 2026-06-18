@@ -14,10 +14,18 @@ export type SubscriptionCheckoutResult =
   | { ok: true; url: string }
   | { ok: false; status: number; message: string };
 
+export type BillingPortalInput = {
+  externalCustomerId: string;
+  externalSubscriptionId?: string | null;
+};
+
 export interface SubscriptionBillingProvider {
   id: BillingProviderId;
   isConfigured(): boolean;
   createCheckoutSession(
     input: SubscriptionCheckoutInput
+  ): Promise<SubscriptionCheckoutResult>;
+  createBillingPortalSession(
+    input: BillingPortalInput
   ): Promise<SubscriptionCheckoutResult>;
 }

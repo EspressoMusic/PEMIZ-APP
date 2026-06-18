@@ -38,7 +38,7 @@ function DashboardSellerDetailsBody({
   const { labels } = useAppLocale();
 
   return (
-    <div className="overflow-hidden rounded-[20px] border border-bakery-border/35 bg-bakery-card/70 p-3 text-center shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)]">
+    <div className="overflow-hidden rounded-[20px] border border-bakery-border/25 bg-[#faf6f0] p-3 text-center">
       <div className="space-y-3">
         <p className="flex items-center justify-center gap-2 text-[12px] font-bold text-bakery-muted">
           <User className="h-3.5 w-3.5" strokeWidth={2.25} />
@@ -68,7 +68,7 @@ function DashboardSellerDetailsBody({
         aria-label={labels.accountDetails}
       >
         <DetailField label={labels.email}>
-          <p className="font-mono text-[14px] text-bakery-ink" dir="ltr">
+          <p className="dashboard-latin-text text-[14px] font-semibold text-bakery-ink" dir="ltr">
             {email}
           </p>
         </DetailField>
@@ -76,7 +76,7 @@ function DashboardSellerDetailsBody({
           <p
             className={`text-[14px] ${
               phone?.trim()
-                ? "font-mono text-bakery-ink"
+                ? "dashboard-latin-text font-semibold text-bakery-ink"
                 : "font-semibold text-bakery-muted"
             }`}
             dir="ltr"
