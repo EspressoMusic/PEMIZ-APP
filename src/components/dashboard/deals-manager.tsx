@@ -5,7 +5,7 @@ import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-co
 import { CelebrationModal } from "@/components/celebration-modal";
 import { ProductImageField } from "@/components/product-image-field";
 import { Button, Input, Badge, Alert, Toggle } from "@/components/ui";
-import { Gift, Info, Package, Plus, Tags, X, Pencil } from "lucide-react";
+import { Gift, Info, Package, Plus, Tags, X, Pencil, ChevronDown } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
@@ -161,6 +161,59 @@ function formatDealProductsSummary(deal: Deal) {
   return (deal.products ?? []).map((p) => p.name).join(" + ");
 }
 
+function getDealProductLines(deal: Deal) {
+  if ((deal.items ?? []).length > 0) {
+    return (deal.items ?? []).map((item) => ({
+      name: item.product?.name ?? "",
+      imageUrl: item.product?.imageUrl ?? null,
+      quantity: Math.max(1, item.quantity ?? 1),
+    }));
+  }
+  return deal.products.map((product) => ({
+    name: product.name,
+    imageUrl: product.imageUrl ?? null,
+    quantity: 1,
+  }));
+}
+
+function DealProductTiles({
+  lines,
+}: {
+  lines: ReturnType<typeof getDealProductLines>;
+}) {
+  if (lines.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap justify-center gap-1.5">
+      {lines.map((line, index) => (
+        <div
+          key={`${line.name}-${index}`}
+          className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] border border-bakery-border/30 bg-[#faf6f0] shadow-[0_1px_4px_rgba(78,52,46,0.08)]"
+          title={line.quantity > 1 ? `${line.name} ×${line.quantity}` : line.name}
+        >
+          {line.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={line.imageUrl}
+              alt={line.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center">
+              <Package className="h-4 w-4 text-bakery-muted" strokeWidth={1.5} />
+            </span>
+          )}
+          {line.quantity > 1 ? (
+            <span className="absolute bottom-0.5 end-0.5 rounded-[6px] bg-bakery-ink/75 px-1 text-[9px] font-bold tabular-nums text-white">
+              ×{line.quantity}
+            </span>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const DealListItem = memo(function DealListItem({
   deal: d,
   labels,
@@ -178,32 +231,22 @@ const DealListItem = memo(function DealListItem({
 }) {
   const [detailOpen, setDetailOpen] = useState(false);
   const productSummary = formatDealProductsSummary(d);
+  const productLines = getDealProductLines(d);
 
   return (
     <>
-      <li className="overflow-hidden rounded-[16px] border border-bakery-border/25 bg-[#faf6f0] shadow-[0_2px_8px_rgba(78,52,46,0.06)]">
-        <div className="flex items-start gap-2 px-3 py-2.5">
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <span
-                className={`inline-flex min-h-[26px] items-center rounded-[10px] border px-2 text-[11px] font-extrabold leading-none ${
-                  d.isActive
-                    ? "border-[#43a047]/35 bg-[#43a047]/12 text-[#2e7d32]"
-                    : "border-[#9a4545]/35 bg-[#9a4545]/10 text-[#9a4545]"
-                }`}
+      <li className="dashboard-deal-list-card overflow-hidden rounded-[16px] border border-bakery-border/25 shadow-[0_2px_8px_rgba(78,52,46,0.06)]">
+        <div className="px-3 py-2.5">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setDetailOpen(true)}
+                className="dashboard-deal-info-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#faf6f0] text-bakery-ink transition hover:bg-bakery-card active:scale-[0.96]"
+                aria-label={`${labels.extras} — ${d.name}`}
               >
-                {d.isActive ? (
-                  <span className="inline-flex items-center gap-1">
-                    <span
-                      className="deal-active-pulse block h-1.5 w-1.5 rounded-full bg-[#43a047]"
-                      aria-hidden
-                    />
-                    {labels.active}
-                  </span>
-                ) : (
-                  labels.dealOff
-                )}
-              </span>
+                <Info className="h-4 w-4" strokeWidth={2.25} />
+              </button>
               <p
                 dir="ltr"
                 className="shrink-0 text-[16px] font-extrabold tabular-nums text-bakery-primary"
@@ -211,23 +254,38 @@ const DealListItem = memo(function DealListItem({
                 {formatMoney(d.dealPrice)}
               </p>
             </div>
+            <span
+              className={`inline-flex min-h-[26px] shrink-0 items-center rounded-[10px] border px-2 text-[11px] font-extrabold leading-none ${
+                d.isActive
+                  ? "border-[#43a047]/35 bg-[#43a047]/12 text-[#2e7d32]"
+                  : "border-[#9a4545]/35 bg-[#9a4545]/10 text-[#9a4545]"
+              }`}
+            >
+              {d.isActive ? (
+                <span className="inline-flex items-center gap-1">
+                  <span
+                    className="deal-active-pulse block h-1.5 w-1.5 rounded-full bg-[#43a047]"
+                    aria-hidden
+                  />
+                  {labels.active}
+                </span>
+              ) : (
+                labels.dealOff
+              )}
+            </span>
+          </div>
+
+          <div className="space-y-2 text-center">
             <p className="text-[15px] font-extrabold leading-snug text-bakery-ink">
               {d.name}
             </p>
-            {productSummary ? (
+            <DealProductTiles lines={productLines} />
+            {productLines.length === 0 && productSummary ? (
               <p className="text-[12px] font-semibold leading-snug text-bakery-muted">
                 {productSummary}
               </p>
             ) : null}
           </div>
-          <button
-            type="button"
-            onClick={() => setDetailOpen(true)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-bakery-border/35 bg-bakery-cream-light/90 text-bakery-ink transition hover:bg-bakery-card active:scale-[0.96]"
-            aria-label={`${labels.extras} — ${d.name}`}
-          >
-            <Info className="h-4 w-4" strokeWidth={2.25} />
-          </button>
         </div>
 
         <div className="flex items-center justify-between gap-2 border-t border-bakery-border/20 px-3 py-2">
@@ -385,6 +443,7 @@ export function DealsManager({
   );
   const [dealRedemptionUnlimited, setDealRedemptionUnlimited] = useState(false);
   const [dealRedemptionCount, setDealRedemptionCount] = useState(1);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
 
   const load = useCallback(async () => {
     if (previewOnly) return;
@@ -420,6 +479,7 @@ export function DealsManager({
     setConfirmDraft(null);
     setDealRedemptionUnlimited(false);
     setDealRedemptionCount(1);
+    setProductPickerOpen(false);
     savingRef.current = false;
     dealFormRef.current?.reset();
   }
@@ -739,42 +799,63 @@ export function DealsManager({
                 ) : (
                   dealSelectedLines.length < MAX_DEAL_PRODUCT_LINES &&
                   pickerProducts.length > 0 && (
-                    <div className="no-scrollbar max-h-[min(40vh,220px)] overflow-y-auto overscroll-contain rounded-[14px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]">
-                      <p className="mb-1.5 px-1 text-[12px] font-bold text-bakery-muted">
-                        {labels.addProduct}
-                      </p>
-                      <ul className="space-y-1">
-                        {pickerProducts.map((p) => (
-                          <li key={p.id}>
-                            <button
-                              type="button"
-                              onClick={() => pickProductForDeal(p.id)}
-                              className="flex w-full items-center gap-2.5 rounded-[12px] px-3 py-2.5 text-start text-[14px] font-extrabold leading-snug text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.99]"
-                            >
-                              {p.imageUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={p.imageUrl}
-                                  alt=""
-                                  className="h-9 w-9 shrink-0 rounded-[8px] object-cover"
-                                />
-                              ) : (
-                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-bakery-card">
-                                  <Package
-                                    className="h-4 w-4 text-bakery-muted"
-                                    strokeWidth={1.5}
+                    <div className="dashboard-deal-product-picker dashboard-form-option-row overflow-hidden rounded-[14px]">
+                      <button
+                        type="button"
+                        onClick={() => setProductPickerOpen((open) => !open)}
+                        className="flex w-full items-center justify-between gap-2 px-2.5 py-2.5 text-start transition active:opacity-90"
+                        aria-expanded={productPickerOpen}
+                      >
+                        <span className="text-[13px] font-bold text-bakery-ink">
+                          {labels.addProduct}
+                        </span>
+                        <ChevronDown
+                          className={`h-5 w-5 shrink-0 text-bakery-ink transition-transform duration-200 ${
+                            productPickerOpen ? "rotate-180" : ""
+                          }`}
+                          strokeWidth={2.25}
+                        />
+                      </button>
+                      <div
+                        className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+                          productPickerOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                        }`}
+                      >
+                        <div className="min-h-0 overflow-hidden">
+                          <ul className="no-scrollbar max-h-[min(40vh,220px)] space-y-1 overflow-y-auto overscroll-contain border-t border-bakery-border/25 px-2 py-2 [-webkit-overflow-scrolling:touch]">
+                            {pickerProducts.map((p) => (
+                              <li key={p.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => pickProductForDeal(p.id)}
+                                  className="flex w-full items-center gap-2.5 rounded-[12px] px-2 py-2 text-start text-[14px] font-extrabold leading-snug text-bakery-ink transition hover:bg-bakery-cream-hover active:scale-[0.99]"
+                                >
+                                  {p.imageUrl ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                      src={p.imageUrl}
+                                      alt=""
+                                      className="h-9 w-9 shrink-0 rounded-[8px] object-cover"
+                                    />
+                                  ) : (
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-bakery-card">
+                                      <Package
+                                        className="h-4 w-4 text-bakery-muted"
+                                        strokeWidth={1.5}
+                                      />
+                                    </span>
+                                  )}
+                                  <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                                  <Plus
+                                    className="h-4 w-4 shrink-0 text-bakery-primary"
+                                    strokeWidth={2.5}
                                   />
-                                </span>
-                              )}
-                              <span className="min-w-0 flex-1 truncate">{p.name}</span>
-                              <Plus
-                                className="h-4 w-4 shrink-0 text-bakery-primary"
-                                strokeWidth={2.5}
-                              />
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
                     </div>
                   )
                 )}

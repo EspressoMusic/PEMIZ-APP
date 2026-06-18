@@ -95,19 +95,27 @@ export function ProductImagesField({
   }
 
   const canAdd = images.length < maxImages;
+  const tileCount = images.length + (canAdd ? 1 : 0);
+  const centerSingleTile = tileCount === 1;
   const slotClass = compact
     ? "aspect-square min-h-[72px]"
     : "aspect-square min-h-[96px]";
+  const singleTileWidth = compact ? "w-[min(100%,132px)]" : "w-[min(100%,168px)]";
+  const tileSizeClass = centerSingleTile ? singleTileWidth : "w-full";
 
   return (
     <div className="w-full text-center">
       <div
-        className={`grid gap-2 ${maxImages > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+        className={
+          centerSingleTile
+            ? "flex justify-center"
+            : "grid grid-cols-2 gap-2"
+        }
       >
         {images.map((url, index) => (
           <div
             key={`${url}-${index}`}
-            className={`relative overflow-hidden rounded-2xl border-[1.5px] border-bakery-border/40 bg-bakery-card ${slotClass}`}
+            className={`relative overflow-hidden rounded-2xl border-[1.5px] border-bakery-border/40 bg-bakery-card ${slotClass} ${tileSizeClass}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -154,7 +162,7 @@ export function ProductImagesField({
               setReplaceIndex(null);
               void handleFile(e.dataTransfer.files[0] ?? null);
             }}
-            className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition ${slotClass} ${
+            className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition ${slotClass} ${tileSizeClass} ${
               compact ? "gap-1 px-2 py-2" : "gap-2 px-3 py-4"
             } ${
               dragOver

@@ -102,15 +102,23 @@ export function DashboardActionSheet({
         ? "max-h-[min(calc(100dvh-1.25rem),720px)]"
         : "max-h-[min(88vh,640px)]";
 
+  const fitContentMaxHeight = backButtonOutside
+    ? "max-h-[min(calc(100dvh-3.5rem),820px)]"
+    : panelMaxHeight;
+
   const backOutside = showBackButton && backButtonOutside;
 
   const wrapperHeightClass = fullViewport
     ? "h-full min-h-0"
-    : panelMaxHeight;
+    : fitContent
+      ? `${fitContentMaxHeight} h-auto overflow-y-auto overscroll-contain`
+      : panelMaxHeight;
 
   const panelHeightClass = fullViewport
     ? "min-h-0 flex-1"
-    : panelMaxHeight;
+    : fitContent
+      ? "h-auto shrink-0"
+      : panelMaxHeight;
 
   const zClass = topLayer ? "z-[130]" : elevated ? "z-[125]" : "z-[80]";
   const backdropPassesThrough = elevated && !topLayer;
@@ -149,7 +157,9 @@ export function DashboardActionSheet({
               ? "rounded-none bakery-action-sheet-panel--fullscreen sm:rounded-[32px]"
               : "rounded-[32px]"
           } ${panelHeightClass} ${
-            fitContent ? "overflow-visible" : "min-h-0 flex-1 overflow-hidden"
+            fitContent
+              ? "overflow-visible"
+              : "min-h-0 flex-1 overflow-hidden"
           } bakery-action-sheet-panel--warm${
             panelClassName ? ` ${panelClassName}` : ""
           }`}

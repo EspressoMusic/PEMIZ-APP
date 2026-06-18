@@ -63,6 +63,16 @@ export function DashboardSettingsView({
       <div className="space-y-2">
         <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <ul className="space-y-2 text-start">
+            {businessType === "STORE" ||
+            businessType === "APPOINTMENTS" ||
+            businessType === "RENTAL" ? (
+              <DashboardStorePanelsSettingsGroup
+                initial={initialStorePanels}
+                previewOnly={previewOnly}
+                businessType={businessType}
+              />
+            ) : null}
+
             <DashboardSellerDetailsCard
               embedded
               ownerName={ownerName}
@@ -104,20 +114,6 @@ export function DashboardSettingsView({
             ) : null}
           </ul>
         </div>
-
-        {(businessType === "STORE" ||
-          businessType === "APPOINTMENTS" ||
-          businessType === "RENTAL") && (
-          <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
-            <ul className="space-y-2 text-start">
-              <DashboardStorePanelsSettingsGroup
-                initial={initialStorePanels}
-                previewOnly={previewOnly}
-                businessType={businessType}
-              />
-            </ul>
-          </div>
-        )}
 
         <DashboardSubscriptionSection previewOnly={previewOnly} />
 

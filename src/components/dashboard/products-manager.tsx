@@ -364,7 +364,7 @@ const ProductCard = memo(function ProductCard({
             />
             <Button
               type="button"
-              className="min-h-[44px] font-extrabold"
+              className="dashboard-form-submit-btn min-h-[44px] font-extrabold"
               disabled={imageUploading}
               onClick={() => void saveImages()}
             >
@@ -818,11 +818,13 @@ export function ProductsManager({
       compact
       warmPanel
       elevated
+      fitContent
+      panelClassName="dashboard-deal-form-sheet"
     >
       <form
         ref={formRef}
         onSubmit={addProduct}
-        className="flex flex-col gap-1.5 overflow-hidden text-start"
+        className="flex flex-col gap-1.5 text-start"
       >
         <Input
           name="name"
@@ -867,7 +869,7 @@ export function ProductsManager({
           onError={setError}
           onUploadingChange={setImageUploading}
         />
-        <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2 text-start">
+        <div className="dashboard-form-option-row flex w-full items-center justify-between gap-2 rounded-[14px] px-2.5 py-2 text-start">
           <span className="text-[13px] font-bold text-bakery-ink">
             {labels.productDiscount}
           </span>
@@ -906,7 +908,7 @@ export function ProductsManager({
         )}
         {!isServices && (
           <>
-            <div className="flex w-full items-center justify-between gap-2 rounded-[14px] border border-bakery-border/35 bg-bakery-card/50 px-2.5 py-2 text-start">
+            <div className="dashboard-form-option-row flex w-full items-center justify-between gap-2 rounded-[14px] px-2.5 py-2 text-start">
               <span className="text-[13px] font-bold text-bakery-ink">
                 {labels.productStock}
               </span>
@@ -935,8 +937,7 @@ export function ProductsManager({
         )}
         <Button
           type="submit"
-          variant="primary"
-          className="mt-0.5 w-full min-h-[42px] rounded-full font-extrabold"
+          className="dashboard-form-submit-btn mt-0.5 w-full min-h-[42px] rounded-full font-extrabold"
           disabled={adding || imageUploading}
         >
           {imageUploading

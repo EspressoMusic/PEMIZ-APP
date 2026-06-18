@@ -57,6 +57,8 @@ export type MarketingCopy = {
   refund: string;
   footerPricing: string;
   toggleTheme: string;
+  menuOpen: string;
+  menuClose: string;
   toggleLocale: string;
   localeEn: string;
   localeHe: string;
@@ -205,6 +207,8 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     refund: "Refund",
     footerPricing: "Pricing",
     toggleTheme: "Toggle light and dark mode",
+    menuOpen: "Open menu",
+    menuClose: "Close menu",
     toggleLocale: "Switch language",
     localeEn: "EN",
     localeHe: "עב",
@@ -352,6 +356,8 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     refund: "החזרים",
     footerPricing: "מחירים",
     toggleTheme: "החלפת מצב בהיר/כהה",
+    menuOpen: "פתיחת תפריט",
+    menuClose: "סגירת תפריט",
     toggleLocale: "החלפת שפה",
     localeEn: "EN",
     localeHe: "עב",

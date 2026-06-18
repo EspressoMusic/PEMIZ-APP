@@ -22,6 +22,8 @@ import {
 } from "@/lib/app-locale";
 import {
   writeDashboardLocaleSession,
+  hydrateDashboardLocale,
+  readDashboardLocaleSession,
 } from "@/lib/dashboard-appearance-session";
 
 type AppLocaleContextValue = {
@@ -55,10 +57,12 @@ export function AppLocaleProvider({
   }, []);
 
   useLayoutEffect(() => {
-    const next = normalizeAppLocale(initialLocale);
+    const next = hydrateDashboardLocale(initialLocale);
     setLocaleState(next);
     applyDocumentLocale(next);
-    writeDashboardLocaleSession(next);
+    if (!readDashboardLocaleSession()) {
+      writeDashboardLocaleSession(next);
+    }
   }, [initialLocale]);
 
   const value = useMemo(

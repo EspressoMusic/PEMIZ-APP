@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import "@/styles/marketing-site.css";
 import { marketingSiteFontClass } from "@/lib/fonts/marketing-fonts";
 import { useMarketingSiteEffects } from "./use-marketing-site-effects";
@@ -66,6 +67,7 @@ export function MarketingSite() {
 
 function MarketingSiteContent() {
   const { locale, toggleLocale, copy } = useMarketingLocale();
+  const [navOpen, setNavOpen] = useState(false);
   const navItems = [
     { id: "home", label: copy.navHome },
     { id: "product", label: copy.navProduct },
@@ -87,6 +89,29 @@ function MarketingSiteContent() {
     footerConfettiActive,
     footerConfettiBurst,
   } = useMarketingSiteEffects();
+
+  useEffect(() => {
+    if (!navOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [navOpen]);
+
+  useEffect(() => {
+    if (!navOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setNavOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navOpen]);
+
+  function goToSection(id: string) {
+    setNavOpen(false);
+    scrollToSection(id);
+  }
 
   return (
     <div
@@ -137,7 +162,7 @@ function MarketingSiteContent() {
             className="logo"
             onClick={(e) => {
               e.preventDefault();
-              scrollToSection("home");
+              goToSection("home");
             }}
           >
             <span className="logo-mark">
@@ -154,7 +179,19 @@ function MarketingSiteContent() {
             </span>
           </a>
 
-          <nav className="nav-links" id="navLinks">
+          {navOpen ? (
+            <button
+              type="button"
+              className="nav-backdrop"
+              aria-label={copy.menuClose}
+              onClick={() => setNavOpen(false)}
+            />
+          ) : null}
+
+          <nav
+            className={`nav-links${navOpen ? " open" : ""}`}
+            id="navLinks"
+          >
             {navItems.map(({ id, label }) => (
               <a
                 key={id}
@@ -162,12 +199,19 @@ function MarketingSiteContent() {
                 className={activeSection === id ? "active" : undefined}
                 onClick={(e) => {
                   e.preventDefault();
-                  scrollToSection(id);
+                  goToSection(id);
                 }}
               >
                 {label}
               </a>
             ))}
+            <button
+              type="button"
+              className="btn btn-primary nav-cta-mobile"
+              onClick={() => goToSection("pricing")}
+            >
+              {copy.startPilot}
+            </button>
           </nav>
 
           <div className="nav-actions">
@@ -195,9 +239,21 @@ function MarketingSiteContent() {
               type="button"
               className="btn btn-primary nav-cta"
               id="startBtn"
-              onClick={() => scrollToSection("pricing")}
+              onClick={() => goToSection("pricing")}
             >
               {copy.startPilot}
+            </button>
+            <button
+              type="button"
+              className={`menu-toggle${navOpen ? " open" : ""}`}
+              aria-expanded={navOpen}
+              aria-controls="navLinks"
+              aria-label={navOpen ? copy.menuClose : copy.menuOpen}
+              onClick={() => setNavOpen((open) => !open)}
+            >
+              <span />
+              <span />
+              <span />
             </button>
           </div>
         </div>

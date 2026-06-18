@@ -2,6 +2,7 @@ import type { MarketingLocale } from "@/lib/marketing-locale";
 import {
   getSubscriptionPlan,
   planPrice,
+  usdPriceToLocaleAmount,
   type SubscriptionPlanId,
 } from "@/lib/subscription-plans";
 
@@ -41,7 +42,7 @@ export function MarketingFixedPlanPrice({
   return (
     <div className="price-amount" dir="ltr">
       <span className="currency">{symbol}</span>
-      <strong>{Math.round(amount)}</strong>
+      <strong>{Math.round(usdPriceToLocaleAmount(amount, locale))}</strong>
       <span className="period">{period}</span>
     </div>
   );

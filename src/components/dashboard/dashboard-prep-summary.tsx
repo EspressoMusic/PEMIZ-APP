@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Package, X } from "lucide-react";
-import { Button } from "@/components/ui";
 import {
   customerProfileInitial,
   useDashboardCustomerProfile,
@@ -339,14 +338,13 @@ export function DashboardPrepSummary({
 
         {products.length > 0 ? (
           <div className="shrink-0 border-t border-bakery-border/20 px-3 py-2.5 sm:px-4">
-            <Button
+            <button
               type="button"
-              variant="primary"
-              className="w-full min-h-[44px] rounded-full font-extrabold"
+              className="dashboard-icon-tile-dark flex w-full min-h-[44px] items-center justify-center rounded-[14px] px-4 text-[15px] font-extrabold text-[var(--bakery-on-primary)] transition hover:opacity-95 active:scale-[0.99]"
               onClick={() => setSummaryOpen(true)}
             >
               {labels.prepSummaryButton}
-            </Button>
+            </button>
           </div>
         ) : null}
       </div>

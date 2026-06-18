@@ -130,7 +130,7 @@ export function ImageCropModal({
           </Button>
           <Button
             type="button"
-            className="min-h-[44px] flex-1 font-extrabold"
+            className="dashboard-form-submit-btn min-h-[44px] flex-1 font-extrabold"
             disabled={processing || !croppedAreaPixels}
             onClick={() => void handleConfirm()}
           >

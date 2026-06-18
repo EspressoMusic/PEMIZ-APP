@@ -501,7 +501,7 @@ export const DEV_STORE_BUSINESS = {
     },
   ],
   storeTheme: "calm",
-  storeLocale: "en" as const,
+  storeLocale: "he" as const,
   storePolicy:
     "Deliveries within the city Sun–Thu. Order by 6:00 PM for next-morning delivery.",
   storeTerms:
@@ -585,7 +585,7 @@ export const DEV_APPOINTMENTS_BUSINESS = {
     },
   ],
   storeTheme: "calm",
-  storeLocale: "en" as const,
+  storeLocale: "he" as const,
   storePolicy: "Appointments Sun–Thu. Arriving more than 10 minutes late may cancel the appointment.",
   storeTerms: "Cancel an appointment up to 24 hours before the scheduled time at no charge.",
   appointmentSlotGapMinutes: 0,
@@ -913,7 +913,7 @@ export const DEV_RENTAL_BUSINESS = {
     },
   ],
   storeTheme: "calm",
-  storeLocale: "en" as const,
+  storeLocale: "he" as const,
   storePolicy: "Rentals Sun–Fri. Check-in from 3:00 PM, check-out by 11:00 AM.",
   storeTerms: "Cancel up to 48 hours before the rental start.",
   appointmentSlotGapMinutes: 0,
