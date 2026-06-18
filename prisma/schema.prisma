@@ -87,7 +87,7 @@ model Business {
   description     String?
   type            String
   storeTheme             String   @default("calm")
-  storeLocale            String   @default("en")
+  storeLocale            String   @default("he")
   storePolicy            String?
   storeTerms             String?
   storeBroadcast         String?

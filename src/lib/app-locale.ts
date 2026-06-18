@@ -11,8 +11,7 @@ export type AppLocale = CustomerLocale;
 export type { DashboardLabels };
 
 export function normalizeAppLocale(value: string | null | undefined): AppLocale {
-  void value;
-  return resolveSiteLocale();
+  return resolveSiteLocale(value);
 }
 
 export function localeTag(locale: AppLocale): string {

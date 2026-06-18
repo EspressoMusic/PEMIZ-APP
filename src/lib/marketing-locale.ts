@@ -69,6 +69,42 @@ export type MarketingCopy = {
   bottomHome: string;
   bottomPricing: string;
   bottomStore: string;
+  authSignInTitle: string;
+  authCreateAccountTitle: string;
+  authFullName: string;
+  authMobilePhone: string;
+  authPassword: string;
+  authPhone: string;
+  authForgotPassword: string;
+  authForgotPasswordHint: string;
+  authSubmitSignIn: string;
+  authSubmitSignUp: string;
+  authLoading: string;
+  authSignUpTerms: string;
+  authAlreadyRegistered: string;
+  authNoAccount: string;
+  authSignUpClosedTitle: string;
+  authSignUpClosedSub: string;
+  authSignUpClosedAlert: string;
+  authGoToSignIn: string;
+  authPasswordResetInfo: string;
+  authLoginError: string;
+  authSignupError: string;
+  authServerError: string;
+  authNetworkError: string;
+  onboardTitle: string;
+  onboardBusinessName: string;
+  onboardDescription: string;
+  onboardStoreType: string;
+  onboardProductStore: string;
+  onboardAppointments: string;
+  onboardAcceptTermsPrefix: string;
+  onboardAcceptTermsMiddle: string;
+  onboardAcceptTermsSuffix: string;
+  onboardAcceptTermsAria: string;
+  onboardSubmit: string;
+  onboardCreating: string;
+  onboardTermsError: string;
 };
 
 export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
@@ -182,6 +218,44 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     bottomHome: "Home",
     bottomPricing: "Pricing",
     bottomStore: "Store",
+    authSignInTitle: "Sign in",
+    authCreateAccountTitle: "Create account",
+    authFullName: "Full name",
+    authMobilePhone: "Mobile phone",
+    authPassword: "Password",
+    authPhone: "Phone",
+    authForgotPassword: "Forgot password?",
+    authForgotPasswordHint: "Support will send you a new password",
+    authSubmitSignIn: "Sign in",
+    authSubmitSignUp: "Sign up",
+    authLoading: "One moment...",
+    authSignUpTerms:
+      "By signing up you agree to the Terms of Service and Privacy Policy",
+    authAlreadyRegistered: "Already registered?",
+    authNoAccount: "No account?",
+    authSignUpClosedTitle: "Sign-up is closed",
+    authSignUpClosedSub: "The platform is open to existing users only",
+    authSignUpClosedAlert:
+      "New stores cannot be opened right now. If you already have an account, sign in.",
+    authGoToSignIn: "Go to sign in",
+    authPasswordResetInfo: "Password updated — you can sign in with your new password",
+    authLoginError: "Could not sign in — check phone and password",
+    authSignupError: "Could not create account",
+    authServerError: "Temporary server issue. Please try again later.",
+    authNetworkError: "No server connection — check your internet and try again",
+    onboardTitle: "Open your business",
+    onboardBusinessName: "Business name",
+    onboardDescription: "Short description",
+    onboardStoreType: "Store type",
+    onboardProductStore: "Product store",
+    onboardAppointments: "Appointments",
+    onboardAcceptTermsPrefix: "I have read and agree to the",
+    onboardAcceptTermsMiddle: "and",
+    onboardAcceptTermsSuffix: ".",
+    onboardAcceptTermsAria: "Accept terms and privacy policy",
+    onboardSubmit: "Open store",
+    onboardCreating: "Creating...",
+    onboardTermsError: "Please accept the Terms of Service and Privacy Policy",
   },
   he: {
     loading: "טוען את BiziLink...",
@@ -292,13 +366,51 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     bottomHome: "בית",
     bottomPricing: "מחירים",
     bottomStore: "חנות",
+    authSignInTitle: "התחברות",
+    authCreateAccountTitle: "יצירת חשבון",
+    authFullName: "שם מלא",
+    authMobilePhone: "טלפון נייד",
+    authPassword: "סיסמה",
+    authPhone: "טלפון",
+    authForgotPassword: "שכחת סיסמה?",
+    authForgotPasswordHint: "התמיכה תשלח לך סיסמה חדשה",
+    authSubmitSignIn: "התחברות",
+    authSubmitSignUp: "הרשמה",
+    authLoading: "רגע...",
+    authSignUpTerms:
+      "בהרשמה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות",
+    authAlreadyRegistered: "כבר רשום?",
+    authNoAccount: "אין חשבון?",
+    authSignUpClosedTitle: "ההרשמה סגורה",
+    authSignUpClosedSub: "הפלטפורמה פתוחה למשתמשים קיימים בלבד",
+    authSignUpClosedAlert:
+      "לא ניתן לפתוח חנויות חדשות כרגע. אם יש לך חשבון, התחבר.",
+    authGoToSignIn: "מעבר להתחברות",
+    authPasswordResetInfo: "הסיסמה עודכנה — אפשר להתחבר עם הסיסמה החדשה",
+    authLoginError: "לא הצלחנו להתחבר — בדוק טלפון וסיסמה",
+    authSignupError: "לא הצלחנו ליצור חשבון",
+    authServerError: "תקלה זמנית בשרת. נסה שוב מאוחר יותר.",
+    authNetworkError: "אין חיבור לשרת — בדוק את האינטרנט ונסה שוב",
+    onboardTitle: "פתיחת העסק שלך",
+    onboardBusinessName: "שם העסק",
+    onboardDescription: "תיאור קצר",
+    onboardStoreType: "סוג חנות",
+    onboardProductStore: "חנות מוצרים",
+    onboardAppointments: "תורים",
+    onboardAcceptTermsPrefix: "קראתי ואני מסכים/ה ל",
+    onboardAcceptTermsMiddle: "ול",
+    onboardAcceptTermsSuffix: ".",
+    onboardAcceptTermsAria: "אישור תנאים ומדיניות פרטיות",
+    onboardSubmit: "פתיחת חנות",
+    onboardCreating: "יוצר...",
+    onboardTermsError: "יש לאשר את תנאי השימוש ומדיניות הפרטיות",
   },
 };
 
 export function normalizeMarketingLocale(
   value: string | null | undefined
 ): MarketingLocale {
-  return value === "he" ? "he" : "en";
+  return value === "en" ? "en" : "he";
 }
 
 export function applyMarketingLocale(locale: MarketingLocale) {

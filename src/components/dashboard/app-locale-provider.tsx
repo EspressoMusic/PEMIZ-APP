@@ -38,7 +38,7 @@ const AppLocaleContext = createContext<AppLocaleContextValue | null>(null);
 
 export function AppLocaleProvider({
   children,
-  initialLocale = "en",
+  initialLocale = "he",
 }: {
   children: ReactNode;
   initialLocale?: string | null;
@@ -55,9 +55,10 @@ export function AppLocaleProvider({
   }, []);
 
   useLayoutEffect(() => {
-    setLocaleState("en");
-    applyDocumentLocale("en");
-    writeDashboardLocaleSession("en");
+    const next = normalizeAppLocale(initialLocale);
+    setLocaleState(next);
+    applyDocumentLocale(next);
+    writeDashboardLocaleSession(next);
   }, [initialLocale]);
 
   const value = useMemo(
@@ -81,7 +82,7 @@ export function AppLocaleProvider({
 export function useAppLocale() {
   const ctx = useContext(AppLocaleContext);
   if (!ctx) {
-    const locale: AppLocale = "en";
+    const locale: AppLocale = "he";
     return {
       locale,
       labels: getDashboardLabels(locale),

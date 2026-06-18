@@ -1,10 +1,11 @@
 import type { CustomerLocale } from "@/lib/customer-preferences";
 
-/** Site-wide UI language — English only for now. */
-export const SITE_LOCALE: CustomerLocale = "en";
+/** Default UI language when no preference is stored. */
+export const SITE_LOCALE: CustomerLocale = "he";
 
 export function resolveSiteLocale(
-  _value?: string | null | undefined
+  value?: string | null | undefined
 ): CustomerLocale {
+  if (value === "en") return "en";
   return SITE_LOCALE;
 }

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { generateUniqueBusinessSlug } from "@/lib/business";
+import { readPreferredLocaleFromCookies } from "@/lib/preferred-locale";
 import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 import {
   syncBusinessTrialLock,
@@ -36,6 +37,7 @@ export async function POST(req: Request) {
   }
 
   const slug = await generateUniqueBusinessSlug(parsed.data.name);
+  const storeLocale = await readPreferredLocaleFromCookies();
 
   const business = await prisma.business.create({
     data: {
@@ -43,7 +45,7 @@ export async function POST(req: Request) {
       slug,
       description: parsed.data.description,
       type: parsed.data.type,
-      storeLocale: "en",
+      storeLocale,
       ownerId: user.id,
       termsAcceptedAt: new Date(),
       isActive: true,

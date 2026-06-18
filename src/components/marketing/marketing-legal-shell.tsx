@@ -13,8 +13,8 @@ export function MarketingLegalShell({ markdown }: { markdown: string }) {
     <div
       className={marketingPublicPageClassName()}
       data-theme="dark"
-      lang="en"
-      dir="ltr"
+      lang="he"
+      dir="rtl"
       style={{ cursor: "auto", minHeight: "100dvh" }}
     >
       <MarketingPublicHeader />

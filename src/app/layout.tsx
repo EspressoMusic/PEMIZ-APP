@@ -49,15 +49,15 @@ export default async function RootLayout({
   );
   const locale = parseLocaleCookie(
     cookieStore.get("linky-dashboard-locale")?.value
-  );
+  ) ?? "he";
 
   return (
     <html
-      lang={locale ?? "en"}
-      dir="ltr"
+      lang={locale}
+      dir={locale === "en" ? "ltr" : "rtl"}
       className="h-full overflow-x-hidden antialiased"
       data-store-theme={theme ?? undefined}
-      data-locale={locale ?? undefined}
+      data-locale={locale}
       suppressHydrationWarning
     >
       <body

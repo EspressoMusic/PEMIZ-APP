@@ -17,7 +17,7 @@ import {
   type MarketingCopy,
   type MarketingLocale,
 } from "@/lib/marketing-locale";
-import { writeDashboardLocaleCookie } from "@/lib/dashboard-appearance-boot";
+import { writeDashboardLocaleSession } from "@/lib/dashboard-appearance-session";
 
 type MarketingLocaleContextValue = {
   locale: MarketingLocale;
@@ -32,7 +32,7 @@ const MarketingLocaleContext = createContext<MarketingLocaleContextValue | null>
 );
 
 export function MarketingLocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<MarketingLocale>("en");
+  const [locale, setLocaleState] = useState<MarketingLocale>("he");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -41,13 +41,14 @@ export function MarketingLocaleProvider({ children }: { children: ReactNode }) {
     );
     setLocaleState(saved);
     applyMarketingLocale(saved);
+    writeDashboardLocaleSession(saved);
     setReady(true);
   }, []);
 
   const setLocale = useCallback((next: MarketingLocale) => {
     setLocaleState(next);
     localStorage.setItem(MARKETING_LOCALE_KEY, next);
-    writeDashboardLocaleCookie(next);
+    writeDashboardLocaleSession(next);
     applyMarketingLocale(next);
   }, []);
 
@@ -55,7 +56,7 @@ export function MarketingLocaleProvider({ children }: { children: ReactNode }) {
     setLocaleState((prev) => {
       const next: MarketingLocale = prev === "en" ? "he" : "en";
       localStorage.setItem(MARKETING_LOCALE_KEY, next);
-      writeDashboardLocaleCookie(next);
+      writeDashboardLocaleSession(next);
       applyMarketingLocale(next);
       return next;
     });

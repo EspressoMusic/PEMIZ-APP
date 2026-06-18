@@ -57,7 +57,7 @@ export function DashboardShellClient({
   businessType,
   businessId,
   basePath = "/dashboard",
-  storeLocale = "en",
+  storeLocale = "he",
   storeTheme = "calm",
 }: {
   children: ReactNode;
