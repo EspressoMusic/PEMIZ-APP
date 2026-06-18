@@ -8,6 +8,11 @@ export function DashboardShell({
   basePath = "/dashboard",
   storeLocale = "he",
   storeTheme = "calm",
+  orderScheduleEnabled = false,
+  orderSchedule = null,
+  platformOwnerMessage = null,
+  platformOwnerMessageAt = null,
+  platformOwnerMessageReadAt = null,
 }: {
   children: ReactNode;
   businessType: string;
@@ -15,6 +20,11 @@ export function DashboardShell({
   basePath?: string;
   storeLocale?: string | null;
   storeTheme?: string | null;
+  orderScheduleEnabled?: boolean;
+  orderSchedule?: string | null;
+  platformOwnerMessage?: string | null;
+  platformOwnerMessageAt?: string | null;
+  platformOwnerMessageReadAt?: string | null;
 }) {
   return (
     <DashboardShellClient
@@ -23,6 +33,11 @@ export function DashboardShell({
       basePath={basePath}
       storeLocale={storeLocale}
       storeTheme={storeTheme}
+      orderScheduleEnabled={orderScheduleEnabled}
+      orderSchedule={orderSchedule}
+      platformOwnerMessage={platformOwnerMessage}
+      platformOwnerMessageAt={platformOwnerMessageAt}
+      platformOwnerMessageReadAt={platformOwnerMessageReadAt}
     >
       {children}
     </DashboardShellClient>

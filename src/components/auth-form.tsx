@@ -7,6 +7,7 @@ import { Button, Input, Alert, Panel, PageTitle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { useMarketingLocale } from "@/components/marketing/marketing-locale-provider";
+import { localizeAuthError } from "@/lib/auth-messages";
 
 export function AuthForm({
   mode,
@@ -17,7 +18,7 @@ export function AuthForm({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { copy } = useMarketingLocale();
+  const { copy, locale } = useMarketingLocale();
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,18 +69,21 @@ export function AuthForm({
 
       if (!res.ok) {
         if (res.status >= 500 && data.error) {
-          setError(data.error);
+          setError(localizeAuthError(data.error, locale));
           return;
         }
         setError(
-          data.error ??
-            (res.status === 401
-              ? mode === "login"
-                ? copy.authLoginError
-                : copy.authSignupError
-              : res.status >= 500
-                ? copy.authServerError
-                : copy.authSignupError)
+          localizeAuthError(
+            data.error ??
+              (res.status === 401
+                ? mode === "login"
+                  ? copy.authLoginError
+                  : copy.authSignupError
+                : res.status >= 500
+                  ? copy.authServerError
+                  : copy.authSignupError),
+            locale
+          )
         );
         return;
       }
@@ -168,12 +172,13 @@ export function AuthForm({
                 >
                   {copy.authForgotPassword}
                 </Link>
-                <span className="mt-1 block text-[12px] font-medium text-bakery-muted">
-                  {copy.authForgotPasswordHint}
-                </span>
               </p>
             ) : null}
-            <Button type="submit" className="mt-2 w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home mt-2 !w-full !rounded-full !shadow-none hover:!opacity-100"
+              disabled={loading}
+            >
               {loading
                 ? copy.authLoading
                 : mode === "login"

@@ -1,53 +1,76 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
-import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/dashboard-appointments-calendar-settings";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
+import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 
-const STORAGE_PREFIX = "linky_appointments_setup_done:";
-
-function storageKey(businessId: string) {
-  return `${STORAGE_PREFIX}${businessId}`;
+function readWelcomeFromUrl() {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("welcome") === "1";
 }
 
-function AppointmentStoreWelcomeSetupInner({
-  businessId,
+export function AppointmentStoreWelcomeSetup({
   businessType,
   basePath = "/dashboard",
+  orderScheduleEnabled = false,
+  orderSchedule = null,
 }: {
   businessId: string;
   businessType: string;
   basePath?: string;
+  orderScheduleEnabled?: boolean;
+  orderSchedule?: string | null;
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { labels } = useAppLocale();
-  const welcome = searchParams.get("welcome") === "1";
-  const [open, setOpen] = useState(false);
+  const [welcome, setWelcome] = useState(false);
+  const scheduleConfigured = useMemo(
+    () =>
+      isAppointmentStoreScheduleConfigured({
+        businessType,
+        orderScheduleEnabled,
+        orderSchedule,
+      }),
+    [businessType, orderScheduleEnabled, orderSchedule]
+  );
+  const required = !scheduleConfigured;
+  const [open, setOpen] = useState(required);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const scheduleSaveRef = useRef<(() => Promise<boolean>) | null>(null);
   const calendarSaveRef = useRef<(() => Promise<boolean>) | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!isScheduleLikeBusinessType(businessType)) return;
-    if (!welcome) return;
-    if (localStorage.getItem(storageKey(businessId)) === "1") return;
-    setOpen(true);
-  }, [businessId, businessType, welcome]);
+    setWelcome(readWelcomeFromUrl());
+  }, []);
 
-  const dismiss = useCallback(() => {
-    localStorage.setItem(storageKey(businessId), "1");
+  useEffect(() => {
+    if (!isScheduleLikeBusinessType(businessType)) return;
+    setOpen(!scheduleConfigured);
+  }, [businessType, scheduleConfigured]);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  const finish = useCallback(() => {
     setOpen(false);
     if (welcome) {
       router.replace(basePath);
     }
-  }, [businessId, welcome, router, basePath]);
+    router.refresh();
+  }, [welcome, router, basePath]);
 
   const handleContinue = useCallback(async () => {
     setSaveError("");
@@ -67,84 +90,76 @@ function AppointmentStoreWelcomeSetupInner({
         setSaveError(labels.saveError);
         return;
       }
-      dismiss();
+      finish();
     } finally {
       setSaving(false);
     }
-  }, [dismiss, labels.saveError]);
+  }, [finish, labels.saveError]);
 
-  if (!isScheduleLikeBusinessType(businessType)) return null;
+  if (!isScheduleLikeBusinessType(businessType) || !open) return null;
 
-  return (
-    <DashboardActionSheet
-      open={open}
-      onClose={dismiss}
-      title={labels.appointmentStoreSetupTitle}
-      ariaLabel={labels.appointmentStoreSetupTitle}
-      placement="center"
-      expanded
-      elevated
-      compact
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-bakery-ink/55 p-3 sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="appointment-store-setup-title"
     >
-      <div className="space-y-5 pb-2 text-start">
-        <p className="text-[14px] font-semibold leading-[1.55] text-bakery-muted">
-          {labels.appointmentStoreSetupIntro}
-        </p>
+      <div
+        className={`dashboard-surface dashboard-card bakery-action-sheet-panel dashboard-appointments-calendar-sheet ${DASHBOARD_MOBILE_STACK} flex max-h-[min(calc(100dvh-1.5rem),760px)] w-full flex-col overflow-hidden rounded-[28px] shadow-[var(--shadow-bakery-panel)]`}
+      >
+        <div className="shrink-0 border-b border-bakery-border/25 px-4 py-3 text-center">
+          <h2
+            id="appointment-store-setup-title"
+            className="text-[18px] font-extrabold text-bakery-ink"
+          >
+            {labels.appointmentStoreSetupTitle}
+          </h2>
+        </div>
 
-        <DashboardAppointmentsCalendarSettings
-          inline
-          saveHandleRef={calendarSaveRef}
-          scheduleSaveHandleRef={scheduleSaveRef}
-          workingDays={{
-            initialEnabled: false,
-            initialScheduleJson: null,
-          }}
-        />
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+          <div className="space-y-4 text-start">
+            <p className="text-[14px] font-semibold leading-[1.55] text-bakery-muted">
+              {labels.appointmentStoreSetupIntro}
+            </p>
 
-        {saveError ? (
-          <p className="rounded-full border border-[#b85c5c]/35 bg-[#faf0ee] px-4 py-2 text-center text-[13px] font-bold text-[#9a4545]">
-            {saveError}
-          </p>
-        ) : null}
+            <DashboardAppointmentsCalendarSettings
+              inline
+              saveHandleRef={calendarSaveRef}
+              scheduleSaveHandleRef={scheduleSaveRef}
+              basePath={basePath}
+              workingDays={{
+                initialEnabled: orderScheduleEnabled,
+                initialScheduleJson: orderSchedule,
+              }}
+            />
 
-        <div className="flex flex-col gap-2 pt-1">
+            {saveError ? (
+              <p className="rounded-full border border-[#b85c5c]/35 bg-[#faf0ee] px-4 py-2 text-center text-[13px] font-bold text-[#9a4545]">
+                {saveError}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="shrink-0 border-t border-bakery-border/20 px-4 py-3">
           <Button
             type="button"
-            className="w-full min-h-[44px] rounded-full font-extrabold"
+            className="bakery-cta-3d bakery-cta-3d--primary w-full !max-w-none min-h-[48px] !rounded-full !shadow-none font-extrabold hover:!opacity-100"
             disabled={saving}
             onClick={() => void handleContinue()}
           >
-            {saving ? labels.saving : labels.appointmentStoreSetupContinue}
+            {saving
+              ? labels.saving
+              : welcome
+                ? labels.appointmentStoreSetupContinue
+                : labels.save}
           </Button>
-          <button
-            type="button"
-            onClick={dismiss}
-            className="min-h-[40px] text-[14px] font-bold text-bakery-muted transition hover:text-bakery-ink"
-          >
-            {labels.sellerGuideSkip}
-          </button>
         </div>
       </div>
-    </DashboardActionSheet>
-  );
-}
-
-export function AppointmentStoreWelcomeSetup({
-  businessId,
-  businessType,
-  basePath = "/dashboard",
-}: {
-  businessId: string;
-  businessType: string;
-  basePath?: string;
-}) {
-  return (
-    <Suspense fallback={null}>
-      <AppointmentStoreWelcomeSetupInner
-        businessId={businessId}
-        businessType={businessType}
-        basePath={basePath}
-      />
-    </Suspense>
+    </div>,
+    document.body
   );
 }

@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import {
+  refreshSessionOnResponse,
+  SESSION_COOKIE_NAME,
+  verifySessionToken,
+} from "@/lib/auth-session";
+
 import {
   buildStudioGateToken,
   getStudioAccessPath,
@@ -9,8 +14,6 @@ import {
   verifyStudioGateToken,
 } from "@/lib/studio-access";
 
-const SESSION_COOKIE = "linky_session";
-
 const protectedPrefixes = [
   "/dashboard",
   "/verify-email",
@@ -18,12 +21,6 @@ const protectedPrefixes = [
   "/pending-approval",
   "/trial-expired",
 ];
-
-function getSecret() {
-  return new TextEncoder().encode(
-    process.env.SESSION_SECRET ?? "linky-dev-secret-change-in-production-32chars-min"
-  );
-}
 
 function hasStudioGate(request: NextRequest) {
   const token = request.cookies.get(STUDIO_GATE_COOKIE)?.value;
@@ -74,14 +71,16 @@ export async function middleware(request: NextRequest) {
   const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
   if (!isProtected) return NextResponse.next();
 
-  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   try {
-    await jwtVerify(token, getSecret());
-    return NextResponse.next();
+    const { session, exp } = await verifySessionToken(token);
+    let response = NextResponse.next();
+    response = await refreshSessionOnResponse(response, session, exp);
+    return response;
   } catch {
     return NextResponse.redirect(new URL("/login", request.url));
   }

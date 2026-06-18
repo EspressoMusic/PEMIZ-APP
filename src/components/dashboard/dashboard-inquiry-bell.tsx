@@ -83,7 +83,7 @@ export function DashboardInquiryBell({
   basePath = "/dashboard",
   previewOnly = false,
   businessType = "STORE",
-  darkTile = false,
+  darkTile = true,
 }: {
   businessSlug: string;
   inquiriesHref?: string;
@@ -657,7 +657,7 @@ export function DashboardInquiryBell({
         onClick={openPanel}
         className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] transition ${
           darkTile
-            ? "bg-bakery-primary shadow-[var(--shadow-bakery-btn)] hover:opacity-95 [&_svg]:text-bakery-on-primary"
+            ? "dashboard-icon-tile-dark hover:opacity-95"
             : "bakery-icon-tile"
         } ${hasAlerts ? "animate-bell-wiggle" : ""}`}
         aria-label={

@@ -14,6 +14,8 @@ export function DevRentalSellerShell({ children }: { children: ReactNode }) {
         basePath={shell.basePath}
         storeLocale={shell.storeLocale}
         storeTheme={shell.storeTheme}
+        orderScheduleEnabled={shell.orderScheduleEnabled}
+        orderSchedule={shell.orderSchedule}
       >
         <p className="mb-1 shrink-0 rounded-[12px] border border-bakery-primary/20 bg-bakery-card/70 px-2.5 py-1 text-center text-[10px] font-bold leading-snug text-bakery-muted">
           חנות השכרה — תצוגת דמו נפרדת ממוצרים ומפגישות

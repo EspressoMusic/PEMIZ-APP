@@ -4,21 +4,24 @@ import { jsonError, jsonInfrastructureError, jsonOk, jsonServerError } from "@/l
 import { studioConsolePath } from "@/lib/studio-access";
 import { databaseConfigHint, isDatabaseConfigured } from "@/lib/db-env";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
-import { loginSchema, zodFirstError } from "@/lib/validation/schemas";
+import { loginSchemaForLocale, zodFirstError } from "@/lib/validation/schemas";
 import {
   authenticateOwnerLogin,
   findLoginCandidates,
   resolveOwnerBusiness,
 } from "@/lib/owner-login";
+import { getAuthMessages, readLocaleFromRequest } from "@/lib/auth-messages";
 
 export async function POST(req: Request) {
+  const locale = readLocaleFromRequest(req);
+  const msg = getAuthMessages(locale);
   const limited = await enforceRateLimit(req, "auth:login", 10, 15 * 60 * 1000);
   if (limited) return limited;
 
   const body = await req.json().catch(() => null);
-  const parsed = loginSchema.safeParse(body);
+  const parsed = loginSchemaForLocale(locale).safeParse(body);
   if (!parsed.success) {
-    return jsonError(zodFirstError(parsed), 400);
+    return jsonError(zodFirstError(parsed, locale), 400);
   }
 
   if (!isDatabaseConfigured()) {
@@ -35,9 +38,9 @@ export async function POST(req: Request) {
     if (!user) {
       const candidates = await findLoginCandidates(identifier);
       if (candidates.length === 0) {
-        return jsonError("No account found with this phone number", 401);
+        return jsonError(msg.noAccountFound, 401);
       }
-      return jsonError("Incorrect password", 401);
+      return jsonError(msg.incorrectPassword, 401);
     }
 
     const business = await resolveOwnerBusiness(user);

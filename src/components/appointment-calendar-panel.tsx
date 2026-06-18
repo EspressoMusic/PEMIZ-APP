@@ -9,16 +9,16 @@ export type AppointmentMonthCell = {
 };
 
 export const APPOINTMENT_DAY_FRAME =
-  "relative flex h-full min-h-[2.25rem] w-full max-h-[3.25rem] items-center justify-center rounded-[10px] border-[2px] text-[15px] font-extrabold transition sm:max-h-[3.5rem] sm:text-[16px]";
+  "relative flex h-full min-h-[2.25rem] w-full max-h-[3.25rem] items-center justify-center rounded-[10px] border-[2px] text-[15px] font-extrabold text-bakery-ink transition sm:max-h-[3.5rem] sm:text-[16px]";
 
 export const APPOINTMENT_DAY_FRAME_SQUARE =
-  "relative flex aspect-square w-full items-center justify-center rounded-[12px] border-[2px] text-center text-[17px] font-extrabold leading-none tabular-nums transition sm:text-[18px]";
+  "relative flex aspect-square w-full items-center justify-center rounded-[12px] border-[2px] text-center text-[17px] font-extrabold leading-none tabular-nums text-bakery-ink transition sm:text-[18px]";
 
 export const APPOINTMENT_DAY_FRAME_SQUARE_LARGE =
-  "relative flex aspect-square w-full items-center justify-center rounded-[14px] border-[2.5px] text-center text-[20px] font-extrabold leading-none tabular-nums transition sm:text-[22px]";
+  "relative flex aspect-square w-full items-center justify-center rounded-[14px] border-[2.5px] text-center text-[20px] font-extrabold leading-none tabular-nums text-bakery-ink transition sm:text-[22px]";
 
 export const APPOINTMENT_DAY_FRAME_SQUARE_LARGE_FILL =
-  "relative flex h-full min-h-0 w-full items-center justify-center rounded-[14px] border-[2.5px] text-center text-[20px] font-extrabold leading-none tabular-nums transition sm:text-[22px]";
+  "relative flex h-full min-h-0 w-full items-center justify-center rounded-[14px] border-[2.5px] text-center text-[20px] font-extrabold leading-none tabular-nums text-bakery-ink transition sm:text-[22px]";
 
 export const APPOINTMENT_DAY_FRAME_COMPACT =
   "relative flex h-full min-h-[2.75rem] w-full items-center justify-center rounded-[12px] border-[2px] text-[16px] font-extrabold transition sm:min-h-[3rem] sm:text-[17px]";

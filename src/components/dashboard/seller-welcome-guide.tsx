@@ -24,6 +24,9 @@ function formatStepCounter(
     .replace("{total}", String(total));
 }
 
+const GUIDE_PRIMARY_BTN =
+  "bakery-cta-3d bakery-cta-3d--primary !max-w-none min-h-[44px] !rounded-full !shadow-none font-extrabold hover:!opacity-100";
+
 function WelcomeGuideModal({
   businessType,
   onClose,
@@ -183,7 +186,7 @@ function WelcomeGuideModal({
             {isLast ? (
               <Button
                 type="button"
-                className={`min-h-[44px] font-extrabold ${step > 0 ? "flex-[2]" : "w-full"}`}
+                className={`${GUIDE_PRIMARY_BTN} ${step > 0 ? "flex-[2]" : "w-full"}`}
                 onClick={onClose}
               >
                 {labels.sellerGuideFinish}
@@ -191,7 +194,7 @@ function WelcomeGuideModal({
             ) : (
               <Button
                 type="button"
-                className={`min-h-[44px] font-extrabold ${step > 0 ? "flex-[2]" : "w-full"}`}
+                className={`${GUIDE_PRIMARY_BTN} ${step > 0 ? "flex-[2]" : "w-full"}`}
                 onClick={() => setStep((s) => s + 1)}
               >
                 {labels.sellerGuideNext}
@@ -217,12 +220,14 @@ function SellerWelcomeGuideInner({
   businessType,
   basePath = "/dashboard",
   forceStart = false,
+  appointmentScheduleConfigured = true,
   children,
 }: {
   businessId: string;
   businessType: string;
   basePath?: string;
   forceStart?: boolean;
+  appointmentScheduleConfigured?: boolean;
   children?: ReactNode;
 }) {
   const router = useRouter();
@@ -255,11 +260,27 @@ function SellerWelcomeGuideInner({
       return;
     }
 
+    if (
+      isScheduleLikeBusinessType(businessType) &&
+      !appointmentScheduleConfigured
+    ) {
+      return;
+    }
+
     const done = localStorage.getItem(storageKey(businessId)) === "1";
     if (welcome || !done) {
       setOpen(true);
     }
-  }, [businessId, welcome, forceStart, searchParams, pathname, router]);
+  }, [
+    businessId,
+    businessType,
+    welcome,
+    forceStart,
+    appointmentScheduleConfigured,
+    searchParams,
+    pathname,
+    router,
+  ]);
 
   return (
     <>
@@ -280,12 +301,14 @@ export function SellerWelcomeGuide({
   businessType,
   basePath = "/dashboard",
   forceStart = false,
+  appointmentScheduleConfigured = true,
   children,
 }: {
   businessId: string;
   businessType: string;
   basePath?: string;
   forceStart?: boolean;
+  appointmentScheduleConfigured?: boolean;
   children?: ReactNode;
 }) {
   return (
@@ -295,6 +318,7 @@ export function SellerWelcomeGuide({
         businessType={businessType}
         basePath={basePath}
         forceStart={forceStart}
+        appointmentScheduleConfigured={appointmentScheduleConfigured}
       >
         {children}
       </SellerWelcomeGuideInner>

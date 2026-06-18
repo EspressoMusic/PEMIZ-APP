@@ -2,7 +2,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { hasPlatformAdminAccess } from "@/lib/admin-access";
 import { jsonError, jsonOk } from "@/lib/api";
-import { sendPlatformMessageToOwner } from "@/lib/email";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 
 const bodySchema = z.object({
@@ -25,29 +24,23 @@ export async function POST(
 
   const business = await prisma.business.findUnique({
     where: { id },
-    select: {
-      id: true,
-      name: true,
-      owner: { select: { email: true, name: true } },
-    },
+    select: { id: true, name: true },
   });
   if (!business) return jsonError("חנות לא נמצאה", 404);
 
-  const mail = await sendPlatformMessageToOwner(
-    business.owner.email,
-    business.owner.name,
-    business.name,
-    parsed.data.message
-  );
-
-  if (!mail.sent && process.env.NODE_ENV === "production") {
-    return jsonError("שליחת המייל נכשלה — בדוק הגדרות RESEND_API_KEY", 502);
-  }
+  const sentAt = new Date();
+  await prisma.business.update({
+    where: { id: business.id },
+    data: {
+      platformOwnerMessage: parsed.data.message,
+      platformOwnerMessageAt: sentAt,
+      platformOwnerMessageReadAt: null,
+    },
+  });
 
   return jsonOk({
-    sent: mail.sent,
-    message: mail.sent
-      ? "ההודעה נשלחה למייל של המוכר"
-      : "ההודעה נרשמה בלוג השרת (מצב פיתוח)",
+    sent: true,
+    sentAt: sentAt.toISOString(),
+    message: "ההודעה נשלחה לחנות — המוכר/ת יראו אותה בדשבורד",
   });
 }

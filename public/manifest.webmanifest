@@ -2,7 +2,7 @@
   "name": "Linky — עמוד דיגיטלי לעסק",
   "short_name": "Linky",
   "description": "ניהול חנות, הזמנות, לקוחות ופניות — הכל במקום אחד.",
-  "start_url": "/",
+  "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

@@ -1,14 +1,14 @@
 import { cookies } from "next/headers";
+import { normalizeAppLocale, type AppLocale } from "@/lib/app-locale";
 import {
   DASHBOARD_LOCALE_COOKIE,
   parseLocaleCookie,
 } from "@/lib/dashboard-appearance-boot";
-import type { AppLocale } from "@/lib/app-locale";
 
 export function normalizePreferredLocale(
   value: string | null | undefined
 ): AppLocale {
-  return value === "en" ? "en" : "he";
+  return normalizeAppLocale(value);
 }
 
 export async function readPreferredLocaleFromCookies(): Promise<AppLocale> {

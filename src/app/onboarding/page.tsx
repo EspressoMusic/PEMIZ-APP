@@ -125,7 +125,11 @@ export default function OnboardingPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home !w-full !rounded-full !shadow-none hover:!opacity-100"
+              disabled={loading}
+            >
               {loading ? copy.onboardCreating : copy.onboardSubmit}
             </Button>
           </form>

@@ -63,6 +63,25 @@ export default function DevPreviewPage() {
             Onboarding guide — appointments
           </Link>
         </div>
+        <h2 className="pt-2 text-sm font-bold text-bakery-ink">שינויים אחרונים — תצוגה מקדימה</h2>
+        <Link
+          href="/dev/preview/platform-message"
+          className="rounded-xl border border-bakery-primary/40 bg-bakery-primary/10 px-4 py-3 text-center text-sm font-bold text-bakery-ink"
+        >
+          הודעה מצוות Linky בדשבורד (לא מייל)
+        </Link>
+        <Link
+          href="/dev/preview/appointment-setup"
+          className="rounded-xl border border-bakery-primary/40 bg-bakery-primary/10 px-4 py-3 text-center text-sm font-bold text-bakery-ink"
+        >
+          הגדרת יומן חובה — חנות פגישות חדשה
+        </Link>
+        <Link
+          href="/master"
+          className="rounded-xl border border-bakery-border bg-bakery-cream-light px-4 py-3 text-center text-sm font-bold text-bakery-ink"
+        >
+          פאנל אדמין — שליחת הודעה לחנות (נדרשת התחברות)
+        </Link>
         <p className="text-xs text-bakery-muted">
           Three store types (products, appointments, rental). /login requires Supabase in .env.local
         </p>

@@ -76,7 +76,6 @@ export type MarketingCopy = {
   authPassword: string;
   authPhone: string;
   authForgotPassword: string;
-  authForgotPasswordHint: string;
   authSubmitSignIn: string;
   authSubmitSignUp: string;
   authLoading: string;
@@ -225,7 +224,6 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     authPassword: "Password",
     authPhone: "Phone",
     authForgotPassword: "Forgot password?",
-    authForgotPasswordHint: "Support will send you a new password",
     authSubmitSignIn: "Sign in",
     authSubmitSignUp: "Sign up",
     authLoading: "One moment...",
@@ -373,7 +371,6 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     authPassword: "סיסמה",
     authPhone: "טלפון",
     authForgotPassword: "שכחת סיסמה?",
-    authForgotPasswordHint: "התמיכה תשלח לך סיסמה חדשה",
     authSubmitSignIn: "התחברות",
     authSubmitSignUp: "הרשמה",
     authLoading: "רגע...",

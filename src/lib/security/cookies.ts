@@ -3,7 +3,7 @@ export function sessionCookieOptions(maxAgeSeconds: number) {
   return {
     httpOnly: true,
     secure: isProd,
-    sameSite: (isProd ? "strict" : "lax") as "strict" | "lax",
+    sameSite: "lax" as const,
     path: "/",
     maxAge: maxAgeSeconds,
   };

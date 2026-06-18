@@ -93,6 +93,9 @@ model Business {
   storeBroadcast         String?
   storeBroadcastAt       DateTime?
   storeBroadcastHistory  String?
+  platformOwnerMessage       String?
+  platformOwnerMessageAt     DateTime?
+  platformOwnerMessageReadAt DateTime?
   orderScheduleEnabled   Boolean  @default(false)
   orderSchedule          String?
   appointmentSlotGapMinutes      Int    @default(0)

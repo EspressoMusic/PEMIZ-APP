@@ -560,12 +560,12 @@ export function DashboardAppointmentsHomeCalendar({
       return "cursor-pointer border-bakery-error bg-bakery-error text-white shadow-[0_3px_10px_rgba(168,88,88,0.35)] active:scale-[0.98]";
     }
     if (status === "open" || status === "booked") {
-      return `${dayNormal} cursor-pointer hover:bg-white active:scale-[0.98]`;
+      return `${dayNormal} cursor-pointer hover:bg-[#faf6f0] active:scale-[0.98]`;
     }
     if (status === "past") {
-      return `cursor-pointer ${dayNormal} opacity-45 active:scale-[0.98]`;
+      return "cursor-pointer border-[#5C4A3E]/18 bg-[#f5efe4] text-bakery-muted active:scale-[0.98]";
     }
-    return `cursor-pointer ${dayNormal} opacity-55 active:scale-[0.98]`;
+    return "cursor-pointer border-[#5C4A3E]/22 bg-[#faf6f0] text-bakery-ink active:scale-[0.98]";
   }
 
   const selectedDayAppointments = selectedDay

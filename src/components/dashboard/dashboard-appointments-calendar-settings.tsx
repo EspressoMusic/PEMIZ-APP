@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
@@ -39,7 +39,57 @@ function formatCalendarSummary(
   return `${range} · ${config.durationMinutes} min slots${gap}`;
 }
 
-export function DashboardAppointmentsCalendarSettings({
+type CalendarSettingsProps = {
+  previewOnly?: boolean;
+  initialConfig?: AppointmentCalendarConfig;
+  inline?: boolean;
+  saveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
+  workingDays?: {
+    initialEnabled: boolean;
+    initialScheduleJson: string | null;
+    previewOnly?: boolean;
+  };
+  scheduleSaveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
+  basePath?: string;
+  openedFromActionsHub?: boolean;
+  openHoursFromQuery?: boolean;
+};
+
+export function DashboardAppointmentsCalendarSettings(
+  props: CalendarSettingsProps
+) {
+  if (props.inline) {
+    return (
+      <DashboardAppointmentsCalendarSettingsCore
+        {...props}
+        openedFromActionsHub={false}
+        openHoursFromQuery={false}
+      />
+    );
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <DashboardAppointmentsCalendarSettingsWithQuery {...props} />
+    </Suspense>
+  );
+}
+
+function DashboardAppointmentsCalendarSettingsWithQuery(
+  props: CalendarSettingsProps
+) {
+  const searchParams = useSearchParams();
+  const openHours = searchParams.get("open") === "hours";
+  return (
+    <DashboardAppointmentsCalendarSettingsCore
+      {...props}
+      openedFromActionsHub={openHours}
+      openHoursFromQuery={openHours}
+    />
+  );
+}
+
+function DashboardAppointmentsCalendarSettingsCore({
   previewOnly = false,
   initialConfig = DEFAULT_APPOINTMENT_CALENDAR,
   inline = false,
@@ -47,26 +97,14 @@ export function DashboardAppointmentsCalendarSettings({
   workingDays,
   scheduleSaveHandleRef,
   basePath = "/dashboard",
-}: {
-  previewOnly?: boolean;
-  initialConfig?: AppointmentCalendarConfig;
-  /** Show booking-hour fields directly (welcome setup). */
-  inline?: boolean;
-  saveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
-  /** Nest working-days settings inside this panel (appointments calendar). */
-  workingDays?: {
-    initialEnabled: boolean;
-    initialScheduleJson: string | null;
-    previewOnly?: boolean;
-  };
-  scheduleSaveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
-  /** Used to return to actions after closing a hub-opened sheet. */
-  basePath?: string;
+  openedFromActionsHub = false,
+  openHoursFromQuery = false,
+}: CalendarSettingsProps & {
+  openedFromActionsHub: boolean;
+  openHoursFromQuery: boolean;
 }) {
   const { labels, locale } = useAppLocale();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const openedFromActionsHub = searchParams.get("open") === "hours";
   const [gapMinutes, setGapMinutes] = useState(initialConfig.gapMinutes);
   const [gapEnabled, setGapEnabled] = useState(initialConfig.gapMinutes > 0);
   const [durationMinutes, setDurationMinutes] = useState(
@@ -143,10 +181,10 @@ export function DashboardAppointmentsCalendarSettings({
   }, [previewOnly, load]);
 
   useEffect(() => {
-    if (searchParams.get("open") === "hours") {
+    if (openHoursFromQuery) {
       setSheetOpen(true);
     }
-  }, [searchParams]);
+  }, [openHoursFromQuery]);
 
   function closeSheet() {
     setSheetOpen(false);

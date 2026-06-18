@@ -45,6 +45,8 @@ export type DashboardLabels = {
   installAppBannerHint: string;
   installAppBannerInstall: string;
   installAppBannerDismiss: string;
+  platformOwnerMessageTitle: string;
+  platformOwnerMessageGotIt: string;
   pushEnableTitle: string;
   pushEnableHint: string;
   pushSubscribeButton: string;
@@ -843,7 +845,7 @@ const HE: DashboardLabels = {
   sellerGuideAddCalendar: "הגדר יומן ומשבצות",
   appointmentStoreSetupTitle: "ימי עבודה ושעות פעילות",
   appointmentStoreSetupIntro:
-    "לפני שמתחילים — בחרו באילו ימים ושעות לקוחות יוכלו לקבוע תור, ושמרו את ההגדרות.",
+    "לפני שמתחילים — בחרו באילו ימים ושעות לקוחות יוכלו לקבוע תור, ושמרו. בלי זה היומן יישאר ריק.",
   appointmentStoreSetupContinue: "המשך לסיור בלינקי",
   sellerGuideStepCounter: "שלב {current} מתוך {total}",
   sellerGuideWelcomeTipAddProductTitle: "איך מוסיפים מוצר?",
@@ -1001,7 +1003,7 @@ const HE: DashboardLabels = {
   storeInactiveHint:
     "לקוחות רואים שהעסק לא זמין. אם זה לא מכוון — פנה למנהל המערכת להפעלה.",
   logoutTitle: "יציאה מהמערכת",
-  logoutHint: "סיום העבודה במכשיר זה",
+  logoutHint: "החנות תישאר פתוחה במכשיר עד שתלחץ/י כאן",
   logout: "התנתקות",
   deleteStoreTitle: "מחיקת חנות",
   deleteStoreButton: "מחק את החנות",
@@ -1039,6 +1041,8 @@ const HE: DashboardLabels = {
   installAppBannerHint: "גישה מהירה לדשבורד מהמסך הראשי",
   installAppBannerInstall: "התקנה",
   installAppBannerDismiss: "סגירה",
+  platformOwnerMessageTitle: "הודעה מצוות Linky",
+  platformOwnerMessageGotIt: "הבנתי",
   pushEnableTitle: "התראות דחיפה במכשיר",
   pushEnableHint:
     "לאחר הפעלת ההתראות למעלה, לחצו כאן ואשרו הרשאת התראות בדפדפן. כך תקבלו הודעה גם כשהאפליקציה סגורה (Android / iPhone מותקן למסך הבית).",
@@ -1426,7 +1430,7 @@ const EN: DashboardLabels = {
   sellerGuideAddCalendar: "Set up calendar & slots",
   appointmentStoreSetupTitle: "Working days & booking hours",
   appointmentStoreSetupIntro:
-    "Before you start — choose which days and hours customers can book, then save your settings.",
+    "Before you start — choose which days and hours customers can book, then save. Without this your calendar stays empty.",
   appointmentStoreSetupContinue: "Continue to the Linky tour",
   sellerGuideStepCounter: "Step {current} of {total}",
   sellerGuideWelcomeTipAddProductTitle: "How do I add a product?",
@@ -1584,7 +1588,7 @@ const EN: DashboardLabels = {
   storeInactiveHint:
     "Customers see the business as unavailable. Contact support if this is unexpected.",
   logoutTitle: "Sign out",
-  logoutHint: "End your session on this device",
+  logoutHint: "Your store stays open on this device until you sign out here",
   logout: "Sign out",
   deleteStoreTitle: "Delete store",
   deleteStoreButton: "Delete store",
@@ -1622,6 +1626,8 @@ const EN: DashboardLabels = {
   installAppBannerHint: "Quick access to your dashboard from the home screen",
   installAppBannerInstall: "Install",
   installAppBannerDismiss: "Dismiss",
+  platformOwnerMessageTitle: "Message from Linky",
+  platformOwnerMessageGotIt: "Got it",
   pushEnableTitle: "Push notifications on this device",
   pushEnableHint:
     "After enabling alerts above, tap here and allow notifications in the browser. You’ll get alerts even when the app is closed (Android / iOS home-screen install).",

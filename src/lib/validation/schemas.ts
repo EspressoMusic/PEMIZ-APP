@@ -1,33 +1,50 @@
 import { z } from "zod";
-import { isValidPhone, INVALID_PHONE_MESSAGE_EN } from "@/lib/phone";
+import { isValidPhone } from "@/lib/phone";
+import type { AppLocale } from "@/lib/app-locale";
+import { getAuthMessages } from "@/lib/auth-messages";
 import { STORE_THEME_IDS } from "@/lib/store-themes";
 
-export const customerPhoneSchema = z
-  .string()
-  .min(1, INVALID_PHONE_MESSAGE_EN)
-  .max(20)
-  .refine(isValidPhone, { message: INVALID_PHONE_MESSAGE_EN });
+function buildCustomerPhoneSchema(locale: AppLocale) {
+  const msg = getAuthMessages(locale);
+  return z
+    .string()
+    .min(1, msg.invalidPhone)
+    .max(20)
+    .refine(isValidPhone, { message: msg.invalidPhone });
+}
+
+export const customerPhoneSchema = buildCustomerPhoneSchema("he");
 
 export const optionalCustomerPhoneSchema = z
   .string()
   .max(20)
   .optional()
   .refine((value) => !value?.trim() || isValidPhone(value), {
-    message: INVALID_PHONE_MESSAGE_EN,
+    message: getAuthMessages("he").invalidPhone,
   });
 
 export const emailSchema = z.string().email().max(254);
 
-export const loginSchema = z.object({
-  identifier: customerPhoneSchema,
-  password: z.string().min(1, "Please enter a password").max(128),
-});
+export function loginSchemaForLocale(locale: AppLocale) {
+  const msg = getAuthMessages(locale);
+  return z.object({
+    identifier: buildCustomerPhoneSchema(locale),
+    password: z.string().min(1, msg.passwordRequired).max(128),
+  });
+}
 
-export const signupSchema = z.object({
-  phone: customerPhoneSchema,
-  password: z.string().min(8, "Password must be at least 8 characters").max(128),
-  name: z.string().trim().min(2).max(80),
-});
+export const loginSchema = loginSchemaForLocale("he");
+
+export function signupSchemaForLocale(locale: AppLocale) {
+  const msg = getAuthMessages(locale);
+  return z.object({
+    phone: buildCustomerPhoneSchema(locale),
+    password: z.string().min(8, msg.passwordMinLength).max(128),
+    name: z.string().trim().min(2, msg.nameTooShort).max(80),
+  });
+}
+
+export const signupSchema = signupSchemaForLocale("he");
 
 export const forgotPasswordSchema = z.object({
   phone: customerPhoneSchema,
@@ -129,6 +146,9 @@ export const storeBroadcastPatchSchema = z.object({
   message: z.string().trim().min(1).max(500),
 });
 
-export function zodFirstError(parsed: z.ZodSafeParseError<unknown>): string {
-  return parsed.error.issues[0]?.message ?? "Invalid data";
+export function zodFirstError(
+  parsed: z.ZodSafeParseError<unknown>,
+  locale: AppLocale = "he"
+): string {
+  return parsed.error.issues[0]?.message ?? getAuthMessages(locale).invalidData;
 }

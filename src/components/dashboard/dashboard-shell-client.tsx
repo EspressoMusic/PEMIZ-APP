@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { AppointmentStoreWelcomeSetup } from "@/components/dashboard/appointment-store-welcome-setup";
 import { SellerWelcomeGuide } from "@/components/dashboard/seller-welcome-guide";
+import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
+import { DashboardPlatformMessageBanner } from "@/components/dashboard/dashboard-platform-message-banner";
 import { PwaInstallBanner } from "@/components/pwa/pwa-install-banner";
 import {
   AppLocaleProvider,
@@ -59,6 +61,11 @@ export function DashboardShellClient({
   basePath = "/dashboard",
   storeLocale = "he",
   storeTheme = "calm",
+  orderScheduleEnabled = false,
+  orderSchedule = null,
+  platformOwnerMessage = null,
+  platformOwnerMessageAt = null,
+  platformOwnerMessageReadAt = null,
 }: {
   children: ReactNode;
   businessType: string;
@@ -66,6 +73,11 @@ export function DashboardShellClient({
   basePath?: string;
   storeLocale?: string | null;
   storeTheme?: string | null;
+  orderScheduleEnabled?: boolean;
+  orderSchedule?: string | null;
+  platformOwnerMessage?: string | null;
+  platformOwnerMessageAt?: string | null;
+  platformOwnerMessageReadAt?: string | null;
 }) {
   const pathname = usePathname();
   const inSellerApp = isSellerAppRoute(pathname, basePath);
@@ -74,6 +86,11 @@ export function DashboardShellClient({
   const lockMainScroll = isHomeRoute || isActionsHubRoute;
   const tourEnabled =
     businessId !== "dev-preview" || businessId.startsWith("dev-guide-preview");
+  const appointmentScheduleConfigured = isAppointmentStoreScheduleConfigured({
+    businessType,
+    orderScheduleEnabled,
+    orderSchedule,
+  });
 
   useEffect(() => {
     if (!inSellerApp) return;
@@ -99,6 +116,14 @@ export function DashboardShellClient({
                 : `${DASHBOARD_SCROLL_MAIN} pb-[max(1rem,env(safe-area-inset-bottom))]`
             }`}
           >
+            {inSellerApp ? (
+              <DashboardPlatformMessageBanner
+                initialMessage={platformOwnerMessage}
+                initialMessageAt={platformOwnerMessageAt}
+                initialReadAt={platformOwnerMessageReadAt}
+                previewOnly={businessId === "dev-preview"}
+              />
+            ) : null}
             {children}
           </div>
         </div>
@@ -117,6 +142,7 @@ export function DashboardShellClient({
               businessId={businessId}
               businessType={businessType}
               basePath={basePath}
+              appointmentScheduleConfigured={appointmentScheduleConfigured}
             >
               {shellBody}
             </SellerWelcomeGuide>
@@ -128,6 +154,8 @@ export function DashboardShellClient({
               businessId={businessId}
               businessType={businessType}
               basePath={basePath}
+              orderScheduleEnabled={orderScheduleEnabled}
+              orderSchedule={orderSchedule}
             />
           ) : null}
         </DashboardUiPreferencesProvider>

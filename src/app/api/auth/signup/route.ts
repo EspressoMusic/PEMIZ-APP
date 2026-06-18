@@ -7,22 +7,25 @@ import { jsonError, jsonInfrastructureError, jsonOk, jsonServerError } from "@/l
 import { isDatabaseConfigured, databaseConfigHint } from "@/lib/db-env";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { safeUserSelect } from "@/lib/security/user-select";
-import { signupSchema, zodFirstError } from "@/lib/validation/schemas";
-import { parseIsraeliMobilePhone, INVALID_PHONE_MESSAGE_EN } from "@/lib/phone";
+import { signupSchemaForLocale, zodFirstError } from "@/lib/validation/schemas";
+import { parseIsraeliMobilePhone } from "@/lib/phone";
 import { syntheticOwnerEmail } from "@/lib/owner-auth-phone";
+import { getAuthMessages, readLocaleFromRequest } from "@/lib/auth-messages";
 
 export async function POST(req: Request) {
+  const locale = readLocaleFromRequest(req);
+  const msg = getAuthMessages(locale);
   const limited = await enforceRateLimit(req, "auth:signup", 5, 60 * 60 * 1000);
   if (limited) return limited;
 
   if (!(await isSignupEnabled())) {
-    return jsonError("Sign-ups are closed right now. Please try again later.", 403);
+    return jsonError(msg.signupsClosed, 403);
   }
 
   const body = await req.json().catch(() => null);
-  const parsed = signupSchema.safeParse(body);
+  const parsed = signupSchemaForLocale(locale).safeParse(body);
   if (!parsed.success) {
-    return jsonError(zodFirstError(parsed), 400);
+    return jsonError(zodFirstError(parsed, locale), 400);
   }
 
   if (!isDatabaseConfigured()) {
@@ -33,10 +36,10 @@ export async function POST(req: Request) {
   }
 
   const phone = parseIsraeliMobilePhone(parsed.data.phone);
-  if (!phone) return jsonError(INVALID_PHONE_MESSAGE_EN, 400);
+  if (!phone) return jsonError(msg.invalidPhone, 400);
 
   const email = syntheticOwnerEmail(phone);
-  if (!email) return jsonError(INVALID_PHONE_MESSAGE_EN, 400);
+  if (!email) return jsonError(msg.invalidPhone, 400);
 
   try {
     const existingByPhone = await prisma.user.findFirst({
@@ -45,12 +48,9 @@ export async function POST(req: Request) {
     });
     if (existingByPhone) {
       if (!existingByPhone.business) {
-        return jsonError(
-          "This phone is already registered, but the store was not created yet. Sign in with the same password to continue.",
-          409
-        );
+        return jsonError(msg.accountExistsNoStore, 409);
       }
-      return jsonError("An account with this phone number already exists", 409);
+      return jsonError(msg.accountExists, 409);
     }
 
     const existingByEmail = await prisma.user.findUnique({
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       select: { id: true },
     });
     if (existingByEmail) {
-      return jsonError("An account with this phone number already exists", 409);
+      return jsonError(msg.accountExists, 409);
     }
 
     const passwordHash = await bcrypt.hash(parsed.data.password, 12);

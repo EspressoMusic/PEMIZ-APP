@@ -609,6 +609,8 @@ export const DEV_APPOINTMENTS_SELLER_SHELL = {
   basePath: DEV_APPOINTMENTS_SELLER_BASE,
   storeLocale: DEV_APPOINTMENTS_BUSINESS.storeLocale,
   storeTheme: DEV_APPOINTMENTS_BUSINESS.storeTheme,
+  orderScheduleEnabled: DEV_APPOINTMENTS_BUSINESS.orderScheduleEnabled ?? false,
+  orderSchedule: DEV_APPOINTMENTS_BUSINESS.orderSchedule ?? null,
 };
 
 export const DEV_APPOINTMENTS_OWNER_NAME = "Mia";
@@ -935,6 +937,8 @@ export const DEV_RENTAL_SELLER_SHELL = {
   basePath: DEV_RENTAL_SELLER_BASE,
   storeLocale: DEV_RENTAL_BUSINESS.storeLocale,
   storeTheme: DEV_RENTAL_BUSINESS.storeTheme,
+  orderScheduleEnabled: DEV_RENTAL_BUSINESS.orderScheduleEnabled ?? false,
+  orderSchedule: DEV_RENTAL_BUSINESS.orderSchedule ?? null,
 };
 
 export const DEV_RENTAL_OWNER_NAME = "Dan";

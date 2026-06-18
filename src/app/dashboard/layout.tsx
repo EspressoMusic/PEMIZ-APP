@@ -71,6 +71,15 @@ export default async function DashboardLayout({
             businessType={user.business.type}
             storeLocale={user.business.storeLocale}
             storeTheme={user.business.storeTheme}
+            orderScheduleEnabled={user.business.orderScheduleEnabled ?? false}
+            orderSchedule={user.business.orderSchedule ?? null}
+            platformOwnerMessage={user.business.platformOwnerMessage ?? null}
+            platformOwnerMessageAt={
+              user.business.platformOwnerMessageAt?.toISOString() ?? null
+            }
+            platformOwnerMessageReadAt={
+              user.business.platformOwnerMessageReadAt?.toISOString() ?? null
+            }
           >
             {children}
           </DashboardShell>

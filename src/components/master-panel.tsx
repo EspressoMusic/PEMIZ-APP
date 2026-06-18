@@ -1148,18 +1148,15 @@ export function MasterPanel() {
                     </Link>
                   </MasterInner>
 
-                  <DetailBox title="הודעה למוכר">
+                  <DetailBox title="הודעה לחנות">
                     <p className="text-[13px] text-bakery-muted">
-                      נשלח למייל{" "}
-                      <span dir="ltr" className="font-mono text-bakery-ink">
-                        {b.owner.email}
-                      </span>
+                      ההודעה תופיע למוכר/ת בדשבורד החנות — לא במייל.
                     </p>
                     <Textarea
                       className="mt-2 min-h-[96px]"
                       rows={4}
                       maxLength={2000}
-                      placeholder="כתוב הודעה למוכר/ת החנות..."
+                      placeholder="כתוב הודעה שתופיע בדשבורד של המוכר/ת..."
                       value={ownerMessageDrafts[b.id] ?? ""}
                       onChange={(e) =>
                         setOwnerMessageDrafts((prev) => ({
@@ -1184,7 +1181,7 @@ export function MasterPanel() {
                     >
                       {ownerMessageSendingId === b.id
                         ? "שולח..."
-                        : "שלח הודעה למייל"}
+                        : "שלח הודעה לחנות"}
                     </Button>
                   </DetailBox>
 

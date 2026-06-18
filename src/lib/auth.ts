@@ -1,58 +1,50 @@
-import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { withDbTimeout } from "@/lib/db-query-timeout";
 import { sessionCookieOptions } from "@/lib/security/cookies";
+import {
+  SESSION_COOKIE_NAME,
+  sessionMaxAgeSeconds,
+  signSessionToken,
+  verifySessionToken,
+  type SessionPayload,
+} from "@/lib/auth-session";
 import { safeUserSelect, type SafeUser } from "@/lib/security/user-select";
-import type { Role } from "@/lib/types";
 
-const COOKIE_NAME = "linky_session";
-
-export type SessionPayload = {
-  userId: string;
-  email: string;
-  role: Role;
-  /** Set when platform admin impersonates a seller to manage their store. */
-  adminSupport?: boolean;
-};
-
-function getSecret() {
-  const secret = process.env.SESSION_SECRET;
-  if (!secret || secret.length < 32) {
-    throw new Error("SESSION_SECRET must be at least 32 characters");
-  }
-  return new TextEncoder().encode(secret);
-}
+export type { SessionPayload } from "@/lib/auth-session";
+export {
+  SESSION_COOKIE_NAME,
+  refreshSessionOnResponse,
+  getSessionSecret,
+} from "@/lib/auth-session";
 
 export async function createSession(payload: SessionPayload) {
-  const token = await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("7d")
-    .sign(getSecret());
-
+  const maxAgeSeconds = sessionMaxAgeSeconds(payload);
+  const token = await signSessionToken(payload, maxAgeSeconds);
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, sessionCookieOptions(60 * 60 * 24 * 7));
+  cookieStore.set(
+    SESSION_COOKIE_NAME,
+    token,
+    sessionCookieOptions(maxAgeSeconds)
+  );
 }
 
 export async function destroySession() {
   const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+  cookieStore.set(SESSION_COOKIE_NAME, "", {
+    ...sessionCookieOptions(0),
+    maxAge: 0,
+  });
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, getSecret());
-    return {
-      userId: payload.userId as string,
-      email: payload.email as string,
-      role: payload.role as Role,
-      adminSupport: payload.adminSupport === true,
-    };
+    const { session } = await verifySessionToken(token);
+    return session;
   } catch {
     return null;
   }
