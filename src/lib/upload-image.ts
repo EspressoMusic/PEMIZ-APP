@@ -21,6 +21,18 @@ export function isAllowedImageMime(mime: string): mime is (typeof ALLOWED_MIME)[
   return (ALLOWED_MIME as readonly string[]).includes(mime);
 }
 
+/** Infer mime from upload when browsers send empty type (common after canvas crop). */
+export function resolveUploadedImageMime(file: File): (typeof ALLOWED_MIME)[number] | null {
+  if (isAllowedImageMime(file.type)) return file.type;
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".png")) return "image/png";
+  if (name.endsWith(".webp")) return "image/webp";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+  // Cropped blobs are always saved as .jpg without a reliable type.
+  if (!file.type) return "image/jpeg";
+  return null;
+}
+
 export function maxImageBytes(): number {
   return MAX_BYTES;
 }

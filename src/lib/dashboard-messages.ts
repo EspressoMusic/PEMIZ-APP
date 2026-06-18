@@ -446,6 +446,8 @@ export type DashboardLabels = {
   productImageCropZoom: string;
   productImageEdit: string;
   productImageReplace: string;
+  productImagesHint: string;
+  productImagesLimit: string;
   dealName: string;
   dealPrice: string;
   dealDate: string;
@@ -952,6 +954,8 @@ const HE: DashboardLabels = {
   productImageCropZoom: "זום",
   productImageEdit: "עריכת תמונה",
   productImageReplace: "החלפה",
+  productImagesHint: "עד 4 תמונות",
+  productImagesLimit: "ניתן להוסיף עד 4 תמונות",
   dealName: "שם הדיל",
   dealPrice: "מחיר דיל",
   dealDate: "תאריך",
@@ -1537,6 +1541,8 @@ const EN: DashboardLabels = {
   productImageCropZoom: "Zoom",
   productImageEdit: "Edit image",
   productImageReplace: "Replace",
+  productImagesHint: "Up to 4 images",
+  productImagesLimit: "You can add up to 4 images",
   dealName: "Deal name",
   dealPrice: "Deal price",
   dealDate: "Date",

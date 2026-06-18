@@ -1,15 +1,15 @@
 import { jsonError, jsonOk } from "@/lib/api";
-import { requireStoreOwner } from "@/lib/dashboard-auth";
+import { requireCatalogOwner } from "@/lib/dashboard-catalog-auth";
 import { storeProductImage } from "@/lib/product-image-storage";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { recordSystemIncident } from "@/lib/system-incidents";
-import { isAllowedImageMime, maxImageBytes } from "@/lib/upload-image";
+import { maxImageBytes, resolveUploadedImageMime } from "@/lib/upload-image";
 
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, "dashboard:product-image", 40, 60 * 60 * 1000);
   if (limited) return limited;
 
-  const ctx = await requireStoreOwner();
+  const ctx = await requireCatalogOwner();
   if (!ctx.ok) return ctx.response;
 
   const form = await req.formData().catch(() => null);
@@ -18,7 +18,8 @@ export async function POST(req: Request) {
     return jsonError("לא נבחר קובץ");
   }
 
-  if (!isAllowedImageMime(file.type)) {
+  const mime = resolveUploadedImageMime(file);
+  if (!mime) {
     return jsonError("יש להעלות תמונה בפורמט JPG, PNG או WebP");
   }
   if (file.size > maxImageBytes()) {
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   try {
-    const url = await storeProductImage(ctx.user.business.id, buffer, file.type);
+    const url = await storeProductImage(ctx.user.business.id, buffer, mime);
     return jsonOk({ url });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";

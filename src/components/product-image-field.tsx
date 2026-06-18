@@ -5,6 +5,7 @@ import { Crop, ImagePlus, X } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { ImageCropModal } from "@/components/image-crop-modal";
 import { useCatalogImageUpload } from "@/components/use-catalog-image-upload";
+import { MAX_PRODUCT_IMAGES } from "@/lib/product-image-urls";
 
 export function ProductImageField({
   preview,
@@ -19,106 +20,175 @@ export function ProductImageField({
   onUploadingChange?: (uploading: boolean) => void;
   compact?: boolean;
 }) {
+  return (
+    <ProductImagesField
+      images={preview ? [preview] : []}
+      onChange={(urls) => onChange(urls[0] ?? null)}
+      onError={onError}
+      onUploadingChange={onUploadingChange}
+      compact={compact}
+      maxImages={1}
+    />
+  );
+}
+
+export function ProductImagesField({
+  images,
+  onChange,
+  onError,
+  onUploadingChange,
+  compact = false,
+  maxImages = MAX_PRODUCT_IMAGES,
+}: {
+  images: string[];
+  onChange: (imageUrls: string[]) => void;
+  onError: (msg: string) => void;
+  onUploadingChange?: (uploading: boolean) => void;
+  compact?: boolean;
+  maxImages?: number;
+}) {
   const { labels, locale } = useAppLocale();
   const [dragOver, setDragOver] = useState(false);
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
   const upload = useCatalogImageUpload({
     locale,
     labels,
     onError,
-    onUploaded: onChange,
+    onUploaded: (url) => {
+      if (replaceIndex == null) {
+        if (images.length >= maxImages) {
+          onError(labels.productImagesLimit);
+          return;
+        }
+        onChange([...images, url]);
+      } else {
+        const next = [...images];
+        next[replaceIndex] = url;
+        onChange(next);
+      }
+      setReplaceIndex(null);
+    },
     onUploadingChange,
   });
 
   function handleFile(file: File | null) {
     if (!file) return;
+    if (images.length >= maxImages && replaceIndex == null) {
+      onError(labels.productImagesLimit);
+      return;
+    }
     upload.openCropFromFile(file);
   }
 
+  function removeAt(index: number) {
+    onChange(images.filter((_, i) => i !== index));
+  }
+
+  function startReplace(index: number) {
+    setReplaceIndex(index);
+    upload.openCropFromUrl(images[index]!);
+  }
+
+  function startAdd() {
+    setReplaceIndex(null);
+    upload.openFilePicker();
+  }
+
+  const canAdd = images.length < maxImages;
+  const slotClass = compact
+    ? "aspect-square min-h-[72px]"
+    : "aspect-square min-h-[96px]";
+
   return (
     <div className="w-full text-center">
-      {preview ? (
-        <div className="relative overflow-hidden rounded-2xl border-[1.5px] border-bakery-border/40 bg-bakery-card">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={preview}
-            alt={labels.productImagePreviewAlt}
-            className={`w-full object-cover ${compact ? "aspect-square max-h-[100px]" : "aspect-square"}`}
-          />
-          <div className="absolute left-2 top-2 flex gap-1.5">
-            <button
-              type="button"
-              onClick={() => upload.openCropFromUrl(preview)}
-              disabled={upload.uploading}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-bakery-ink/70 text-white"
-              aria-label={labels.productImageEdit}
-            >
-              <Crop className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => !upload.uploading && upload.openFilePicker()}
-              disabled={upload.uploading}
-              className="flex h-9 items-center rounded-full bg-bakery-ink/70 px-3 text-[12px] font-bold text-white"
-            >
-              {labels.productImageReplace}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onChange(null);
-                if (upload.inputRef.current) upload.inputRef.current.value = "";
-              }}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-bakery-ink/70 text-white"
-              aria-label={labels.productImageRemove}
-            >
-              <X className="h-5 w-5" />
-            </button>
+      <div
+        className={`grid gap-2 ${maxImages > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+      >
+        {images.map((url, index) => (
+          <div
+            key={`${url}-${index}`}
+            className={`relative overflow-hidden rounded-2xl border-[1.5px] border-bakery-border/40 bg-bakery-card ${slotClass}`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={url}
+              alt={labels.productImagePreviewAlt}
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute left-1.5 top-1.5 flex gap-1">
+              <button
+                type="button"
+                onClick={() => startReplace(index)}
+                disabled={upload.uploading}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-bakery-ink/70 text-white"
+                aria-label={labels.productImageEdit}
+              >
+                <Crop className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => removeAt(index)}
+                disabled={upload.uploading}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-bakery-ink/70 text-white"
+                aria-label={labels.productImageRemove}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => !upload.uploading && upload.openFilePicker()}
-          disabled={upload.uploading}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragOver(false);
-            void handleFile(e.dataTransfer.files[0] ?? null);
-          }}
-          className={`flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed transition ${
-            compact ? "gap-1 px-3 py-3" : "gap-2 px-4 py-8"
-          } ${
-            dragOver
-              ? "border-bakery-primary bg-bakery-primary/8"
-              : "border-bakery-border/50 bg-bakery-input/80 hover:border-bakery-primary/50"
-          }`}
-        >
-          <ImagePlus
-            className={`text-bakery-muted ${compact ? "h-6 w-6" : "h-8 w-8"}`}
-            strokeWidth={1.5}
-          />
-          <span className={`font-bold text-bakery-ink ${compact ? "text-[12px]" : "text-[14px]"}`}>
-            {upload.uploading ? labels.productImageUploading : labels.productImageUpload}
-          </span>
-          {!compact && (
-            <span className="text-[12px] text-bakery-muted">
-              {labels.productImageDropHint}
+        ))}
+
+        {canAdd ? (
+          <button
+            type="button"
+            onClick={() => !upload.uploading && startAdd()}
+            disabled={upload.uploading}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              setReplaceIndex(null);
+              void handleFile(e.dataTransfer.files[0] ?? null);
+            }}
+            className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition ${slotClass} ${
+              compact ? "gap-1 px-2 py-2" : "gap-2 px-3 py-4"
+            } ${
+              dragOver
+                ? "border-bakery-primary bg-bakery-primary/8"
+                : "border-bakery-border/50 bg-bakery-input/80 hover:border-bakery-primary/50"
+            }`}
+          >
+            <ImagePlus
+              className={`text-bakery-muted ${compact ? "h-5 w-5" : "h-7 w-7"}`}
+              strokeWidth={1.5}
+            />
+            <span
+              className={`font-bold text-bakery-ink ${compact ? "text-[11px]" : "text-[13px]"}`}
+            >
+              {upload.uploading ? labels.productImageUploading : labels.productImageUpload}
             </span>
-          )}
-        </button>
-      )}
+          </button>
+        ) : null}
+      </div>
+
+      {maxImages > 1 ? (
+        <p className="mt-2 text-[12px] font-semibold text-bakery-muted">
+          {labels.productImagesHint} ({images.length}/{maxImages})
+        </p>
+      ) : null}
 
       <input
         ref={upload.inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/*"
         className="hidden"
-        onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+        onChange={(e) => {
+          void handleFile(e.target.files?.[0] ?? null);
+        }}
       />
 
       {upload.cropSrc ? (
@@ -132,7 +202,10 @@ export function ProductImageField({
           processingLabel={labels.productImageUploading}
           errorLabel={labels.productImageReadError}
           zoomLabel={labels.productImageCropZoom}
-          onClose={upload.closeCrop}
+          onClose={() => {
+            setReplaceIndex(null);
+            upload.closeCrop();
+          }}
           onConfirm={upload.confirmCrop}
         />
       ) : null}

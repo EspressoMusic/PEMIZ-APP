@@ -268,6 +268,7 @@ type Product = {
   name: string;
   description: string | null;
   imageUrl: string | null;
+  imageUrls?: string[];
   price: number;
   salePrice?: number | null;
   stock?: number | null;
@@ -1497,6 +1498,7 @@ export function CustomerStoreApp({
               name={p.name}
               description={p.description}
               imageUrl={p.imageUrl}
+              imageUrls={p.imageUrls}
               locale={locale}
               storeTheme={displayTheme}
               infoLabel={labels.productInfo}

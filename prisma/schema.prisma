@@ -160,6 +160,7 @@ model Product {
   name        String
   description String?
   imageUrl    String?
+  imageUrls   String[]    @default([])
   price       Float
   salePrice   Float?
   stock                  Int?

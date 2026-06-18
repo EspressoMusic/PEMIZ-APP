@@ -785,11 +785,100 @@ function ProductThumb({
   );
 }
 
+/** Swipeable product gallery — up to 4 images; falls back to single imageUrl. */
+function ProductGallery({
+  imageUrls,
+  imageUrl,
+  className = "",
+  imgClassName = "h-full w-full object-cover",
+  interactive = true,
+}: {
+  imageUrls?: string[] | null;
+  imageUrl?: string | null;
+  className?: string;
+  imgClassName?: string;
+  interactive?: boolean;
+}) {
+  const urls = useMemo(() => {
+    if (imageUrls?.length) return imageUrls;
+    if (imageUrl) return [imageUrl];
+    return [];
+  }, [imageUrls, imageUrl]);
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    setIdx(0);
+  }, [urls]);
+
+  if (!urls.length) {
+    return (
+      <div
+        className={`flex items-center justify-center bg-bakery-card text-[2.5rem] leading-none ${className}`}
+      >
+        {PRODUCT_GRID_PLACEHOLDER_EMOJI}
+      </div>
+    );
+  }
+
+  if (urls.length === 1 || !interactive) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={urls[0]}
+        alt=""
+        className={`object-cover ${className} ${imgClassName}`}
+        loading="lazy"
+        decoding="async"
+      />
+    );
+  }
+
+  function step(delta: number) {
+    setIdx((current) => (current + delta + urls.length) % urls.length);
+  }
+
+  return (
+    <div className={`relative overflow-hidden ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={urls[idx]}
+        alt=""
+        className={imgClassName}
+        loading="lazy"
+        decoding="async"
+      />
+      <button
+        type="button"
+        className="absolute inset-y-0 start-0 w-1/3"
+        aria-label="Previous image"
+        onClick={() => step(-1)}
+      />
+      <button
+        type="button"
+        className="absolute inset-y-0 end-0 w-1/3"
+        aria-label="Next image"
+        onClick={() => step(1)}
+      />
+      <div className="pointer-events-none absolute inset-x-0 bottom-1.5 flex justify-center gap-1">
+        {urls.map((_, i) => (
+          <span
+            key={i}
+            className={`h-1.5 w-1.5 rounded-full ${
+              i === idx ? "bg-white shadow-sm" : "bg-white/55"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ProductCatalogRow({
   name,
   description,
   price,
   imageUrl,
+  imageUrls,
   locale,
   qty,
   onDec,
@@ -799,6 +888,7 @@ export function ProductCatalogRow({
   description: string | null;
   price: number;
   imageUrl?: string | null;
+  imageUrls?: string[] | null;
   locale: CustomerLocale;
   qty: number;
   onDec: () => void;
@@ -806,9 +896,11 @@ export function ProductCatalogRow({
 }) {
   return (
     <article className="flex gap-4 rounded-[22px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-4 shadow-[0_3px_10px_rgba(0,0,0,0.1)]">
-      <ProductThumb
+      <ProductGallery
+        imageUrls={imageUrls}
         imageUrl={imageUrl}
         className="h-[88px] w-[88px] shrink-0 rounded-2xl"
+        imgClassName="h-full w-full object-cover"
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <h3 className="text-start text-[18px] font-extrabold text-bakery-ink">{name}</h3>
@@ -852,6 +944,7 @@ export const ProductGridCard = memo(function ProductGridCard({
   price,
   salePrice,
   imageUrl,
+  imageUrls,
   locale,
   storeTheme,
   infoLabel,
@@ -868,6 +961,7 @@ export const ProductGridCard = memo(function ProductGridCard({
   price: number;
   salePrice?: number | null;
   imageUrl?: string | null;
+  imageUrls?: string[] | null;
   locale: CustomerLocale;
   storeTheme: StoreThemeId;
   infoLabel: string;
@@ -895,9 +989,11 @@ export const ProductGridCard = memo(function ProductGridCard({
       className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-[16px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
     >
       <div className="aspect-square w-full shrink-0 overflow-hidden rounded-[12px] bg-bakery-card">
-        <ProductThumb
+        <ProductGallery
+          imageUrls={imageUrls}
           imageUrl={imageUrl}
-          className="h-full w-full object-cover"
+          className="h-full w-full"
+          imgClassName="h-full w-full object-cover"
         />
       </div>
       <div className="mt-1.5 flex min-h-[5.5rem] flex-1 flex-col">
@@ -952,9 +1048,11 @@ export const ProductGridCard = memo(function ProductGridCard({
     >
       <div className="space-y-3 px-4 py-4">
         <div className="aspect-[4/3] w-full overflow-hidden rounded-[16px] bg-bakery-card">
-          <ProductThumb
+          <ProductGallery
+            imageUrls={imageUrls}
             imageUrl={imageUrl}
-            className="h-full w-full object-cover"
+            className="h-full w-full"
+            imgClassName="h-full w-full object-cover"
           />
         </div>
         <h3 className="text-center text-[22px] font-extrabold leading-tight text-bakery-ink">

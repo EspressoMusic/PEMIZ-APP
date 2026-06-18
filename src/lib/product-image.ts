@@ -134,13 +134,11 @@ export async function uploadProductImageBlob(
   fileName: string,
   locale: AppLocale = "he"
 ): Promise<string> {
-  const err = IMAGE_ERRORS[locale];
   const mime = blob.type === "image/png" ? "image/png" : "image/jpeg";
-  if (!isAllowedImageMime(mime)) {
-    throw new Error(err.type);
-  }
+  const typedBlob =
+    blob.type === mime ? blob : new Blob([blob], { type: mime });
   const normalizedName = fileName.replace(/\.[^.]+$/, "") + ".jpg";
-  return postProductImageForm(blob, normalizedName, locale);
+  return postProductImageForm(typedBlob, normalizedName, locale);
 }
 
 export async function uploadProductImageFile(

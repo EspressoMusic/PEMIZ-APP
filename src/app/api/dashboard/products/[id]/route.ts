@@ -2,10 +2,31 @@ import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireCatalogOwner } from "@/lib/dashboard-catalog-auth";
 import { regenerateAppointmentCalendar } from "@/lib/appointment-calendar-regenerate";
+import {
+  productImagesForDb,
+  serializeProductImages,
+} from "@/lib/product-api-images";
 import { isValidProductImageUrlForSave } from "@/lib/product-image";
-import { publicCatalogImageUrl } from "@/lib/public-image-url";
+import {
+  isValidProductImageUrlsForSave,
+  resolveProductImagesInput,
+} from "@/lib/product-image-urls";
 import { findOwnedProduct } from "@/lib/security/ownership";
 import { productPatchSchema, zodFirstError } from "@/lib/validation/schemas";
+
+const productSelect = {
+  id: true,
+  name: true,
+  description: true,
+  price: true,
+  salePrice: true,
+  stock: true,
+  serviceDurationMinutes: true,
+  imageUrl: true,
+  imageUrls: true,
+  isActive: true,
+  createdAt: true,
+} as const;
 
 export async function PATCH(
   req: Request,
@@ -18,27 +39,53 @@ export async function PATCH(
   const parsed = productPatchSchema.safeParse(body);
   if (!parsed.success) return jsonError(zodFirstError(parsed));
 
+  const { imageUrl, imageUrls, ...rest } = parsed.data;
+
   if (
-    parsed.data.imageUrl !== undefined &&
-    parsed.data.imageUrl !== null &&
-    !isValidProductImageUrlForSave(parsed.data.imageUrl)
+    imageUrl !== undefined &&
+    imageUrl !== null &&
+    !isValidProductImageUrlForSave(imageUrl)
   ) {
     return jsonError("תמונה לא תקינה");
+  }
+
+  if (imageUrls !== undefined) {
+    const resolved = resolveProductImagesInput({ imageUrls, imageUrl: null });
+    if (!isValidProductImageUrlsForSave(resolved)) {
+      return jsonError("תמונה לא תקינה");
+    }
+  } else if (imageUrl !== undefined) {
+    const resolved = resolveProductImagesInput({ imageUrl, imageUrls: null });
+    if (!isValidProductImageUrlsForSave(resolved)) {
+      return jsonError("תמונה לא תקינה");
+    }
   }
 
   const existing = await findOwnedProduct(ctx.user.business.id, id);
   if (!existing) return jsonError("מוצר לא נמצא", 404);
 
-  const data = { ...parsed.data };
-  const nextPrice = data.price ?? existing.price;
-  const nextSale = data.salePrice !== undefined ? data.salePrice : existing.salePrice;
+  const nextPrice = rest.price ?? existing.price;
+  const nextSale =
+    rest.salePrice !== undefined ? rest.salePrice : existing.salePrice;
   if (nextSale != null && nextSale >= nextPrice) {
     return jsonError("מחיר מבצע חייב להיות נמוך מהמחיר הרגיל");
+  }
+
+  const data: Record<string, unknown> = { ...rest };
+
+  if (imageUrls !== undefined) {
+    Object.assign(data, productImagesForDb(resolveProductImagesInput({ imageUrls, imageUrl: null })));
+  } else if (imageUrl !== undefined) {
+    Object.assign(
+      data,
+      productImagesForDb(resolveProductImagesInput({ imageUrl, imageUrls: null }))
+    );
   }
 
   const product = await prisma.product.update({
     where: { id, businessId: ctx.user.business.id },
     data,
+    select: productSelect,
   });
 
   if (ctx.user.business.type === "APPOINTMENTS") {
@@ -46,10 +93,7 @@ export async function PATCH(
   }
 
   return jsonOk({
-    product: {
-      ...product,
-      imageUrl: publicCatalogImageUrl(product.imageUrl),
-    },
+    product: serializeProductImages(product),
   });
 }
 

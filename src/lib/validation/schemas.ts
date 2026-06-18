@@ -85,6 +85,7 @@ export const productCreateSchema = z.object({
   price: z.number().positive().max(1_000_000),
   salePrice: z.number().positive().max(1_000_000).optional().nullable(),
   imageUrl: z.string().max(2048).optional(),
+  imageUrls: z.array(z.string().max(2048)).max(4).optional(),
   stock: z.number().int().min(0).max(1_000_000).optional().nullable(),
   serviceDurationMinutes: z.number().int().min(15).max(480).optional().nullable(),
 });
@@ -96,6 +97,7 @@ export const productPatchSchema = z.object({
   salePrice: z.number().positive().nullable().optional(),
   isActive: z.boolean().optional(),
   imageUrl: z.string().max(2048).nullable().optional(),
+  imageUrls: z.array(z.string().max(2048)).max(4).optional(),
   stock: z.number().int().min(0).max(1_000_000).nullable().optional(),
   serviceDurationMinutes: z.number().int().min(15).max(480).nullable().optional(),
 });

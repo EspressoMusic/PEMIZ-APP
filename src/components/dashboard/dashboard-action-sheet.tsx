@@ -16,6 +16,7 @@ export function DashboardActionSheet({
   showBackButton = false,
   backButtonLabel,
   elevated = false,
+  topLayer = false,
   compact = false,
   warmPanel = true,
   /** Fit all children without an inner scroll area (tight modals). */
@@ -38,6 +39,8 @@ export function DashboardActionSheet({
   backButtonLabel?: string;
   /** Above seller live tour overlay while highlighting items inside the sheet. */
   elevated?: boolean;
+  /** Above elevated sheets (e.g. crop modal over add-product form). */
+  topLayer?: boolean;
   /** Tighter padding, header back button, taller viewport use (e.g. add-product form). */
   compact?: boolean;
   /** Warm #e6d5b8 panel fill (e.g. add-service modal). */
@@ -109,9 +112,12 @@ export function DashboardActionSheet({
     ? "min-h-0 flex-1"
     : panelMaxHeight;
 
+  const zClass = topLayer ? "z-[130]" : elevated ? "z-[125]" : "z-[80]";
+  const backdropPassesThrough = elevated && !topLayer;
+
   return createPortal(
     <div
-      className={`fixed inset-0 flex ${fullViewport ? "app-safe-top" : ""} ${fullViewport ? "p-0 sm:p-4" : "p-3 sm:p-4"} ${elevated ? "z-[125]" : "z-[80]"} ${alignClass}`}
+      className={`fixed inset-0 flex ${fullViewport ? "app-safe-top" : ""} ${fullViewport ? "p-0 sm:p-4" : "p-3 sm:p-4"} ${zClass} ${alignClass}`}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel ?? title ?? closeLabel}
@@ -119,11 +125,11 @@ export function DashboardActionSheet({
       <button
         type="button"
         className={`dashboard-action-sheet-backdrop absolute inset-0 ${
-          elevated ? "pointer-events-none" : ""
+          backdropPassesThrough ? "pointer-events-none" : ""
         }`}
-        onClick={elevated ? undefined : onClose}
+        onClick={backdropPassesThrough ? undefined : onClose}
         aria-label={closeLabel}
-        tabIndex={elevated ? -1 : undefined}
+        tabIndex={backdropPassesThrough ? -1 : undefined}
       />
       <div
         className={`relative z-10 flex w-full flex-col ${DASHBOARD_MOBILE_STACK} ${

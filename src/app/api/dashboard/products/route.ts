@@ -2,10 +2,30 @@ import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireCatalogOwner } from "@/lib/dashboard-catalog-auth";
 import { regenerateAppointmentCalendar } from "@/lib/appointment-calendar-regenerate";
-import { isValidProductImageUrlForSave } from "@/lib/product-image";
-import { publicCatalogImageUrl } from "@/lib/public-image-url";
+import {
+  productImagesForDb,
+  serializeProductImages,
+} from "@/lib/product-api-images";
+import {
+  isValidProductImageUrlsForSave,
+  resolveProductImagesInput,
+} from "@/lib/product-image-urls";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { productCreateSchema, zodFirstError } from "@/lib/validation/schemas";
+
+const productSelect = {
+  id: true,
+  name: true,
+  description: true,
+  price: true,
+  salePrice: true,
+  stock: true,
+  serviceDurationMinutes: true,
+  imageUrl: true,
+  imageUrls: true,
+  isActive: true,
+  createdAt: true,
+} as const;
 
 export async function GET() {
   const ctx = await requireCatalogOwner();
@@ -13,24 +33,10 @@ export async function GET() {
   const products = await prisma.product.findMany({
     where: { businessId: ctx.user.business.id },
     orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      price: true,
-      salePrice: true,
-      stock: true,
-      serviceDurationMinutes: true,
-      imageUrl: true,
-      isActive: true,
-      createdAt: true,
-    },
+    select: productSelect,
   });
   return jsonOk({
-    products: products.map((p) => ({
-      ...p,
-      imageUrl: publicCatalogImageUrl(p.imageUrl),
-    })),
+    products: products.map((p) => serializeProductImages(p)),
   });
 }
 
@@ -44,9 +50,17 @@ export async function POST(req: Request) {
   const parsed = productCreateSchema.safeParse(body);
   if (!parsed.success) return jsonError(zodFirstError(parsed));
 
-  const { imageUrl, price, salePrice, stock, serviceDurationMinutes, ...rest } =
-    parsed.data;
-  if (imageUrl && !isValidProductImageUrlForSave(imageUrl)) {
+  const {
+    imageUrl,
+    imageUrls,
+    price,
+    salePrice,
+    stock,
+    serviceDurationMinutes,
+    ...rest
+  } = parsed.data;
+  const resolvedImages = resolveProductImagesInput({ imageUrl, imageUrls });
+  if (!isValidProductImageUrlsForSave(resolvedImages)) {
     return jsonError("תמונה לא תקינה — העלה מחדש דרך שדה התמונה");
   }
   if (salePrice != null && salePrice >= price) {
@@ -60,6 +74,7 @@ export async function POST(req: Request) {
     return jsonError("יש להזין משך שירות (לפחות 15 דקות)");
   }
 
+  const imageFields = productImagesForDb(resolvedImages);
   const product = await prisma.product.create({
     data: {
       ...rest,
@@ -67,9 +82,10 @@ export async function POST(req: Request) {
       salePrice: salePrice ?? null,
       stock: stock ?? null,
       serviceDurationMinutes: serviceDurationMinutes ?? null,
-      imageUrl: imageUrl || null,
+      ...imageFields,
       businessId: ctx.user.business.id,
     },
+    select: productSelect,
   });
 
   if (ctx.user.business.type === "APPOINTMENTS") {
@@ -77,9 +93,6 @@ export async function POST(req: Request) {
   }
 
   return jsonOk({
-    product: {
-      ...product,
-      imageUrl: publicCatalogImageUrl(product.imageUrl),
-    },
+    product: serializeProductImages(product),
   });
 }

@@ -73,6 +73,7 @@ export function ImageCropModal({
       showBackButton
       compact
       fitContent
+      topLayer
     >
       <div className="flex flex-col gap-3 px-1 pb-1 text-center">
         <p className="text-[13px] font-semibold leading-snug text-bakery-muted">

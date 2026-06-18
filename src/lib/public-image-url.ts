@@ -11,3 +11,12 @@ export function publicCatalogImageUrl(
   if (t.startsWith("https://")) return t;
   return null;
 }
+
+export function publicCatalogImageUrls(
+  urls: string[] | null | undefined
+): string[] {
+  if (!urls?.length) return [];
+  return urls
+    .map((url) => publicCatalogImageUrl(url))
+    .filter((url): url is string => url != null);
+}

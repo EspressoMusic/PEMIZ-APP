@@ -13,9 +13,7 @@ import {
   Alert,
   Toggle,
 } from "@/components/ui";
-import { ProductImageField } from "@/components/product-image-field";
-import { ImageCropModal } from "@/components/image-crop-modal";
-import { useCatalogImageUpload } from "@/components/use-catalog-image-upload";
+import { ProductImagesField } from "@/components/product-image-field";
 import { ProductSuccessModal } from "@/components/product-success-modal";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
@@ -25,6 +23,10 @@ import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sh
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
+import {
+  normalizeProductImageUrls,
+  primaryProductImageUrl,
+} from "@/lib/product-image-urls";
 
 type Product = {
   id: string;
@@ -35,8 +37,13 @@ type Product = {
   serviceDurationMinutes?: number | null;
   description?: string | null;
   imageUrl?: string | null;
+  imageUrls?: string[];
   isActive: boolean;
 };
+
+function productImages(p: Product): string[] {
+  return normalizeProductImageUrls(p.imageUrls, p.imageUrl);
+}
 
 function toPreviewProducts(
   items: {
@@ -48,6 +55,7 @@ function toPreviewProducts(
     serviceDurationMinutes?: number | null;
     description?: string | null;
     imageUrl?: string | null;
+    imageUrls?: string[];
     isActive?: boolean;
   }[]
 ): Product[] {
@@ -60,6 +68,7 @@ function toPreviewProducts(
     serviceDurationMinutes: p.serviceDurationMinutes ?? null,
     description: p.description ?? null,
     imageUrl: p.imageUrl ?? null,
+    imageUrls: p.imageUrls ?? normalizeProductImageUrls(null, p.imageUrl ?? null),
     isActive: p.isActive ?? true,
   }));
 }
@@ -233,37 +242,50 @@ function ProductStockEdit({
 const ProductCard = memo(function ProductCard({
   product: p,
   labels,
-  locale,
   formatMoney,
   onHide,
   onDelete,
   onStockSave,
-  onImageUpload,
+  onImagesSave,
   showStock,
   showDuration,
   previewOnly,
 }: {
   product: Product;
   labels: ReturnType<typeof useAppLocale>["labels"];
-  locale: ReturnType<typeof useAppLocale>["locale"];
   formatMoney: (n: number) => string;
   onHide: () => void;
   onDelete: () => void;
   onStockSave: (stock: number | null) => void | Promise<void>;
-  onImageUpload?: (url: string) => void | Promise<void>;
+  onImagesSave?: (urls: string[]) => void | Promise<void>;
   showStock: boolean;
   showDuration: boolean;
   previewOnly?: boolean;
 }) {
-  const upload = useCatalogImageUpload({
-    locale,
-    labels,
-    onError: (msg) => alert(msg),
-    onUploaded: (url) => void onImageUpload?.(url),
-  });
+  const images = productImages(p);
+  const cover = primaryProductImageUrl(images, null);
+  const [imagesOpen, setImagesOpen] = useState(false);
+  const [draftImages, setDraftImages] = useState<string[]>(images);
+  const [imageError, setImageError] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
   const isHidden = !p.isActive;
   const hiddenDimClass = isHidden ? "opacity-50 saturate-[0.85]" : "";
   const stockAlert = showStock && isProductStockAlert(p.stock);
+
+  useEffect(() => {
+    if (!imagesOpen) return;
+    setDraftImages(images);
+    setImageError("");
+  }, [imagesOpen, images]);
+
+  async function saveImages() {
+    if (imageUploading) {
+      setImageError(labels.productImageUploading);
+      return;
+    }
+    await onImagesSave?.(draftImages);
+    setImagesOpen(false);
+  }
 
   return (
     <div
@@ -272,86 +294,84 @@ const ProductCard = memo(function ProductCard({
       }`}
     >
       <div className={hiddenDimClass}>
-      {p.imageUrl ? (
+      {cover ? (
         <div className="relative h-[5.75rem] w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={p.imageUrl}
+            src={cover}
             alt=""
             className="h-full w-full object-cover"
             loading="lazy"
             decoding="async"
           />
-          {onImageUpload && !previewOnly ? (
-            <div className="absolute bottom-1 left-1 flex gap-1">
-              <button
-                type="button"
-                onClick={() => upload.openCropFromUrl(p.imageUrl!)}
-                disabled={upload.uploading}
-                className="rounded-full bg-bakery-ink/75 px-2 py-0.5 text-[10px] font-bold text-white"
-              >
-                {labels.productImageEdit}
-              </button>
-              <button
-                type="button"
-                onClick={() => !upload.uploading && upload.openFilePicker()}
-                disabled={upload.uploading}
-                className="rounded-full bg-bakery-ink/75 px-2 py-0.5 text-[10px] font-bold text-white"
-              >
-                {labels.productImageReplace}
-              </button>
-            </div>
+          {images.length > 1 ? (
+            <span className="absolute end-1.5 top-1.5 rounded-full bg-bakery-ink/75 px-2 py-0.5 text-[10px] font-bold text-white">
+              {images.length}
+            </span>
+          ) : null}
+          {onImagesSave && !previewOnly ? (
+            <button
+              type="button"
+              onClick={() => setImagesOpen(true)}
+              className="absolute bottom-1 left-1 rounded-full bg-bakery-ink/75 px-2 py-0.5 text-[10px] font-bold text-white"
+            >
+              {labels.productImageEdit}
+            </button>
           ) : null}
         </div>
-      ) : onImageUpload ? (
-        <>
-          <button
-            type="button"
-            onClick={() => !upload.uploading && upload.openFilePicker()}
-            disabled={upload.uploading}
-            className="flex h-[5.75rem] w-full flex-col items-center justify-center gap-0.5 bg-bakery-card text-bakery-ink transition hover:bg-bakery-cream-light active:scale-[0.98]"
-          >
-            <span className="text-2xl leading-none" aria-hidden>
-              {upload.uploading ? "…" : "🧁"}
-            </span>
-            <span className="px-1 text-[10px] font-bold leading-tight">
-              {upload.uploading
-                ? labels.productImageUploading
-                : labels.productImageUpload}
-            </span>
-          </button>
-        </>
+      ) : onImagesSave ? (
+        <button
+          type="button"
+          onClick={() => setImagesOpen(true)}
+          className="flex h-[5.75rem] w-full flex-col items-center justify-center gap-0.5 bg-bakery-card text-bakery-ink transition hover:bg-bakery-cream-light active:scale-[0.98]"
+        >
+          <span className="text-2xl leading-none" aria-hidden>
+            🧁
+          </span>
+          <span className="px-1 text-[10px] font-bold leading-tight">
+            {labels.productImageUpload}
+          </span>
+        </button>
       ) : (
         <div className="flex h-[5.75rem] items-center justify-center bg-bakery-card text-3xl">
           🧁
         </div>
       )}
-      {onImageUpload && !previewOnly ? (
-        <input
-          ref={upload.inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0] ?? null;
-            if (file) upload.openCropFromFile(file);
-          }}
-        />
-      ) : null}
-      {upload.cropSrc ? (
-        <ImageCropModal
-          open
-          imageSrc={upload.cropSrc}
-          title={labels.productImageCropTitle}
-          hint={labels.productImageCropHint}
-          cancelLabel={labels.cancel}
-          confirmLabel={labels.productImageCropConfirm}
-          processingLabel={labels.productImageUploading}
-          errorLabel={labels.productImageReadError}
-          zoomLabel={labels.productImageCropZoom}
-          onClose={upload.closeCrop}
-          onConfirm={upload.confirmCrop}
-        />
+      {onImagesSave && !previewOnly ? (
+        <DashboardActionSheet
+          open={imagesOpen}
+          onClose={() => setImagesOpen(false)}
+          title={labels.productImageUpload}
+          ariaLabel={labels.productImageUpload}
+          placement="center"
+          showBackButton
+          compact
+          fitContent
+          topLayer
+        >
+          <div className="flex flex-col gap-3">
+            {imageError ? (
+              <p className="rounded-2xl bg-bakery-error/10 px-3 py-2 text-[13px] font-semibold text-bakery-error">
+                {imageError}
+              </p>
+            ) : null}
+            <ProductImagesField
+              compact
+              images={draftImages}
+              onChange={setDraftImages}
+              onError={setImageError}
+              onUploadingChange={setImageUploading}
+            />
+            <Button
+              type="button"
+              className="min-h-[44px] font-extrabold"
+              disabled={imageUploading}
+              onClick={() => void saveImages()}
+            >
+              {imageUploading ? labels.productImageUploading : labels.save}
+            </Button>
+          </div>
+        </DashboardActionSheet>
       ) : null}
       <div className="flex flex-col gap-1.5 px-2 py-2 text-center">
         <p className="line-clamp-2 text-[12px] font-extrabold leading-snug text-bakery-ink">
@@ -487,8 +507,7 @@ export function ProductsManager({
       ? `${listLabel} (${visibleToCustomerCount}/${products.length})`
       : listLabel;
   const [error, setError] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageData, setImageData] = useState<string | null>(null);
+  const [imageData, setImageData] = useState<string[]>([]);
   const [imageUploading, setImageUploading] = useState(false);
   const [adding, setAdding] = useState(false);
   const [discountOpen, setDiscountOpen] = useState(false);
@@ -589,14 +608,14 @@ export function ProductsManager({
           stock,
           serviceDurationMinutes,
           description: String(fd.get("description") ?? "") || null,
-          imageUrl: imageData,
+          imageUrl: imageData[0] ?? null,
+          imageUrls: imageData,
           isActive: true,
         },
         ...prev,
       ]);
       formRef.current?.reset();
-      setImagePreview(null);
-      setImageData(null);
+      setImageData([]);
       setDiscountOpen(false);
       setStockOpen(false);
       setAddFormOpen(false);
@@ -619,7 +638,7 @@ export function ProductsManager({
             : null,
         stock,
         serviceDurationMinutes: serviceDurationMinutes ?? undefined,
-        imageUrl: imageData || undefined,
+        imageUrls: imageData.length > 0 ? imageData : undefined,
       }),
     });
     setAdding(false);
@@ -633,8 +652,7 @@ export function ProductsManager({
       setProducts((prev) => [data.product as Product, ...prev]);
     }
     formRef.current?.reset();
-    setImagePreview(null);
-    setImageData(null);
+    setImageData([]);
     setDiscountOpen(false);
     setStockOpen(false);
     setAddFormOpen(false);
@@ -663,23 +681,39 @@ export function ProductsManager({
     [previewOnly, load]
   );
 
-  const updateProductImage = useCallback(
-    async (id: string, imageUrl: string) => {
+  const updateProductImages = useCallback(
+    async (id: string, imageUrls: string[]) => {
       if (previewOnly) {
         setProducts((prev) =>
-          prev.map((p) => (p.id === id ? { ...p, imageUrl } : p))
+          prev.map((p) =>
+            p.id === id
+              ? {
+                  ...p,
+                  imageUrls,
+                  imageUrl: imageUrls[0] ?? null,
+                }
+              : p
+          )
         );
         return;
       }
 
       const prev = products;
       setProducts((list) =>
-        list.map((p) => (p.id === id ? { ...p, imageUrl } : p))
+        list.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                imageUrls,
+                imageUrl: imageUrls[0] ?? null,
+              }
+            : p
+        )
       );
       const res = await fetch(`/api/dashboard/products/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl }),
+        body: JSON.stringify({ imageUrls }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -759,13 +793,12 @@ export function ProductsManager({
           key={p.id}
           product={p}
           labels={labels}
-          locale={locale}
           formatMoney={formatMoney}
           previewOnly={previewOnly}
           onHide={() => void setProductActive(p.id, p.isActive)}
           onDelete={() => void deleteProduct(p.id, p.name)}
           onStockSave={(stock) => updateProductStock(p.id, stock)}
-          onImageUpload={(url) => updateProductImage(p.id, url)}
+          onImagesSave={(urls) => updateProductImages(p.id, urls)}
           showStock={!isServices}
           showDuration={isServices}
         />
@@ -827,13 +860,10 @@ export function ProductsManager({
             dir="ltr"
           />
         ) : null}
-        <ProductImageField
+        <ProductImagesField
           compact
-          preview={imagePreview}
-          onChange={(url) => {
-            setImagePreview(url);
-            setImageData(url);
-          }}
+          images={imageData}
+          onChange={setImageData}
           onError={setError}
           onUploadingChange={setImageUploading}
         />

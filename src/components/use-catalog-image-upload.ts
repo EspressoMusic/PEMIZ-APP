@@ -3,9 +3,25 @@
 import { useRef, useState } from "react";
 import type { AppLocale } from "@/lib/app-locale";
 import { uploadProductImageBlob } from "@/lib/product-image";
-import { isAllowedImageMime, maxImageBytes } from "@/lib/upload-image";
+import { maxImageBytes } from "@/lib/upload-image";
 
 const SOURCE_MAX_BYTES = 8 * 1024 * 1024;
+
+const MOBILE_IMAGE_TYPES = new Set([
+  "image/heic",
+  "image/heif",
+  "image/heic-sequence",
+  "image/heif-sequence",
+]);
+
+function isSelectableImageFile(file: File): boolean {
+  if (file.type.startsWith("image/")) {
+    if (file.type === "image/gif" || file.type === "image/svg+xml") return false;
+    return true;
+  }
+  if (!file.type || MOBILE_IMAGE_TYPES.has(file.type)) return true;
+  return /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+}
 
 export function useCatalogImageUpload({
   locale,
@@ -34,7 +50,7 @@ export function useCatalogImageUpload({
   }
 
   function openCropFromFile(file: File) {
-    if (!isAllowedImageMime(file.type)) {
+    if (!isSelectableImageFile(file)) {
       onError(labels.productImageTypeError);
       resetInput();
       return;

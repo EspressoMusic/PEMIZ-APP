@@ -7,7 +7,7 @@ import {
 import { serializePublicStoreDeal } from "@/lib/public-deals";
 import { PublicStorefront } from "@/components/public-storefront";
 import { getAllPlatformLegalDocuments } from "@/lib/legal/platform-legal";
-import { publicCatalogImageUrl } from "@/lib/public-image-url";
+import { serializeProductImages } from "@/lib/product-api-images";
 import { ServiceUnavailableNotice } from "@/components/service-unavailable-notice";
 import { recordSystemIncident } from "@/lib/system-incidents";
 import { formatServerError } from "@/lib/server-errors";
@@ -50,15 +50,19 @@ export default async function PublicBusinessPage({
         name: business.name,
         description: business.description,
         type: business.type,
-        products: business.products.map((p) => ({
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          imageUrl: publicCatalogImageUrl(p.imageUrl),
-          price: p.price,
-          salePrice: p.salePrice,
-          stock: p.stock,
-        })),
+        products: business.products.map((p) => {
+          const serialized = serializeProductImages(p);
+          return {
+            id: p.id,
+            name: p.name,
+            description: p.description,
+            imageUrl: serialized.imageUrl,
+            imageUrls: serialized.imageUrls,
+            price: p.price,
+            salePrice: p.salePrice,
+            stock: p.stock,
+          };
+        }),
         deals: business.storeDeals.map((d) => serializePublicStoreDeal(d)),
         slots: business.slots.map((s) => ({
           id: s.id,
