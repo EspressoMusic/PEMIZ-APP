@@ -1,90 +1,143 @@
-# מדיניות פרטיות — Linky (BiziLink)
+# Privacy Policy
 
-**עודכן:** יוני 2026  
-**גרסה:** טיוטה 1.2 — יש לעבור על ידי עורך דין
-
-## 1. כללי
-
-מדיניות זו מתארת כיצד הפלטפורמה Linky מטפלת במידע אישי במסגרת האתר, האפליקציה והכלים לבעלי חנויות ולקוחות קצה.
-
-## 2. סוגי מידע שאנו עשויים לאסוף
-
-### בעלי חנויות (משתמשים רשומים)
-
-- פרטי חשבון: שם, דוא"ל, סיסמה (נשמרת כגיבוב מוצפן — לא כטקסט גלוי), מספר טלפון (אם הוזן/אומת).
-- **איפוס סיסמה:** בלחיצה על «שכחתי סיסמה» נשלחת בקשה לצוות התמיכה; לאחר אימות הטלפון נשלחת **סיסמה חדשה** לבעל החשבון (לא נשלחת הסיסמה הישנה בטקסט גלוי).
-- פרטי עסק: שם חנות, כתובת עמוד (slug), סוג עסק, תיאור, הגדרות תצוגה ושפה.
-- תוכן עסקי: מוצרים, מחירים, תמונות (לרוב כקישורי תמונה או נתוני תמונה מוטמעים), מבצעים, שאלות נפוצות, מדיניות ותקנון חנות, הודעות שידור ללקוחות.
-- פעילות: הזמנות, תורים, פניות, הודעות צ'אט (כולל צ'אט קהילה וצ'אט פרטי מול לקוח), סטטיסטיקות שימוש בסיסיות.
-- **נתוני לקוחות והיסטוריה:** רשימות לקוחות, היסטוריית הזמנות, תורים ופניות נשמרים **בחשבון העסק ובשרתי הפלטפורמה** — לניהול החנות, מעקב ושירות. זה מאובטח יותר מאחסון מקומי בלבד במכשיר הלקוח.
-- טכני: עוגיות סשן (`linky_session`), עוגיות העדפות (למשל ערכת נושא), כתובת IP ולוגי שרת לצורכי אבטחה ותפעול.
-
-### לקוחות קצה (לרוב ללא הרשמה מלאה)
-
-- שם וטלפון בטפסי הזמנה, פנייה או צ'אט.
-- תוכן הודעות בצ'אט, לייקים בצ'אט קהילה (מזוהים לפי טלפון מנורמל).
-- **הזמנות, תורים ופניות:** בעת ביצוע פעולה, הפרטים נשמרים **אצל בעל החנות ובמערכת Linky** לצורך מילוי ההזמנה, ניהול תורים ושירות לקוחות. בעל החנות רואה את ההיסטוריה והפרטים בדשבורד שלו.
-- העדפות תצוגה בלבד (שפה, גודל טקסט, ערכת צבעים) עשויות להישמר מקומית בדפדפן או באפליקציה לנוחותך.
-- טכני: עוגיות/אחסון מקומי לפי הצורך, לוגים.
-
-> **הבהרה:** אחסון מרכזי אצל בעל העסק מאפשר גיבוי, אבטחה ושירות טוב יותר מאשר שמירה מקומית בלבד במכשיר הלקוח.
-
-### מנהל פלטפורמה
-
-- גישה לפאנל ניהול (מוגנת בסיסמה נפרדת ומסלול גישה סודי בפרודקשן) לצורך אישור/השבתת חנויות וניהול הרשמה.
-
-## 3. מטרות שימוש
-
-- הפעלת החשבון והחנות, הצגת עמוד ללקוחות, עיבוד הזמנות ופניות.
-- אבטחה, מניעת הונאה, הגבלת קצב בקשות (rate limiting), תמיכה.
-- שיפור השירות ותיקון תקלות (לוגים טכניים).
-
-## 4. בסיס חוקי (טיוטה)
-
-בהתאם לדין החל: ביצוע חוזה, אינטרס לגיטימי (אבטחה ותפעול), והסכמה — במקום שנדרש (למשל עוגיות שאינן הכרחיות, אם יוחלו).
-
-## 5. שיתוף עם צדדים שלישיים
-
-עשויים לכלול:
-
-- **אחסון ומסד נתונים** (למשל Supabase / PostgreSQL).
-- **אירוח** (למשל Vercel).
-- **דוא"ל** — אם הופעל שליחת מייל (למשל Resend).
-
-איננו מוכרים את המידע האישי שלך לצדדים שלישיים לצורכי פרסום.
-
-## 6. אחסון, אבטחה ושמירה
-
-- סיסמאות מגובבות; סשנים בעוגיות HttpOnly (ובפרודקשן — Secure, SameSite מחמיר יותר).
-- ננקוט אמצעי אבטחה סבירים, אך **לא ניתן להבטיח אבטחה מוחלטת 100%**.
-- מידע נשמר כל עוד החשבון/החנות פעילים, ולאחר מכן לפי צורכי גיבוי, דין ומחיקה.
-
-### נתוני לקוחות אצל בעל החנות
-
-- הזמנות, תורים, פניות ופרטי קשר של לקוחות נשמרים בשרתי הפלטפורמה ומשויכים לחשבון העסק.
-- בעל החנות אחראי לשימוש בנתונים בהתאם לדין ולמדיניות הפרטיות של החנות שלו.
-- העדפות תצוגה בלבד (שפה, גודל טקסט) עשויות להישמר מקומית אצל הלקוח לנוחות — אינן מהוות את מקור האמת לנתוני העסקה.
-
-## 7. זכויותיך
-
-בהתאם לחוק הגנת הפרטיות (ישראל) ולחוקים נוספים שיחולו, עשויים לעמוד לרשותך זכויות לעיון, תיקון, מחיקה והתנגדות — בפנייה אלינו. מחיקת חנות/חשבון תסיר או תנטרל גישה לרוב הנתונים העסקיים, בכפוף לגיבויים ולחובות שמירה.
-
-## 8. העברות מחוץ לישראל
-
-אם הספקים מאחסנים מידע מחוץ לישראל — תיעשה בהתאם לדין החל ובהסכמים עם הספק.
-
-## 9. קטינים
-
-השירות לא מיועד לילדים מתחת לגיל 18 ללא אישור הורה. בעלי חנויות אחראים לוודא שהמוצרים שלהם חוקיים לגיל.
-
-## 10. שינויים במדיניות
-
-נעדכן מדיניות זו מעת לעת. תאריך העדכון בראש המסמך.
-
-## 11. יצירת קשר
-
-לפניות בנושא פרטיות: דוא"ל התמיכה שמופיע בחשבון / באתר.
+**Last updated:** June 2026  
+**Contact:** shilohdhd1@gmail.com
 
 ---
 
-*טיוטה — לא ייעוץ משפטי.*
+## 1. Introduction
+
+Peymiz ("**we**", "**us**", "**Platform**") provides B2B SaaS software for small businesses. This Privacy Policy explains how we collect, use, store, and share information when you use our website and platform.
+
+This policy applies to **business users** (account holders). End customers of a business may interact with a business's Peymiz-powered page; those customers' data is primarily controlled by the business, as explained below.
+
+## 2. Information We Collect
+
+### 2.1 Account and identity information
+
+- Name, email address, phone number
+- Login credentials (passwords are stored in hashed form)
+- Account preferences and language settings
+
+### 2.2 Business information
+
+- Business name, description, category, and public profile details
+- Store settings, hours, policies, FAQs, and branding you configure
+- Subscription and billing status (payment card details are handled by our payment processor; we do not store full card numbers)
+
+### 2.3 Operational data you enter into the Platform
+
+When you use Peymiz to run your business, we process data you and your customers generate, including:
+
+- Customer orders and order items
+- Appointments and booking details
+- Customer messages, inquiries, and chat content
+- Customer contact information you collect through your store page
+- Product catalogs, prices, images, and inventory-related fields
+
+**You control this data** for your business. Peymiz processes it to provide the Service.
+
+### 2.4 Usage and technical data
+
+- Device type, browser, IP address, and general location (derived from IP)
+- Log files, error reports, and performance metrics
+- Feature usage, clicks, and session activity within the dashboard
+- Security events (login attempts, suspicious activity)
+
+### 2.5 Cookies and similar technologies
+
+We use cookies and similar technologies for:
+
+- Authentication and session management
+- Security and fraud prevention
+- Storing preferences (e.g., theme, language)
+- Analytics to understand how the Platform is used and to improve it
+
+You can control cookies through your browser settings. Disabling essential cookies may affect login and core functionality.
+
+## 3. How We Use Information
+
+We use collected information to:
+
+- Provide, operate, maintain, and improve the Platform
+- Authenticate users and secure accounts
+- Process subscriptions and communicate about billing
+- Send service-related notices (updates, security alerts, support)
+- Respond to support requests and enforce our Terms
+- Analyze usage trends and fix bugs
+- Comply with legal obligations
+
+We do **not** sell your personal information. We do **not** use your business's end-customer data to compete with you or to sell products to your customers.
+
+## 4. Legal Bases (where applicable)
+
+Depending on your location, we rely on one or more of: performance of a contract (providing the Service), legitimate interests (security, improvement, analytics), consent (where required), and legal obligation.
+
+## 5. Service Providers and Processors
+
+We use trusted third-party providers to help operate the Service, such as:
+
+- Cloud hosting and database providers
+- Payment processors (for subscription billing)
+- Email delivery services
+- Analytics and monitoring tools
+
+These providers process data only on our instructions and under appropriate contractual safeguards. They may be located outside your country.
+
+## 6. Data Sharing
+
+We may share information:
+
+- With service providers as described above
+- When required by law, regulation, legal process, or government request
+- To protect the rights, safety, and security of Peymiz, users, or the public
+- In connection with a merger, acquisition, or sale of assets (with notice where required)
+
+We do **not** share your business operational data with other businesses on the Platform for their marketing purposes.
+
+## 7. Data Security
+
+We implement administrative, technical, and organizational measures designed to protect information, including encryption in transit, access controls, and secure infrastructure practices.
+
+No method of transmission or storage is 100% secure. You are responsible for securing your account credentials.
+
+## 8. Data Retention
+
+We retain information for as long as your account is active and as needed to provide the Service, comply with law, resolve disputes, and enforce agreements.
+
+When you delete your account or request deletion (subject to legal exceptions), we will delete or anonymize personal data within a reasonable period, except where retention is required by law or for legitimate backup/archival cycles.
+
+Business operational data may be retained for a limited period after account closure for backup and legal compliance, then deleted according to our retention schedule.
+
+## 9. Your Rights
+
+Depending on applicable law, you may have the right to:
+
+- **Access** personal information we hold about you
+- **Correct** inaccurate information
+- **Delete** certain information
+- **Object to or restrict** certain processing
+- **Data portability** where applicable
+- **Withdraw consent** where processing is consent-based
+
+To exercise these rights, contact **shilohdhd1@gmail.com**. We may verify your identity before responding.
+
+If you are an end customer of a business using Peymiz, contact that business first regarding orders, messages, or personal data they hold about you.
+
+## 10. International Users
+
+Peymiz may be accessed from multiple countries. Your information may be processed in Israel and in other countries where we or our providers operate. By using the Service, you acknowledge such transfers and our safeguards.
+
+## 11. Children's Privacy
+
+The Service is intended for business users and is not directed to children under 16. We do not knowingly collect personal information from children.
+
+## 12. Changes to This Policy
+
+We may update this Privacy Policy from time to time. We will post the revised version on the Platform and update the "Last updated" date. Material changes may be notified by email or in-app notice.
+
+## 13. Contact
+
+Privacy questions and requests:
+
+**Email:** shilohdhd1@gmail.com

@@ -1,7 +1,15 @@
 "use client";
 
 /** Lightweight markdown renderer for legal text (headers + paragraphs). */
-export function LegalDocumentBody({ markdown }: { markdown: string }) {
+export function LegalDocumentBody({
+  markdown,
+  variant = "bakery",
+}: {
+  markdown: string;
+  variant?: "bakery" | "marketing";
+}) {
+  const textClass =
+    variant === "marketing" ? "text-[var(--text)]" : "text-bakery-ink";
   const lines = markdown.split("\n");
   const nodes: React.ReactNode[] = [];
   let paragraph: string[] = [];
@@ -13,7 +21,7 @@ export function LegalDocumentBody({ markdown }: { markdown: string }) {
     nodes.push(
       <p
         key={key++}
-        className="whitespace-pre-wrap text-[14px] leading-[1.5] text-bakery-ink"
+        className={`whitespace-pre-wrap text-[14px] leading-[1.5] ${textClass}`}
       >
         {text}
       </p>
@@ -28,7 +36,7 @@ export function LegalDocumentBody({ markdown }: { markdown: string }) {
       nodes.push(
         <h1
           key={key++}
-          className="text-[20px] font-extrabold text-bakery-ink"
+          className={`text-[20px] font-extrabold ${textClass}`}
         >
           {trimmed.slice(2)}
         </h1>
@@ -40,7 +48,7 @@ export function LegalDocumentBody({ markdown }: { markdown: string }) {
       nodes.push(
         <h2
           key={key++}
-          className="mt-3 text-[17px] font-bold text-bakery-ink"
+          className={`mt-3 text-[17px] font-bold ${textClass}`}
         >
           {trimmed.slice(3)}
         </h2>
@@ -52,7 +60,7 @@ export function LegalDocumentBody({ markdown }: { markdown: string }) {
       nodes.push(
         <h3
           key={key++}
-          className="mt-2 text-[15px] font-bold text-bakery-ink"
+          className={`mt-2 text-[15px] font-bold ${textClass}`}
         >
           {trimmed.slice(4)}
         </h3>
@@ -62,7 +70,7 @@ export function LegalDocumentBody({ markdown }: { markdown: string }) {
     if (trimmed === "---") {
       flushParagraph();
       nodes.push(
-        <hr key={key++} className="border-bakery-border/30" />
+        <hr key={key++} className={variant === "marketing" ? "border-[var(--line)]" : "border-bakery-border/30"} />
       );
       continue;
     }

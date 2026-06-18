@@ -1,5 +1,5 @@
-import { LegalPageShell } from "@/components/legal/legal-page-shell";
+import { MarketingLegalPage } from "@/components/marketing/marketing-legal-page";
 
 export default function TermsPage() {
-  return <LegalPageShell documentId="terms-of-service" />;
+  return <MarketingLegalPage documentId="terms-of-service" />;
 }

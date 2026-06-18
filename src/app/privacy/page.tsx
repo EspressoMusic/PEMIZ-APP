@@ -1,5 +1,5 @@
-import { LegalPageShell } from "@/components/legal/legal-page-shell";
+import { MarketingLegalPage } from "@/components/marketing/marketing-legal-page";
 
 export default function PrivacyPage() {
-  return <LegalPageShell documentId="privacy-policy" />;
+  return <MarketingLegalPage documentId="privacy-policy" />;
 }

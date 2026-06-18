@@ -41,7 +41,7 @@ const DOC_META: Record<
   "refund-cancellation-policy": {
     file: "refund-cancellation-policy.md",
     titleHe: "ביטולים והחזרים",
-    titleEn: "Refunds & Cancellations",
+    titleEn: "Refund & Cancellation Policy",
   },
   "acceptable-use-policy": {
     file: "acceptable-use-policy.md",

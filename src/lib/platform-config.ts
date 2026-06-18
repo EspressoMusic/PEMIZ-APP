@@ -31,22 +31,14 @@ export async function getPlatformConfig() {
     return DEFAULT_CONFIG;
   }
   try {
-    return await withDbTimeout(
-      prisma.platformConfig.upsert({
-        where: { id: CONFIG_ID },
-        create: {
-          id: CONFIG_ID,
-          signupsEnabled: true,
-          trialClosureEnabled: true,
-          trialWarningEmailsEnabled: true,
-          maxAppointmentsPerBusiness: 100,
-          maxOrderItemsPerOrder: 200,
-        },
-        update: {},
-      })
+    const row = await withDbTimeout(
+      prisma.platformConfig.findUnique({ where: { id: CONFIG_ID } })
     );
-  } catch (err) {
-    console.error("[platform-config] DB unavailable, using defaults", err);
+    return row ?? DEFAULT_CONFIG;
+  } catch {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[platform-config] DB unavailable, using defaults");
+    }
     return DEFAULT_CONFIG;
   }
 }

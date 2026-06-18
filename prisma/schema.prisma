@@ -111,6 +111,11 @@ model Business {
   approvedAt      DateTime?
   subscriptionActiveAt   DateTime?
   subscriptionPlan       String?
+  // paddle | stripe — which provider bills this store
+  subscriptionBillingProvider            String?
+  subscriptionExternalCustomerId         String?
+  subscriptionExternalSubscriptionId     String?
+  // Legacy Stripe IDs (kept for existing rows)
   subscriptionStripeCustomerId     String?
   subscriptionStripeSubscriptionId String?
   subscriptionCurrentPeriodStart   DateTime?

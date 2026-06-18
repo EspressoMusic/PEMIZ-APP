@@ -1,13 +1,15 @@
 import { headers } from "next/headers";
 import Stripe from "stripe";
-import { prisma } from "@/lib/prisma";
 import {
   activateBusinessSubscription,
   deactivateBusinessSubscription,
+  findBusinessIdByExternalSubscriptionId,
+  syncBusinessSubscriptionPeriod,
+} from "@/lib/billing/subscription-store";
+import {
   getStripe,
   subscriptionBillingPeriod,
-  syncBusinessSubscriptionPeriod,
-} from "@/lib/stripe-billing";
+} from "@/lib/billing/providers/stripe-provider";
 import type { SubscriptionPlanId } from "@/lib/subscription-plans";
 
 export const runtime = "nodejs";
@@ -18,11 +20,7 @@ async function businessIdFromSubscription(
   if (subscription.metadata.businessId) {
     return subscription.metadata.businessId;
   }
-  const business = await prisma.business.findFirst({
-    where: { subscriptionStripeSubscriptionId: subscription.id },
-    select: { id: true },
-  });
-  return business?.id ?? null;
+  return findBusinessIdByExternalSubscriptionId("stripe", subscription.id);
 }
 
 export async function POST(req: Request) {
@@ -64,12 +62,14 @@ export async function POST(req: Request) {
         if (!businessId || !planId || !subscriptionId || !customerId) break;
 
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        const { periodStart, periodEnd } = subscriptionBillingPeriod(subscription);
+        const { periodStart, periodEnd } =
+          subscriptionBillingPeriod(subscription);
         await activateBusinessSubscription({
           businessId,
           planId,
-          stripeCustomerId: customerId,
-          stripeSubscriptionId: subscriptionId,
+          provider: "stripe",
+          externalCustomerId: customerId,
+          externalSubscriptionId: subscriptionId,
           periodStart,
           periodEnd,
         });
@@ -79,11 +79,24 @@ export async function POST(req: Request) {
         const subscription = event.data.object as Stripe.Subscription;
         const businessId = await businessIdFromSubscription(subscription);
         if (!businessId) break;
+        const { periodStart, periodEnd } =
+          subscriptionBillingPeriod(subscription);
+        const planId = subscription.metadata.planId as
+          | SubscriptionPlanId
+          | undefined;
+
         if (
           subscription.status === "active" ||
           subscription.status === "trialing"
         ) {
-          await syncBusinessSubscriptionPeriod(businessId, subscription);
+          await syncBusinessSubscriptionPeriod({
+            businessId,
+            planId:
+              planId === "premium" || planId === "ultimate" ? planId : null,
+            periodStart,
+            periodEnd,
+            active: true,
+          });
         } else if (
           subscription.status === "canceled" ||
           subscription.status === "unpaid" ||
