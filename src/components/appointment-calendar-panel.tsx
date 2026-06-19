@@ -54,7 +54,7 @@ export function AppointmentCalendarEmptyDay({
       className={
         squareLarge
           ? fillHeight
-            ? "h-full min-h-0 w-full rounded-[14px] border-[2.5px] border-transparent"
+            ? "appointment-calendar-empty--fill"
             : "aspect-square w-full rounded-[14px] border-[2.5px] border-transparent"
           : square
             ? "aspect-square w-full rounded-[12px] border-[2px] border-transparent"
@@ -90,6 +90,7 @@ export function AppointmentCalendarPanel({
   lightNavButtons = false,
   weekColumnCount = 7,
   panelClassName,
+  visualVariant = "bakery",
 }: {
   monthTitle: string;
   onPrevMonth: () => void;
@@ -117,19 +118,37 @@ export function AppointmentCalendarPanel({
   fillHeight?: boolean;
   /** Lighter prev/next month controls (seller home calendar). */
   lightNavButtons?: boolean;
-  /** 5 hides Fri/Sat columns; 7 shows full week. */
-  weekColumnCount?: 5 | 7;
+  /** 1–7 columns; only open weekdays from the seller schedule are shown. */
+  weekColumnCount?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   /** Override inner calendar panel surface (e.g. lighter home calendar). */
   panelClassName?: string;
+  /** Modern mint/white style for appointments stores. */
+  visualVariant?: "bakery" | "modern";
 }) {
   const tight = compactVertical || homeCompact;
   const isSquare = squareDays || squareDaysLarge;
   const stretchSquare = fillHeight && squareDaysLarge;
-  const navButtonClass = lightNavButtons
-    ? "border-bakery-border/20 bg-bakery-cream-light/90 text-bakery-muted"
-    : "border-bakery-border/35 bg-bakery-card text-bakery-ink";
-  const navIconClass = lightNavButtons ? "text-bakery-muted/75" : "";
-  const weekGridClass = weekColumnCount === 5 ? "grid-cols-5" : "grid-cols-7";
+  const isModern = visualVariant === "modern";
+  const navButtonClass = isModern
+    ? "appointment-calendar-nav-btn"
+    : lightNavButtons
+      ? "border-bakery-border/20 bg-bakery-cream-light/90 text-bakery-muted"
+      : "border-bakery-border/35 bg-bakery-card text-bakery-ink";
+  const navIconClass = isModern ? "" : lightNavButtons ? "text-bakery-muted/75" : "";
+  const weekGridClass =
+    weekColumnCount === 1
+      ? "grid-cols-1"
+      : weekColumnCount === 2
+        ? "grid-cols-2"
+        : weekColumnCount === 3
+          ? "grid-cols-3"
+          : weekColumnCount === 4
+            ? "grid-cols-4"
+            : weekColumnCount === 5
+              ? "grid-cols-5"
+              : weekColumnCount === 6
+                ? "grid-cols-6"
+                : "grid-cols-7";
   const dayGap = squareDaysLarge
     ? "gap-2.5"
     : squareDays
@@ -144,11 +163,13 @@ export function AppointmentCalendarPanel({
 
   return (
     <div
-      className={`flex w-full flex-col ${homeCompact ? "min-h-0 flex-1" : "min-h-0 flex-1"}`}
+      className={`flex w-full flex-col ${homeCompact ? "min-h-0 flex-1" : "min-h-0 flex-1"}${isModern ? " appointment-calendar-modern" : ""}`}
     >
       <div
-        className={`flex w-full flex-col rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.1)] ${
-          homeCompact ? "min-h-0 flex-1" : "min-h-0 flex-1"
+        className={`flex w-full flex-col ${
+          isModern
+            ? "appointment-calendar-modern-surface min-h-0 flex-1"
+            : `rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.1)] ${homeCompact ? "min-h-0 flex-1" : "min-h-0 flex-1"}`
         }${panelClassName ? ` ${panelClassName}` : ""}`}
       >
         <div
@@ -172,8 +193,18 @@ export function AppointmentCalendarPanel({
             <button
               type="button"
               onClick={onPrevMonth}
-              className={`flex shrink-0 items-center justify-center rounded-[14px] border transition active:scale-95 ${navButtonClass} ${
-                squareDaysLarge ? "h-11 w-11" : homeCompact ? "h-9 w-9" : tight ? "h-10 w-10" : "h-11 w-11"
+              className={`appointment-calendar-nav-btn flex shrink-0 items-center justify-center border transition active:scale-95 ${navButtonClass} ${
+                isModern
+                  ? squareDaysLarge
+                    ? "h-10 w-10"
+                    : "h-9 w-9"
+                  : squareDaysLarge
+                    ? "h-11 w-11 rounded-[14px]"
+                    : homeCompact
+                      ? "h-9 w-9 rounded-[14px]"
+                      : tight
+                        ? "h-10 w-10 rounded-[14px]"
+                        : "h-11 w-11 rounded-[14px]"
               }`}
               aria-label={prevMonthLabel}
             >
@@ -185,7 +216,9 @@ export function AppointmentCalendarPanel({
               />
             </button>
             <p
-              className={`text-center font-extrabold capitalize text-bakery-ink ${
+              className={`appointment-calendar-month-title text-center font-extrabold capitalize ${
+                isModern ? "text-bakery-ink" : "text-bakery-ink"
+              } ${
                 squareDaysLarge
                   ? "text-[21px] sm:text-[22px]"
                   : homeCompact
@@ -200,8 +233,18 @@ export function AppointmentCalendarPanel({
             <button
               type="button"
               onClick={onNextMonth}
-              className={`flex shrink-0 items-center justify-center rounded-[14px] border transition active:scale-95 ${navButtonClass} ${
-                squareDaysLarge ? "h-11 w-11" : homeCompact ? "h-9 w-9" : tight ? "h-10 w-10" : "h-11 w-11"
+              className={`appointment-calendar-nav-btn flex shrink-0 items-center justify-center border transition active:scale-95 ${navButtonClass} ${
+                isModern
+                  ? squareDaysLarge
+                    ? "h-10 w-10"
+                    : "h-9 w-9"
+                  : squareDaysLarge
+                    ? "h-11 w-11 rounded-[14px]"
+                    : homeCompact
+                      ? "h-9 w-9 rounded-[14px]"
+                      : tight
+                        ? "h-10 w-10 rounded-[14px]"
+                        : "h-11 w-11 rounded-[14px]"
               }`}
               aria-label={nextMonthLabel}
             >
@@ -246,7 +289,9 @@ export function AppointmentCalendarPanel({
             {weekdays.map((wd) => (
               <span
                 key={wd}
-                className={`font-extrabold text-bakery-ink ${
+                className={`appointment-calendar-weekday font-extrabold ${
+                  isModern ? "" : "text-bakery-ink"
+                } ${
                   squareDaysLarge
                     ? "py-0.5 text-[18px] sm:text-[19px]"
                     : homeCompact
@@ -264,7 +309,7 @@ export function AppointmentCalendarPanel({
           <div
             className={`flex min-h-0 flex-col ${
               stretchSquare
-                ? "min-h-0 flex-1 gap-2"
+                ? "appointment-calendar-weeks--fill"
                 : isSquare
                   ? squareDaysLarge
                     ? "gap-2.5"
@@ -283,7 +328,7 @@ export function AppointmentCalendarPanel({
                 key={weekIndex}
                 className={`grid ${weekGridClass} ${
                   stretchSquare
-                    ? `min-h-0 flex-1 ${dayGap}`
+                    ? `appointment-calendar-week-row--fill ${dayGap}`
                     : isSquare
                       ? dayGap
                       : homeLarge

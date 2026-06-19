@@ -95,7 +95,7 @@ import {
   APPOINTMENTS_HOME_BG,
   CustomerAppointmentsHomeShell,
 } from "./customer-appointments-home-backdrop";
-import { CustomerAppointmentCalendarModal } from "./customer-appointment-calendar-modal";
+import { CustomerAppointmentsHomeCalendar } from "./customer-appointments-home-calendar";
 import { CustomerAppointmentBookingModal } from "./customer-appointment-booking-modal";
 import { CustomerRentalBookingModal } from "./customer-rental-booking-modal";
 import { buildRentalNotes, isoAtLocalTime } from "@/lib/rental-period";
@@ -416,7 +416,6 @@ export function CustomerStoreApp({
   const [localAppointments, setLocalAppointments] = useState<
     CustomerAppointmentEntry[]
   >([]);
-  const [calendarPickerOpen, setCalendarPickerOpen] = useState(false);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [bookingDay, setBookingDay] = useState<string | null>(null);
   const [bookingSlots, setBookingSlots] = useState<AppointmentSlot[]>([]);
@@ -1613,34 +1612,32 @@ export function CustomerStoreApp({
     switch (mainTab) {
       case "home":
         return isScheduleLike ? (
-          <CustomerAppointmentsHomeShell>
-            <div className="w-full max-w-[340px] text-center">
-              <p className="text-[30px] font-extrabold leading-tight text-bakery-ink sm:text-[34px]">
-                {labels.hello}
-              </p>
-              <p className="mt-1.5 text-[24px] font-bold leading-snug text-bakery-ink sm:text-[26px]">
-                {labels.helloStoreName(business.name)}
-              </p>
-              {futureSlots.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setCalendarPickerOpen(true)}
-                  className="mt-5 flex min-h-[88px] w-full cursor-pointer items-center justify-center rounded-[14px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card px-6 py-6 text-center shadow-[0_3px_10px_rgba(58,47,38,0.1)] transition active:scale-[0.99]"
-                >
-                  <span className="text-[24px] font-extrabold leading-tight text-bakery-ink sm:text-[26px]">
-                    {isRental
-                      ? labels.scheduleRental
-                      : labels.scheduleAppointment}
-                  </span>
-                </button>
-              ) : null}
-              {futureSlots.length === 0 ? (
-                <div className="mt-4">
-                  <EmptyStateCard message={labels.noSlots} />
-                </div>
-              ) : null}
-            </div>
-          </CustomerAppointmentsHomeShell>
+          futureSlots.length > 0 ? (
+            <CustomerAppointmentsHomeCalendar
+              slots={business.slots}
+              locale={locale}
+              labels={labels}
+              orderScheduleEnabled={effectiveOrderScheduleEnabled}
+              orderSchedule={business.orderSchedule ?? null}
+              bookingByDay={isRental || (business.appointmentBookingByDay ?? false)}
+              rentalMode={isRental}
+              businessSlug={business.slug}
+              customerPhone={orderPhone}
+              onNeedPhone={() => setProfileModalOpen(true)}
+              onBook={(dateKey, slotsForBooking) => {
+                setBookingDay(dateKey);
+                setBookingSlots(slotsForBooking);
+                setBookingError("");
+                setBookingModalOpen(true);
+              }}
+            />
+          ) : (
+            <CustomerAppointmentsHomeShell>
+              <div className="flex flex-1 items-center justify-center px-6">
+                <EmptyStateCard message={labels.noSlots} />
+              </div>
+            </CustomerAppointmentsHomeShell>
+          )
         ) : (
           <div className="space-y-4 p-1 pb-2">
             {renderProductGrid()}
@@ -2014,27 +2011,6 @@ export function CustomerStoreApp({
           locale={locale}
         />
       )}
-
-      <CustomerAppointmentCalendarModal
-        open={calendarPickerOpen}
-        onClose={() => setCalendarPickerOpen(false)}
-        slots={business.slots}
-        locale={locale}
-        labels={labels}
-        orderScheduleEnabled={effectiveOrderScheduleEnabled}
-        orderSchedule={business.orderSchedule ?? null}
-        bookingByDay={isRental || (business.appointmentBookingByDay ?? false)}
-        rentalMode={isRental}
-        businessSlug={business.slug}
-        customerPhone={orderPhone}
-        onNeedPhone={() => setProfileModalOpen(true)}
-        onBook={(dateKey, slotsForBooking) => {
-          setBookingDay(dateKey);
-          setBookingSlots(slotsForBooking);
-          setBookingError("");
-          setBookingModalOpen(true);
-        }}
-      />
 
       {isRental ? (
         <CustomerRentalBookingModal

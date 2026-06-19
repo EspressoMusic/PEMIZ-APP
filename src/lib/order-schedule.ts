@@ -311,3 +311,17 @@ export function sellerHomeCalendarShowsWeekend(
   const saturday = schedule.daySlots.find((slot) => slot.day === 6);
   return Boolean(friday?.open || saturday?.open);
 }
+
+/** Weekday indexes (0=Sun … 6=Sat) shown on appointment calendars. */
+export function appointmentCalendarOpenWeekdays(
+  orderScheduleEnabled: boolean,
+  orderScheduleJson: string | null | undefined
+): number[] {
+  if (!orderScheduleEnabled) return [0, 1, 2, 3, 4, 5, 6];
+  const schedule = parseOrderSchedule(orderScheduleJson, true);
+  const open = schedule.daySlots
+    .filter((slot) => slot.open)
+    .map((slot) => slot.day)
+    .sort((a, b) => a - b);
+  return open.length > 0 ? open : [0, 1, 2, 3, 4, 5, 6];
+}

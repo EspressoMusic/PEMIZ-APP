@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatAppointmentDayTitle } from "@/lib/appointment-calendar-shared";
 import { isSellerWorkingDay } from "@/lib/order-schedule";
@@ -61,31 +60,30 @@ export function CustomerAppointmentSlotPicker({
       }
     >
       {!hideHeader ? (
-        <p className="text-center text-[15px] font-extrabold leading-snug text-bakery-ink">
+        <p className="appointment-day-modal__title text-center text-[15px] font-extrabold leading-snug">
           {title}
         </p>
       ) : null}
 
       {closed ? (
-        <p className="rounded-[16px] border border-bakery-border/30 bg-bakery-card/70 px-4 py-5 text-center text-[14px] font-semibold text-bakery-muted">
+        <p className="appointment-slot-empty rounded-[16px] px-4 py-5 text-center text-[14px] font-semibold">
           {labels.calendarDayClosedHint}
         </p>
       ) : sortedSlots.length === 0 ? (
-        <p className="rounded-[16px] border border-bakery-border/30 bg-bakery-card/70 px-4 py-5 text-center text-[14px] font-semibold text-bakery-muted">
+        <p className="appointment-slot-empty rounded-[16px] px-4 py-5 text-center text-[14px] font-semibold">
           {labels.calendarNoSlotsDay}
         </p>
       ) : bookingByDay ? (
         openSlots.length > 0 ? (
-          <Button
+          <button
             type="button"
-            variant="primary"
-            className="w-full min-h-[48px] rounded-[16px] text-[15px] font-extrabold"
+            className="appointment-slot-day-btn"
             onClick={() => onBook(dateKey, openSlots)}
           >
             {rentalMode ? labels.scheduleRental : labels.book}
-          </Button>
+          </button>
         ) : (
-          <p className="rounded-[16px] border border-bakery-border/30 bg-bakery-card/70 px-4 py-5 text-center text-[14px] font-semibold text-bakery-muted">
+          <p className="appointment-slot-empty rounded-[16px] px-4 py-5 text-center text-[14px] font-semibold">
             {labels.calendarNoSlotsDay}
           </p>
         )
@@ -105,37 +103,36 @@ export function CustomerAppointmentSlotPicker({
             return (
               <li key={slot.id}>
                 <div
-                  className={`flex items-center gap-2 rounded-[16px] border px-3 py-2.5 transition-colors duration-150 ${
+                  className={`appointment-slot-row flex items-center gap-2 px-3 py-2.5 ${
                     isOpen
-                      ? "border-bakery-primary/35 bg-bakery-card hover:bg-bakery-cream-hover active:bg-bakery-cream-mid"
+                      ? "appointment-slot-row--open"
                       : isFull
-                        ? "border-[#b85c5c]/35 bg-[#faf0ee] hover:bg-[#f3e4e1] active:bg-[#ecd8d4]"
-                        : "border-bakery-border/25 bg-bakery-card/55 opacity-80 hover:bg-bakery-card/80 hover:opacity-90"
+                        ? "appointment-slot-row--full"
+                        : "appointment-slot-row--past"
                   }`}
                 >
                   <span
-                    className={`shrink-0 tabular-nums text-[22px] font-extrabold leading-none sm:text-[24px] ${
+                    className={`appointment-slot-time shrink-0 text-[22px] leading-none sm:text-[24px] ${
                       isOpen
-                        ? "text-bakery-ink"
+                        ? ""
                         : isFull
-                          ? "text-[#9a4545]"
-                          : "text-bakery-muted"
+                          ? "appointment-slot-time--full"
+                          : "appointment-slot-time--past"
                     }`}
                     dir="ltr"
                   >
                     {formatSlotTime(slot.startAt, locale)}
                   </span>
                   {isOpen ? (
-                    <Button
+                    <button
                       type="button"
-                      variant="primary"
-                      className="ms-auto shrink-0 rounded-full px-3 py-1.5 text-[12px] font-extrabold"
+                      className="appointment-slot-book-btn ms-auto shrink-0 px-3 py-1.5 text-[12px]"
                       onClick={() =>
                         onBook(dateKey, bookingByDay ? openSlots : [slot])
                       }
                     >
                       {labels.book}
-                    </Button>
+                    </button>
                   ) : null}
                 </div>
               </li>

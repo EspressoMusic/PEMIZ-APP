@@ -1751,14 +1751,14 @@ html:not([data-store-theme="dark"]) .dashboard-notification-bar__type {
   justify-content: center;
   width: 4.75rem;
   border-radius: 10px;
-  background: #e6d5b8;
-  border: 1px solid rgba(78, 52, 46, 0.12);
+  background: #614136;
+  border: 1px solid rgba(58, 47, 38, 0.35);
   padding: 0.25rem 0.375rem;
   text-align: center;
   font-size: 10px;
   font-weight: 800;
   line-height: 1.2;
-  color: #4e342e;
+  color: #faf4e6;
 }
 
 html:not([data-store-theme="dark"]) .dashboard-notification-bar__body {
@@ -2724,4 +2724,265 @@ html:not([data-store-theme="dark"]) .bakery-field {
 .site-cookie-consent__btn--ghost:hover {
   background: rgba(138, 79, 255, 0.14);
   border-color: rgba(201, 164, 255, 0.65);
+}
+
+/* Appointments store — modern calendar (customer + seller) */
+.appointment-calendar-modern-surface {
+  background: #ffffff;
+  border: 1.5px solid rgba(92, 74, 62, 0.22) !important;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(58, 47, 38, 0.08);
+}
+
+.appointment-calendar-modern .appointment-calendar-month-title {
+  color: #4e342e;
+  font-weight: 800;
+}
+
+.appointment-calendar-modern .appointment-calendar-weekday {
+  color: #4e342e;
+  font-weight: 700;
+}
+
+.appointment-calendar-modern .appointment-calendar-nav-btn {
+  border-radius: 9999px;
+  border: 1px solid rgba(92, 74, 62, 0.2);
+  background: #ffffff;
+  color: #6d5c52;
+}
+
+.appointment-calendar-modern .appointment-calendar-nav-btn:hover {
+  background: #faf6f0;
+  border-color: rgba(92, 74, 62, 0.32);
+}
+
+.appointment-calendar-modern .appointment-calendar-nav-btn svg {
+  color: #6d5c52;
+}
+
+.appointment-day-modern {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.appointment-day-modern--fill {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1;
+  justify-self: center;
+  align-self: center;
+}
+
+.appointment-calendar-weeks--fill {
+  min-height: 0;
+  flex: 1;
+  gap: 0.35rem;
+}
+
+.appointment-calendar-week-row--fill {
+  flex: 1 1 0;
+  min-height: 0;
+  align-items: center;
+}
+
+.appointment-calendar-empty--fill {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1;
+  justify-self: center;
+  align-self: center;
+  border-radius: 14px;
+  border: 2.5px solid transparent;
+}
+
+.appointment-day-modern:not(.appointment-day-modern--fill) {
+  aspect-ratio: 1;
+}
+
+.appointment-day-modern[data-status="past"],
+.appointment-day-modern[data-status="closed"],
+.appointment-day-modern[data-status="empty"],
+.appointment-day-modern[data-status="noSlots"] {
+  border-color: transparent;
+  background: transparent;
+  color: #b8bec9;
+  font-weight: 600;
+}
+
+.appointment-day-modern[data-status="available"],
+.appointment-day-modern[data-status="open"],
+.appointment-day-modern[data-status="booked"] {
+  border-color: rgba(92, 74, 62, 0.28);
+  background: #faf6f0;
+  color: #4e342e;
+  cursor: pointer;
+}
+
+.appointment-day-modern[data-status="available"]:hover,
+.appointment-day-modern[data-status="open"]:hover,
+.appointment-day-modern[data-status="booked"]:hover {
+  background: #f2ebe0;
+}
+
+.appointment-day-modern[data-status="full"] {
+  border-color: #f0b4b4;
+  background: #fdeeee;
+  color: #9b4040;
+  cursor: pointer;
+}
+
+.appointment-day-modern[data-selected="true"] {
+  border-color: #614136 !important;
+  background: #ebe3d6 !important;
+  color: #4e342e !important;
+  box-shadow: 0 0 0 2px rgba(97, 65, 54, 0.28);
+}
+
+.appointment-day-modern[data-today="true"] {
+  box-shadow: 0 0 0 2px rgba(97, 65, 54, 0.45);
+}
+
+.appointment-day-modern:active {
+  transform: scale(0.97);
+}
+
+.appointments-calendar-shell {
+  background: #f2ebe0;
+  border: 1.5px solid rgba(92, 74, 62, 0.14);
+  box-shadow: none;
+}
+
+.appointments-calendar-frame {
+  background: #f2ebe0;
+  border: 1.5px solid rgba(92, 74, 62, 0.18);
+}
+
+.appointments-calendar-frame-inner {
+  background: #f2ebe0;
+}
+
+/* Appointment day / time slot picker — matches modern calendar */
+.appointment-day-modal {
+  background: #f2ebe0;
+  border: 1.5px solid rgba(92, 74, 62, 0.18);
+  box-shadow: 0 12px 40px rgba(58, 47, 38, 0.12);
+}
+
+.appointment-day-modal__header {
+  border-bottom: 1px solid rgba(92, 74, 62, 0.12);
+  background: #ffffff;
+}
+
+.appointment-day-modal__title {
+  color: #4e342e;
+}
+
+.appointment-day-modal__close {
+  color: #6d5c52;
+}
+
+.appointment-day-modal__close:hover {
+  background: #faf6f0;
+}
+
+.appointment-day-modal__body {
+  background: #f2ebe0;
+}
+
+.appointment-slot-row {
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  background: #ffffff;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.appointment-slot-row--open {
+  border-color: rgba(92, 74, 62, 0.28);
+  background: #ffffff;
+}
+
+.appointment-slot-row--open:hover {
+  background: #faf6f0;
+}
+
+.appointment-slot-row--full {
+  border-color: #f0b4b4;
+  background: #fff8f8;
+}
+
+.appointment-slot-row--past {
+  border-color: rgba(92, 74, 62, 0.1);
+  background: rgba(255, 255, 255, 0.55);
+  opacity: 0.85;
+}
+
+.appointment-slot-time {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 800;
+  color: #4e342e;
+}
+
+.appointment-slot-time--full {
+  color: #9b4040;
+}
+
+.appointment-slot-time--past {
+  color: #b8bec9;
+}
+
+.appointment-slot-book-btn {
+  border: none;
+  border-radius: 9999px;
+  background: #614136;
+  color: #fff8f0;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(97, 65, 54, 0.28);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.appointment-slot-book-btn:hover {
+  background: #4a3229;
+}
+
+.appointment-slot-book-btn:active {
+  transform: scale(0.97);
+}
+
+.appointment-slot-empty {
+  border: 1.5px solid rgba(92, 74, 62, 0.14);
+  background: #ffffff;
+  color: #6d5c52;
+}
+
+.appointment-slot-day-btn {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(92, 74, 62, 0.28);
+  background: #faf6f0;
+  color: #4e342e;
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.appointment-slot-day-btn:hover {
+  background: #f2ebe0;
 }

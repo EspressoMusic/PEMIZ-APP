@@ -81,9 +81,9 @@ export function CustomerAppointmentCalendarModal({
         onClick={onClose}
         aria-label={labels.close}
       />
-      <div className="relative flex max-h-[min(94dvh,780px)] w-full max-w-[min(100%,400px)] flex-col overflow-hidden rounded-[28px] border border-[#5C4A3E]/25 bg-[#D2B88E] shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
-        <div className="relative flex min-h-[56px] shrink-0 items-center justify-center border-b border-bakery-border/25 px-12 py-3.5">
-          <h2 className="w-full text-center text-[22px] font-extrabold leading-tight text-bakery-ink sm:text-[24px]">
+      <div className="appointments-calendar-frame relative flex max-h-[min(94dvh,780px)] w-full max-w-[min(100%,400px)] flex-col overflow-hidden rounded-[28px] border shadow-[0_12px_40px_rgba(58,47,38,0.1)]">
+        <div className="relative flex min-h-[56px] shrink-0 items-center justify-center border-b border-[#5C4A3E]/15 bg-white px-12 py-3.5">
+          <h2 className="appointment-day-modal__title w-full text-center text-[22px] font-extrabold leading-tight sm:text-[24px]">
             {pickDayTitle}
           </h2>
           <button
@@ -95,12 +95,13 @@ export function CustomerAppointmentCalendarModal({
             <X className="h-5 w-5" strokeWidth={2} />
           </button>
         </div>
-        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 py-1">
+        <div className="appointments-calendar-frame-inner no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-2">
           <CustomerAppointmentCalendar
             slots={slots}
             locale={locale}
             labels={labels}
             squareDaysLarge
+            visualVariant="modern"
             orderScheduleEnabled={orderScheduleEnabled}
             orderSchedule={orderSchedule}
             bookingByDay={bookingByDay}

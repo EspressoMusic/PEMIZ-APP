@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import {
-  APPOINTMENT_DAY_FRAME_SQUARE_LARGE_FILL,
   AppointmentCalendarPanel,
 } from "@/components/appointment-calendar-panel";
 import {
@@ -24,8 +23,8 @@ import {
 } from "@/components/dashboard/dashboard-customer-profile";
 import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
 import {
-  buildAppointmentMonthWeeks,
-  filterAppointmentWeekdayLabels,
+  buildAppointmentMonthWeeksForOpenDays,
+  filterAppointmentWeekdayLabelsForOpenDays,
   APPOINTMENT_WEEKDAYS_EN,
   APPOINTMENT_WEEKDAYS_HE,
   appointmentAddMonths,
@@ -37,7 +36,7 @@ import {
   formatAppointmentSlotTime,
   type CalendarSlot,
 } from "@/lib/appointment-calendar-shared";
-import { sellerHomeCalendarShowsWeekend } from "@/lib/order-schedule";
+import { appointmentCalendarOpenWeekdays } from "@/lib/order-schedule";
 import {
   isDashboardHomePath,
   LINKY_ORDER_SCHEDULE_UPDATED_EVENT,
@@ -378,10 +377,15 @@ export function DashboardAppointmentsHomeCalendar({
     };
   }, [previewOnly, isHomePath, loadLiveData, applyPreviewOrderSchedule]);
 
-  const showWeekend = useMemo(
-    () => sellerHomeCalendarShowsWeekend(orderScheduleEnabled, orderSchedule),
+  const openWeekdays = useMemo(
+    () =>
+      appointmentCalendarOpenWeekdays(orderScheduleEnabled, orderSchedule),
     [orderScheduleEnabled, orderSchedule]
   );
+  const weekColumnCount = Math.min(
+    7,
+    Math.max(1, openWeekdays.length)
+  ) as 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
   const quickBookSlot = useCallback(
     async (slotId: string) => {
@@ -508,12 +512,15 @@ export function DashboardAppointmentsHomeCalendar({
   }, [appointments]);
 
   const weeks = useMemo(
-    () => buildAppointmentMonthWeeks(month, showWeekend),
-    [month, showWeekend]
+    () => buildAppointmentMonthWeeksForOpenDays(month, openWeekdays),
+    [month, openWeekdays]
   );
   const weekdayLabels =
     locale === "he" ? APPOINTMENT_WEEKDAYS_HE : APPOINTMENT_WEEKDAYS_EN;
-  const weekdays = filterAppointmentWeekdayLabels(weekdayLabels, showWeekend);
+  const weekdays = filterAppointmentWeekdayLabelsForOpenDays(
+    weekdayLabels,
+    openWeekdays
+  );
 
   function dayStatus(dateKey: string): SellerDayStatus {
     const daySlots = slotsByDay.get(dateKey) ?? [];
@@ -547,25 +554,6 @@ export function DashboardAppointmentsHomeCalendar({
   function pickDay(dateKey: string) {
     setSelectedDay(dateKey);
     setDayModalOpen(true);
-  }
-
-  const dayNormal =
-    "border-[#5C4A3E]/22 bg-white text-bakery-ink";
-
-  function dayClass(status: SellerDayStatus, selected: boolean) {
-    if (selected) {
-      return "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.18)]";
-    }
-    if (status === "full") {
-      return "cursor-pointer border-bakery-error bg-bakery-error text-white shadow-[0_3px_10px_rgba(168,88,88,0.35)] active:scale-[0.98]";
-    }
-    if (status === "open" || status === "booked") {
-      return `${dayNormal} cursor-pointer hover:bg-[#faf6f0] active:scale-[0.98]`;
-    }
-    if (status === "past") {
-      return "cursor-pointer border-[#5C4A3E]/18 bg-[#f5efe4] text-bakery-muted active:scale-[0.98]";
-    }
-    return "cursor-pointer border-[#5C4A3E]/22 bg-[#faf6f0] text-bakery-ink active:scale-[0.98]";
   }
 
   const selectedDayAppointments = selectedDay
@@ -612,11 +600,10 @@ export function DashboardAppointmentsHomeCalendar({
         key={dateKey}
         type="button"
         onClick={() => pickDay(dateKey)}
-        className={`${APPOINTMENT_DAY_FRAME_SQUARE_LARGE_FILL} ${dayClass(status, selected)}${
-          isToday
-            ? " outline outline-[3px] outline-black outline-offset-0"
-            : ""
-        }`}
+        className="appointment-day-modern appointment-day-modern--fill"
+        data-status={status}
+        data-selected={selected ? "true" : undefined}
+        data-today={isToday ? "true" : undefined}
         title={status === "full" ? labels.homeCalendarFullDayHint : undefined}
       >
         {cell.day}
@@ -628,7 +615,7 @@ export function DashboardAppointmentsHomeCalendar({
     <>
       <div className="flex h-full min-h-0 max-h-full w-full flex-1 flex-col overflow-hidden">
         <div
-          className="dashboard-card bakery-float-panel relative flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden rounded-[32px] p-0"
+          className="appointments-calendar-shell relative flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden rounded-[32px] p-3"
           role="region"
           aria-label={labels.homeCalendarTitle}
         >
@@ -643,9 +630,9 @@ export function DashboardAppointmentsHomeCalendar({
               weeks={weeks}
               squareDaysLarge
               fillHeight
-              lightNavButtons
-              weekColumnCount={showWeekend ? 7 : 5}
-              panelClassName="!rounded-none !border-0 !bg-transparent !shadow-none"
+              visualVariant="modern"
+              weekColumnCount={weekColumnCount}
+              panelClassName="min-h-0 flex-1"
               renderDay={renderCalendarDay}
             />
           </div>
