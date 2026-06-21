@@ -856,23 +856,81 @@ html[data-store-theme="dark"] .appointment-day-modal__close {
 }
 
 html[data-store-theme="dark"] .appointment-calendar-modern .appointment-calendar-month-title,
-html[data-store-theme="dark"] .appointment-calendar-modern .appointment-calendar-weekday {
+html[data-store-theme="dark"] .appointment-calendar-modern .appointment-calendar-weekday,
+.customer-store-root.customer-theme-dark
+  .appointment-calendar-modern
+  .appointment-calendar-month-title,
+.customer-store-root.customer-theme-dark
+  .appointment-calendar-modern
+  .appointment-calendar-weekday {
   color: var(--bakery-ink);
+}
+
+html[data-store-theme="dark"] .appointment-calendar-modern-surface,
+.customer-store-root.customer-theme-dark .appointment-calendar-modern-surface {
+  background: var(--dashboard-tile-bg, var(--color-bakery-square, #252b34));
+  border-color: var(--dashboard-soft-border-strong, rgba(255, 255, 255, 0.14)) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+}
+
+html[data-store-theme="dark"] .appointment-calendar-modern .appointment-calendar-nav-btn,
+.customer-store-root.customer-theme-dark
+  .appointment-calendar-modern
+  .appointment-calendar-nav-btn {
+  background: var(--dashboard-panel-bg, var(--color-bakery-card, #1a1f26));
+  border-color: var(--dashboard-soft-border-strong, rgba(255, 255, 255, 0.14));
+  color: var(--bakery-ink);
+}
+
+html[data-store-theme="dark"] .appointment-calendar-modern .appointment-calendar-nav-btn:hover,
+.customer-store-root.customer-theme-dark
+  .appointment-calendar-modern
+  .appointment-calendar-nav-btn:hover {
+  background: var(--dashboard-tile-hover-bg, var(--color-customer-nav-active, #2a3038));
+  border-color: var(--dashboard-cyan-border-soft, rgba(126, 200, 227, 0.28));
+}
+
+html[data-store-theme="dark"] .appointment-calendar-modern .appointment-calendar-nav-btn svg,
+.customer-store-root.customer-theme-dark
+  .appointment-calendar-modern
+  .appointment-calendar-nav-btn
+  svg {
+  color: var(--dashboard-cyan-accent, var(--color-bakery-primary, #7ec8e3));
 }
 
 html[data-store-theme="dark"] .appointment-day-modern[data-status="past"],
 html[data-store-theme="dark"] .appointment-day-modern[data-status="closed"],
 html[data-store-theme="dark"] .appointment-day-modern[data-status="empty"],
-html[data-store-theme="dark"] .appointment-day-modern[data-status="noSlots"] {
+html[data-store-theme="dark"] .appointment-day-modern[data-status="noSlots"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-status="past"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-status="closed"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-status="empty"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-status="noSlots"] {
   color: var(--bakery-muted);
 }
 
 html[data-store-theme="dark"] .appointment-day-modern[data-status="available"],
 html[data-store-theme="dark"] .appointment-day-modern[data-status="open"],
-html[data-store-theme="dark"] .appointment-day-modern[data-status="booked"] {
+html[data-store-theme="dark"] .appointment-day-modern[data-status="booked"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-status="available"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-status="open"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-status="booked"] {
   background: var(--dashboard-nav-active-bg, var(--bakery-square));
   border-color: var(--dashboard-soft-border-strong);
   color: var(--bakery-ink);
+}
+
+html[data-store-theme="dark"] .appointment-day-modern[data-selected="true"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-selected="true"] {
+  border-color: rgba(126, 200, 227, 0.55) !important;
+  background: rgba(126, 200, 227, 0.16) !important;
+  color: var(--bakery-ink) !important;
+  box-shadow: 0 0 0 2px rgba(126, 200, 227, 0.24);
+}
+
+html[data-store-theme="dark"] .appointment-day-modern[data-today="true"],
+.customer-store-root.customer-theme-dark .appointment-day-modern[data-today="true"] {
+  box-shadow: 0 0 0 2px rgba(126, 200, 227, 0.42);
 }
 
 html[data-store-theme="dark"] .dashboard-action-row {
