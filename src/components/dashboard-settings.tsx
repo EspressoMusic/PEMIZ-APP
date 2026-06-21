@@ -57,7 +57,7 @@ export function DashboardSettingsView({
       businessType === "RENTAL");
 
   return (
-    <div className="space-y-6 pb-2">
+    <div className="space-y-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       {!showQuickActionRows ? <PageTitle>{labels.settings}</PageTitle> : null}
 
       <div className="space-y-2">

@@ -2,9 +2,9 @@
 export const DASHBOARD_SETTINGS_TILE =
   "overflow-hidden rounded-[22px] border-[1.2px] bg-bakery-square bakery-panel-shadow";
 
-/** Single inner cream tile inside #E6D5B8 settings rows */
+/** Inner tile inside settings rows — themed via .dashboard-settings-tile-inner */
 export const DASHBOARD_SETTINGS_TILE_INNER =
-  "rounded-[14px] border border-[rgba(245,237,224,0.9)] bg-[#F2EBE0] shadow-[0_1px_4px_rgba(58,47,38,0.05)]";
+  "dashboard-settings-tile-inner rounded-[14px] border shadow-[0_1px_4px_rgba(58,47,38,0.05)]";
 
 /** Fixed-height action controls so logout / delete match link rows */
 export const DASHBOARD_SETTINGS_ACTION =

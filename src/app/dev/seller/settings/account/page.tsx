@@ -5,26 +5,26 @@ import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back
 
 export default function DevSellerSettingsAccountPage() {
   return (
-    <div className="bakery-frame-bg min-h-screen">
-      <div className="app-safe-x mx-auto w-full max-w-[1040px] py-4 sm:py-6 lg:px-[14px] lg:py-8">
-        <DashboardShell businessType="STORE" basePath="/dev/seller" storeLocale={DEV_STORE_BUSINESS.storeLocale}
-      storeTheme={DEV_STORE_BUSINESS.storeTheme}>
-          <div className="space-y-4">
-            <DashboardSettingsBackLink basePath="/dev/seller" />
-            <DashboardSettingsView
-              ownerName="בעל חנות (תצוגה)"
-              email="demo@linky.local"
-              phone="050-1234567"
-              businessName="המאפייה שלי (תצוגה)"
-              isActive
-              previewOnly
-              basePath="/dev/seller"
-              showQuickActionRows
-              previewCustomerOrders={DEV_PREVIEW_ORDERS}
-            />
-          </div>
-        </DashboardShell>
+    <DashboardShell
+      businessType="STORE"
+      basePath="/dev/seller"
+      storeLocale={DEV_STORE_BUSINESS.storeLocale}
+      storeTheme={DEV_STORE_BUSINESS.storeTheme}
+    >
+      <div className="space-y-4">
+        <DashboardSettingsBackLink basePath="/dev/seller" />
+        <DashboardSettingsView
+          ownerName="בעל חנות (תצוגה)"
+          email="demo@linky.local"
+          phone="050-1234567"
+          businessName="המאפייה שלי (תצוגה)"
+          isActive
+          previewOnly
+          basePath="/dev/seller"
+          showQuickActionRows
+          previewCustomerOrders={DEV_PREVIEW_ORDERS}
+        />
       </div>
-    </div>
+    </DashboardShell>
   );
 }

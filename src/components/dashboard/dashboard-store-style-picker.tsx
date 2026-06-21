@@ -119,7 +119,7 @@ export function DashboardStoreStylePicker({
         compact
         fitContent
         warmPanel
-        panelClassName="dashboard-order-schedule-sheet"
+        panelClassName="dashboard-store-style-sheet"
       >
         <div className="space-y-4">
           <p className="text-center text-[14px] font-bold text-bakery-ink">
@@ -162,8 +162,8 @@ export function DashboardStoreStylePicker({
                   type="button"
                   disabled={saving}
                   onClick={() => saveAppearance({ storeTheme: s.id })}
-                  className={`bakery-float-tile flex w-full items-center gap-3 rounded-[16px] px-3 py-2.5 text-start ${
-                    active ? "bakery-float-tile--active ring-2 ring-bakery-primary/35" : ""
+                  className={`dashboard-style-option-tile bakery-float-tile flex w-full items-center gap-3 rounded-[16px] px-3 py-2.5 text-start ${
+                    active ? "bakery-float-tile--active dashboard-style-option-tile--active" : ""
                   }`}
                 >
                   <span
@@ -200,7 +200,7 @@ export function DashboardStoreStylePicker({
             <button
               type="button"
               onClick={restartSellerGuide}
-              className="w-full rounded-full bg-bakery-primary/15 px-4 py-2.5 text-[14px] font-extrabold text-bakery-primary ring-2 ring-bakery-primary/25 transition hover:bg-bakery-primary/20"
+              className="dashboard-style-guide-btn w-full rounded-full px-4 py-2.5 text-[14px] font-extrabold transition"
             >
               {labels.sellerGuideReplayAction}
             </button>

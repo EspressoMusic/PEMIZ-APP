@@ -91,7 +91,7 @@ function SubscriptionStatusPanel({
   const hasActiveSubscription = Boolean(status.subscriptionActiveAt);
 
   return (
-    <div className="rounded-[22px] border border-bakery-border/40 bg-[#F2EBE0] px-4 py-4 text-center">
+    <div className="dashboard-subscription-panel rounded-[22px] border border-bakery-border/40 px-4 py-4 text-center">
       <p className="text-[13px] font-extrabold uppercase tracking-wide text-bakery-muted">
         {labels.subscriptionStatusTitle}
       </p>
@@ -269,7 +269,7 @@ export function DashboardSubscriptionSection({
                   return (
                     <div
                       key={plan.id}
-                      className="rounded-[22px] border border-bakery-border/40 bg-[#F2EBE0] px-4 py-4 text-center"
+                      className="dashboard-subscription-panel rounded-[22px] border border-bakery-border/40 px-4 py-4 text-center"
                     >
                       <p className="text-[18px] font-extrabold text-bakery-ink">
                         {title}

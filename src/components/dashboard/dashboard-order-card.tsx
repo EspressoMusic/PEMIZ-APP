@@ -197,7 +197,7 @@ export function DashboardOrderCard({
             onOpenChange(true);
           }
         }}
-        className="dashboard-action-square flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+        className="dashboard-action-square dashboard-order-row flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
       >
         <button
           type="button"
