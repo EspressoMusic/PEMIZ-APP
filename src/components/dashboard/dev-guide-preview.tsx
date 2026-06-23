@@ -28,6 +28,14 @@ export function DevGuidePreview({
 
   const storeMeta =
     businessType === "STORE" ? DEV_STORE_BUSINESS : DEV_APPOINTMENTS_BUSINESS;
+  const orderScheduleEnabled =
+    businessType === "APPOINTMENTS"
+      ? (DEV_APPOINTMENTS_BUSINESS.orderScheduleEnabled ?? false)
+      : false;
+  const orderSchedule =
+    businessType === "APPOINTMENTS"
+      ? (DEV_APPOINTMENTS_BUSINESS.orderSchedule ?? null)
+      : null;
 
   return (
     <DashboardShell
@@ -36,8 +44,8 @@ export function DevGuidePreview({
       basePath={basePath}
       storeLocale={storeMeta.storeLocale}
       storeTheme={storeMeta.storeTheme}
-      orderScheduleEnabled={storeMeta.orderScheduleEnabled ?? false}
-      orderSchedule={storeMeta.orderSchedule ?? null}
+      orderScheduleEnabled={orderScheduleEnabled}
+      orderSchedule={orderSchedule}
     >
       <SellerWelcomeGuide
         businessId={storageId}
