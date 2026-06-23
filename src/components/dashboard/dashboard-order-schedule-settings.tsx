@@ -200,9 +200,9 @@ export function DashboardOrderScheduleSettings({
         {daySlots.map((slot) => (
           <li
             key={slot.day}
-            className={`flex items-center gap-2 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/80 px-2 py-1.5 transition ${
-              slot.open ? "" : "opacity-40"
-            }`}
+            className={`flex items-center gap-2 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/80 px-2 py-1.5 transition${
+              welcomeSetup ? " appointment-welcome-day-row" : ""
+            } ${slot.open ? "" : "opacity-40"}`}
           >
             <button
               type="button"

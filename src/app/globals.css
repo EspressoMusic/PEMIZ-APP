@@ -1456,10 +1456,43 @@ html:not([data-store-theme="dark"])
   .bakery-field {
   border-radius: 9999px;
   border: none;
-  background-color: var(--dashboard-field-bg);
+  background-color: var(--dashboard-field-bg, var(--bakery-input, #f9f3e5));
   min-height: 52px;
   padding-inline: 1.25rem;
   box-shadow: inset 0 1px 3px var(--dashboard-shadow);
+}
+
+/* Appointment store welcome setup — visible cream field boxes (not underline-only) */
+html:not([data-store-theme="dark"])
+  .appointment-store-welcome-setup
+  .bakery-field {
+  border-radius: 1rem !important;
+  border: 1.5px solid rgba(93, 64, 55, 0.22) !important;
+  background-color: #fffdf8 !important;
+  min-height: 48px;
+  padding-inline: 1rem;
+  box-shadow: inset 0 1px 3px rgba(78, 52, 46, 0.08);
+}
+
+html:not([data-store-theme="dark"])
+  .appointment-store-welcome-setup
+  .bakery-field:focus {
+  outline: 2px solid rgba(78, 52, 46, 0.22);
+  outline-offset: 2px;
+}
+
+html:not([data-store-theme="dark"])
+  .appointment-store-welcome-setup
+  .appointment-welcome-day-row {
+  background-color: #faf6f0 !important;
+  border: 1px solid rgba(93, 64, 55, 0.18) !important;
+}
+
+html:not([data-store-theme="dark"])
+  .appointment-store-welcome-setup
+  .appointment-welcome-add-btn {
+  background-color: #fffdf8 !important;
+  border: 1.5px solid rgba(93, 64, 55, 0.35) !important;
 }
 
 html:not([data-store-theme="dark"])

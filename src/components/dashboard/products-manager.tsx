@@ -1122,7 +1122,7 @@ export function ProductsManager({
               <Button
                 type="button"
                 variant="secondary"
-                className="w-full rounded-full font-extrabold"
+                className="appointment-welcome-add-btn w-full rounded-full font-extrabold"
                 disabled={adding || imageUploading}
                 onClick={() => void addDraftToList()}
               >

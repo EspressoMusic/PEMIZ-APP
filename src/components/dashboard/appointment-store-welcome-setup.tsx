@@ -128,7 +128,7 @@ export function AppointmentStoreWelcomeSetup({
       aria-labelledby="appointment-store-setup-title"
     >
       <div
-        className={`dashboard-surface dashboard-card bakery-action-sheet-panel dashboard-appointments-calendar-sheet ${DASHBOARD_MOBILE_STACK} flex max-h-[min(calc(100dvh-1.5rem),760px)] w-full flex-col overflow-hidden rounded-[28px] shadow-[var(--shadow-bakery-panel)]`}
+        className={`dashboard-surface dashboard-card bakery-action-sheet-panel dashboard-appointments-calendar-sheet appointment-store-welcome-setup ${DASHBOARD_MOBILE_STACK} flex max-h-[min(calc(100dvh-1.5rem),760px)] w-full flex-col overflow-hidden rounded-[28px] shadow-[var(--shadow-bakery-panel)]`}
       >
         <div className="shrink-0 border-b border-bakery-border/25 px-4 py-3 text-center">
           <h2
