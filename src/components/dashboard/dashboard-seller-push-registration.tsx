@@ -18,11 +18,19 @@ function pushSubscribeErrorMessage(
     pushPermissionDenied: string;
     pushServiceUnavailable: string;
     pushIosNeedsInstall: string;
+    pushInvalidVapidKey: string;
+    pushServiceWorkerFailed: string;
   }
 ): string {
   if (error instanceof Error) {
-    if (error.message === "service_worker_unavailable") {
-      return labels.pushSubscribeError;
+    if (error.message === "invalid_vapid_public_key") {
+      return labels.pushInvalidVapidKey;
+    }
+    if (
+      error.message === "service_worker_unsupported" ||
+      error.message.startsWith("service_worker_failed:")
+    ) {
+      return labels.pushServiceWorkerFailed;
     }
     const msg = error.message.toLowerCase();
     if (
@@ -34,8 +42,10 @@ function pushSubscribeErrorMessage(
     }
     if (
       error.name === "AbortError" ||
+      error.name === "InvalidAccessError" ||
       msg.includes("push service") ||
-      msg.includes("not available")
+      msg.includes("not available") ||
+      msg.includes("applicationserverkey")
     ) {
       return labels.pushServiceUnavailable;
     }
@@ -63,7 +73,9 @@ export function DashboardSellerPushRegistration({
       return;
     }
     try {
-      const res = await fetch("/api/dashboard/push/config");
+      const res = await fetch("/api/dashboard/push/config", {
+        credentials: "same-origin",
+      });
       const data = (await res.json()) as {
         configured?: boolean;
         publicKey?: string | null;
@@ -87,6 +99,10 @@ export function DashboardSellerPushRegistration({
   async function subscribe() {
     if (previewOnly) {
       setError(labels.pushPreviewOnly);
+      return;
+    }
+    if (!alertsEnabled) {
+      setError(labels.pushAlertsMustEnable);
       return;
     }
     if (!publicKey) {
@@ -125,6 +141,7 @@ export function DashboardSellerPushRegistration({
 
       const res = await fetch("/api/dashboard/push/subscribe", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           endpoint: json.endpoint,
@@ -184,7 +201,7 @@ export function DashboardSellerPushRegistration({
         <Button
           type="button"
           className="w-full"
-          disabled={state === "loading"}
+          disabled={state === "loading" || !alertsEnabled}
           onClick={() => void subscribe()}
         >
           {state === "loading" ? labels.chatLoading : labels.pushSubscribeButton}

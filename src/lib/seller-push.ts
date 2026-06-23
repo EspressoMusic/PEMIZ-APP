@@ -18,16 +18,25 @@ export type SellerPushPayload = {
   tag?: string;
 };
 
+function normalizeVapidEnvValue(value: string | undefined | null): string | null {
+  if (!value) return null;
+  const trimmed = value.trim().replace(/^['"]+|['"]+$/g, "");
+  return trimmed || null;
+}
+
 export function isPushConfigured(): boolean {
   return Boolean(
     getVapidPublicKey() &&
-      process.env.VAPID_PRIVATE_KEY &&
-      process.env.VAPID_SUBJECT
+      normalizeVapidEnvValue(process.env.VAPID_PRIVATE_KEY) &&
+      normalizeVapidEnvValue(process.env.VAPID_SUBJECT)
   );
 }
 
 export function getVapidPublicKey(): string | null {
-  return process.env.VAPID_PUBLIC_KEY ?? process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? null;
+  return (
+    normalizeVapidEnvValue(process.env.VAPID_PUBLIC_KEY) ??
+    normalizeVapidEnvValue(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY)
+  );
 }
 
 function normalizeVapidSubject(subject: string): string {
@@ -40,14 +49,14 @@ function normalizeVapidSubject(subject: string): string {
 
 function configureWebPush() {
   const publicKey = getVapidPublicKey();
-  if (!publicKey || !process.env.VAPID_PRIVATE_KEY) return;
+  const privateKey = normalizeVapidEnvValue(process.env.VAPID_PRIVATE_KEY);
+  const subject = normalizeVapidEnvValue(process.env.VAPID_SUBJECT);
+  if (!publicKey || !privateKey || !subject) return;
 
   webpush.setVapidDetails(
-    normalizeVapidSubject(
-      process.env.VAPID_SUBJECT ?? "mailto:admin@linky.local"
-    ),
+    normalizeVapidSubject(subject),
     publicKey,
-    process.env.VAPID_PRIVATE_KEY
+    privateKey
   );
 }
 

@@ -149,10 +149,14 @@ export function DashboardSellerAlertsSettings({
             />
           </div>
 
-          <DashboardSellerPushRegistration
-            alertsEnabled={settings.enabled}
-            previewOnly={previewOnly}
-          />
+          {settings.enabled ? (
+            <DashboardSellerPushRegistration
+              alertsEnabled={settings.enabled}
+              previewOnly={previewOnly}
+            />
+          ) : (
+            <Alert variant="info">{labels.pushAlertsMustEnable}</Alert>
+          )}
 
           {error ? <Alert variant="error">{error}</Alert> : null}
           {message ? <Alert variant="success">{message}</Alert> : null}

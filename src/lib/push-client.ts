@@ -1,3 +1,16 @@
+export function normalizeVapidPublicKey(base64: string): string {
+  return base64.trim().replace(/^['"]+|['"]+$/g, "");
+}
+
+export function isValidVapidPublicKey(base64: string): boolean {
+  try {
+    const bytes = urlBase64ToUint8Array(normalizeVapidPublicKey(base64));
+    return bytes.length === 65;
+  } catch {
+    return false;
+  }
+}
+
 export function urlBase64ToUint8Array(base64: string): Uint8Array {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
   const base64Safe = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -7,9 +20,9 @@ export function urlBase64ToUint8Array(base64: string): Uint8Array {
   return out;
 }
 
-export async function registerLinkyServiceWorker(): Promise<ServiceWorkerRegistration | null> {
+export async function registerLinkyServiceWorker(): Promise<ServiceWorkerRegistration> {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
-    return null;
+    throw new Error("service_worker_unsupported");
   }
   try {
     await navigator.serviceWorker.register("/sw.js", {
@@ -17,8 +30,10 @@ export async function registerLinkyServiceWorker(): Promise<ServiceWorkerRegistr
       updateViaCache: "none",
     });
     return await navigator.serviceWorker.ready;
-  } catch {
-    return null;
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.message : "registration failed";
+    throw new Error(`service_worker_failed:${detail}`);
   }
 }
 
@@ -42,20 +57,23 @@ export function isInstalledPwa(): boolean {
 export async function subscribeToSellerPush(
   publicKey: string
 ): Promise<PushSubscription> {
-  const registration = await registerLinkyServiceWorker();
-  if (!registration) {
-    throw new Error("service_worker_unavailable");
+  const normalizedKey = normalizeVapidPublicKey(publicKey);
+  if (!isValidVapidPublicKey(normalizedKey)) {
+    throw new Error("invalid_vapid_public_key");
   }
 
-  const applicationServerKey = urlBase64ToUint8Array(publicKey) as BufferSource;
+  const registration = await registerLinkyServiceWorker();
+  const applicationServerKey = urlBase64ToUint8Array(
+    normalizedKey
+  ) as BufferSource;
   const subscribeOptions: PushSubscriptionOptionsInit = {
     userVisibleOnly: true,
     applicationServerKey,
   };
 
-  let subscription = await registration.pushManager.getSubscription();
-  if (subscription) {
-    return subscription;
+  const existing = await registration.pushManager.getSubscription();
+  if (existing) {
+    await existing.unsubscribe().catch(() => undefined);
   }
 
   try {
@@ -64,9 +82,12 @@ export async function subscribeToSellerPush(
     const stale = await registration.pushManager.getSubscription();
     if (stale) {
       await stale.unsubscribe().catch(() => undefined);
-      return await registration.pushManager.subscribe(subscribeOptions);
     }
-    throw firstError;
+    try {
+      return await registration.pushManager.subscribe(subscribeOptions);
+    } catch {
+      throw firstError;
+    }
   }
 }
 

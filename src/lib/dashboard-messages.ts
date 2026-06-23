@@ -57,6 +57,9 @@ export type DashboardLabels = {
   pushSubscribeError: string;
   pushServiceUnavailable: string;
   pushIosNeedsInstall: string;
+  pushAlertsMustEnable: string;
+  pushInvalidVapidKey: string;
+  pushServiceWorkerFailed: string;
   pushPreviewOnly: string;
   subscription: string;
   subscriptionPlansTitle: string;
@@ -1089,6 +1092,12 @@ const HE: DashboardLabels = {
     "הדפדפן או המכשיר לא מאפשרים התראות דחיפה כאן. ב-iPhone — התקינו את האפליקציה למסך הבית (Safari → שיתוף → הוסף למסך הבית) ונסו שוב. ב-Android — השתמשו ב-Chrome.",
   pushIosNeedsInstall:
     "ב-iPhone, התראות דחיפה עובדות רק אחרי התקנת האפליקציה למסך הבית: Safari → שיתוף → הוסף למסך הבית, ואז חזרו לכאן.",
+  pushAlertsMustEnable:
+    "קודם הפעילו את המתג «הפעלת התראות» למעלה, ואז לחצו שוב על «הפעלת התראות במכשיר».",
+  pushInvalidVapidKey:
+    "מפתח VAPID בשרת לא תקין. ב-Vercel — ודאו ש-VAPID_PUBLIC_KEY ו-VAPID_PRIVATE_KEY הועתקו בלי גרשיים מיותרים, ואז Redeploy.",
+  pushServiceWorkerFailed:
+    "לא הצלחנו לטעון את האפליקציה ברקע. סגרו את האפליקציה, פתחו מחדש מהמסך הראשי, ונסו שוב.",
   pushPreviewOnly: "בתצוגת דמו אין חיבור להתראות אמיתיות.",
   subscription: "מנוי",
   subscriptionPlansTitle: "חבילות מנוי",
@@ -1697,6 +1706,12 @@ const EN: DashboardLabels = {
     "Push is not available in this browser. On iPhone, install the app to your home screen (Safari → Share → Add to Home Screen) and try again. On Android, use Chrome.",
   pushIosNeedsInstall:
     "On iPhone, push notifications work only after installing the app to your home screen: Safari → Share → Add to Home Screen, then return here.",
+  pushAlertsMustEnable:
+    "Turn on «Enable notifications» above first, then tap «Enable notifications on device» again.",
+  pushInvalidVapidKey:
+    "The server VAPID public key is invalid. In Vercel, paste VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY without extra quotes, then redeploy.",
+  pushServiceWorkerFailed:
+    "Could not load the background worker. Close the app, reopen it from your home screen, and try again.",
   pushPreviewOnly: "Push is not available in preview mode.",
   subscription: "Subscription",
   subscriptionPlansTitle: "Subscription plans",
