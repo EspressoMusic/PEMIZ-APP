@@ -202,7 +202,6 @@ export function AuthForm({
                   enabled={acceptTerms}
                   onChange={setAcceptTerms}
                   ariaLabel={copy.onboardAcceptTermsAria}
-                  className="border border-bakery-primary/30 shadow-[0_1px_4px_rgba(78,52,46,0.12)]"
                 />
               </div>
             ) : null}

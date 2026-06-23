@@ -2,16 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import {
-  Button,
-  Input,
-  Textarea,
-  Alert,
-  Panel,
-  PageTitle,
-  Toggle,
-} from "@/components/ui";
+import { Button, Input, Textarea, Alert, Panel, PageTitle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { useMarketingLocale } from "@/components/marketing/marketing-locale-provider";
 
@@ -19,16 +10,11 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { copy } = useMarketingLocale();
   const [type, setType] = useState<"STORE" | "APPOINTMENTS">("STORE");
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!acceptTerms) {
-      setError(copy.onboardTermsError);
-      return;
-    }
     setError("");
     setLoading(true);
     const fd = new FormData(e.currentTarget);
@@ -53,9 +39,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <WebShell>
-      <div className="mx-auto w-full max-w-lg px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
-        <Panel>
+    <WebShell lockViewport>
+      <div className="auth-surface mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
+        <Panel className="dashboard-card sm:p-8">
           <PageTitle>{copy.onboardTitle}</PageTitle>
           {error && (
             <div className="mb-4">
@@ -78,10 +64,10 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={() => setType("STORE")}
-                  className={`rounded-[18px] border-[1.2px] px-3 py-3 text-[14px] font-bold transition ${
+                  className={`rounded-[18px] border-2 px-3 py-3 text-[14px] font-bold transition ${
                     type === "STORE"
-                      ? "border-bakery-primary bg-bakery-primary/14 text-bakery-ink"
-                      : "border-bakery-border/40 bg-bakery-card text-bakery-muted"
+                      ? "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_2px_8px_rgba(93,64,55,0.25)]"
+                      : "border-bakery-primary/55 bg-white text-bakery-ink shadow-[inset_0_1px_2px_rgba(78,52,46,0.06)]"
                   }`}
                 >
                   {copy.onboardProductStore}
@@ -89,10 +75,10 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={() => setType("APPOINTMENTS")}
-                  className={`rounded-[18px] border-[1.2px] px-3 py-3 text-[14px] font-bold transition ${
+                  className={`rounded-[18px] border-2 px-3 py-3 text-[14px] font-bold transition ${
                     type === "APPOINTMENTS"
-                      ? "border-bakery-primary bg-bakery-primary/14 text-bakery-ink"
-                      : "border-bakery-border/40 bg-bakery-card text-bakery-muted"
+                      ? "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_2px_8px_rgba(93,64,55,0.25)]"
+                      : "border-bakery-primary/55 bg-white text-bakery-ink shadow-[inset_0_1px_2px_rgba(78,52,46,0.06)]"
                   }`}
                 >
                   {copy.onboardAppointments}
@@ -100,34 +86,9 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            <div className="flex items-start justify-between gap-3 text-[14px] leading-[1.45]">
-              <span className="min-w-0 flex-1 text-bakery-muted">
-                {copy.onboardAcceptTermsPrefix}{" "}
-                <Link
-                  href="/terms"
-                  className="font-bold text-bakery-ink hover:underline"
-                >
-                  Terms of Service
-                </Link>{" "}
-                {copy.onboardAcceptTermsMiddle}{" "}
-                <Link
-                  href="/privacy"
-                  className="font-bold text-bakery-ink hover:underline"
-                >
-                  Privacy Policy
-                </Link>
-                {copy.onboardAcceptTermsSuffix}
-              </span>
-              <Toggle
-                enabled={acceptTerms}
-                onChange={setAcceptTerms}
-                ariaLabel={copy.onboardAcceptTermsAria}
-              />
-            </div>
-
             <Button
               type="submit"
-              className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home !w-full !rounded-full !shadow-none hover:!opacity-100"
+              className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home mt-2 !w-full !rounded-full !shadow-none hover:!opacity-100"
               disabled={loading}
             >
               {loading ? copy.onboardCreating : copy.onboardSubmit}

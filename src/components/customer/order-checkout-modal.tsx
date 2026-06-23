@@ -87,7 +87,7 @@ export function OrderCheckoutModal({
           </p>
         ) : null}
 
-        <div className="rounded-[14px] border border-bakery-border/35 bg-bakery-card px-4 py-3.5 text-center shadow-[0_2px_8px_rgba(58,47,38,0.08)]">
+        <div className="mx-auto w-fit rounded-[14px] border border-bakery-border/35 bg-bakery-card px-4 py-3.5 text-center shadow-[0_2px_8px_rgba(58,47,38,0.08)]">
           <p className="text-[17px] font-extrabold tabular-nums text-bakery-ink">
             {t.total}: {formatCustomerMoney(total, locale)}
           </p>
