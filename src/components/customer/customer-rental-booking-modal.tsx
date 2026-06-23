@@ -194,6 +194,8 @@ export function CustomerRentalBookingModal({
           selectedId={serviceId}
           onSelect={setServiceId}
           labels={labels}
+          locale={locale}
+          storeTheme={storeTheme}
         />
 
         <Input

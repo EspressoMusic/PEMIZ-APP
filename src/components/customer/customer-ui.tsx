@@ -598,8 +598,7 @@ export function AppointmentPreviewCard({
   status,
   locale,
   labels,
-  canCancel,
-  onCancel,
+  onClick,
 }: {
   serviceName: string;
   startAt: string;
@@ -608,8 +607,7 @@ export function AppointmentPreviewCard({
   status: string;
   locale: CustomerLocale;
   labels: ReturnType<typeof getCustomerLabels>;
-  canCancel: boolean;
-  onCancel?: () => void;
+  onClick?: () => void;
 }) {
   const whenLabel =
     rentalMode && endAt
@@ -621,8 +619,8 @@ export function AppointmentPreviewCard({
         })
       : formatAppointmentDateTime(startAt, locale);
 
-  return (
-    <div className={`${orderCardShell} space-y-1.5`}>
+  const content = (
+    <>
       <p className="text-[16px] font-extrabold leading-tight text-bakery-ink">
         {serviceName}
       </p>
@@ -634,21 +632,21 @@ export function AppointmentPreviewCard({
           {labels.appointmentCancelled}
         </p>
       ) : null}
-      {canCancel && onCancel ? (
-        <button
-          type="button"
-          onClick={onCancel}
-          className="mt-1 inline-flex min-h-8 items-center justify-center rounded-[12px] border border-bakery-primary bg-transparent px-3 py-1.5 text-[12px] font-extrabold text-bakery-ink transition hover:bg-bakery-cream-light/80 active:scale-[0.98]"
-        >
-          {labels.cancelAppointment}
-        </button>
-      ) : status !== "CANCELLED" &&
-        new Date(startAt).getTime() > Date.now() ? (
-        <p className="text-[11px] font-semibold text-bakery-muted">
-          {labels.cancelAppointmentBlocked}
-        </p>
-      ) : null}
-    </div>
+    </>
+  );
+
+  if (!onClick) {
+    return <div className={`${orderCardShell} space-y-1.5`}>{content}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${orderCardShell} w-full space-y-1.5 text-start transition hover:bg-bakery-cream-light/40 active:scale-[0.99]`}
+    >
+      {content}
+    </button>
   );
 }
 

@@ -3704,7 +3704,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
 
 /* Appointments store — modern calendar (customer + seller) */
 .appointment-calendar-modern-surface {
-  --appointment-cal-board: #d9ccb8;
+  --appointment-cal-board: var(--dashboard-panel-bg, #e6d5b8);
   --appointment-cal-ink: #0a0a0a;
   --appointment-cal-ink-muted: rgba(10, 10, 10, 0.38);
   --appointment-cal-day-fill: #fffdf8;
@@ -3719,6 +3719,11 @@ html:not([data-store-theme="dark"]) .bakery-field {
   border: 3px solid var(--appointment-cal-board-border) !important;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(58, 47, 38, 0.12);
+}
+
+/* Customer booking home — match header strip / page fill above the calendar */
+.customer-appointments-home .appointment-calendar-modern-surface {
+  --appointment-cal-board: var(--customer-appointments-home-bg, #f2ebe0);
 }
 
 .appointment-calendar-modern .appointment-calendar-month-title {

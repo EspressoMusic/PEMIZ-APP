@@ -46,7 +46,7 @@ export function CustomerAppointmentsHomeCalendar({
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden px-3 pb-3 pt-3">
+      <div className="customer-appointments-home flex h-full min-h-0 flex-1 flex-col overflow-hidden px-3 pb-3 pt-3">
         <div
           className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden"
           role="region"

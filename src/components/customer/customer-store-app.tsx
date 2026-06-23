@@ -97,6 +97,7 @@ import {
 } from "./customer-appointments-home-backdrop";
 import { CustomerAppointmentsHomeCalendar } from "./customer-appointments-home-calendar";
 import { CustomerAppointmentBookingModal } from "./customer-appointment-booking-modal";
+import { CustomerAppointmentDetailModal } from "./customer-appointment-detail-modal";
 import { CustomerRentalBookingModal } from "./customer-rental-booking-modal";
 import { buildRentalNotes, isoAtLocalTime } from "@/lib/rental-period";
 import {
@@ -416,6 +417,10 @@ export function CustomerStoreApp({
   const [localAppointments, setLocalAppointments] = useState<
     CustomerAppointmentEntry[]
   >([]);
+  const [detailAppointmentId, setDetailAppointmentId] = useState<string | null>(
+    null
+  );
+  const [cancellingAppointment, setCancellingAppointment] = useState(false);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [bookingDay, setBookingDay] = useState<string | null>(null);
   const [bookingSlots, setBookingSlots] = useState<AppointmentSlot[]>([]);
@@ -1222,6 +1227,14 @@ export function CustomerStoreApp({
     [myAppointments]
   );
 
+  const detailAppointment = useMemo(
+    () =>
+      detailAppointmentId
+        ? (myAppointments.find((a) => a.id === detailAppointmentId) ?? null)
+        : null,
+    [detailAppointmentId, myAppointments]
+  );
+
   async function submitAppointmentBooking(payload: {
     slotId: string;
     name: string;
@@ -1415,31 +1428,36 @@ export function CustomerStoreApp({
       return;
     }
 
-    if (!isDevSchedule) {
-      const res = await fetch(`/api/public/${business.slug}/appointments`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          appointmentId,
-          customerPhone: appt.customerPhone,
-        }),
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        code?: string;
-      };
-      if (res.status === 403 && data.code === "PHONE_VERIFICATION_REQUIRED") {
-        setPendingCancelAppointmentId(appointmentId);
-        setPhoneVerifyPrompt(appt.customerPhone);
-        return;
+    setCancellingAppointment(true);
+    try {
+      if (!isDevSchedule) {
+        const res = await fetch(`/api/public/${business.slug}/appointments`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            appointmentId,
+            customerPhone: appt.customerPhone,
+          }),
+        });
+        const data = (await res.json().catch(() => ({}))) as {
+          code?: string;
+        };
+        if (res.status === 403 && data.code === "PHONE_VERIFICATION_REQUIRED") {
+          setPendingCancelAppointmentId(appointmentId);
+          setPhoneVerifyPrompt(appt.customerPhone);
+          return;
+        }
+        if (!res.ok) return;
       }
-      if (!res.ok) return;
-    }
 
-    const next = updateCustomerAppointmentHistory(business.slug, appointmentId, {
-      status: "CANCELLED",
-    });
-    setLocalAppointments(next);
+      const next = updateCustomerAppointmentHistory(business.slug, appointmentId, {
+        status: "CANCELLED",
+      });
+      setLocalAppointments(next);
+    } finally {
+      setCancellingAppointment(false);
+    }
   }
 
   const futureSlots = business.slots.filter(
@@ -1585,12 +1603,7 @@ export function CustomerStoreApp({
                   status={appt.status}
                   locale={locale}
                   labels={labels}
-                  canCancel={canCustomerCancelAppointment(
-                    appt.startAt,
-                    appointmentCancelPolicy,
-                    appt.status
-                  )}
-                  onCancel={() => void cancelMyAppointment(appt.id)}
+                  onClick={() => setDetailAppointmentId(appt.id)}
                 />
               </li>
             ))}
@@ -1807,7 +1820,11 @@ export function CustomerStoreApp({
             className={CUSTOMER_PHONE_COLUMN}
             style={
               appointmentsHomeActive
-                ? { backgroundColor: APPOINTMENTS_HOME_BG }
+                ? {
+                    backgroundColor: APPOINTMENTS_HOME_BG,
+                    ["--customer-appointments-home-bg" as string]:
+                      APPOINTMENTS_HOME_BG,
+                  }
                 : undefined
             }
           >
@@ -2084,6 +2101,31 @@ export function CustomerStoreApp({
           </div>
         ) : null}
       </CustomerCenterModal>
+
+      <CustomerAppointmentDetailModal
+        open={detailAppointment !== null}
+        onClose={() => setDetailAppointmentId(null)}
+        appointment={detailAppointment}
+        locale={locale}
+        labels={labels}
+        storeTheme={displayTheme}
+        rentalMode={isRental}
+        canCancel={
+          detailAppointment
+            ? canCustomerCancelAppointment(
+                detailAppointment.startAt,
+                appointmentCancelPolicy,
+                detailAppointment.status
+              )
+            : false
+        }
+        cancelling={cancellingAppointment}
+        onCancel={
+          detailAppointment
+            ? () => void cancelMyAppointment(detailAppointment.id)
+            : undefined
+        }
+      />
 
       <CelebrationModal
         open={inquirySuccessOpen}

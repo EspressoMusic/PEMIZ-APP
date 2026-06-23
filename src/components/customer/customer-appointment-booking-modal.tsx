@@ -241,6 +241,8 @@ export function CustomerAppointmentBookingModal({
             selectedId={serviceId}
             onSelect={setServiceId}
             labels={labels}
+            locale={locale}
+            storeTheme={storeTheme}
           />
 
           <Textarea
