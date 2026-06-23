@@ -164,8 +164,7 @@ export function CustomerAppointmentDetailModal({
                 {labels.cancelAppointment}
               </Button>
             )
-          ) : appointment.status !== "CANCELLED" &&
-            new Date(appointment.startAt).getTime() > Date.now() ? (
+          ) : new Date(appointment.startAt).getTime() > Date.now() ? (
             <p className="rounded-[14px] border border-bakery-border/20 bg-bakery-square/60 px-3 py-2.5 text-center text-[13px] font-semibold leading-snug text-bakery-muted">
               {labels.cancelAppointmentBlocked}
             </p>
