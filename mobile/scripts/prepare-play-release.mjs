@@ -34,18 +34,35 @@ function loadEnvFile(path) {
 }
 
 const envLocal = loadEnvFile(join(root, ".env.local"));
-const serverUrl =
+const serverBase =
   process.env.CAPACITOR_SERVER_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
   envLocal.CAPACITOR_SERVER_URL ||
   envLocal.NEXT_PUBLIC_APP_URL;
 
-if (!serverUrl || /localhost|127\.0\.0\.1/i.test(serverUrl)) {
+const entryPath =
+  process.env.CAPACITOR_ENTRY_PATH?.trim() ||
+  envLocal.CAPACITOR_ENTRY_PATH?.trim() ||
+  "/app";
+
+if (!serverBase || /localhost|127\.0\.0\.1/i.test(serverBase)) {
   console.error(
     "Set CAPACITOR_SERVER_URL or NEXT_PUBLIC_APP_URL to your deployed HTTPS URL before a Play release."
   );
   console.error("Example: CAPACITOR_SERVER_URL=https://your-app.vercel.app");
   process.exit(1);
+}
+
+const normalizedEntry = entryPath.startsWith("/") ? entryPath : `/${entryPath}`;
+let serverUrl;
+try {
+  const url = new URL(serverBase);
+  url.pathname = normalizedEntry;
+  url.search = "";
+  url.hash = "";
+  serverUrl = `${url.origin}${url.pathname}`;
+} catch {
+  serverUrl = `${serverBase.replace(/\/$/, "")}${normalizedEntry}`;
 }
 
 if (!serverUrl.startsWith("https://")) {
@@ -56,8 +73,10 @@ console.log(`Preparing Android shell → ${serverUrl}`);
 
 const childEnv = {
   ...process.env,
-  CAPACITOR_SERVER_URL: serverUrl,
-  NEXT_PUBLIC_APP_URL: serverUrl,
+  CAPACITOR_SERVER_URL: serverBase.replace(/\/$/, ""),
+  CAPACITOR_ENTRY_PATH: normalizedEntry,
+  NEXT_PUBLIC_APP_URL: serverBase.replace(/\/$/, ""),
+  NEXT_PUBLIC_CAPACITOR_ENTRY_PATH: normalizedEntry,
 };
 
 execSync("npm run icons:generate", { cwd: root, stdio: "inherit", env: childEnv });

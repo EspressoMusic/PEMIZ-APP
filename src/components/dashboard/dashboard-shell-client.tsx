@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { AppointmentStoreWelcomeSetup } from "@/components/dashboard/appointment-store-welcome-setup";
 import { SellerWelcomeGuide } from "@/components/dashboard/seller-welcome-guide";
+import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
 import { DashboardPlatformMessageBanner } from "@/components/dashboard/dashboard-platform-message-banner";
 import { PwaInstallBanner } from "@/components/pwa/pwa-install-banner";
@@ -84,8 +85,7 @@ export function DashboardShellClient({
   const isHomeRoute = isDashboardHomeRoute(pathname, basePath);
   const isActionsHubRoute = isDashboardActionsHubRoute(pathname, basePath);
   const lockMainScroll = isHomeRoute || isActionsHubRoute;
-  const tourEnabled =
-    businessId !== "dev-preview" || businessId.startsWith("dev-guide-preview");
+  const tourEnabled = SELLER_WELCOME_GUIDE_ENABLED;
   const appointmentScheduleConfigured = isAppointmentStoreScheduleConfigured({
     businessType,
     orderScheduleEnabled,
@@ -149,7 +149,7 @@ export function DashboardShellClient({
           ) : (
             shellBody
           )}
-          {inSellerApp && tourEnabled ? (
+          {inSellerApp ? (
             <AppointmentStoreWelcomeSetup
               businessId={businessId}
               businessType={businessType}

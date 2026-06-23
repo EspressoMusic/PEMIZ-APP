@@ -47,3 +47,25 @@ export function MarketingFixedPlanPrice({
     </div>
   );
 }
+
+export function MarketingLocaleFixedPrice({
+  amountHe,
+  amountEn,
+  locale,
+  period,
+}: {
+  amountHe: number;
+  amountEn: number;
+  locale: MarketingLocale;
+  period: string;
+}) {
+  const amount = locale === "he" ? amountHe : amountEn;
+  const symbol = locale === "he" ? "₪" : "$";
+  return (
+    <div className="price-amount" dir="ltr">
+      <span className="currency">{symbol}</span>
+      <strong>{amount}</strong>
+      <span className="period">{period}</span>
+    </div>
+  );
+}

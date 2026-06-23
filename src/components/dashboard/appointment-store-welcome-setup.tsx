@@ -8,6 +8,7 @@ import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/da
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
 import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
+import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 
 function readWelcomeFromUrl() {
@@ -153,7 +154,7 @@ export function AppointmentStoreWelcomeSetup({
           >
             {saving
               ? labels.saving
-              : welcome
+              : welcome && SELLER_WELCOME_GUIDE_ENABLED
                 ? labels.appointmentStoreSetupContinue
                 : labels.save}
           </Button>

@@ -1,0 +1,61 @@
+.contact-whatsapp-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 0 0 20px;
+}
+
+.contact-whatsapp-fab {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  text-decoration: none;
+  box-shadow:
+    0 14px 36px rgba(37, 211, 102, 0.42),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 0.61, 0.36, 1),
+    background-color 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.contact-whatsapp-fab:hover {
+  transform: translateY(-4px) scale(1.06);
+  background: #20bd5a;
+  box-shadow:
+    0 20px 44px rgba(37, 211, 102, 0.48),
+    0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.contact-whatsapp-fab:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.contact-whatsapp-fab svg {
+  display: block;
+}
+
+.contact-whatsapp-caption {
+  margin: 0;
+  max-width: 280px;
+  font-size: clamp(18px, 2.4vw, 22px);
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--heading, #0a0614);
+}
+
+@media (max-width: 640px) {
+  .contact-whatsapp-fab {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* Legacy class names — keep imports safe if referenced elsewhere */
+.contact-whatsapp-mega {
+  display: contents;
+}

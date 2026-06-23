@@ -7,7 +7,7 @@ const FOOTER_CONFETTI_MS = 4200;
 
 export function useMarketingSiteEffects() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
   const [loaderGone, setLoaderGone] = useState(false);
   const [backTopVisible, setBackTopVisible] = useState(false);
   const [navbarScrolled, setNavbarScrolled] = useState(false);
@@ -23,10 +23,6 @@ export function useMarketingSiteEffects() {
     const saved = localStorage.getItem(THEME_KEY) as "dark" | "light" | null;
     if (saved === "dark" || saved === "light") {
       setTheme(saved);
-      return;
-    }
-    if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-      setTheme("light");
     }
   }, []);
 

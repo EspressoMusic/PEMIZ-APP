@@ -13,11 +13,6 @@ export function DashboardBarChart({
   compact?: boolean;
 }) {
   return (
-    <div className="space-y-3">
-      {title ? (
-        <h2 className="text-center text-[18px] font-extrabold text-bakery-ink">{title}</h2>
-      ) : null}
-      <DashboardLineChart points={points} compact={compact} />
-    </div>
+    <DashboardLineChart points={points} compact={compact} title={title} />
   );
 }

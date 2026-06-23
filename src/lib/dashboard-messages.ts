@@ -370,6 +370,11 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipOrdersBody: string;
   sellerGuideWelcomeTipCustomersTitle: string;
   sellerGuideWelcomeTipCustomersBody: string;
+  sellerGuideWelcomeStepStoreTitle: string;
+  sellerGuideWelcomeStepStoreBody: string;
+  sellerGuideWelcomeStepStoreBodyAppointments: string;
+  sellerGuideWelcomeStepLinkTitle: string;
+  sellerGuideWelcomeStepLinkBody: string;
   sellerGuideWelcomeTipAddServiceTitle: string;
   sellerGuideWelcomeTipAddServiceBody: string;
   sellerGuideWelcomeTipCalendarTitle: string;
@@ -806,15 +811,13 @@ const HE: DashboardLabels = {
   faqPublishedDetail: "הלקוחות יראו אותה בעמוד החנות",
   celebrationOk: "מעולה",
   comingSoon: "בקרוב",
-  sellerGuideTitle: "מדריך קצר — בוא נתחיל!",
+  sellerGuideTitle: "בוא נתחיל!",
   sellerGuidePurpose:
-    "לינקי נותן לך חנות לקבל הזמנות. הכל מגיע מסודר בתור — אתה רואה, מסכם ומאשר. אתה קובע מתי אפשר להזמין וכמה. ללקוח — הכל ברור ונוח, כולל דילים.",
+    "לקוחות מזמינים בקישור שלך. אתה רואה, מאשר וקובע מתי אפשר להזמין.",
   sellerGuidePurposeAppointments:
-    "לינקי נותן לך מקום לקבוע פגישות. הכל מגיע מסודר בתור — אתה רואה, מסכם ומאשר. אתה קובע מתי אפשר לקבוע וכמה. ללקוח — הכל ברור ונוח, כולל דילים.",
-  sellerGuideIntro:
-    "חמישה דברים פשוטים. ככה מנהלים את החנות — קרא בקצרה:",
-  sellerGuideIntroAppointments:
-    "חמישה דברים (+ בונוס). ככה מנהלים עסק תורים — קראו בקצרה:",
+    "לקוחות קובעים תור בקישור. אתה רואה הכל ומנהל את היומן.",
+  sellerGuideIntro: "3 שלבים:",
+  sellerGuideIntroAppointments: "3 שלבים:",
   sellerGuideStepNavTitle: "1. הניווט בתחתית המסך",
   sellerGuideStepNavBody:
     "יש שני כפתורים קבועים: בית — סיכום יומי וקישור ללקוחות. פעולות — כל ניהול העסק.",
@@ -860,33 +863,41 @@ const HE: DashboardLabels = {
     "לפני שמתחילים — בחרו באילו ימים ושעות לקוחות יוכלו לקבוע תור, ושמרו. בלי זה היומן יישאר ריק.",
   appointmentStoreSetupContinue: "המשך לסיור בלינקי",
   sellerGuideStepCounter: "שלב {current} מתוך {total}",
-  sellerGuideWelcomeTipAddProductTitle: "איך מוסיפים מוצר?",
+  sellerGuideWelcomeTipAddProductTitle: "הוספת מוצר",
   sellerGuideWelcomeTipAddProductBody:
-    "למטה לוחצים פעולות ← חנות ← מוצרים ← הוסף מוצר. שמים שם, מחיר ותמונה — ושומרים.",
-  sellerGuideWelcomeTipOrdersTitle: "איפה רואים הזמנות ומאשרים?",
+    "פעולות → חנות → מוצרים → הוסף. שם, מחיר ותמונה — שומרים.",
+  sellerGuideWelcomeTipOrdersTitle: "הזמנות",
   sellerGuideWelcomeTipOrdersBody:
-    "פעולות ← חנות ← הזמנות. לוחצים על שם הלקוח, רואים מה הוא קנה, ולוחצים אשר.",
-  sellerGuideWelcomeTipCustomersTitle: "איך מדברים עם לקוחות?",
+    "פעולות → חנות → הזמנות. פותחים הזמנה ולוחצים אשר.",
+  sellerGuideWelcomeTipCustomersTitle: "לקוחות",
   sellerGuideWelcomeTipCustomersBody:
-    "פעולות ← לקוחות ← פניות לקוחות. שם צ'אט ופניות — פותחים שיחה ועונים.",
-  sellerGuideWelcomeTipAddServiceTitle: "איך ממלאים שירות?",
+    "פניות, צ'אט, הודעות ושאלות נפוצות — כל מה שקשור ללקוחות, במסך «לקוחות» תחת «פעולות».",
+  sellerGuideWelcomeStepStoreTitle: "חנות",
+  sellerGuideWelcomeStepStoreBody:
+    "מוצרים, הזמנות, דילים והגדרות — כל מה שקשור לחנות, במסך «חנות» תחת «פעולות».",
+  sellerGuideWelcomeStepStoreBodyAppointments:
+    "שירותים, תורים, יומן והגדרות — כל מה שקשור לעסק, במסך «חנות» תחת «פעולות».",
+  sellerGuideWelcomeStepLinkTitle: "קישור ללקוחות",
+  sellerGuideWelcomeStepLinkBody:
+    "מהבית מעתיקים ושולחים את הקישור — כך לקוחות נכנסים לחנות.",
+  sellerGuideWelcomeTipAddServiceTitle: "הוספת שירות",
   sellerGuideWelcomeTipAddServiceBody:
-    "פעולות ← חנות ← שירותים ← הוסף שירות. ממלאים שם, מחיר ומשך השירות בדקות — ושומרים.",
-  sellerGuideWelcomeTipBookedAppointmentsTitle: "איפה רואים תורים שנקבעו?",
+    "פעולות → חנות → שירותים → הוסף. שם, מחיר ומשך — שומרים.",
+  sellerGuideWelcomeTipBookedAppointmentsTitle: "תורים שנקבעו",
   sellerGuideWelcomeTipBookedAppointmentsBody:
-    "בבית תחת «פגישות קרובות». גם בפעולות ← חנות ← תורים — שם כל התורים הפעילים, ו«היסטוריית תורים» לעבר.",
-  sellerGuideWelcomeTipCalendarTitle: "איפה היומן?",
+    "בית → «פגישות קרובות». או: פעולות → חנות → תורים.",
+  sellerGuideWelcomeTipCalendarTitle: "היומן",
   sellerGuideWelcomeTipCalendarBody:
-    "בבית — יומן חודשי עם ימים פתוחים לקביעה. לוחצים על יום לראות פגישות באותו יום, או «פתיחת יומן» לתצוגה מלאה.",
-  sellerGuideWelcomeTipDurationGapTitle: "בונוס: משך שירות ורווח בין פגישות",
+    "בית — יומן חודשי. לוחצים על יום לראות פגישות.",
+  sellerGuideWelcomeTipDurationGapTitle: "משך ורווח (בונוס)",
   sellerGuideWelcomeTipDurationGapBody:
-    "משך לכל שירות — בשדה «משך השירות» כשמוסיפים שירות. רווח בין פגישות ושעות קביעה: פעולות ← חנות ← יומן.",
-  sellerGuideWelcomeTipDealsTitle: "איך מוסיפים דיל?",
+    "משך — בהוספת שירות. רווח ושעות — פעולות → חנות → יומן.",
+  sellerGuideWelcomeTipDealsTitle: "דילים",
   sellerGuideWelcomeTipDealsBody:
-    "פעולות ← חנות ← דילים והגבלות ← דילים ← הוסף דיל. בוחרים מוצרים, מחיר ותוקף — ומפרסמים.",
-  sellerGuideWelcomeTipLimitsTitle: "איך מגדירים הגבלות?",
+    "פעולות → חנות → דילים והגבלות → דילים → הוסף.",
+  sellerGuideWelcomeTipLimitsTitle: "הגבלות הזמנה",
   sellerGuideWelcomeTipLimitsBody:
-    "פעולות ← חנות ← דילים והגבלות ← הגבלות. מגדירים שעות וימים שבהם הלקוחות יכולים להזמין.",
+    "פעולות → חנות → דילים והגבלות → הגבלות. ימים ושעות.",
   sellerGuideReplayTitle: "מדריך התחלה",
   sellerGuideReplayBody: "רוצה לעבור שוב על השלבים הראשונים בלינקי?",
   sellerGuideReplayAction: "הפעל מדריך שוב",
@@ -1403,15 +1414,13 @@ const EN: DashboardLabels = {
   faqPublishedDetail: "Customers will see it on your store page",
   celebrationOk: "Great",
   comingSoon: "Coming soon",
-  sellerGuideTitle: "Quick guide — let's go!",
+  sellerGuideTitle: "Let's go!",
   sellerGuidePurpose:
-    "Linky gives you a store to take orders. Everything lands in one clear queue — you see, summarize, and confirm. You choose when and how much customers can order. For them — it's tidy and easy, with deals too.",
+    "Customers order from your link. You review, confirm, and set when ordering is open.",
   sellerGuidePurposeAppointments:
-    "Linky gives you a place to book appointments. Everything lands in one clear queue — you see, summarize, and confirm. You choose when and how many slots are open. For customers — it's tidy and easy, with deals too.",
-  sellerGuideIntro:
-    "Five simple steps to run your store — read this first:",
-  sellerGuideIntroAppointments:
-    "Five essentials (+ a bonus). How to run an appointments business — read this first:",
+    "Customers book from your link. You see everything and manage the calendar.",
+  sellerGuideIntro: "3 steps:",
+  sellerGuideIntroAppointments: "3 steps:",
   sellerGuideStepNavTitle: "1. Bottom navigation",
   sellerGuideStepNavBody:
     "Two fixed buttons: Home — daily summary and your customer link. Actions — everything you manage.",
@@ -1457,33 +1466,41 @@ const EN: DashboardLabels = {
     "Before you start — choose which days and hours customers can book, then save. Without this your calendar stays empty.",
   appointmentStoreSetupContinue: "Continue to the Linky tour",
   sellerGuideStepCounter: "Step {current} of {total}",
-  sellerGuideWelcomeTipAddProductTitle: "How do I add a product?",
+  sellerGuideWelcomeTipAddProductTitle: "Add a product",
   sellerGuideWelcomeTipAddProductBody:
-    "Tap Actions at the bottom → Store → Products → Add product. Enter name, price, and photo — then save.",
-  sellerGuideWelcomeTipOrdersTitle: "Where are orders? How do I approve?",
+    "Actions → Store → Products → Add. Name, price, photo — save.",
+  sellerGuideWelcomeTipOrdersTitle: "Orders",
   sellerGuideWelcomeTipOrdersBody:
-    "Actions → Store → Orders. Tap the customer's name, see what they ordered, then tap Confirm.",
-  sellerGuideWelcomeTipCustomersTitle: "How do I talk to customers?",
+    "Actions → Store → Orders. Open an order and tap Confirm.",
+  sellerGuideWelcomeTipCustomersTitle: "Customers",
   sellerGuideWelcomeTipCustomersBody:
-    "Actions → Customers → Customer inquiries. Open Chat or Inquiries and reply.",
-  sellerGuideWelcomeTipAddServiceTitle: "How do I set up a service?",
+    "Inquiries, chat, broadcasts, and FAQ — everything customer-related lives under Actions → Customers.",
+  sellerGuideWelcomeStepStoreTitle: "Store",
+  sellerGuideWelcomeStepStoreBody:
+    "Products, orders, deals, and settings — everything for your shop lives under Actions → Store.",
+  sellerGuideWelcomeStepStoreBodyAppointments:
+    "Services, bookings, calendar, and settings — everything for your business lives under Actions → Store.",
+  sellerGuideWelcomeStepLinkTitle: "Customer link",
+  sellerGuideWelcomeStepLinkBody:
+    "From Home, copy or share your link — that's how customers reach you.",
+  sellerGuideWelcomeTipAddServiceTitle: "Add a service",
   sellerGuideWelcomeTipAddServiceBody:
-    "Actions → Store → Services → Add service. Enter name, price, and service duration in minutes — then save.",
-  sellerGuideWelcomeTipBookedAppointmentsTitle: "Where are booked appointments?",
+    "Actions → Store → Services → Add. Name, price, duration — save.",
+  sellerGuideWelcomeTipBookedAppointmentsTitle: "Booked appointments",
   sellerGuideWelcomeTipBookedAppointmentsBody:
-    "On Home under upcoming appointments. Also Actions → Store → Appointments for active bookings, and Appointment history for past ones.",
-  sellerGuideWelcomeTipCalendarTitle: "Where is the calendar?",
+    "Home → Upcoming. Or: Actions → Store → Appointments.",
+  sellerGuideWelcomeTipCalendarTitle: "Calendar",
   sellerGuideWelcomeTipCalendarBody:
-    "On Home — a monthly calendar with open booking days. Tap a day to see that day's appointments, or Open calendar for the full view.",
-  sellerGuideWelcomeTipDurationGapTitle: "Bonus: duration & gap between appointments",
+    "Home — monthly calendar. Tap a day for that day's bookings.",
+  sellerGuideWelcomeTipDurationGapTitle: "Duration & gap (bonus)",
   sellerGuideWelcomeTipDurationGapBody:
-    "Per-service duration — in the Add service form. Gap between appointments and booking hours: Actions → Store → Calendar.",
-  sellerGuideWelcomeTipDealsTitle: "How do I add a deal?",
+    "Duration — when adding a service. Gap & hours — Actions → Store → Calendar.",
+  sellerGuideWelcomeTipDealsTitle: "Deals",
   sellerGuideWelcomeTipDealsBody:
-    "Actions → Store → Deals & limits → Deals → Add deal. Pick products, price, and expiry — then publish.",
-  sellerGuideWelcomeTipLimitsTitle: "How do I set order limits?",
+    "Actions → Store → Deals & limits → Deals → Add.",
+  sellerGuideWelcomeTipLimitsTitle: "Order limits",
   sellerGuideWelcomeTipLimitsBody:
-    "Actions → Store → Deals & limits → Limits. Set the hours and days when customers can order.",
+    "Actions → Store → Deals & limits → Limits. Days and hours.",
   sellerGuideReplayTitle: "Getting started guide",
   sellerGuideReplayBody: "Want to walk through the first steps in Linky again?",
   sellerGuideReplayAction: "Show guide again",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Settings, TrendingUp } from "lucide-react";
+import { ChevronDown, Settings, TrendingUp, User } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   DASHBOARD_ACTION_ROW_CLASS,
@@ -9,6 +9,7 @@ import {
 } from "@/components/dashboard/dashboard-action-row";
 import { DashboardAccountSettingsGroup } from "@/components/dashboard/dashboard-account-settings-group";
 import { DashboardAppointmentCancelSettings } from "@/components/dashboard/dashboard-appointment-cancel-settings";
+import { DashboardStoreStylePicker } from "@/components/dashboard/dashboard-store-style-picker";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 
 export function DashboardActionsSettingsGroup({
@@ -61,18 +62,30 @@ export function DashboardActionsSettingsGroup({
                 title={labels.salesAndProfit}
               />
             ) : null}
-            <DashboardAccountSettingsGroup
-              basePath={basePath}
-              previewOnly={previewOnly}
-              businessType={businessType}
-            />
             {isScheduleLikeBusinessType(businessType) ? (
-              <DashboardAppointmentCancelSettings
-                embedded
-                initialStoreTerms={initialStoreTerms}
+              <>
+                <DashboardStoreStylePicker
+                  previewOnly={previewOnly}
+                  businessType={businessType}
+                />
+                <DashboardAppointmentCancelSettings
+                  embedded
+                  initialStoreTerms={initialStoreTerms}
+                  previewOnly={previewOnly}
+                />
+                <DashboardActionRow
+                  href={`${basePath}/settings/account`}
+                  icon={User}
+                  title={labels.accountAndLink}
+                />
+              </>
+            ) : (
+              <DashboardAccountSettingsGroup
+                basePath={basePath}
                 previewOnly={previewOnly}
+                businessType={businessType}
               />
-            ) : null}
+            )}
           </ul>
         </div>
       )}

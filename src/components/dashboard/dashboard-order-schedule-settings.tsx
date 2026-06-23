@@ -201,7 +201,7 @@ export function DashboardOrderScheduleSettings({
             <button
               type="button"
               onClick={() => toggleDayOpen(slot.day)}
-              className={`w-[5.25rem] shrink-0 truncate text-start text-[13px] font-extrabold leading-tight transition ${
+              className={`min-w-0 flex-1 truncate text-start text-[13px] font-extrabold leading-tight transition ${
                 slot.open ? "text-bakery-ink" : "text-bakery-muted line-through"
               }`}
               title={dayToggleHint}
@@ -209,7 +209,7 @@ export function DashboardOrderScheduleSettings({
               {dayNames[slot.day]}
             </button>
             <div
-              className="flex min-w-0 flex-1 items-center justify-end gap-1"
+              className="flex shrink-0 items-center justify-end gap-1"
               dir="ltr"
             >
               <input
@@ -220,7 +220,7 @@ export function DashboardOrderScheduleSettings({
                   updateDayTime(slot.day, "startTime", e.target.value)
                 }
                 aria-label={`${dayNames[slot.day]} ${labels.fromHour}`}
-                className="bakery-field min-w-0 flex-1 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1 py-1 text-[12px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
+                className="bakery-field w-[5.75rem] shrink-0 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1.5 py-1 text-[12px] tabular-nums text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
               />
               <span className="shrink-0 text-[11px] font-bold text-bakery-muted">
                 –
@@ -233,7 +233,7 @@ export function DashboardOrderScheduleSettings({
                   updateDayTime(slot.day, "endTime", e.target.value)
                 }
                 aria-label={`${dayNames[slot.day]} ${labels.toHour}`}
-                className="bakery-field min-w-0 flex-1 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1 py-1 text-[12px] text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
+                className="bakery-field w-[5.75rem] shrink-0 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1.5 py-1 text-[12px] tabular-nums text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
           </li>

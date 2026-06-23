@@ -112,6 +112,23 @@ export function DashboardSalesStats({
     labels
   );
 
+  const currencySymbol = locale === "he" ? "₪" : "$";
+  const formatAxisMoney = (v: number) => {
+    if (v >= 1_000_000) {
+      const m = v / 1_000_000;
+      return Number.isInteger(m)
+        ? `${currencySymbol}${m}M`
+        : `${currencySymbol}${m.toFixed(1)}M`;
+    }
+    if (v >= 1000) {
+      const k = v / 1000;
+      return Number.isInteger(k)
+        ? `${currencySymbol}${k}K`
+        : `${currencySymbol}${k.toFixed(1)}K`;
+    }
+    return formatMoney(v).replace(/\.00$/, "");
+  };
+
   return (
     <>
       <DashboardConfettiBackground active={confetti} />
@@ -150,20 +167,28 @@ export function DashboardSalesStats({
 
         {error && <Alert variant="error">{error}</Alert>}
 
-        <div
-          className={`bakery-float-panel rounded-[22px] px-5 py-5 text-start ${
-            loading ? "opacity-60" : ""
-          }`}
-        >
-          <p className="text-[14px] font-bold text-bakery-muted">{labels.revenue}</p>
-          <p className="mt-1 text-[36px] font-extrabold leading-none tracking-tight text-bakery-ink sm:text-[40px]">
-            {formatMoney(stats.totalRevenue)}
-          </p>
-          <p className="mt-2 text-[15px] font-semibold text-bakery-muted">{revenueTrend}</p>
-        </div>
-
         <div className={loading ? "pointer-events-none opacity-60" : ""}>
-          <DashboardLineChart points={stats.points} compact={period === "month"} />
+          <DashboardLineChart
+            points={stats.points}
+            compact={period === "month"}
+            title={labels.salesChartTitle}
+            formatValue={formatAxisMoney}
+            formatTooltipValue={(v) => formatMoney(v)}
+            summary={{
+              metricLabel: labels.revenue,
+              metricValue: formatMoney(stats.totalRevenue),
+              trendText: revenueTrend,
+              trendDirection:
+                stats.priorRevenue <= 0
+                  ? "neutral"
+                  : stats.totalRevenue > stats.priorRevenue
+                    ? "up"
+                    : stats.totalRevenue < stats.priorRevenue
+                      ? "down"
+                      : "neutral",
+              periodLabel: periodMeta.label,
+            }}
+          />
         </div>
       </div>
     </>

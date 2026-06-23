@@ -5,7 +5,7 @@ import { Alert, Panel, PageTitle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { useMarketingLocale } from "@/components/marketing/marketing-locale-provider";
 
-export function SignupClosedPanel() {
+export function SignupClosedPanel({ loginHref = "/login" }: { loginHref?: string }) {
   const { copy } = useMarketingLocale();
 
   return (
@@ -16,7 +16,7 @@ export function SignupClosedPanel() {
             {copy.authSignUpClosedTitle}
           </PageTitle>
           <Alert variant="info">{copy.authSignUpClosedAlert}</Alert>
-          <Link href="/login" className="mt-6 block text-center">
+          <Link href={loginHref} className="mt-6 block text-center">
             <span className="text-[15px] font-bold text-bakery-primary hover:underline">
               {copy.authGoToSignIn}
             </span>
@@ -27,14 +27,14 @@ export function SignupClosedPanel() {
   );
 }
 
-export function LoginFormFooter() {
+export function LoginFormFooter({ signupHref = "/signup" }: { signupHref?: string }) {
   const { copy } = useMarketingLocale();
 
   return (
     <p className="mt-6 text-center text-[17px] leading-snug text-bakery-muted">
       {copy.authNoAccount}{" "}
       <Link
-        href="/signup"
+        href={signupHref}
         className="text-[19px] font-extrabold text-bakery-primary underline-offset-2 hover:underline"
       >
         {copy.authSubmitSignUp}
@@ -43,14 +43,14 @@ export function LoginFormFooter() {
   );
 }
 
-export function SignupFormFooter() {
+export function SignupFormFooter({ loginHref = "/login" }: { loginHref?: string }) {
   const { copy } = useMarketingLocale();
 
   return (
     <p className="mt-6 text-center text-[17px] leading-snug text-bakery-muted">
       {copy.authAlreadyRegistered}{" "}
       <Link
-        href="/login"
+        href={loginHref}
         className="text-[19px] font-extrabold text-bakery-primary underline-offset-2 hover:underline"
       >
         {copy.authSubmitSignIn}

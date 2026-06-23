@@ -15,6 +15,7 @@ import {
   type StoreThemeId,
 } from "@/lib/store-themes";
 import { isScheduleLikeBusinessType } from "@/lib/types";
+import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 
 export function DashboardStoreStylePicker({
   previewOnly = false,
@@ -183,28 +184,30 @@ export function DashboardStoreStylePicker({
             })}
           </div>
 
-          <div className="bakery-float-tile space-y-3 rounded-[18px] p-4 text-start">
-            <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/20 bg-[#faf6f0]">
-                <BookOpen className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[15px] font-extrabold text-bakery-ink">
-                  {labels.sellerGuideReplayTitle}
-                </p>
-                <p className="mt-1 text-[12px] font-semibold leading-snug text-bakery-muted">
-                  {labels.sellerGuideReplayBody}
-                </p>
+          {SELLER_WELCOME_GUIDE_ENABLED ? (
+            <div className="bakery-float-tile space-y-3 rounded-[18px] p-4 text-start">
+              <div className="flex items-start gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/20 bg-[#faf6f0]">
+                  <BookOpen className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-extrabold text-bakery-ink">
+                    {labels.sellerGuideReplayTitle}
+                  </p>
+                  <p className="mt-1 text-[12px] font-semibold leading-snug text-bakery-muted">
+                    {labels.sellerGuideReplayBody}
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={restartSellerGuide}
+                className="dashboard-style-guide-btn w-full rounded-full px-4 py-2.5 text-[14px] font-extrabold transition"
+              >
+                {labels.sellerGuideReplayAction}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={restartSellerGuide}
-              className="dashboard-style-guide-btn w-full rounded-full px-4 py-2.5 text-[14px] font-extrabold transition"
-            >
-              {labels.sellerGuideReplayAction}
-            </button>
-          </div>
+          ) : null}
 
           {message && (
             <p className="text-center text-[13px] font-semibold text-bakery-success">

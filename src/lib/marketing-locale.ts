@@ -34,6 +34,8 @@ export type MarketingCopy = {
   ultimatePeriod: string;
   ultimateFeatures: string[];
   getUltimate: string;
+  enterpriseHeadline: string;
+  learnMore: string;
   pricingNote: string;
   tryNow: string;
   eyebrowContact: string;
@@ -42,6 +44,7 @@ export type MarketingCopy = {
   contactLead: string;
   email: string;
   whatsapp: string;
+  whatsappMegaCta: string;
   formName: string;
   formEmail: string;
   formMessage: string;
@@ -165,24 +168,26 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
       "Product store or booking",
     ],
     joinPilot: "Join the Pilot",
-    premiumBadge: "Premium Plan",
+    premiumBadge: "Monthly Plan",
     premiumPeriod: "/ month",
     premiumFeatures: [
-      "Up to 500 orders per month",
       "Full BiziLink access",
       "Business page + shareable link",
       "Orders, bookings & messages dashboard",
+      "Product store or booking",
     ],
-    getPremium: "Get Premium",
-    ultimateBadge: "Ultimate Plan",
-    ultimatePeriod: "/ month",
+    getPremium: "Get started",
+    ultimateBadge: "Large businesses",
+    ultimatePeriod: "",
     ultimateFeatures: [
-      "Up to 1,000 orders per month",
-      "Everything in Premium",
+      "High order volume & multiple locations",
+      "Custom setup and onboarding",
       "Priority support",
-      "Built for growing businesses",
+      "Pricing tailored to your business",
     ],
-    getUltimate: "Get Ultimate",
+    getUltimate: "Contact us",
+    enterpriseHeadline: "Custom",
+    learnMore: "Learn more",
     pricingNote: "Start free during pilot. Upgrade when you're ready to scale.",
     tryNow: "TRY NOW",
     eyebrowContact: "Contact",
@@ -192,6 +197,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
       "Contact us to join the pilot and get your business online with one simple link.",
     email: "Email",
     whatsapp: "WhatsApp",
+    whatsappMegaCta: "Chat with us on WhatsApp",
     formName: "Name",
     formEmail: "Email",
     formMessage: "Message",
@@ -314,24 +320,26 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
       "חנות מוצרים או תורים",
     ],
     joinPilot: "הצטרפו לפיילוט",
-    premiumBadge: "תוכנית Premium",
+    premiumBadge: "תוכנית חודשית",
     premiumPeriod: "/ חודש",
     premiumFeatures: [
-      "עד 500 הזמנות בחודש",
       "גישה מלאה ל-BiziLink",
       "דף עסק + קישור לשיתוף",
       "לוח בקרה להזמנות, תורים והודעות",
+      "חנות מוצרים או תורים",
     ],
-    getPremium: "קבל Premium",
-    ultimateBadge: "תוכנית Ultimate",
-    ultimatePeriod: "/ חודש",
+    getPremium: "הרשמה",
+    ultimateBadge: "עסקים גדולים",
+    ultimatePeriod: "",
     ultimateFeatures: [
-      "עד 1,000 הזמנות בחודש",
-      "הכל ב-Premium",
+      "נפח הזמנות גבוה וסניפים מרובים",
+      "התאמה והקמה מותאמת אישית",
       "תמיכה בעדיפות",
-      "לעסקים בצמיחה",
+      "מחיר לפי צרכי העסק",
     ],
-    getUltimate: "קבל Ultimate",
+    getUltimate: "צור קשר",
+    enterpriseHeadline: "לעסקים גדולים",
+    learnMore: "למידע נוסף",
     pricingNote: "מתחילים בחינם בפיילוט. משדרגים כשמוכנים לגדול.",
     tryNow: "נסו עכשיו",
     eyebrowContact: "צור קשר",
@@ -341,6 +349,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
       "צרו קשר כדי להצטרף לפיילוט ולהעלות את העסק אונליין עם קישור אחד פשוט.",
     email: "אימייל",
     whatsapp: "WhatsApp",
+    whatsappMegaCta: "דברו איתנו בוואטסאפ",
     formName: "שם",
     formEmail: "אימייל",
     formMessage: "הודעה",

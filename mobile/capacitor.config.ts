@@ -1,9 +1,30 @@
-const serverUrl =
+import type { CapacitorConfig } from "@capacitor/cli";
+
+const rawBase =
   process.env.CAPACITOR_SERVER_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
   "http://localhost:3000";
 
-const config = {
+const entryPath = (() => {
+  const raw = process.env.CAPACITOR_ENTRY_PATH?.trim() || "/app";
+  return raw.startsWith("/") ? raw : `/${raw}`;
+})();
+
+function buildServerUrl(base: string): string {
+  try {
+    const url = new URL(base);
+    url.pathname = entryPath;
+    url.search = "";
+    url.hash = "";
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return `${base.replace(/\/$/, "")}${entryPath}`;
+  }
+}
+
+const serverUrl = buildServerUrl(rawBase);
+
+const config: CapacitorConfig = {
   appId: "com.linky.app",
   appName: "Linky",
   webDir: "../public",

@@ -13,7 +13,7 @@ export function MarketingPricingPage() {
   return (
     <div
       className={marketingPublicPageClassName()}
-      data-theme="dark"
+      data-theme="light"
       lang="he"
       dir="rtl"
       style={{ cursor: "auto", minHeight: "100dvh" }}

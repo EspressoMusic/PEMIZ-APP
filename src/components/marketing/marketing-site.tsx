@@ -15,7 +15,9 @@ import {
   useMarketingLocale,
 } from "./marketing-locale-provider";
 import { MarketingSideConfetti } from "./marketing-side-confetti";
-import { MarketingPlanPrice } from "./marketing-plan-price";
+import { MarketingLocaleFixedPrice } from "./marketing-plan-price";
+import { MarketingWhatsAppCta } from "./marketing-whatsapp-cta";
+import { MarketingVersionSwitch } from "./marketing-version-switch";
 
 const BENEFIT_ICONS = [
   (
@@ -122,6 +124,7 @@ function MarketingSiteContent() {
       dir={locale === "he" ? "rtl" : "ltr"}
       suppressHydrationWarning
     >
+      <MarketingVersionSwitch />
       <MarketingSideConfetti
         active={footerConfettiActive}
         burst={footerConfettiBurst}
@@ -413,10 +416,11 @@ function MarketingSiteContent() {
                 {copy.joinPilot}
               </Link>
             </article>
-            <article className="price-card" data-reveal="scale" data-tilt>
+            <article className="price-card price-card--gold" data-reveal="scale" data-tilt>
               <div className="price-badge">{copy.premiumBadge}</div>
-              <MarketingPlanPrice
-                planId="premium"
+              <MarketingLocaleFixedPrice
+                amountHe={89}
+                amountEn={24}
                 locale={locale}
                 period={copy.premiumPeriod}
               />
@@ -431,17 +435,15 @@ function MarketingSiteContent() {
             </article>
             <article className="price-card" data-reveal="scale" data-tilt>
               <div className="price-badge">{copy.ultimateBadge}</div>
-              <MarketingPlanPrice
-                planId="ultimate"
-                locale={locale}
-                period={copy.ultimatePeriod}
-              />
+              <div className="price-amount price-free">
+                <strong>{copy.enterpriseHeadline}</strong>
+              </div>
               <ul className="price-features">
                 {copy.ultimateFeatures.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Link href="/signup" prefetch={false} className="btn btn-primary price-btn">
+              <Link href="#contact" prefetch={false} className="btn btn-primary price-btn">
                 {copy.getUltimate}
               </Link>
             </article>
@@ -480,6 +482,8 @@ function MarketingSiteContent() {
             </h2>
             <p className="contact-lead">{copy.contactLead}</p>
 
+            <MarketingWhatsAppCta locale={locale} label={copy.whatsappMegaCta} />
+
             <div className="contact-channels">
               <a href="mailto:hello@bizilink.app" className="contact-btn">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
@@ -487,13 +491,6 @@ function MarketingSiteContent() {
                   <path d="m22 6-10 7L2 6" />
                 </svg>
                 {copy.email}
-              </a>
-              <a href="https://wa.me/" className="contact-btn" target="_blank" rel="noopener noreferrer">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-                  <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.463 3.67 1.28 5.24L2 22l4.88-1.28A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" />
-                </svg>
-                {copy.whatsapp}
               </a>
             </div>
           </div>

@@ -45,49 +45,26 @@ function WelcomeGuideModal({
     setMounted(true);
   }, []);
 
-  const tips = isAppointments
-    ? [
-        {
-          title: labels.sellerGuideWelcomeTipAddServiceTitle,
-          body: labels.sellerGuideWelcomeTipAddServiceBody,
-        },
-        {
-          title: labels.sellerGuideWelcomeTipBookedAppointmentsTitle,
-          body: labels.sellerGuideWelcomeTipBookedAppointmentsBody,
-        },
-        {
-          title: labels.sellerGuideWelcomeTipCalendarTitle,
-          body: labels.sellerGuideWelcomeTipCalendarBody,
-        },
-        {
-          title: labels.sellerGuideWelcomeTipDurationGapTitle,
-          body: labels.sellerGuideWelcomeTipDurationGapBody,
-        },
-      ]
-    : [
-        {
-          title: labels.sellerGuideWelcomeTipAddProductTitle,
-          body: labels.sellerGuideWelcomeTipAddProductBody,
-        },
-        {
-          title: labels.sellerGuideWelcomeTipOrdersTitle,
-          body: labels.sellerGuideWelcomeTipOrdersBody,
-        },
-        {
-          title: labels.sellerGuideWelcomeTipDealsTitle,
-          body: labels.sellerGuideWelcomeTipDealsBody,
-        },
-        {
-          title: labels.sellerGuideWelcomeTipLimitsTitle,
-          body: labels.sellerGuideWelcomeTipLimitsBody,
-        },
-      ];
+  const tips = [
+    {
+      title: labels.sellerGuideWelcomeTipCustomersTitle,
+      body: labels.sellerGuideWelcomeTipCustomersBody,
+    },
+    {
+      title: labels.sellerGuideWelcomeStepStoreTitle,
+      body: isAppointments
+        ? labels.sellerGuideWelcomeStepStoreBodyAppointments
+        : labels.sellerGuideWelcomeStepStoreBody,
+    },
+    {
+      title: labels.sellerGuideWelcomeStepLinkTitle,
+      body: labels.sellerGuideWelcomeStepLinkBody,
+    },
+  ];
 
-  const totalSlides = tips.length + 1;
-  const isIntro = step === 0;
+  const totalSlides = tips.length;
   const isLast = step === totalSlides - 1;
-  const tipIndex = step - 1;
-  const currentTip = tipIndex >= 0 ? tips[tipIndex] : null;
+  const currentTip = tips[step] ?? null;
 
   if (!mounted) return null;
 
@@ -115,44 +92,37 @@ function WelcomeGuideModal({
           />
         </div>
 
-        {isIntro ? (
-          <>
-            <h2
-              id="seller-welcome-guide-title"
-              className="mt-4 text-center text-[20px] font-extrabold text-bakery-ink"
-            >
-              {labels.sellerGuideTitle}
-            </h2>
-            <p className="mt-3 text-center text-[15px] font-semibold leading-[1.55] text-bakery-ink">
-              {isAppointments
-                ? labels.sellerGuidePurposeAppointments
-                : labels.sellerGuidePurpose}
-            </p>
-            <p className="mt-3 text-center text-[14px] font-semibold leading-[1.55] text-bakery-muted">
-              {isAppointments
-                ? labels.sellerGuideIntroAppointments
-                : labels.sellerGuideIntro}
-            </p>
-          </>
-        ) : currentTip ? (
+        {currentTip ? (
           <div className="mt-4 text-center">
-            <p className="text-[13px] font-bold text-bakery-muted">
+            {step === 0 ? (
+              <>
+                <p className="text-[20px] font-extrabold text-bakery-ink">
+                  {labels.sellerGuideTitle}
+                </p>
+                <p className="mt-2 text-[15px] font-bold text-bakery-primary">
+                  {isAppointments
+                    ? labels.sellerGuideIntroAppointments
+                    : labels.sellerGuideIntro}
+                </p>
+              </>
+            ) : null}
+            <p className={`text-[13px] font-bold text-bakery-muted ${step === 0 ? "mt-3" : "mt-0"}`}>
               {formatStepCounter(
                 labels.sellerGuideStepCounter,
-                step,
-                totalSlides - 1
+                step + 1,
+                totalSlides
               )}
             </p>
             <div className="mx-auto mt-4 flex h-14 w-14 items-center justify-center rounded-full bg-bakery-primary text-[26px] font-extrabold leading-none text-bakery-on-primary shadow-[var(--shadow-bakery-btn)]">
-              {step}
+              {step + 1}
             </div>
             <h2
               id="seller-welcome-guide-title"
-              className="mt-4 text-[20px] font-extrabold leading-snug text-bakery-ink"
+              className="mt-4 text-[19px] font-extrabold leading-snug text-bakery-ink"
             >
               {currentTip.title}
             </h2>
-            <p className="mt-3 text-[15px] font-semibold leading-[1.55] text-bakery-muted">
+            <p className="mt-3 text-[16px] font-semibold leading-[1.5] text-bakery-muted">
               {currentTip.body}
             </p>
           </div>

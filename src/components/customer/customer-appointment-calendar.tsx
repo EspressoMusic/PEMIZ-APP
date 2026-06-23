@@ -152,15 +152,15 @@ export function CustomerAppointmentCalendar({
   }
 
   const dayNormal =
-    "border-[#5C4A3E]/22 bg-bakery-card text-bakery-ink";
+    "border-bakery-success/45 bg-bakery-card text-bakery-ink";
 
   function dayClass(status: DayStatus, selected: boolean) {
     if (isModern) return "";
     if (selected) {
-      return "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_3px_10px_rgba(58,47,38,0.18)]";
+      return "border-bakery-success bg-bakery-success/15 text-bakery-ink shadow-[0_0_0_2px_rgba(67,160,71,0.28)]";
     }
     if (status === "available") {
-      return `${dayNormal} cursor-pointer hover:bg-bakery-cream-light active:scale-[0.98]`;
+      return `${dayNormal} cursor-pointer hover:bg-bakery-success/8 active:scale-[0.98]`;
     }
     if (status === "full") {
       return "cursor-pointer border-bakery-error bg-bakery-error text-white shadow-[0_3px_10px_rgba(168,88,88,0.35)] active:scale-[0.98]";
