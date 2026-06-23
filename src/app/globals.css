@@ -1443,6 +1443,10 @@ html:not([data-store-theme="dark"])
 .auth-surface {
   --auth-field-bg: var(--dashboard-field-bg, var(--bakery-input, #f9f3e5));
   --auth-field-border: var(--bakery-border, rgba(93, 64, 55, 0.22));
+  --dashboard-panel-bg: #e6d5b8;
+  --dashboard-frame-border: rgba(78, 52, 46, 0.32);
+  --dashboard-frame-border-width: 1.5px;
+  --dashboard-shadow: rgba(78, 52, 46, 0.14);
 }
 
 html:not([data-store-theme="dark"]) .auth-surface .bakery-field {

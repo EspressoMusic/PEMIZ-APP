@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Input, Alert, Panel, PageTitle } from "@/components/ui";
+import { Button, Input, Alert, Panel, PageTitle, Toggle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { useMarketingLocale } from "@/components/marketing/marketing-locale-provider";
@@ -22,6 +22,7 @@ export function AuthForm({
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [signupConfetti, setSignupConfetti] = useState(mode === "signup");
 
   useEffect(() => {
@@ -40,6 +41,10 @@ export function AuthForm({
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    if (mode === "signup" && !acceptTerms) {
+      setError(copy.onboardTermsError);
+      return;
+    }
     setLoading(true);
     const fd = new FormData(e.currentTarget);
     const payload =
@@ -174,6 +179,33 @@ export function AuthForm({
                 </Link>
               </p>
             ) : null}
+            {mode === "signup" ? (
+              <div className="flex items-start justify-between gap-3 pt-1 text-[13px] leading-[1.45]">
+                <span className="min-w-0 flex-1 text-bakery-muted">
+                  {copy.onboardAcceptTermsPrefix}{" "}
+                  <Link
+                    href="/terms"
+                    className="font-bold text-bakery-ink hover:underline"
+                  >
+                    {locale === "he" ? "תנאי השימוש" : "Terms of Service"}
+                  </Link>{" "}
+                  {copy.onboardAcceptTermsMiddle}{" "}
+                  <Link
+                    href="/privacy"
+                    className="font-bold text-bakery-ink hover:underline"
+                  >
+                    {locale === "he" ? "מדיניות הפרטיות" : "Privacy Policy"}
+                  </Link>
+                  {copy.onboardAcceptTermsSuffix}
+                </span>
+                <Toggle
+                  enabled={acceptTerms}
+                  onChange={setAcceptTerms}
+                  ariaLabel={copy.onboardAcceptTermsAria}
+                  className="border border-bakery-primary/30 shadow-[0_1px_4px_rgba(78,52,46,0.12)]"
+                />
+              </div>
+            ) : null}
             <Button
               type="submit"
               className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home mt-2 !w-full !rounded-full !shadow-none hover:!opacity-100"
@@ -186,11 +218,6 @@ export function AuthForm({
                   : copy.authSubmitSignUp}
             </Button>
           </form>
-          {mode === "signup" && (
-            <p className="mt-4 text-center text-[12px] leading-[1.35] text-bakery-muted">
-              {copy.authSignUpTerms}
-            </p>
-          )}
         </Panel>
         {footer}
       </div>

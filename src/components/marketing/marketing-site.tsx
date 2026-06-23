@@ -17,7 +17,6 @@ import {
 import { MarketingSideConfetti } from "./marketing-side-confetti";
 import { MarketingLocaleFixedPrice } from "./marketing-plan-price";
 import { MarketingWhatsAppCta } from "./marketing-whatsapp-cta";
-import { MarketingVersionSwitch } from "./marketing-version-switch";
 
 const BENEFIT_ICONS = [
   (
@@ -124,7 +123,6 @@ function MarketingSiteContent() {
       dir={locale === "he" ? "rtl" : "ltr"}
       suppressHydrationWarning
     >
-      <MarketingVersionSwitch />
       <MarketingSideConfetti
         active={footerConfettiActive}
         burst={footerConfettiBurst}

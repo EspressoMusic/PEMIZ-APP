@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const THEME_KEY = "bizilink-marketing-theme";
 const FOOTER_CONFETTI_MS = 4200;
 
 export function useMarketingSiteEffects() {
@@ -18,17 +17,6 @@ export function useMarketingSiteEffects() {
   const [footerConfettiBurst, setFooterConfettiBurst] = useState(0);
   const wasAtBottomRef = useRef(false);
   const confettiTimerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(THEME_KEY) as "dark" | "light" | null;
-    if (saved === "dark" || saved === "light") {
-      setTheme(saved);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(THEME_KEY, theme);
-  }, [theme]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setLoaderGone(true), 900);

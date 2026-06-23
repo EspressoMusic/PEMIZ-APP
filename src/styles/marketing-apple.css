@@ -13,7 +13,6 @@
   --apple-dark: #000000;
   --apple-dark-soft: #1d1d1f;
   --apple-nav-h: 44px;
-  --apple-switch-h: 32px;
   --apple-container: min(980px, calc(100% - 48px));
   --apple-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
 
@@ -30,42 +29,10 @@
     BlinkMacSystemFont, "SF Pro Hebrew", "Segoe UI", sans-serif;
 }
 
-/* Version switcher */
-.marketing-version-switch {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10001;
-  height: var(--apple-switch-h);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(29, 29, 31, 0.92);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.marketing-version-switch a {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: #f5f5f7;
-  text-decoration: none;
-  padding: 4px 12px;
-  border-radius: 999px;
-  transition: background 0.2s var(--apple-ease);
-}
-
-.marketing-version-switch a:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
 /* Nav */
 .apple-nav {
   position: sticky;
-  top: var(--apple-switch-h);
+  top: 0;
   z-index: 9999;
   height: var(--apple-nav-h);
   background: rgba(251, 251, 253, 0.72);
@@ -754,7 +721,7 @@
 @media (max-width: 734px) {
   .apple-nav-links {
     position: fixed;
-    top: calc(var(--apple-switch-h) + var(--apple-nav-h));
+    top: var(--apple-nav-h);
     left: 0;
     right: 0;
     bottom: 0;

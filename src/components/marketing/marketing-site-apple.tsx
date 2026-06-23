@@ -10,7 +10,6 @@ import {
   MarketingLocaleProvider,
   useMarketingLocale,
 } from "./marketing-locale-provider";
-import { MarketingVersionSwitch } from "./marketing-version-switch";
 import { MarketingWhatsAppCta } from "./marketing-whatsapp-cta";
 import { useMarketingSiteEffects } from "./use-marketing-site-effects";
 
@@ -99,8 +98,6 @@ function MarketingSiteAppleContent() {
       dir={locale === "he" ? "rtl" : "ltr"}
       suppressHydrationWarning
     >
-      <MarketingVersionSwitch />
-
       <header className="apple-nav">
         <div className="apple-nav-inner">
           <a
