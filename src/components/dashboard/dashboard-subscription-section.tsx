@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Crown } from "lucide-react";
+import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import {
   DashboardSettingsTile,
@@ -150,8 +151,11 @@ function SubscriptionStatusPanel({
 
 export function DashboardSubscriptionSection({
   previewOnly = false,
+  embedded = false,
 }: {
   previewOnly?: boolean;
+  /** Inside the shared settings panel — same row style as customers / alerts. */
+  embedded?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
   const [open, setOpen] = useState(false);
@@ -200,34 +204,44 @@ export function DashboardSubscriptionSection({
   const hasActiveSubscription = Boolean(status?.subscriptionActiveAt);
   const showPlanPicker = !hasActiveSubscription;
 
+  function openSubscriptionSheet() {
+    setMessage("");
+    setOpen(true);
+  }
+
   return (
     <>
-      <DashboardSettingsTile>
-        <button
-          type="button"
-          className="w-full text-start transition active:opacity-90"
-          onClick={() => {
-            setMessage("");
-            setOpen(true);
-          }}
-        >
-          <DashboardSettingsTileRow
-            panel={
-              <p className="text-[15px] font-extrabold text-bakery-ink">
-                {labels.subscription}
-              </p>
-            }
-            leading={
-              <span
-                className={`${DASHBOARD_SETTINGS_ACTION} w-10 border border-bakery-border/35 bg-bakery-card/60 text-bakery-primary`}
-                aria-hidden
-              >
-                <Crown className="h-4 w-4" strokeWidth={2.1} />
-              </span>
-            }
-          />
-        </button>
-      </DashboardSettingsTile>
+      {embedded ? (
+        <DashboardActionRowButton
+          onClick={openSubscriptionSheet}
+          icon={Crown}
+          title={labels.subscription}
+        />
+      ) : (
+        <DashboardSettingsTile>
+          <button
+            type="button"
+            className="w-full text-start transition active:opacity-90"
+            onClick={openSubscriptionSheet}
+          >
+            <DashboardSettingsTileRow
+              panel={
+                <p className="text-[15px] font-extrabold text-bakery-ink">
+                  {labels.subscription}
+                </p>
+              }
+              leading={
+                <span
+                  className={`${DASHBOARD_SETTINGS_ACTION} w-10 border border-bakery-border/35 bg-bakery-card/60 text-bakery-primary`}
+                  aria-hidden
+                >
+                  <Crown className="h-4 w-4" strokeWidth={2.1} />
+                </span>
+              }
+            />
+          </button>
+        </DashboardSettingsTile>
+      )}
 
       <DashboardActionSheet
         open={open}

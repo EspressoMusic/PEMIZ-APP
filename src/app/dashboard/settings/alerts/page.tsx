@@ -8,7 +8,11 @@ import { DashboardSellerAlertsSettings } from "@/components/dashboard/dashboard-
 export default async function SettingsAlertsPage() {
   const user = await getCurrentUser();
   if (!user?.business) redirect("/login");
-  if (user.business.type !== "STORE" && user.business.type !== "APPOINTMENTS") {
+  if (
+    user.business.type !== "STORE" &&
+    user.business.type !== "APPOINTMENTS" &&
+    user.business.type !== "RENTAL"
+  ) {
     redirect("/dashboard/settings");
   }
 

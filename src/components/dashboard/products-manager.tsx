@@ -19,7 +19,7 @@ import { ProductSuccessModal } from "@/components/product-success-modal";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { getEffectivePrice, hasDiscount } from "@/lib/product-price";
 import { parseStockInput, formatSellerProductStockLabel, getProductStockStatus, isProductStockAlert } from "@/lib/product-stock";
-import { Package, Plus } from "lucide-react";
+import { Package, Pencil, Plus } from "lucide-react";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -314,9 +314,10 @@ const ProductCard = memo(function ProductCard({
             <button
               type="button"
               onClick={() => setImagesOpen(true)}
-              className="absolute bottom-1 left-1 rounded-full bg-bakery-ink/75 px-2 py-0.5 text-[10px] font-bold text-white"
+              className="absolute bottom-1.5 end-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-bakery-ink/75 text-white"
+              aria-label={labels.productImageEdit}
             >
-              {labels.productImageEdit}
+              <Pencil className="h-3.5 w-3.5" strokeWidth={2.25} />
             </button>
           ) : null}
         </div>

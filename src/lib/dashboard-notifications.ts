@@ -5,6 +5,7 @@ import { buildSellerChatThreads } from "@/lib/seller-chat-threads";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
 import type { DashboardNotification } from "@/lib/dashboard-notifications-client";
 import type { BusinessType } from "@/lib/types";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 
 export type {
   DashboardNotification,
@@ -22,7 +23,7 @@ export async function fetchDashboardNotifications(
   labels: DashboardLabels,
   businessType: BusinessType = "STORE"
 ): Promise<DashboardNotification[]> {
-  const isAppointments = businessType === "APPOINTMENTS";
+  const isScheduleLike = isScheduleLikeBusinessType(businessType);
   const since = new Date(Date.now() - 72 * 60 * 60 * 1000);
 
   const [inquiries, chatRows, orders, products, appointments] =
@@ -37,7 +38,7 @@ export async function fetchDashboardNotifications(
         orderBy: { createdAt: "desc" },
         take: 500,
       }),
-      isAppointments
+      isScheduleLike
         ? Promise.resolve([])
         : prisma.order.findMany({
             where: { businessId, status: "PENDING" },
@@ -45,7 +46,7 @@ export async function fetchDashboardNotifications(
             orderBy: { createdAt: "desc" },
             take: 20,
           }),
-      isAppointments
+      isScheduleLike
         ? Promise.resolve([])
         : prisma.product.findMany({
             where: {
@@ -56,7 +57,7 @@ export async function fetchDashboardNotifications(
             orderBy: { name: "asc" },
             take: 20,
           }),
-      isAppointments
+      isScheduleLike
         ? prisma.appointment.findMany({
             where: {
               businessId,

@@ -23,6 +23,7 @@ import {
   isBusinessAppointmentLimitReached,
 } from "@/lib/platform-limits";
 import { assertCanAcceptCustomerBooking } from "@/lib/subscription-usage";
+import { notifySellerNewAppointment } from "@/lib/seller-push";
 
 const postSchema = z.object({
   slotId: z.string(),
@@ -164,6 +165,13 @@ export async function POST(
     business.id,
     parseIsraeliMobilePhone(parsed.data.customerPhone)!
   );
+
+  void notifySellerNewAppointment(business.id, {
+    id: appointment.id,
+    customerName: appointment.customerName,
+    serviceName: parsed.data.serviceName,
+    slotStartAt: appointment.slot.startAt,
+  });
 
   return jsonOk({
     appointmentId: appointment.id,

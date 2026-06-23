@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
 const CONFIG_ID = "default";
@@ -26,7 +27,7 @@ function hasDatabaseUrl() {
   return isDatabaseConfigured();
 }
 
-export async function getPlatformConfig() {
+export const getPlatformConfig = cache(async () => {
   if (!hasDatabaseUrl()) {
     return DEFAULT_CONFIG;
   }
@@ -41,7 +42,7 @@ export async function getPlatformConfig() {
     }
     return DEFAULT_CONFIG;
   }
-}
+});
 
 export async function isSignupEnabled() {
   const config = await getPlatformConfig();

@@ -15,6 +15,7 @@ import {
 } from "@/components/dashboard/app-locale-provider";
 import { DashboardUiPreferencesProvider } from "@/components/dashboard/dashboard-ui-preferences";
 import { StoreThemeProvider } from "@/components/dashboard/store-theme-provider";
+import { useDashboardHub } from "@/components/dashboard/dashboard-hub-context";
 import {
   DASHBOARD_MOBILE_STACK,
   DASHBOARD_PAGE_ROOT,
@@ -81,10 +82,12 @@ export function DashboardShellClient({
   platformOwnerMessageReadAt?: string | null;
 }) {
   const pathname = usePathname();
+  const hub = useDashboardHub();
   const inSellerApp = isSellerAppRoute(pathname, basePath);
   const isHomeRoute = isDashboardHomeRoute(pathname, basePath);
   const isActionsHubRoute = isDashboardActionsHubRoute(pathname, basePath);
-  const lockMainScroll = isHomeRoute || isActionsHubRoute;
+  const lockMainScroll =
+    Boolean(hub) || isHomeRoute || isActionsHubRoute;
   const tourEnabled = SELLER_WELCOME_GUIDE_ENABLED;
   const appointmentScheduleConfigured = isAppointmentStoreScheduleConfigured({
     businessType,

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
-export const APPOINTMENTS_HOME_BG = "#f2ebe0";
+/** Same fill as seller dashboard calendar (`--dashboard-panel-bg`). */
+export const APPOINTMENTS_HOME_BG = "#e6d5b8";
 
 export function CustomerAppointmentsHomeShell({
   children,

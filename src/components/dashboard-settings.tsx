@@ -2,7 +2,10 @@
 
 import { Bell, LogOut, CircleAlert, Smartphone } from "lucide-react";
 import { PageTitle } from "@/components/ui";
-import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
+import {
+  DashboardActionRow,
+  DashboardActionRowButton,
+} from "@/components/dashboard/dashboard-action-row";
 import { DashboardDeleteStoreSection } from "@/components/dashboard/dashboard-delete-store-section";
 import { DashboardSellerDetailsCard } from "@/components/dashboard/dashboard-seller-details-card";
 import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
@@ -13,11 +16,6 @@ import {
   DEFAULT_STORE_PANELS_VISIBLE,
   type StorePanelsVisible,
 } from "@/lib/store-panels-visible";
-import {
-  DashboardSettingsTile,
-  DashboardSettingsTileRow,
-} from "@/components/dashboard/dashboard-settings-tile";
-import { DASHBOARD_SETTINGS_ACTION } from "@/components/dashboard/dashboard-settings-bar";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useNativeApp } from "@/hooks/use-native-app";
 
@@ -60,8 +58,7 @@ export function DashboardSettingsView({
     <div className="space-y-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       {!showQuickActionRows ? <PageTitle>{labels.settings}</PageTitle> : null}
 
-      <div className="space-y-2">
-        <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
+      <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <ul className="space-y-2 text-start">
             {businessType === "STORE" ||
             businessType === "APPOINTMENTS" ||
@@ -112,39 +109,28 @@ export function DashboardSettingsView({
                 ) : null}
               </>
             ) : null}
+
+            <DashboardSubscriptionSection
+              embedded
+              previewOnly={previewOnly}
+            />
+
+            <DashboardActionRowButton
+              onClick={async () => {
+                await fetch("/api/auth/logout", { method: "POST" });
+                window.location.href = "/";
+              }}
+              icon={LogOut}
+              title={labels.logoutTitle}
+            />
+
+            <DashboardDeleteStoreSection
+              embedded
+              businessName={businessName}
+              previewOnly={previewOnly}
+            />
           </ul>
         </div>
-
-        <DashboardSubscriptionSection previewOnly={previewOnly} />
-
-        <DashboardSettingsTile>
-          <DashboardSettingsTileRow
-            panel={
-              <p className="text-[15px] font-extrabold text-bakery-ink">
-                {labels.logoutTitle}
-              </p>
-            }
-            action={
-              <button
-                type="button"
-                className={`${DASHBOARD_SETTINGS_ACTION} gap-1.5 border border-bakery-sale/40 bg-bakery-card/60 px-3 text-bakery-sale transition hover:bg-bakery-sale/8 active:scale-[0.99]`}
-                onClick={async () => {
-                  await fetch("/api/auth/logout", { method: "POST" });
-                  window.location.href = "/";
-                }}
-              >
-                <LogOut className="h-4 w-4" strokeWidth={2.25} />
-                <span className="text-[13px] font-extrabold">{labels.logout}</span>
-              </button>
-            }
-          />
-        </DashboardSettingsTile>
-
-        <DashboardDeleteStoreSection
-          businessName={businessName}
-          previewOnly={previewOnly}
-        />
-      </div>
     </div>
   );
 }

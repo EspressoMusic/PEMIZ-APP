@@ -1,9 +1,9 @@
 import { jsonOk } from "@/lib/api";
-import { requireStoreOwner } from "@/lib/dashboard-auth";
+import { requireSellerAlertsOwner } from "@/lib/dashboard-auth";
 import { getVapidPublicKey, isPushConfigured } from "@/lib/seller-push";
 
 export async function GET() {
-  const ctx = await requireStoreOwner();
+  const ctx = await requireSellerAlertsOwner();
   if (!ctx.ok) return ctx.response;
 
   return jsonOk({

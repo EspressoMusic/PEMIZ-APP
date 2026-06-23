@@ -16,13 +16,19 @@ function DashboardActionRowIcon({ icon: Icon }: { icon: LucideIcon }) {
 function DashboardActionRowText({
   title,
   subtitle,
+  danger = false,
 }: {
   title: string;
   subtitle?: string;
+  danger?: boolean;
 }) {
   return (
     <span className="min-w-0 flex-1">
-      <span className="block text-[16px] font-extrabold leading-tight text-bakery-ink">
+      <span
+        className={`block text-[16px] font-extrabold leading-tight ${
+          danger ? "text-bakery-error" : "text-bakery-ink"
+        }`}
+      >
         {title}
       </span>
       {subtitle ? (
@@ -95,6 +101,7 @@ export function DashboardActionRowButton({
   active = false,
   expanded,
   disabled = false,
+  danger = false,
 }: {
   onClick?: () => void;
   icon: LucideIcon;
@@ -104,11 +111,12 @@ export function DashboardActionRowButton({
   active?: boolean;
   expanded?: boolean;
   disabled?: boolean;
+  danger?: boolean;
 }) {
   const content = (
     <>
       <DashboardActionRowIcon icon={icon} />
-      <DashboardActionRowText title={title} subtitle={subtitle} />
+      <DashboardActionRowText title={title} subtitle={subtitle} danger={danger} />
       {trailing}
     </>
   );

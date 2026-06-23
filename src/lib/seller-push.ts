@@ -4,7 +4,12 @@ import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
 
 export { LOW_STOCK_THRESHOLD };
 
-export type SellerPushKind = "new_order" | "inquiry" | "chat" | "low_stock";
+export type SellerPushKind =
+  | "new_order"
+  | "new_appointment"
+  | "inquiry"
+  | "chat"
+  | "low_stock";
 
 export type SellerPushPayload = {
   title: string;
@@ -51,7 +56,7 @@ async function ownerForPush(
   if (!business?.sellerAlertsEnabled) return null;
 
   const enabled =
-    kind === "new_order"
+    kind === "new_order" || kind === "new_appointment"
       ? business.sellerAlertOnNewOrder
       : kind === "inquiry"
         ? business.sellerAlertOnInquiry
@@ -168,6 +173,40 @@ export async function notifySellerNewOrder(
     body: `${order.customerName}${total}`,
     url: "/dashboard/orders",
     tag: `order-${order.id}`,
+  });
+}
+
+export async function notifySellerNewAppointment(
+  businessId: string,
+  appointment: {
+    id: string;
+    customerName: string;
+    serviceName?: string;
+    slotStartAt: Date | string;
+  }
+) {
+  const start =
+    appointment.slotStartAt instanceof Date
+      ? appointment.slotStartAt
+      : new Date(appointment.slotStartAt);
+  const timeLabel = start.toLocaleTimeString("he-IL", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const dateLabel = start.toLocaleDateString("he-IL", {
+    day: "numeric",
+    month: "numeric",
+  });
+  const service = appointment.serviceName?.trim();
+  const detail = service
+    ? `${service} · ${dateLabel} ${timeLabel}`
+    : `${dateLabel} ${timeLabel}`;
+
+  fireSellerPush(businessId, "new_appointment", {
+    title: "תור חדש",
+    body: `${appointment.customerName} · ${detail}`,
+    url: "/dashboard",
+    tag: `appointment-${appointment.id}`,
   });
 }
 

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Alert, Button } from "@/components/ui";
+import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import {
   DashboardSettingsTile,
@@ -14,9 +15,12 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 export function DashboardDeleteStoreSection({
   businessName,
   previewOnly = false,
+  embedded = false,
 }: {
   businessName?: string;
   previewOnly?: boolean;
+  /** Inside the shared settings panel — same row style as logout / subscription. */
+  embedded?: boolean;
 }) {
   const { labels } = useAppLocale();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -56,31 +60,48 @@ export function DashboardDeleteStoreSection({
 
   return (
     <>
-      <DashboardSettingsTile variant="danger">
-        <DashboardSettingsTileRow
-          panel={
-            <p className="text-[15px] font-extrabold text-bakery-error">
-              {labels.deleteStoreTitle}
+      {embedded ? (
+        <>
+          <DashboardActionRowButton
+            onClick={openConfirm}
+            icon={Trash2}
+            title={labels.deleteStoreTitle}
+            danger
+            disabled={deleting}
+          />
+          {error && !confirmOpen ? (
+            <li>
+              <Alert variant="error">{error}</Alert>
+            </li>
+          ) : null}
+        </>
+      ) : (
+        <DashboardSettingsTile variant="danger">
+          <DashboardSettingsTileRow
+            panel={
+              <p className="text-[15px] font-extrabold text-bakery-error">
+                {labels.deleteStoreTitle}
+              </p>
+            }
+            action={
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={openConfirm}
+                aria-label={labels.deleteStoreButton}
+                className={`${DASHBOARD_SETTINGS_ACTION} w-10 border border-bakery-error/50 bg-bakery-card/70 text-bakery-error transition hover:bg-bakery-error/10 disabled:opacity-50`}
+              >
+                <Trash2 size={20} strokeWidth={2.1} aria-hidden />
+              </button>
+            }
+          />
+          {error && !confirmOpen && (
+            <p className="px-3 pb-3 text-center text-[13px] font-semibold text-bakery-error">
+              {error}
             </p>
-          }
-          action={
-            <button
-              type="button"
-              disabled={deleting}
-              onClick={openConfirm}
-              aria-label={labels.deleteStoreButton}
-              className={`${DASHBOARD_SETTINGS_ACTION} w-10 border border-bakery-error/50 bg-bakery-card/70 text-bakery-error transition hover:bg-bakery-error/10 disabled:opacity-50`}
-            >
-              <Trash2 size={20} strokeWidth={2.1} aria-hidden />
-            </button>
-          }
-        />
-        {error && !confirmOpen && (
-          <p className="px-3 pb-3 text-center text-[13px] font-semibold text-bakery-error">
-            {error}
-          </p>
-        )}
-      </DashboardSettingsTile>
+          )}
+        </DashboardSettingsTile>
+      )}
 
       <DashboardActionSheet
         open={confirmOpen}

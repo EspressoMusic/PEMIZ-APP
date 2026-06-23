@@ -170,7 +170,7 @@ export function DashboardInquiryBell({
     void load();
   }, [load]);
 
-  useVisibilityInterval(() => void load(), 60_000, 120_000);
+  useVisibilityInterval(() => void load(), 20_000, 45_000);
 
   const hasAlerts = notifications.length > 0;
 

@@ -3723,7 +3723,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
 
 /* Customer booking home — match header strip / page fill above the calendar */
 .customer-appointments-home .appointment-calendar-modern-surface {
-  --appointment-cal-board: var(--customer-appointments-home-bg, #f2ebe0);
+  --appointment-cal-board: var(--customer-appointments-home-bg, #e6d5b8);
 }
 
 .appointment-calendar-modern .appointment-calendar-month-title {

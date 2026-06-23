@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Zap } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { useDashboardHub } from "@/components/dashboard/dashboard-hub-context";
 import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
 
 export function DashboardNav({
@@ -24,6 +25,7 @@ export function DashboardNav({
   activeTab?: "home" | "actions";
 }) {
   const pathname = usePathname();
+  const hub = useDashboardHub();
   const [mounted, setMounted] = useState(false);
   const { labels } = useAppLocale();
 
@@ -44,17 +46,30 @@ export function DashboardNav({
 
   const isHome = activeTab
     ? activeTab === "home"
-    : pathname === homeHref ||
-      pathname === `${homeHref}/` ||
-      (!homeHrefOverride &&
-        (pathname === basePath || pathname === `${basePath}/`));
+    : hub
+      ? hub.tab === "home"
+      : pathname === homeHref ||
+        pathname === `${homeHref}/` ||
+        (!homeHrefOverride &&
+          (pathname === basePath || pathname === `${basePath}/`));
   const isActions = activeTab
     ? activeTab === "actions"
-    : pathname === actionsHref ||
-      (!actionsHrefOverride &&
-        pathname.startsWith(`${basePath}/`) &&
-        pathname !== basePath &&
-        pathname !== `${basePath}/`);
+    : hub
+      ? hub.tab === "actions"
+      : pathname === actionsHref ||
+        (!actionsHrefOverride &&
+          pathname.startsWith(`${basePath}/`) &&
+          pathname !== basePath &&
+          pathname !== `${basePath}/`);
+
+  function switchHubTab(
+    event: MouseEvent<HTMLAnchorElement>,
+    tab: "home" | "actions"
+  ) {
+    if (!hub) return;
+    event.preventDefault();
+    hub.setTab(tab);
+  }
 
   const links = defaultLinks.map((l) => ({
     ...l,
@@ -76,6 +91,15 @@ export function DashboardNav({
             <Link
               key={l.key}
               href={l.href}
+              onClick={
+                hub
+                  ? (event) =>
+                      switchHubTab(
+                        event,
+                        l.key === "home" ? "home" : "actions"
+                      )
+                  : undefined
+              }
               aria-current={active ? "page" : undefined}
               className={`flex flex-1 flex-col items-center rounded-full px-2 py-2 transition ${
                 active

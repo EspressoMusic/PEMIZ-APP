@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { withDbTimeout } from "@/lib/db-query-timeout";
@@ -37,7 +38,7 @@ export async function destroySession() {
   });
 }
 
-export async function getSession(): Promise<SessionPayload | null> {
+export const getSession = cache(async (): Promise<SessionPayload | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
@@ -48,9 +49,9 @@ export async function getSession(): Promise<SessionPayload | null> {
   } catch {
     return null;
   }
-}
+});
 
-export async function getCurrentUser(): Promise<SafeUser | null> {
+export const getCurrentUser = cache(async (): Promise<SafeUser | null> => {
   const session = await getSession();
   if (!session) return null;
   try {
@@ -73,7 +74,7 @@ export async function getCurrentUser(): Promise<SafeUser | null> {
   } catch {
     return null;
   }
-}
+});
 
 export function generateOtp(): string {
   return String(Math.floor(100000 + Math.random() * 900000));

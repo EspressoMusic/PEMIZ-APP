@@ -55,3 +55,14 @@ export async function requireStoreOwner(): Promise<DashboardAuthResult> {
   }
   return ctx;
 }
+
+/** Store, appointments, and rental businesses can configure seller alerts. */
+export async function requireSellerAlertsOwner(): Promise<DashboardAuthResult> {
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx;
+  const type = ctx.user.business.type;
+  if (type !== "STORE" && type !== "APPOINTMENTS" && type !== "RENTAL") {
+    return { ok: false, response: jsonError("סוג עסק זה לא תומך בהתראות", 400) };
+  }
+  return ctx;
+}

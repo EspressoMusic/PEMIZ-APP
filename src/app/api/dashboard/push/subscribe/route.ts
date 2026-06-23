@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-import { requireStoreOwner } from "@/lib/dashboard-auth";
+import { requireSellerAlertsOwner } from "@/lib/dashboard-auth";
 import { isPushConfigured } from "@/lib/seller-push";
 
 const schema = z.object({
@@ -13,7 +13,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const ctx = await requireStoreOwner();
+  const ctx = await requireSellerAlertsOwner();
   if (!ctx.ok) return ctx.response;
   if (!isPushConfigured()) {
     return jsonError("התראות דחיפה לא מוגדרות בשרת", 503);
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const ctx = await requireStoreOwner();
+  const ctx = await requireSellerAlertsOwner();
   if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
-import { requireStoreOwner } from "@/lib/dashboard-auth";
+import { requireSellerAlertsOwner } from "@/lib/dashboard-auth";
 import {
   sellerAlertsFromBusiness,
   sellerAlertsToDb,
@@ -16,14 +16,14 @@ const schema = z.object({
 });
 
 export async function GET() {
-  const ctx = await requireStoreOwner();
+  const ctx = await requireSellerAlertsOwner();
   if (!ctx.ok) return ctx.response;
 
   return jsonOk(sellerAlertsFromBusiness(ctx.user.business));
 }
 
 export async function PATCH(req: Request) {
-  const ctx = await requireStoreOwner();
+  const ctx = await requireSellerAlertsOwner();
   if (!ctx.ok) return ctx.response;
 
   const body = await req.json().catch(() => null);
