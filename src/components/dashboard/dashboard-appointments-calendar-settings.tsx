@@ -53,6 +53,8 @@ type CalendarSettingsProps = {
   basePath?: string;
   openedFromActionsHub?: boolean;
   openHoursFromQuery?: boolean;
+  /** Welcome setup — duration is set per service, not here */
+  hideDurationField?: boolean;
 };
 
 export function DashboardAppointmentsCalendarSettings(
@@ -99,6 +101,7 @@ function DashboardAppointmentsCalendarSettingsCore({
   basePath = "/dashboard",
   openedFromActionsHub = false,
   openHoursFromQuery = false,
+  hideDurationField = false,
 }: CalendarSettingsProps & {
   openedFromActionsHub: boolean;
   openHoursFromQuery: boolean;
@@ -301,7 +304,7 @@ function DashboardAppointmentsCalendarSettingsCore({
       <div className="w-full space-y-4 text-start">
         {workingDaysEditor}
 
-        {!bookingByDay ? (
+        {!bookingByDay && !hideDurationField ? (
           <div className="overflow-hidden rounded-[20px] border border-bakery-border/35 bg-bakery-card/70 p-3 shadow-[inset_0_1px_4px_rgba(58,47,38,0.06)]">
             <Input
               label={labels.appointmentDurationMinutes}

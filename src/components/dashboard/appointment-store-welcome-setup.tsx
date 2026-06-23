@@ -161,6 +161,7 @@ export function AppointmentStoreWelcomeSetup({
               </h3>
               <DashboardAppointmentsCalendarSettings
               inline
+              hideDurationField
               saveHandleRef={calendarSaveRef}
               scheduleSaveHandleRef={scheduleSaveRef}
               basePath={basePath}
