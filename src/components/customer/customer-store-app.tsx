@@ -1621,6 +1621,7 @@ export function CustomerStoreApp({
               orderSchedule={business.orderSchedule ?? null}
               bookingByDay={isRental || (business.appointmentBookingByDay ?? false)}
               rentalMode={isRental}
+              storeTheme={displayTheme}
               businessSlug={business.slug}
               customerPhone={orderPhone}
               onNeedPhone={() => setProfileModalOpen(true)}

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
+import { customerThemeClass, type StoreThemeId } from "@/lib/store-themes";
 import { formatAppointmentDayTitle } from "@/lib/appointment-calendar-shared";
 import type { CustomerLabels } from "./customer-labels";
 import type { AppointmentSlot } from "./customer-appointment-calendar";
@@ -20,6 +21,7 @@ export function CustomerAppointmentDayModal({
   orderSchedule = null,
   bookingByDay = false,
   rentalMode = false,
+  storeTheme = "calm",
   onBook,
 }: {
   open: boolean;
@@ -32,6 +34,7 @@ export function CustomerAppointmentDayModal({
   orderSchedule?: string | null;
   bookingByDay?: boolean;
   rentalMode?: boolean;
+  storeTheme?: StoreThemeId;
   onBook: (dateKey: string, daySlots: AppointmentSlot[]) => void;
 }) {
   useEffect(() => {
@@ -47,6 +50,7 @@ export function CustomerAppointmentDayModal({
 
   const appLocale = locale === "he" ? "he" : "en";
   const title = formatAppointmentDayTitle(dateKey, appLocale);
+  const themeClass = customerThemeClass(storeTheme);
 
   return createPortal(
     <div
@@ -61,7 +65,9 @@ export function CustomerAppointmentDayModal({
         onClick={onClose}
         aria-label={labels.close}
       />
-      <div className="appointment-day-modal relative flex max-h-[min(80dvh,560px)] w-full max-w-md flex-col overflow-hidden rounded-[28px]">
+      <div
+        className={`customer-store-root ${themeClass} appointment-day-modal relative flex max-h-[min(80dvh,560px)] w-full max-w-md flex-col overflow-hidden rounded-[28px]`}
+      >
         <div className="appointment-day-modal__header relative flex min-h-[52px] shrink-0 items-center justify-center px-12 py-3">
           <h2 className="appointment-day-modal__title w-full text-center text-[17px] font-extrabold leading-tight">
             {title}

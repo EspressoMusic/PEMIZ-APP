@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
+import type { StoreThemeId } from "@/lib/store-themes";
 import type { CustomerLabels } from "./customer-labels";
 import {
   CustomerAppointmentCalendar,
@@ -25,6 +26,7 @@ export function CustomerAppointmentsHomeCalendar({
   onNeedPhone,
   onBook,
   rentalMode = false,
+  storeTheme = "calm",
 }: {
   slots: AppointmentSlot[];
   locale: CustomerLocale;
@@ -37,6 +39,7 @@ export function CustomerAppointmentsHomeCalendar({
   onNeedPhone: () => void;
   onBook: (dateKey: string, daySlots: AppointmentSlot[]) => void;
   rentalMode?: boolean;
+  storeTheme?: StoreThemeId;
 }) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedDaySlots, setSelectedDaySlots] = useState<AppointmentSlot[]>([]);
@@ -96,6 +99,7 @@ export function CustomerAppointmentsHomeCalendar({
         orderSchedule={orderSchedule}
         bookingByDay={bookingByDay}
         rentalMode={rentalMode}
+        storeTheme={storeTheme}
         onBook={(dateKey, daySlots) => {
           onBook(dateKey, daySlots);
           setSelectedDay(null);

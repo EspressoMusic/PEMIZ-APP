@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
+import type { StoreThemeId } from "@/lib/store-themes";
 import type { CustomerLabels } from "./customer-labels";
 import {
   CustomerAppointmentCalendar,
@@ -29,6 +30,7 @@ export function CustomerAppointmentCalendarModal({
   onNeedPhone,
   onBook,
   rentalMode = false,
+  storeTheme = "calm",
 }: {
   open: boolean;
   onClose: () => void;
@@ -43,6 +45,7 @@ export function CustomerAppointmentCalendarModal({
   onNeedPhone: () => void;
   onBook: (dateKey: string, daySlots: AppointmentSlot[]) => void;
   rentalMode?: boolean;
+  storeTheme?: StoreThemeId;
 }) {
   const pickDayTitle = rentalMode
     ? labels.calendarPickCheckIn
@@ -138,6 +141,7 @@ export function CustomerAppointmentCalendarModal({
         orderSchedule={orderSchedule}
         bookingByDay={bookingByDay}
         rentalMode={rentalMode}
+        storeTheme={storeTheme}
         onBook={(dateKey, daySlots) => {
           onBook(dateKey, daySlots);
           onClose();
