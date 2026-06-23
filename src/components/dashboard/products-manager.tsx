@@ -1095,9 +1095,13 @@ export function ProductsManager({
           </ul>
         ) : null}
         {showInlineForm ? (
-          <div className="rounded-[18px] border border-bakery-border/30 bg-bakery-card/60 p-3">
-            {addFormFields}
-          </div>
+          welcomeSetup ? (
+            addFormFields
+          ) : (
+            <div className="rounded-[18px] border border-bakery-border/30 bg-bakery-card/60 p-3">
+              {addFormFields}
+            </div>
+          )
         ) : welcomeSetup ? null : (
           <Button
             type="button"
