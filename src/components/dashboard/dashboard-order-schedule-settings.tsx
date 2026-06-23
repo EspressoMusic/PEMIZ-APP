@@ -32,6 +32,7 @@ export function DashboardOrderScheduleSettings({
   saveHandleRef,
   sectionLead = false,
   hideSectionTitle = false,
+  welcomeSetup = false,
   basePath = "/dashboard",
 }: {
   initialEnabled: boolean;
@@ -52,6 +53,8 @@ export function DashboardOrderScheduleSettings({
   saveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
   /** Hide the section title (welcome setup). */
   hideSectionTitle?: boolean;
+  /** Flat rows without card backgrounds (welcome setup). */
+  welcomeSetup?: boolean;
   basePath?: string;
 }) {
   const initial = useMemo(
@@ -197,9 +200,11 @@ export function DashboardOrderScheduleSettings({
         {daySlots.map((slot) => (
           <li
             key={slot.day}
-            className={`flex items-center gap-2 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/80 px-2 py-1.5 transition ${
-              slot.open ? "" : "opacity-40"
-            }`}
+            className={`flex items-center gap-2 px-0 py-1.5 transition ${
+              welcomeSetup
+                ? "border-b border-bakery-border/20 last:border-b-0"
+                : `rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/80 px-2 py-1.5`
+            } ${slot.open ? "" : "opacity-40"}`}
           >
             <button
               type="button"
@@ -223,7 +228,9 @@ export function DashboardOrderScheduleSettings({
                   updateDayTime(slot.day, "startTime", e.target.value)
                 }
                 aria-label={`${dayNames[slot.day]} ${labels.fromHour}`}
-                className="bakery-field w-[5.75rem] shrink-0 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1.5 py-1 text-[12px] tabular-nums text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
+                className={`bakery-field w-[5.75rem] shrink-0 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1.5 py-1 text-[12px] tabular-nums text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50${
+                  welcomeSetup ? " !border-0 !bg-transparent !px-1" : ""
+                }`}
               />
               <span className="shrink-0 text-[11px] font-bold text-bakery-muted">
                 –
@@ -236,7 +243,9 @@ export function DashboardOrderScheduleSettings({
                   updateDayTime(slot.day, "endTime", e.target.value)
                 }
                 aria-label={`${dayNames[slot.day]} ${labels.toHour}`}
-                className="bakery-field w-[5.75rem] shrink-0 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1.5 py-1 text-[12px] tabular-nums text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
+                className={`bakery-field w-[5.75rem] shrink-0 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1.5 py-1 text-[12px] tabular-nums text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50${
+                  welcomeSetup ? " !border-0 !bg-transparent !px-1" : ""
+                }`}
               />
             </div>
           </li>

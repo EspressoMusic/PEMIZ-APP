@@ -254,6 +254,7 @@ export type DashboardLabels = {
   toHour: string;
   addProduct: string;
   addService: string;
+  addServiceToList: string;
   noProductsYet: string;
   noServicesYet: string;
   productAddedTitle: string;
@@ -737,6 +738,7 @@ const HE: DashboardLabels = {
   toHour: "עד שעה",
   addProduct: "הוסף מוצר",
   addService: "הוסף שירות",
+  addServiceToList: "הוסף לרשימה",
   noProductsYet: "אין מוצרים עדיין",
   noServicesYet: "אין שירותים עדיין",
   productAddedTitle: "המוצר נוסף בהצלחה!",
@@ -1340,6 +1342,7 @@ const EN: DashboardLabels = {
   toHour: "Until",
   addProduct: "Add product",
   addService: "Add service",
+  addServiceToList: "Add to list",
   noProductsYet: "No products yet",
   noServicesYet: "No services yet",
   productAddedTitle: "Product added!",

@@ -55,7 +55,7 @@ type CalendarSettingsProps = {
   openHoursFromQuery?: boolean;
   /** Welcome setup — duration is set per service, not here */
   hideDurationField?: boolean;
-  /** Welcome setup — hide section titles like working days */
+  /** Welcome setup — simplified inline layout */
   welcomeSetup?: boolean;
 };
 
@@ -298,6 +298,7 @@ function DashboardAppointmentsCalendarSettingsCore({
       sectionLead
       hideSectionTitle={hideDurationField || welcomeSetup}
       hideSaveButton
+      welcomeSetup={welcomeSetup}
       saveHandleRef={resolvedScheduleSaveRef}
       basePath={basePath}
     />
@@ -323,7 +324,7 @@ function DashboardAppointmentsCalendarSettingsCore({
           </div>
         ) : null}
 
-        {!bookingByDay ? (
+        {!bookingByDay && !welcomeSetup ? (
           <div className="space-y-3">
             <div className="dashboard-action-square flex w-full items-center justify-between gap-3 rounded-[22px] px-3 py-3.5 text-start">
               <span className="min-w-0 text-[15px] font-extrabold leading-snug text-bakery-ink">

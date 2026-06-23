@@ -508,6 +508,9 @@ export function ProductsManager({
   const listLabel = isServices ? labels.services : labels.products;
   const emptyLabel = isServices ? labels.noServicesYet : labels.noProductsYet;
   const formRef = useRef<HTMLFormElement>(null);
+  const welcomeFieldClass =
+    "py-2.5 text-[15px] !bg-transparent !shadow-none !border-0 !border-b !border-bakery-border/30 !rounded-none !px-0 focus:!border-bakery-ink/55";
+  const inlineFieldClass = welcomeSetup ? welcomeFieldClass : "py-2.5 text-[15px]";
 
   const [products, setProducts] = useState<Product[]>(() =>
     previewOnly && initialProducts ? toPreviewProducts(initialProducts) : []
@@ -701,10 +704,25 @@ export function ProductsManager({
   );
 
   const saveDeferredProduct = useCallback(async (): Promise<boolean> => {
-    if (products.filter((p) => p.isActive).length >= 1) return true;
-    if (!formRef.current) return false;
-    return persistNewProductFromForm(new FormData(formRef.current));
+    const existingCount = products.filter((p) => p.isActive).length;
+    if (formRef.current) {
+      const name = String(new FormData(formRef.current).get("name") ?? "").trim();
+      if (name) {
+        return persistNewProductFromForm(new FormData(formRef.current));
+      }
+    }
+    return existingCount >= 1;
   }, [persistNewProductFromForm, products]);
+
+  const addDraftToList = useCallback(async () => {
+    if (!formRef.current) return;
+    const name = String(new FormData(formRef.current).get("name") ?? "").trim();
+    if (!name) {
+      setError(labels.appointmentStoreSetupNeedService);
+      return;
+    }
+    await persistNewProductFromForm(new FormData(formRef.current));
+  }, [persistNewProductFromForm, labels.appointmentStoreSetupNeedService]);
 
   useEffect(() => {
     if (!saveHandleRef) return;
@@ -875,14 +893,14 @@ export function ProductsManager({
         name="name"
         label={labels.productName}
         labelClassName="text-[13px]"
-        className="py-2.5 text-[15px]"
+        className={inlineFieldClass}
         required
       />
       <Input
         name="price"
         label={labels.productPrice}
         labelClassName="text-[13px]"
-        className="py-2.5 text-[15px]"
+        className={inlineFieldClass}
         type="number"
         step="0.01"
         required
@@ -900,6 +918,8 @@ export function ProductsManager({
         <Input
           name="serviceDurationMinutes"
           label={labels.serviceDurationMinutes}
+          labelClassName="text-[13px]"
+          className={inlineFieldClass}
           type="number"
           min={15}
           max={480}
@@ -1063,8 +1083,7 @@ export function ProductsManager({
   );
 
   if (inline) {
-    const showInlineForm =
-      welcomeSetup ? products.length === 0 : addFormOpen;
+    const showInlineForm = welcomeSetup || addFormOpen;
 
     return (
       <div className="space-y-3 text-start">
@@ -1074,11 +1093,15 @@ export function ProductsManager({
           </div>
         ) : null}
         {products.length > 0 ? (
-          <ul className="space-y-2">
+          <ul className={welcomeSetup ? "space-y-0" : "space-y-2"}>
             {products.map((p) => (
               <li
                 key={p.id}
-                className="rounded-[14px] border border-bakery-border/30 bg-bakery-card/80 px-3 py-2.5"
+                className={
+                  welcomeSetup
+                    ? "border-b border-bakery-border/20 py-2 last:border-b-0"
+                    : "rounded-[14px] border border-bakery-border/30 bg-bakery-card/80 px-3 py-2.5"
+                }
               >
                 <p className="text-[15px] font-extrabold text-bakery-ink">
                   {p.name}
@@ -1096,7 +1119,18 @@ export function ProductsManager({
         ) : null}
         {showInlineForm ? (
           welcomeSetup ? (
-            addFormFields
+            <div className="space-y-3">
+              {addFormFields}
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full rounded-full font-extrabold"
+                disabled={adding || imageUploading}
+                onClick={() => void addDraftToList()}
+              >
+                {adding ? labels.adding : labels.addServiceToList}
+              </Button>
+            </div>
           ) : (
             <div className="rounded-[18px] border border-bakery-border/30 bg-bakery-card/60 p-3">
               {addFormFields}
