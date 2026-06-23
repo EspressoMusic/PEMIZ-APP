@@ -64,10 +64,8 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={() => setType("STORE")}
-                  className={`rounded-[18px] border-2 px-3 py-3 text-[14px] font-bold transition ${
-                    type === "STORE"
-                      ? "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_2px_8px_rgba(93,64,55,0.25)]"
-                      : "border-bakery-primary/55 bg-white text-bakery-ink shadow-[inset_0_1px_2px_rgba(78,52,46,0.06)]"
+                  className={`auth-option-btn px-3 py-3 text-[14px] font-bold ${
+                    type === "STORE" ? "auth-option-btn--selected" : ""
                   }`}
                 >
                   {copy.onboardProductStore}
@@ -75,10 +73,8 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={() => setType("APPOINTMENTS")}
-                  className={`rounded-[18px] border-2 px-3 py-3 text-[14px] font-bold transition ${
-                    type === "APPOINTMENTS"
-                      ? "border-bakery-primary bg-bakery-primary text-bakery-on-primary shadow-[0_2px_8px_rgba(93,64,55,0.25)]"
-                      : "border-bakery-primary/55 bg-white text-bakery-ink shadow-[inset_0_1px_2px_rgba(78,52,46,0.06)]"
+                  className={`auth-option-btn px-3 py-3 text-[14px] font-bold ${
+                    type === "APPOINTMENTS" ? "auth-option-btn--selected" : ""
                   }`}
                 >
                   {copy.onboardAppointments}

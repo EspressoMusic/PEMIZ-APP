@@ -45,7 +45,7 @@ export function CustomerAppointmentsHomeCalendar({
     <>
       <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden px-3 pb-3 pt-3">
         <div
-          className="appointments-calendar-shell relative flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-[32px] p-3"
+          className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden"
           role="region"
           aria-label={
             rentalMode ? labels.calendarPickCheckIn : labels.calendarPickDay

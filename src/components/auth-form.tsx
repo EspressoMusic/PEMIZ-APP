@@ -202,6 +202,7 @@ export function AuthForm({
                   enabled={acceptTerms}
                   onChange={setAcceptTerms}
                   ariaLabel={copy.onboardAcceptTermsAria}
+                  variant="auth"
                 />
               </div>
             ) : null}

@@ -615,7 +615,7 @@ export function DashboardAppointmentsHomeCalendar({
     <>
       <div className="flex h-full min-h-0 max-h-full w-full flex-1 flex-col overflow-hidden">
         <div
-          className="appointments-calendar-shell relative flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden rounded-[32px] p-3"
+          className="relative flex h-full min-h-0 max-h-full flex-1 flex-col overflow-hidden"
           role="region"
           aria-label={labels.homeCalendarTitle}
         >

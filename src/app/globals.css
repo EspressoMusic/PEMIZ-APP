@@ -1485,6 +1485,34 @@ html:not([data-store-theme="dark"]) .auth-surface .bakery-field:focus {
   border-color: rgba(93, 64, 55, 0.45);
 }
 
+.auth-surface .auth-option-btn {
+  border-radius: 1rem;
+  border: 1.5px solid var(--auth-field-border);
+  background-color: var(--auth-field-bg);
+  color: var(--bakery-ink);
+  box-shadow: inset 0 1px 3px rgba(78, 52, 46, 0.06);
+  transition:
+    border-color 0.15s ease,
+    border-width 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.auth-surface .auth-option-btn--selected {
+  border: 3px solid var(--bakery-primary, #5d4037);
+  background-color: var(--auth-field-bg);
+  box-shadow: none;
+}
+
+.auth-surface .auth-toggle {
+  border: 3px solid var(--bakery-primary, #5d4037);
+  background-color: var(--auth-field-bg);
+}
+
+.auth-surface .auth-toggle[aria-checked="true"] {
+  background-color: var(--bakery-primary, #5d4037);
+  box-shadow: 0 2px 8px rgba(93, 64, 55, 0.35);
+}
+
 html[data-store-theme="dark"] .auth-surface {
   --auth-field-bg: var(--dashboard-field-bg, var(--bakery-input, #242a33));
   --auth-field-border: var(--dashboard-soft-border-strong, rgba(255, 255, 255, 0.14));
@@ -3441,10 +3469,14 @@ html[data-store-theme="light"]
 }
 
 html[data-store-theme="light"] .appointment-day-modern[data-selected="true"] {
-  border-color: var(--bakery-success, #43a047) !important;
-  background: color-mix(in srgb, var(--bakery-success, #43a047) 12%, #ffffff) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--bakery-success, #43a047) 48%,
+    transparent
+  ) !important;
+  background: #fffdf8 !important;
   color: #0a0a0a !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bakery-success, #43a047) 22%, transparent);
+  box-shadow: none;
 }
 
 html[data-store-theme="light"] .appointment-day-modern[data-today="true"] {
@@ -3638,36 +3670,47 @@ html:not([data-store-theme="dark"]) .bakery-field {
 
 /* Appointments store — modern calendar (customer + seller) */
 .appointment-calendar-modern-surface {
-  background: #ffffff;
-  border: 1.5px solid rgba(92, 74, 62, 0.22) !important;
+  --appointment-cal-board: #d9ccb8;
+  --appointment-cal-ink: #0a0a0a;
+  --appointment-cal-ink-muted: rgba(10, 10, 10, 0.38);
+  --appointment-cal-day-fill: #fffdf8;
+  --appointment-cal-day-ink: #0a0a0a;
+  --appointment-cal-board-border: #5d4037;
+  --appointment-cal-day-border: color-mix(
+    in srgb,
+    var(--bakery-success, #43a047) 34%,
+    transparent
+  );
+  background: var(--appointment-cal-board);
+  border: 3px solid var(--appointment-cal-board-border) !important;
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(58, 47, 38, 0.08);
+  box-shadow: 0 4px 20px rgba(58, 47, 38, 0.12);
 }
 
 .appointment-calendar-modern .appointment-calendar-month-title {
-  color: #4e342e;
+  color: var(--appointment-cal-ink);
   font-weight: 800;
 }
 
 .appointment-calendar-modern .appointment-calendar-weekday {
-  color: #4e342e;
+  color: var(--appointment-cal-ink);
   font-weight: 700;
 }
 
 .appointment-calendar-modern .appointment-calendar-nav-btn {
   border-radius: 9999px;
-  border: 1px solid rgba(92, 74, 62, 0.2);
-  background: #ffffff;
-  color: #6d5c52;
+  border: 1px solid rgba(10, 10, 10, 0.14);
+  background: var(--appointment-cal-day-fill);
+  color: var(--appointment-cal-ink);
 }
 
 .appointment-calendar-modern .appointment-calendar-nav-btn:hover {
-  background: var(--dashboard-hub-bg);
-  border-color: rgba(92, 74, 62, 0.32);
+  background: #faf6f0;
+  border-color: rgba(10, 10, 10, 0.22);
 }
 
 .appointment-calendar-modern .appointment-calendar-nav-btn svg {
-  color: #6d5c52;
+  color: var(--appointment-cal-ink);
 }
 
 .appointment-day-modern {
@@ -3677,7 +3720,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1.5px solid transparent;
+  border: 2.5px solid transparent;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 18px;
   font-weight: 800;
@@ -3731,55 +3774,55 @@ html:not([data-store-theme="dark"]) .bakery-field {
 .appointment-day-modern[data-status="noSlots"] {
   border-color: transparent;
   background: transparent;
-  color: #b8bec9;
+  color: var(--appointment-cal-ink-muted, rgba(255, 255, 255, 0.42));
   font-weight: 600;
 }
 
 .appointment-day-modern[data-status="available"],
 .appointment-day-modern[data-status="open"] {
-  border-color: color-mix(in srgb, var(--bakery-success, #43a047) 55%, transparent);
-  background: var(--dashboard-hub-bg);
-  color: #4e342e;
+  border-color: var(--appointment-cal-day-border);
+  background: var(--appointment-cal-day-fill, #fffdf8);
+  color: var(--appointment-cal-day-ink, #0a0a0a);
   cursor: pointer;
 }
 
 .appointment-day-modern[data-status="booked"] {
-  border-color: rgba(92, 74, 62, 0.28);
-  background: var(--dashboard-hub-bg);
-  color: #4e342e;
+  border-color: rgba(10, 10, 10, 0.16);
+  background: var(--appointment-cal-day-fill, #fffdf8);
+  color: var(--appointment-cal-day-ink, #0a0a0a);
   cursor: pointer;
 }
 
 .appointment-day-modern[data-status="available"]:hover,
 .appointment-day-modern[data-status="open"]:hover {
-  background: color-mix(in srgb, var(--bakery-success, #43a047) 10%, var(--dashboard-hub-bg));
-  border-color: color-mix(in srgb, var(--bakery-success, #43a047) 72%, transparent);
+  background: #faf6f0;
+  border-color: color-mix(in srgb, var(--bakery-success, #43a047) 44%, transparent);
 }
 
 .appointment-day-modern[data-status="booked"]:hover {
-  background: var(--dashboard-tile-bg);
+  background: #faf6f0;
 }
 
 .appointment-day-modern[data-status="full"] {
-  border-color: #f0b4b4;
-  background: #fdeeee;
-  color: #9b4040;
+  border-color: rgba(255, 180, 180, 0.65);
+  background: rgba(253, 238, 238, 0.22);
+  color: #fff5f5;
   cursor: pointer;
 }
 
 .appointment-day-modern[data-selected="true"] {
-  border-color: var(--bakery-success, #43a047) !important;
-  background: color-mix(
+  border-color: color-mix(
     in srgb,
-    var(--bakery-success, #43a047) 14%,
-    var(--dashboard-hub-bg, #f2ebe0)
+    var(--bakery-success, #43a047) 48%,
+    transparent
   ) !important;
-  color: #4e342e !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bakery-success, #43a047) 28%, transparent);
+  background: var(--appointment-cal-day-fill, #fffdf8) !important;
+  color: var(--appointment-cal-day-ink, #0a0a0a) !important;
+  box-shadow: none;
 }
 
 .appointment-day-modern[data-today="true"] {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bakery-success, #43a047) 45%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bakery-success, #43a047) 28%, transparent);
 }
 
 .appointment-day-modern:active {
