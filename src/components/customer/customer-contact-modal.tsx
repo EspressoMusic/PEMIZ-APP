@@ -338,11 +338,13 @@ export function CustomerContactModal({
   function renderMenu() {
     return (
       <div className="space-y-2 px-4 py-4">
-        <CustomerWhatsAppContactRow
-          title={labels.contactOptionWhatsApp}
-          href={whatsAppHref}
-          unavailableLabel={labels.contactOptionWhatsAppUnavailable}
-        />
+        {whatsAppHref ? (
+          <CustomerWhatsAppContactRow
+            title={labels.contactOptionWhatsApp}
+            href={whatsAppHref}
+            unavailableLabel={labels.contactOptionWhatsAppUnavailable}
+          />
+        ) : null}
         {!hideChat ? (
           <SettingsMenuRow
             icon={MessageCircle}

@@ -166,7 +166,7 @@ export async function POST(
     parseIsraeliMobilePhone(parsed.data.customerPhone)!
   );
 
-  void notifySellerNewAppointment(business.id, {
+  await notifySellerNewAppointment(business.id, {
     id: appointment.id,
     customerName: appointment.customerName,
     serviceName: parsed.data.serviceName,

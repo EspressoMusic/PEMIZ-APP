@@ -20,7 +20,7 @@ export type SellerPushPayload = {
 
 export function isPushConfigured(): boolean {
   return Boolean(
-    process.env.VAPID_PUBLIC_KEY &&
+    getVapidPublicKey() &&
       process.env.VAPID_PRIVATE_KEY &&
       process.env.VAPID_SUBJECT
   );
@@ -85,16 +85,25 @@ export async function dispatchSellerPush(
   kind: SellerPushKind,
   notification: SellerPushPayload
 ) {
-  if (!isPushConfigured()) return;
+  if (!isPushConfigured()) {
+    console.warn("[seller-push] skipped: VAPID not configured on server");
+    return;
+  }
 
   try {
     const ownerId = await ownerForPush(businessId, kind);
-    if (!ownerId) return;
+    if (!ownerId) {
+      console.warn("[seller-push] skipped: alerts disabled", { businessId, kind });
+      return;
+    }
 
     const subs = await prisma.sellerPushSubscription.findMany({
       where: { userId: ownerId },
     });
-    if (subs.length === 0) return;
+    if (subs.length === 0) {
+      console.warn("[seller-push] skipped: no device subscriptions", { ownerId });
+      return;
+    }
 
     configureWebPush();
     const payload = JSON.stringify(notification);
@@ -129,7 +138,7 @@ export function fireSellerPush(
   kind: SellerPushKind,
   notification: SellerPushPayload
 ) {
-  void dispatchSellerPush(businessId, kind, notification);
+  return dispatchSellerPush(businessId, kind, notification);
 }
 
 /** Platform trial warnings — always sent, not gated by seller alert toggles. */
@@ -215,7 +224,7 @@ export async function notifySellerNewAppointment(
     ? `${service} · ${dateLabel} ${timeLabel}`
     : `${dateLabel} ${timeLabel}`;
 
-  fireSellerPush(businessId, "new_appointment", {
+  await fireSellerPush(businessId, "new_appointment", {
     title: "תור חדש",
     body: `${appointment.customerName} · ${detail}`,
     url: "/dashboard",

@@ -88,6 +88,7 @@ import {
 } from "./customer-whatsapp-contact-row";
 import {
   DEFAULT_STORE_PANELS_VISIBLE,
+  isSellerWhatsAppVisible,
   type StorePanelsVisible,
 } from "@/lib/store-panels-visible";
 import type { AppointmentSlot } from "./customer-appointment-calendar";
@@ -345,13 +346,17 @@ export function CustomerStoreApp({
   const isDevRental = business.slug === "demo-rental";
   const isDevSchedule = isDevAppointments || isDevRental;
   const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
+  const showWhatsAppContact = isSellerWhatsAppVisible(
+    panels,
+    business.sellerContactPhone
+  );
   const ownerTheme = parseStoreTheme(business.storeTheme);
   const ownerLocale: CustomerLocale =
     business.storeLocale === "en" ? "en" : "he";
   const effectiveOrderScheduleEnabled =
     panels.orderLimits && (business.orderScheduleEnabled ?? false);
   const showContactSeller =
-    !!business.sellerContactPhone || panels.chat || panels.inquiries;
+    showWhatsAppContact || panels.inquiries;
   const appointmentCancelPolicy = parseAppointmentCancelPolicy(
     business.storeTerms
   );
@@ -434,8 +439,15 @@ export function CustomerStoreApp({
   const labels = useMemo(() => getCustomerLabels(locale), [locale]);
 
   const sellerWhatsAppHref = useMemo(
-    () => buildSellerWhatsAppHref(business.sellerContactPhone, business.name, locale),
-    [business.sellerContactPhone, business.name, locale]
+    () =>
+      showWhatsAppContact
+        ? buildSellerWhatsAppHref(
+            business.sellerContactPhone,
+            business.name,
+            locale
+          )
+        : null,
+    [showWhatsAppContact, business.sellerContactPhone, business.name, locale]
   );
 
   useEffect(() => {
@@ -1709,7 +1721,7 @@ export function CustomerStoreApp({
                   onClick={openInquiryModal}
                 />
               ) : null}
-              {business.sellerContactPhone ? (
+              {showWhatsAppContact && sellerWhatsAppHref ? (
                 <CustomerWhatsAppContactRow
                   title={labels.contactOptionWhatsApp}
                   href={sellerWhatsAppHref}
@@ -1879,7 +1891,9 @@ export function CustomerStoreApp({
         directEntry={contactDirectEntry}
         slug={business.slug}
         storeName={business.name}
-        sellerContactPhone={business.sellerContactPhone}
+        sellerContactPhone={
+          showWhatsAppContact ? business.sellerContactPhone : null
+        }
         locale={locale}
         storeTheme={displayTheme}
         labels={labels}

@@ -61,3 +61,11 @@ export function isStorePanelEnabled(
 ): boolean {
   return storePanelsFromBusiness(business)[panel];
 }
+
+/** Dashboard "WhatsApp contact" toggle — seller phone link in the customer store. */
+export function isSellerWhatsAppVisible(
+  panels: StorePanelsVisible,
+  sellerContactPhone: string | null | undefined
+): boolean {
+  return panels.chat && !!sellerContactPhone?.trim();
+}
