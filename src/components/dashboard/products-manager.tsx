@@ -508,9 +508,7 @@ export function ProductsManager({
   const listLabel = isServices ? labels.services : labels.products;
   const emptyLabel = isServices ? labels.noServicesYet : labels.noProductsYet;
   const formRef = useRef<HTMLFormElement>(null);
-  const welcomeFieldClass =
-    "py-2.5 text-[15px] !bg-transparent !shadow-none !border-0 !border-b !border-bakery-border/30 !rounded-none !px-0 focus:!border-bakery-ink/55";
-  const inlineFieldClass = welcomeSetup ? welcomeFieldClass : "py-2.5 text-[15px]";
+  const inlineFieldClass = "py-2.5 text-[15px]";
 
   const [products, setProducts] = useState<Product[]>(() =>
     previewOnly && initialProducts ? toPreviewProducts(initialProducts) : []
@@ -1093,13 +1091,13 @@ export function ProductsManager({
           </div>
         ) : null}
         {products.length > 0 ? (
-          <ul className={welcomeSetup ? "space-y-0" : "space-y-2"}>
+          <ul className="space-y-2">
             {products.map((p) => (
               <li
                 key={p.id}
                 className={
                   welcomeSetup
-                    ? "border-b border-bakery-border/20 py-2 last:border-b-0"
+                    ? "rounded-[14px] border border-bakery-border/25 bg-bakery-card/80 px-3 py-2"
                     : "rounded-[14px] border border-bakery-border/30 bg-bakery-card/80 px-3 py-2.5"
                 }
               >
