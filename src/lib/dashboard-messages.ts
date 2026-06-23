@@ -55,6 +55,8 @@ export type DashboardLabels = {
   pushUnsupported: string;
   pushUnconfigured: string;
   pushSubscribeError: string;
+  pushServiceUnavailable: string;
+  pushIosNeedsInstall: string;
   pushPreviewOnly: string;
   subscription: string;
   subscriptionPlansTitle: string;
@@ -1083,6 +1085,10 @@ const HE: DashboardLabels = {
   pushUnconfigured:
     "התראות דחיפה לא מוגדרות בשרת. מפתחות VAPID נדרשים בפרודקשן.",
   pushSubscribeError: "לא הצלחנו להפעיל התראות — נסו שוב.",
+  pushServiceUnavailable:
+    "הדפדפן או המכשיר לא מאפשרים התראות דחיפה כאן. ב-iPhone — התקינו את האפליקציה למסך הבית (Safari → שיתוף → הוסף למסך הבית) ונסו שוב. ב-Android — השתמשו ב-Chrome.",
+  pushIosNeedsInstall:
+    "ב-iPhone, התראות דחיפה עובדות רק אחרי התקנת האפליקציה למסך הבית: Safari → שיתוף → הוסף למסך הבית, ואז חזרו לכאן.",
   pushPreviewOnly: "בתצוגת דמו אין חיבור להתראות אמיתיות.",
   subscription: "מנוי",
   subscriptionPlansTitle: "חבילות מנוי",
@@ -1687,6 +1693,10 @@ const EN: DashboardLabels = {
   pushUnsupported: "This browser or device does not support push notifications.",
   pushUnconfigured: "Push is not configured on the server (VAPID keys required).",
   pushSubscribeError: "Could not enable push — try again.",
+  pushServiceUnavailable:
+    "Push is not available in this browser. On iPhone, install the app to your home screen (Safari → Share → Add to Home Screen) and try again. On Android, use Chrome.",
+  pushIosNeedsInstall:
+    "On iPhone, push notifications work only after installing the app to your home screen: Safari → Share → Add to Home Screen, then return here.",
   pushPreviewOnly: "Push is not available in preview mode.",
   subscription: "Subscription",
   subscriptionPlansTitle: "Subscription plans",

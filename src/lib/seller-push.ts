@@ -30,11 +30,24 @@ export function getVapidPublicKey(): string | null {
   return process.env.VAPID_PUBLIC_KEY ?? process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? null;
 }
 
+function normalizeVapidSubject(subject: string): string {
+  if (subject.startsWith("mailto:") || subject.startsWith("https://")) {
+    return subject;
+  }
+  if (subject.includes("@")) return `mailto:${subject}`;
+  return subject;
+}
+
 function configureWebPush() {
+  const publicKey = getVapidPublicKey();
+  if (!publicKey || !process.env.VAPID_PRIVATE_KEY) return;
+
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT ?? "mailto:admin@linky.local",
-    process.env.VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!
+    normalizeVapidSubject(
+      process.env.VAPID_SUBJECT ?? "mailto:admin@linky.local"
+    ),
+    publicKey,
+    process.env.VAPID_PRIVATE_KEY
   );
 }
 

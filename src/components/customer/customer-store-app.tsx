@@ -92,7 +92,6 @@ import {
 } from "@/lib/store-panels-visible";
 import type { AppointmentSlot } from "./customer-appointment-calendar";
 import {
-  APPOINTMENTS_HOME_BG,
   CustomerAppointmentsHomeShell,
 } from "./customer-appointments-home-backdrop";
 import { CustomerAppointmentsHomeCalendar } from "./customer-appointments-home-calendar";
@@ -1816,18 +1815,7 @@ export function CustomerStoreApp({
         <div
           className={`flex min-h-0 flex-1 justify-center ${CUSTOMER_PHONE_DESKTOP_BACKDROP}`}
         >
-          <div
-            className={CUSTOMER_PHONE_COLUMN}
-            style={
-              appointmentsHomeActive
-                ? {
-                    backgroundColor: APPOINTMENTS_HOME_BG,
-                    ["--customer-appointments-home-bg" as string]:
-                      APPOINTMENTS_HOME_BG,
-                  }
-                : undefined
-            }
-          >
+          <div className={CUSTOMER_PHONE_COLUMN}>
             {storeBody}
           </div>
         </div>
@@ -2014,6 +2002,7 @@ export function CustomerStoreApp({
         <CelebrationModal
           open
           onClose={() => setAppointmentSuccessOpen(false)}
+          tone="calendar"
           title={
             isRental
               ? labels.rentalBookedTitle

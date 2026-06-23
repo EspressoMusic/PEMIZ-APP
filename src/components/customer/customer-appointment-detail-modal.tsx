@@ -16,7 +16,7 @@ import type { StoreThemeId } from "@/lib/store-themes";
 function DetailRow({ label, value }: { label: string; value: string }) {
   if (!value.trim()) return null;
   return (
-    <div className="rounded-[14px] border border-bakery-border/25 bg-bakery-card px-3 py-2.5">
+    <div className="rounded-[14px] border border-[#5C4A3E]/14 bg-[#fffdf8] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
       <p className="text-[12px] font-bold text-bakery-muted">{label}</p>
       <p className="mt-0.5 whitespace-pre-wrap text-[15px] font-extrabold leading-snug text-bakery-ink">
         {value}
@@ -165,7 +165,7 @@ export function CustomerAppointmentDetailModal({
               </Button>
             )
           ) : new Date(appointment.startAt).getTime() > Date.now() ? (
-            <p className="rounded-[14px] border border-bakery-border/20 bg-bakery-square/60 px-3 py-2.5 text-center text-[13px] font-semibold leading-snug text-bakery-muted">
+            <p className="rounded-[14px] border border-[#5C4A3E]/14 bg-[#fffdf8] px-3 py-2.5 text-center text-[13px] font-semibold leading-snug text-bakery-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
               {labels.cancelAppointmentBlocked}
             </p>
           ) : null}

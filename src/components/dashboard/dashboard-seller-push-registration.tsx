@@ -5,10 +5,43 @@ import { BellRing } from "lucide-react";
 import { Alert, Button } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
+  isIosDevice,
+  isInstalledPwa,
   isPushSupported,
-  registerLinkyServiceWorker,
-  urlBase64ToUint8Array,
+  subscribeToSellerPush,
 } from "@/lib/push-client";
+
+function pushSubscribeErrorMessage(
+  error: unknown,
+  labels: {
+    pushSubscribeError: string;
+    pushPermissionDenied: string;
+    pushServiceUnavailable: string;
+    pushIosNeedsInstall: string;
+  }
+): string {
+  if (error instanceof Error) {
+    if (error.message === "service_worker_unavailable") {
+      return labels.pushSubscribeError;
+    }
+    const msg = error.message.toLowerCase();
+    if (
+      error.name === "NotAllowedError" ||
+      msg.includes("permission") ||
+      msg.includes("denied")
+    ) {
+      return labels.pushPermissionDenied;
+    }
+    if (
+      error.name === "AbortError" ||
+      msg.includes("push service") ||
+      msg.includes("not available")
+    ) {
+      return labels.pushServiceUnavailable;
+    }
+  }
+  return labels.pushSubscribeError;
+}
 
 type PushState = "idle" | "loading" | "subscribed" | "denied" | "unsupported" | "unconfigured";
 
@@ -65,6 +98,12 @@ export function DashboardSellerPushRegistration({
       return;
     }
 
+    if (isIosDevice() && !isInstalledPwa()) {
+      setError(labels.pushIosNeedsInstall);
+      setState("idle");
+      return;
+    }
+
     setError("");
     setState("loading");
 
@@ -75,22 +114,7 @@ export function DashboardSellerPushRegistration({
         return;
       }
 
-      const registration = await registerLinkyServiceWorker();
-      if (!registration) {
-        setError(labels.pushSubscribeError);
-        setState("idle");
-        return;
-      }
-
-      let subscription = await registration.pushManager.getSubscription();
-      if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(
-            publicKey
-          ) as BufferSource,
-        });
-      }
+      const subscription = await subscribeToSellerPush(publicKey);
 
       const json = subscription.toJSON();
       if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
@@ -116,8 +140,8 @@ export function DashboardSellerPushRegistration({
       }
 
       setState("subscribed");
-    } catch {
-      setError(labels.pushSubscribeError);
+    } catch (error) {
+      setError(pushSubscribeErrorMessage(error, labels));
       setState("idle");
     }
   }

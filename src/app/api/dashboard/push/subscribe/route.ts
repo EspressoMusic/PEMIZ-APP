@@ -25,22 +25,27 @@ export async function POST(req: Request) {
 
   const userAgent = req.headers.get("user-agent") ?? undefined;
 
-  await prisma.sellerPushSubscription.upsert({
-    where: { endpoint: parsed.data.endpoint },
-    create: {
-      userId: ctx.user.id,
-      endpoint: parsed.data.endpoint,
-      p256dh: parsed.data.keys.p256dh,
-      auth: parsed.data.keys.auth,
-      userAgent,
-    },
-    update: {
-      userId: ctx.user.id,
-      p256dh: parsed.data.keys.p256dh,
-      auth: parsed.data.keys.auth,
-      userAgent,
-    },
-  });
+  try {
+    await prisma.sellerPushSubscription.upsert({
+      where: { endpoint: parsed.data.endpoint },
+      create: {
+        userId: ctx.user.id,
+        endpoint: parsed.data.endpoint,
+        p256dh: parsed.data.keys.p256dh,
+        auth: parsed.data.keys.auth,
+        userAgent,
+      },
+      update: {
+        userId: ctx.user.id,
+        p256dh: parsed.data.keys.p256dh,
+        auth: parsed.data.keys.auth,
+        userAgent,
+      },
+    });
+  } catch (error) {
+    console.error("[push/subscribe]", error);
+    return jsonError("שגיאה בשמירת ההרשמה — נסו שוב", 500);
+  }
 
   return jsonOk({ subscribed: true });
 }

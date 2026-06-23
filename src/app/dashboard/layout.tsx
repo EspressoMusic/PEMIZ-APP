@@ -4,6 +4,8 @@ import { studioConsolePath } from "@/lib/studio-access";
 import { activateLegacyPendingBusiness } from "@/lib/business";
 import { syncBusinessTrialLock } from "@/lib/business-subscription";
 import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
+import { prisma } from "@/lib/prisma";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import {
   DASHBOARD_LAYOUT_BODY,
@@ -62,6 +64,13 @@ export default async function DashboardLayout({
     redirect("/dashboard");
   }
 
+  let initialActiveServiceCount = 0;
+  if (isScheduleLikeBusinessType(user.business.type)) {
+    initialActiveServiceCount = await prisma.product.count({
+      where: { businessId: user.business.id, isActive: true },
+    });
+  }
+
   return (
     <div className="dashboard-surface bakery-frame-bg h-dvh overflow-hidden">
       <div className={DASHBOARD_LAYOUT_FRAME}>
@@ -73,6 +82,7 @@ export default async function DashboardLayout({
             storeTheme={user.business.storeTheme}
             orderScheduleEnabled={user.business.orderScheduleEnabled ?? false}
             orderSchedule={user.business.orderSchedule ?? null}
+            initialActiveServiceCount={initialActiveServiceCount}
             platformOwnerMessage={user.business.platformOwnerMessage ?? null}
             platformOwnerMessageAt={
               user.business.platformOwnerMessageAt?.toISOString() ?? null

@@ -21,6 +21,7 @@ export function CelebrationModal({
   buttonLabel,
   closeAriaLabel = "Close",
   locale,
+  tone = "default",
 }: {
   open: boolean;
   onClose: () => void;
@@ -30,6 +31,8 @@ export function CelebrationModal({
   buttonLabel: string;
   closeAriaLabel?: string;
   locale?: "he" | "en";
+  /** Cream board + light inner card — matches appointments calendar. */
+  tone?: "default" | "calendar";
 }) {
   const pieces = useMemo<Piece[]>(() => {
     const colors = ["#e6d4b8", "#5c4a3e", "#43a047", "#b94040", "#7eb8ff", "#f4f0e8"];
@@ -55,6 +58,53 @@ export function CelebrationModal({
 
   const dir = locale === "he" ? "rtl" : "ltr";
   const lang = locale === "he" ? "he" : "en";
+  const isCalendar = tone === "calendar";
+
+  const iconBlock = (
+    <div
+      className={`mx-auto flex items-center justify-center rounded-full ${
+        isCalendar
+          ? "mb-3 h-14 w-14 bg-bakery-success/12 text-bakery-primary"
+          : "mb-4 h-16 w-16 bg-bakery-success/15 text-bakery-success"
+      }`}
+    >
+      <Check
+        className={isCalendar ? "h-8 w-8" : "h-9 w-9"}
+        strokeWidth={2.5}
+      />
+    </div>
+  );
+
+  const textBlock = (
+    <>
+      <h2
+        id="celebration-modal-title"
+        className={`font-extrabold text-bakery-ink ${
+          isCalendar ? "text-[20px] leading-tight" : "text-[22px]"
+        }`}
+      >
+        {title}
+      </h2>
+      {subtitle ? (
+        <p
+          className={`font-semibold text-bakery-muted ${
+            isCalendar ? "mt-2 text-[14px]" : "mt-2 text-[15px]"
+          }`}
+        >
+          {subtitle}
+        </p>
+      ) : null}
+      {detail ? (
+        <p
+          className={`leading-[1.45] text-bakery-muted ${
+            isCalendar ? "mt-2.5 text-[13px]" : "mt-3 text-[14px]"
+          }`}
+        >
+          {detail}
+        </p>
+      ) : null}
+    </>
+  );
 
   return (
     <div
@@ -89,20 +139,29 @@ export function CelebrationModal({
         ))}
       </div>
 
-      <div className="relative w-full max-w-sm animate-[product-pop_0.45s_ease-out] rounded-[28px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-8 text-center shadow-[var(--shadow-bakery-panel)]">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-bakery-success/15 text-bakery-success">
-          <Check className="h-9 w-9" strokeWidth={2.5} />
-        </div>
-        <h2 id="celebration-modal-title" className="text-[22px] font-extrabold text-bakery-ink">
-          {title}
-        </h2>
-        {subtitle && (
-          <p className="mt-2 text-[15px] font-semibold text-bakery-muted">{subtitle}</p>
+      <div
+        className={`relative w-full max-w-sm animate-[product-pop_0.45s_ease-out] text-center shadow-[var(--shadow-bakery-panel)] ${
+          isCalendar
+            ? "rounded-[24px] border-[3px] border-[#5d4037] bg-[#e6d5b8] p-4"
+            : "rounded-[28px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-8"
+        }`}
+      >
+        {isCalendar ? (
+          <div className="rounded-[18px] border border-[#5C4A3E]/14 bg-[#fffdf8] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+            {iconBlock}
+            {textBlock}
+          </div>
+        ) : (
+          <>
+            {iconBlock}
+            {textBlock}
+          </>
         )}
-        {detail && (
-          <p className="mt-3 text-[14px] leading-[1.45] text-bakery-muted">{detail}</p>
-        )}
-        <Button type="button" className="mt-6 w-full" onClick={onClose}>
+        <Button
+          type="button"
+          className={`w-full ${isCalendar ? "mt-4" : "mt-6"}`}
+          onClick={onClose}
+        >
           {buttonLabel}
         </Button>
       </div>

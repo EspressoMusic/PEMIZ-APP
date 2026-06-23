@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
 import type { CustomerLabels } from "./customer-labels";
@@ -13,6 +13,7 @@ import {
   CustomerAppointmentReminderRow,
   hasFullyBookedFutureDays,
 } from "./customer-appointment-reminder-row";
+import { APPOINTMENTS_HOME_BG } from "./customer-appointments-home-backdrop";
 
 export function CustomerAppointmentsHomeCalendar({
   slots,
@@ -46,7 +47,14 @@ export function CustomerAppointmentsHomeCalendar({
 
   return (
     <>
-      <div className="customer-appointments-home flex h-full min-h-0 flex-1 flex-col overflow-hidden px-3 pb-3 pt-3">
+      <div
+        className="customer-appointments-home flex h-full min-h-0 flex-1 flex-col overflow-hidden px-3 pb-3 pt-3"
+        style={
+          {
+            "--customer-appointments-home-bg": APPOINTMENTS_HOME_BG,
+          } as CSSProperties
+        }
+      >
         <div
           className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden"
           role="region"

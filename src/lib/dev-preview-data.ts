@@ -611,6 +611,7 @@ export const DEV_APPOINTMENTS_SELLER_SHELL = {
   storeTheme: DEV_APPOINTMENTS_BUSINESS.storeTheme,
   orderScheduleEnabled: DEV_APPOINTMENTS_BUSINESS.orderScheduleEnabled ?? false,
   orderSchedule: DEV_APPOINTMENTS_BUSINESS.orderSchedule ?? null,
+  initialActiveServiceCount: DEV_APPOINTMENTS_BUSINESS.products.length,
 };
 
 export const DEV_APPOINTMENTS_OWNER_NAME = "Mia";

@@ -16,6 +16,7 @@ export function DevAppointmentsSellerShell({ children }: { children: ReactNode }
       storeTheme={shell.storeTheme}
       orderScheduleEnabled={shell.orderScheduleEnabled}
       orderSchedule={shell.orderSchedule}
+      initialActiveServiceCount={shell.initialActiveServiceCount}
     >
       <p className="mb-1 shrink-0 rounded-[12px] border border-bakery-primary/20 bg-bakery-card/70 px-2.5 py-1 text-center text-[10px] font-bold leading-snug text-bakery-muted">
         חנות פגישות — הגדרות ותצוגה נפרדות מחנות מוצרים

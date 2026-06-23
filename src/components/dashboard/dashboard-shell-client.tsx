@@ -65,6 +65,7 @@ export function DashboardShellClient({
   storeTheme = "calm",
   orderScheduleEnabled = false,
   orderSchedule = null,
+  initialActiveServiceCount = 0,
   platformOwnerMessage = null,
   platformOwnerMessageAt = null,
   platformOwnerMessageReadAt = null,
@@ -77,6 +78,7 @@ export function DashboardShellClient({
   storeTheme?: string | null;
   orderScheduleEnabled?: boolean;
   orderSchedule?: string | null;
+  initialActiveServiceCount?: number;
   platformOwnerMessage?: string | null;
   platformOwnerMessageAt?: string | null;
   platformOwnerMessageReadAt?: string | null;
@@ -159,6 +161,7 @@ export function DashboardShellClient({
               basePath={basePath}
               orderScheduleEnabled={orderScheduleEnabled}
               orderSchedule={orderSchedule}
+              initialActiveServiceCount={initialActiveServiceCount}
             />
           ) : null}
         </DashboardUiPreferencesProvider>

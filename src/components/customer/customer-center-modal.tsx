@@ -22,7 +22,7 @@ export function CustomerModalHeaderBar({
   leading?: ReactNode;
 }) {
   return (
-    <div className="relative flex shrink-0 min-h-[52px] items-center justify-center border-b border-bakery-border/25 px-12 py-3">
+    <div className="customer-center-modal__header relative flex shrink-0 min-h-[52px] items-center justify-center border-b border-bakery-border/25 px-12 py-3">
       {leading ? (
         <div className="absolute start-2 top-1/2 flex -translate-y-1/2 items-center">
           {leading}

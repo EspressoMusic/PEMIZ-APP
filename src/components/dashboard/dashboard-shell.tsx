@@ -10,6 +10,7 @@ export function DashboardShell({
   storeTheme = "calm",
   orderScheduleEnabled = false,
   orderSchedule = null,
+  initialActiveServiceCount = 0,
   platformOwnerMessage = null,
   platformOwnerMessageAt = null,
   platformOwnerMessageReadAt = null,
@@ -22,6 +23,7 @@ export function DashboardShell({
   storeTheme?: string | null;
   orderScheduleEnabled?: boolean;
   orderSchedule?: string | null;
+  initialActiveServiceCount?: number;
   platformOwnerMessage?: string | null;
   platformOwnerMessageAt?: string | null;
   platformOwnerMessageReadAt?: string | null;
@@ -35,6 +37,7 @@ export function DashboardShell({
       storeTheme={storeTheme}
       orderScheduleEnabled={orderScheduleEnabled}
       orderSchedule={orderSchedule}
+      initialActiveServiceCount={initialActiveServiceCount}
       platformOwnerMessage={platformOwnerMessage}
       platformOwnerMessageAt={platformOwnerMessageAt}
       platformOwnerMessageReadAt={platformOwnerMessageReadAt}

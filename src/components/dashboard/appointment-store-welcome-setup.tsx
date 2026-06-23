@@ -8,10 +8,7 @@ import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/da
 import { ProductsManager } from "@/components/dashboard/products-manager";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
-import {
-  isAppointmentStoreScheduleConfigured,
-  isAppointmentStoreServicesConfigured,
-} from "@/lib/appointment-store-setup";
+import { isAppointmentStoreWelcomeSetupComplete } from "@/lib/appointment-store-setup";
 import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 
@@ -25,30 +22,38 @@ export function AppointmentStoreWelcomeSetup({
   basePath = "/dashboard",
   orderScheduleEnabled = false,
   orderSchedule = null,
+  initialActiveServiceCount = 0,
 }: {
   businessId: string;
   businessType: string;
   basePath?: string;
   orderScheduleEnabled?: boolean;
   orderSchedule?: string | null;
+  /** Known on the server so we don't flash the setup modal while services load. */
+  initialActiveServiceCount?: number;
 }) {
   const router = useRouter();
   const { labels } = useAppLocale();
   const [welcome, setWelcome] = useState(false);
-  const [activeServiceCount, setActiveServiceCount] = useState(0);
-  const scheduleConfigured = useMemo(
+  const [activeServiceCount, setActiveServiceCount] = useState(
+    initialActiveServiceCount
+  );
+  const setupComplete = useMemo(
     () =>
-      isAppointmentStoreScheduleConfigured({
+      isAppointmentStoreWelcomeSetupComplete({
         businessType,
         orderScheduleEnabled,
         orderSchedule,
+        activeServiceCount,
       }),
-    [businessType, orderScheduleEnabled, orderSchedule]
+    [
+      businessType,
+      orderScheduleEnabled,
+      orderSchedule,
+      activeServiceCount,
+    ]
   );
-  const servicesConfigured = isAppointmentStoreServicesConfigured(activeServiceCount);
-  const setupComplete = scheduleConfigured && servicesConfigured;
-  const required = !setupComplete;
-  const [open, setOpen] = useState(required);
+  const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const serviceSaveRef = useRef<(() => Promise<boolean>) | null>(null);
@@ -58,6 +63,10 @@ export function AppointmentStoreWelcomeSetup({
   useEffect(() => {
     setWelcome(readWelcomeFromUrl());
   }, []);
+
+  useEffect(() => {
+    setActiveServiceCount(initialActiveServiceCount);
+  }, [initialActiveServiceCount]);
 
   useEffect(() => {
     if (!isScheduleLikeBusinessType(businessType)) return;

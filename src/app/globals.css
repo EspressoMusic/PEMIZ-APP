@@ -427,6 +427,25 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   background: #e6d5b8;
 }
 
+.customer-center-modal__panel.customer-appointment-detail-modal-panel,
+.customer-store-root.customer-theme-calm.customer-center-modal__panel.customer-appointment-detail-modal-panel {
+  background: #e6d5b8;
+  border: 3px solid #5d4037;
+}
+
+.customer-appointment-detail-modal-panel .customer-center-modal__body,
+.customer-store-root.customer-theme-calm.customer-appointment-detail-modal-panel
+  .customer-center-modal__body {
+  background: #e6d5b8;
+}
+
+.customer-appointment-detail-modal-panel .customer-center-modal__header,
+.customer-store-root.customer-theme-calm.customer-appointment-detail-modal-panel
+  .customer-center-modal__header {
+  background: #e6d5b8;
+  border-bottom-color: rgba(93, 64, 55, 0.18);
+}
+
 .customer-store-root.customer-theme-light.customer-center-modal__panel {
   background-color: #fafafa;
 }
@@ -3703,6 +3722,10 @@ html:not([data-store-theme="dark"]) .bakery-field {
 }
 
 /* Appointments store — modern calendar (customer + seller) */
+.appointment-calendar-modern {
+  background: transparent;
+}
+
 .appointment-calendar-modern-surface {
   --appointment-cal-board: var(--dashboard-panel-bg, #e6d5b8);
   --appointment-cal-ink: #0a0a0a;
@@ -3719,6 +3742,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
   border: 3px solid var(--appointment-cal-board-border) !important;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(58, 47, 38, 0.12);
+  overflow: hidden;
 }
 
 /* Customer booking home — match header strip / page fill above the calendar */
