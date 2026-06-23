@@ -223,13 +223,24 @@ button.bg-bakery-error:hover {
   background-color: var(--bakery-error-hover) !important;
 }
 
-/* פאנל מתכנת — מסגרת #E6D5B8, תוכן #F2EBE0 */
+/* פאנל מתכנת — מסגרת #E6D5B8, תוכן #F2EBE0 (קבוע, לא תלוי data-store-theme) */
+.master-surface {
+  --master-panel-bg: #e6d5b8;
+  --master-tile-bg: #f2ebe0;
+  --master-tile-hover-bg: #f6f0e6;
+  --master-tile-active-bg: #efe8dc;
+  --master-frame-border: rgba(78, 52, 46, 0.24);
+  background: #f9f4eb;
+  color: #4e342e;
+  min-height: 100dvh;
+}
+
 .master-surface .master-panel-outer {
-  background: var(--dashboard-panel-bg);
-  border: 1.5px solid rgba(78, 52, 46, 0.12);
+  background: var(--master-panel-bg);
+  border: 1.5px solid var(--master-frame-border);
   border-radius: 22px;
   padding: 1rem;
-  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+  box-shadow: 0 4px 14px rgba(78, 52, 46, 0.1);
 }
 
 @media (min-width: 640px) {
@@ -253,8 +264,8 @@ button.bg-bakery-error:hover {
 }
 
 .master-surface .master-panel-inner {
-  background: var(--dashboard-tile-bg);
-  border: 1.5px solid rgba(78, 52, 46, 0.12);
+  background: var(--master-tile-bg);
+  border: 1.5px solid var(--master-frame-border);
   border-radius: 16px;
   padding: 0.75rem;
   box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
@@ -272,21 +283,21 @@ button.bg-bakery-error:hover {
 
 .master-surface button.master-panel-inner:hover,
 .master-surface .master-panel-row:hover {
-  background: var(--dashboard-tile-hover-bg);
-  border-color: rgba(78, 52, 46, 0.14);
+  background: var(--master-tile-hover-bg);
+  border-color: rgba(78, 52, 46, 0.28);
   box-shadow: 0 4px 12px rgba(78, 52, 46, 0.08);
 }
 
 .master-surface button.master-panel-inner:active,
 .master-surface .master-panel-row:active {
-  background: var(--dashboard-tile-active-bg);
+  background: var(--master-tile-active-bg);
   box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
   transform: translateY(0);
 }
 
 .master-surface .master-panel-inner--active {
-  background: var(--dashboard-tile-active-bg);
-  border-color: rgba(78, 52, 46, 0.16);
+  background: var(--master-tile-active-bg);
+  border-color: rgba(78, 52, 46, 0.3);
   box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
 }
 
@@ -1035,14 +1046,24 @@ html[data-store-theme="dark"]
   box-shadow: 0 12px 36px var(--dashboard-shadow);
 }
 
+html[data-store-theme="dark"] .master-surface {
+  --master-panel-bg: #1a1f26;
+  --master-tile-bg: #242a33;
+  --master-tile-hover-bg: #2a3038;
+  --master-tile-active-bg: #2f3640;
+  --master-frame-border: rgba(255, 255, 255, 0.12);
+  background: #0f1114;
+  color: #eceff3;
+}
+
 html[data-store-theme="dark"] .master-surface .master-panel-outer {
-  background: var(--dashboard-panel-bg, var(--bakery-card));
-  border-color: var(--dashboard-soft-border-strong);
+  background: var(--master-panel-bg);
+  border-color: var(--master-frame-border);
 }
 
 html[data-store-theme="dark"] .master-surface .master-panel-inner {
-  background: var(--dashboard-tile-bg, var(--bakery-square));
-  border-color: var(--dashboard-soft-border);
+  background: var(--master-tile-bg);
+  border-color: var(--master-frame-border);
   color: var(--bakery-ink);
 }
 
