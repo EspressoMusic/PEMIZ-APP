@@ -5,9 +5,13 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { DashboardAppointmentsCalendarSettings } from "@/components/dashboard/dashboard-appointments-calendar-settings";
+import { ProductsManager } from "@/components/dashboard/products-manager";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
-import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
+import {
+  isAppointmentStoreScheduleConfigured,
+  isAppointmentStoreServicesConfigured,
+} from "@/lib/appointment-store-setup";
 import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 
@@ -31,6 +35,7 @@ export function AppointmentStoreWelcomeSetup({
   const router = useRouter();
   const { labels } = useAppLocale();
   const [welcome, setWelcome] = useState(false);
+  const [activeServiceCount, setActiveServiceCount] = useState(0);
   const scheduleConfigured = useMemo(
     () =>
       isAppointmentStoreScheduleConfigured({
@@ -40,7 +45,9 @@ export function AppointmentStoreWelcomeSetup({
       }),
     [businessType, orderScheduleEnabled, orderSchedule]
   );
-  const required = !scheduleConfigured;
+  const servicesConfigured = isAppointmentStoreServicesConfigured(activeServiceCount);
+  const setupComplete = scheduleConfigured && servicesConfigured;
+  const required = !setupComplete;
   const [open, setOpen] = useState(required);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -53,8 +60,8 @@ export function AppointmentStoreWelcomeSetup({
 
   useEffect(() => {
     if (!isScheduleLikeBusinessType(businessType)) return;
-    setOpen(!scheduleConfigured);
-  }, [businessType, scheduleConfigured]);
+    setOpen(!setupComplete);
+  }, [businessType, setupComplete]);
 
   useEffect(() => {
     if (!open) return;
@@ -75,6 +82,10 @@ export function AppointmentStoreWelcomeSetup({
 
   const handleContinue = useCallback(async () => {
     setSaveError("");
+    if (!servicesConfigured) {
+      setSaveError(labels.appointmentStoreSetupNeedService);
+      return;
+    }
     setSaving(true);
     try {
       const scheduleOk = scheduleSaveRef.current
@@ -95,7 +106,7 @@ export function AppointmentStoreWelcomeSetup({
     } finally {
       setSaving(false);
     }
-  }, [finish, labels.saveError]);
+  }, [finish, labels.appointmentStoreSetupNeedService, labels.saveError, servicesConfigured]);
 
   if (!isScheduleLikeBusinessType(businessType) || !open) return null;
 
@@ -126,7 +137,29 @@ export function AppointmentStoreWelcomeSetup({
               {labels.appointmentStoreSetupIntro}
             </p>
 
-            <DashboardAppointmentsCalendarSettings
+            <section className="space-y-2">
+              <h3 className="text-[15px] font-extrabold text-bakery-ink">
+                {labels.appointmentStoreSetupServicesHeading}
+              </h3>
+              <p className="text-[13px] font-semibold leading-[1.5] text-bakery-muted">
+                {labels.appointmentStoreSetupServicesHint}
+              </p>
+              <ProductsManager
+                inline
+                mode="services"
+                onProductsChange={(items) => {
+                  setActiveServiceCount(
+                    items.filter((item) => item.isActive).length
+                  );
+                }}
+              />
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-[15px] font-extrabold text-bakery-ink">
+                {labels.appointmentCalendar}
+              </h3>
+              <DashboardAppointmentsCalendarSettings
               inline
               saveHandleRef={calendarSaveRef}
               scheduleSaveHandleRef={scheduleSaveRef}
@@ -136,6 +169,7 @@ export function AppointmentStoreWelcomeSetup({
                 initialScheduleJson: orderSchedule,
               }}
             />
+            </section>
 
             {saveError ? (
               <p className="rounded-full border border-[#b85c5c]/35 bg-[#faf0ee] px-4 py-2 text-center text-[13px] font-bold text-[#9a4545]">

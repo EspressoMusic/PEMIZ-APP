@@ -480,7 +480,9 @@ export function ProductsManager({
   mode = "products",
   autoOpenList = false,
   standaloneList = false,
+  inline = false,
   onStandaloneClose,
+  onProductsChange,
 }: {
   previewOnly?: boolean;
   initialProducts?: Parameters<typeof toPreviewProducts>[0];
@@ -489,7 +491,10 @@ export function ProductsManager({
   autoOpenList?: boolean;
   /** מודל בלבד מתפריט חנות — בלי כרטיסי hub */
   standaloneList?: boolean;
+  /** טופס הוספה ורשימה בתוך מסך (למשל הגדרה ראשונית) */
+  inline?: boolean;
   onStandaloneClose?: () => void;
+  onProductsChange?: (products: Product[]) => void;
 } = {}) {
   const { labels, formatMoney, locale } = useAppLocale();
   const isServices = mode === "services";
@@ -529,6 +534,16 @@ export function ProductsManager({
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    onProductsChange?.(products);
+  }, [products, onProductsChange]);
+
+  useEffect(() => {
+    if (inline && products.length === 0) {
+      setAddFormOpen(true);
+    }
+  }, [inline, products.length]);
 
   async function addProduct(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -619,8 +634,10 @@ export function ProductsManager({
       setDiscountOpen(false);
       setStockOpen(false);
       setAddFormOpen(false);
-      setSuccessName(name);
-      setSuccessOpen(true);
+      if (!inline) {
+        setSuccessName(name);
+        setSuccessOpen(true);
+      }
       return;
     }
 
@@ -656,8 +673,10 @@ export function ProductsManager({
     setDiscountOpen(false);
     setStockOpen(false);
     setAddFormOpen(false);
-    setSuccessName(name);
-    setSuccessOpen(true);
+    if (!inline) {
+      setSuccessName(name);
+      setSuccessOpen(true);
+    }
   }
 
   const setProductActive = useCallback(
@@ -806,6 +825,141 @@ export function ProductsManager({
     </div>
   );
 
+  const addFormFields = (
+    <form
+      ref={formRef}
+      onSubmit={addProduct}
+      className="flex flex-col gap-1.5 text-start"
+    >
+      <Input
+        name="name"
+        label={labels.productName}
+        labelClassName="text-[13px]"
+        className="py-2.5 text-[15px]"
+        required
+      />
+      <Input
+        name="price"
+        label={labels.productPrice}
+        labelClassName="text-[13px]"
+        className="py-2.5 text-[15px]"
+        type="number"
+        step="0.01"
+        required
+        dir="ltr"
+      />
+      {!inline ? (
+        <Input
+          name="description"
+          label={labels.productDescription}
+          labelClassName="text-[13px]"
+          className="py-2.5 text-[15px]"
+        />
+      ) : null}
+      {isServices ? (
+        <Input
+          name="serviceDurationMinutes"
+          label={labels.serviceDurationMinutes}
+          type="number"
+          min={15}
+          max={480}
+          step={15}
+          defaultValue={60}
+          required
+          dir="ltr"
+        />
+      ) : null}
+      {!inline ? (
+        <>
+          <ProductImagesField
+            compact
+            images={imageData}
+            onChange={setImageData}
+            onError={setError}
+            onUploadingChange={setImageUploading}
+          />
+          <div className="dashboard-form-option-row flex w-full items-center justify-between gap-2 rounded-[14px] px-2.5 py-2 text-start">
+            <span className="text-[13px] font-bold text-bakery-ink">
+              {labels.productDiscount}
+            </span>
+            <Toggle
+              enabled={discountOpen}
+              onChange={setDiscountOpen}
+              ariaLabel={labels.productDiscount}
+            />
+          </div>
+          {discountOpen && (
+            <>
+              <Input
+                name="salePrice"
+                label={labels.productDiscountPrice}
+                labelClassName="text-[13px]"
+                className="py-2.5 text-[15px]"
+                type="number"
+                step="0.01"
+                min={0.01}
+                dir="ltr"
+                required
+              />
+              <Input
+                name="maxDiscount"
+                label={labels.productDiscountLimit}
+                labelClassName="text-[13px]"
+                className="py-2.5 text-[15px]"
+                type="number"
+                step="0.01"
+                min={0.01}
+                dir="ltr"
+                placeholder="10"
+                required
+              />
+            </>
+          )}
+        </>
+      ) : null}
+      {!isServices && !inline && (
+        <>
+          <div className="dashboard-form-option-row flex w-full items-center justify-between gap-2 rounded-[14px] px-2.5 py-2 text-start">
+            <span className="text-[13px] font-bold text-bakery-ink">
+              {labels.productStock}
+            </span>
+            <Toggle
+              enabled={stockOpen}
+              onChange={setStockOpen}
+              ariaLabel={labels.productStock}
+            />
+          </div>
+          {stockOpen && (
+            <Input
+              name="stock"
+              labelClassName="text-[13px]"
+              className="py-2.5 text-[15px]"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              dir="ltr"
+              required
+              onChange={(e) => {
+                e.target.value = e.target.value.replace(/\D/g, "");
+              }}
+            />
+          )}
+        </>
+      )}
+      <Button
+        type="submit"
+        className="dashboard-form-submit-btn mt-0.5 w-full min-h-[42px] rounded-full font-extrabold"
+        disabled={adding || imageUploading}
+      >
+        {imageUploading
+          ? labels.productImageUploading
+          : adding
+            ? labels.adding
+            : addLabel}
+      </Button>
+    </form>
+  );
+
   const addFormSheet = (
     <DashboardActionSheet
       open={addFormOpen}
@@ -821,132 +975,7 @@ export function ProductsManager({
       fitContent
       panelClassName="dashboard-deal-form-sheet"
     >
-      <form
-        ref={formRef}
-        onSubmit={addProduct}
-        className="flex flex-col gap-1.5 text-start"
-      >
-        <Input
-          name="name"
-          label={labels.productName}
-          labelClassName="text-[13px]"
-          className="py-2.5 text-[15px]"
-          required
-        />
-        <Input
-          name="price"
-          label={labels.productPrice}
-          labelClassName="text-[13px]"
-          className="py-2.5 text-[15px]"
-          type="number"
-          step="0.01"
-          required
-          dir="ltr"
-        />
-        <Input
-          name="description"
-          label={labels.productDescription}
-          labelClassName="text-[13px]"
-          className="py-2.5 text-[15px]"
-        />
-        {isServices ? (
-          <Input
-            name="serviceDurationMinutes"
-            label={labels.serviceDurationMinutes}
-            type="number"
-            min={15}
-            max={480}
-            step={15}
-            defaultValue={60}
-            required
-            dir="ltr"
-          />
-        ) : null}
-        <ProductImagesField
-          compact
-          images={imageData}
-          onChange={setImageData}
-          onError={setError}
-          onUploadingChange={setImageUploading}
-        />
-        <div className="dashboard-form-option-row flex w-full items-center justify-between gap-2 rounded-[14px] px-2.5 py-2 text-start">
-          <span className="text-[13px] font-bold text-bakery-ink">
-            {labels.productDiscount}
-          </span>
-          <Toggle
-            enabled={discountOpen}
-            onChange={setDiscountOpen}
-            ariaLabel={labels.productDiscount}
-          />
-        </div>
-        {discountOpen && (
-          <>
-            <Input
-              name="salePrice"
-              label={labels.productDiscountPrice}
-              labelClassName="text-[13px]"
-              className="py-2.5 text-[15px]"
-              type="number"
-              step="0.01"
-              min={0.01}
-              dir="ltr"
-              required
-            />
-            <Input
-              name="maxDiscount"
-              label={labels.productDiscountLimit}
-              labelClassName="text-[13px]"
-              className="py-2.5 text-[15px]"
-              type="number"
-              step="0.01"
-              min={0.01}
-              dir="ltr"
-              placeholder="10"
-              required
-            />
-          </>
-        )}
-        {!isServices && (
-          <>
-            <div className="dashboard-form-option-row flex w-full items-center justify-between gap-2 rounded-[14px] px-2.5 py-2 text-start">
-              <span className="text-[13px] font-bold text-bakery-ink">
-                {labels.productStock}
-              </span>
-              <Toggle
-                enabled={stockOpen}
-                onChange={setStockOpen}
-                ariaLabel={labels.productStock}
-              />
-            </div>
-            {stockOpen && (
-              <Input
-                name="stock"
-                labelClassName="text-[13px]"
-                className="py-2.5 text-[15px]"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                dir="ltr"
-                required
-                onChange={(e) => {
-                  e.target.value = e.target.value.replace(/\D/g, "");
-                }}
-              />
-            )}
-          </>
-        )}
-        <Button
-          type="submit"
-          className="dashboard-form-submit-btn mt-0.5 w-full min-h-[42px] rounded-full font-extrabold"
-          disabled={adding || imageUploading}
-        >
-          {imageUploading
-            ? labels.productImageUploading
-            : adding
-              ? labels.adding
-              : addLabel}
-        </Button>
-      </form>
+      {addFormFields}
     </DashboardActionSheet>
   );
 
@@ -990,6 +1019,53 @@ export function ProductsManager({
       ) : null}
     </DashboardActionSheet>
   );
+
+  if (inline) {
+    return (
+      <div className="space-y-3 text-start">
+        {error ? (
+          <div className="shrink-0">
+            <Alert variant="error">{error}</Alert>
+          </div>
+        ) : null}
+        {products.length > 0 ? (
+          <ul className="space-y-2">
+            {products.map((p) => (
+              <li
+                key={p.id}
+                className="rounded-[14px] border border-bakery-border/30 bg-bakery-card/80 px-3 py-2.5"
+              >
+                <p className="text-[15px] font-extrabold text-bakery-ink">
+                  {p.name}
+                </p>
+                {isServices && p.serviceDurationMinutes ? (
+                  <p className="mt-0.5 text-[12px] font-semibold text-bakery-muted">
+                    {p.serviceDurationMinutes} {locale === "he" ? "דק׳" : "min"}
+                    {" · "}
+                    {formatMoney(p.price)}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {addFormOpen ? (
+          <div className="rounded-[18px] border border-bakery-border/30 bg-bakery-card/60 p-3">
+            {addFormFields}
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full rounded-full font-extrabold"
+            onClick={() => setAddFormOpen(true)}
+          >
+            {addLabel}
+          </Button>
+        )}
+      </div>
+    );
+  }
 
   if (standaloneList) {
     return (

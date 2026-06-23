@@ -12,6 +12,7 @@ import type { StoreThemeId } from "@/lib/store-themes";
 import { isValidPhone } from "@/lib/phone";
 import type { CustomerLabels } from "./customer-labels";
 import type { AppointmentSlot } from "./customer-appointment-calendar";
+import { CustomerServicePicker } from "./customer-service-picker";
 
 function formatSlotTime(iso: string, locale: CustomerLocale) {
   return new Date(iso).toLocaleTimeString(locale === "he" ? "he-IL" : "en-GB", {
@@ -76,7 +77,6 @@ export function CustomerAppointmentBookingModal({
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
   const [serviceId, setServiceId] = useState("");
-  const [customService, setCustomService] = useState("");
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
@@ -99,17 +99,13 @@ export function CustomerAppointmentBookingModal({
     setName(initialName);
     setPhone(initialPhone);
     setServiceId(services[0]?.id ?? "");
-    setCustomService("");
     setNotes("");
   }, [open, initialName, initialPhone, slots, services, bookingByDay]);
 
   const selectedSlot = slots.find((s) => s.id === slotId) ?? null;
   const selectedService =
     services.find((s) => s.id === serviceId) ?? services[0] ?? null;
-  const serviceName =
-    services.length > 0
-      ? (selectedService?.name ?? "")
-      : customService.trim();
+  const serviceName = selectedService?.name ?? "";
 
   function pickTime(id: string) {
     setSlotId(id);
@@ -240,32 +236,12 @@ export function CustomerAppointmentBookingModal({
             required
           />
 
-          {services.length > 0 ? (
-            <label className="block space-y-1.5">
-              <span className="block text-start text-[14px] font-bold text-bakery-ink">
-                {labels.service}
-              </span>
-              <select
-                value={serviceId}
-                onChange={(e) => setServiceId(e.target.value)}
-                className="bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-base text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 sm:text-[15px]"
-                required
-              >
-                {services.map((svc) => (
-                  <option key={svc.id} value={svc.id}>
-                    {svc.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : (
-            <Input
-              label={labels.service}
-              value={customService}
-              onChange={(e) => setCustomService(e.target.value)}
-              required
-            />
-          )}
+          <CustomerServicePicker
+            services={services}
+            selectedId={serviceId}
+            onSelect={setServiceId}
+            labels={labels}
+          />
 
           <Textarea
             label={labels.notes}
@@ -281,7 +257,8 @@ export function CustomerAppointmentBookingModal({
             disabled={
               submitting ||
               !slotId ||
-              (services.length === 0 && customService.trim().length < 1) ||
+              services.length === 0 ||
+              serviceName.length < 1 ||
               name.trim().length < 2 ||
               !isValidPhone(phone.trim())
             }

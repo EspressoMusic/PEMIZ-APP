@@ -17,6 +17,7 @@ import {
 } from "@/lib/rental-period";
 import type { CustomerLabels } from "./customer-labels";
 import type { AppointmentSlot } from "./customer-appointment-calendar";
+import { CustomerServicePicker } from "./customer-service-picker";
 
 function formatDayTitle(dateKey: string, locale: CustomerLocale) {
   const [y, m, d] = dateKey.split("-").map(Number);
@@ -72,7 +73,6 @@ export function CustomerRentalBookingModal({
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
   const [serviceId, setServiceId] = useState("");
-  const [customService, setCustomService] = useState("");
   const [notes, setNotes] = useState("");
 
   const slot = useMemo(() => {
@@ -109,15 +109,11 @@ export function CustomerRentalBookingModal({
     setName(initialName);
     setPhone(initialPhone);
     setServiceId(services[0]?.id ?? "");
-    setCustomService("");
     setNotes("");
   }, [open, checkInDateKey, initialName, initialPhone, services]);
 
   const selectedService = services.find((s) => s.id === serviceId);
-  const serviceName =
-    services.length > 0
-      ? (selectedService?.name ?? "")
-      : customService.trim();
+  const serviceName = selectedService?.name ?? "";
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -193,31 +189,12 @@ export function CustomerRentalBookingModal({
           </p>
         ) : null}
 
-        {services.length > 0 ? (
-          <label className="block space-y-1.5">
-            <span className="text-[14px] font-bold text-bakery-ink">
-              {labels.service}
-            </span>
-            <select
-              value={serviceId}
-              onChange={(e) => setServiceId(e.target.value)}
-              className="w-full rounded-2xl border border-bakery-border/40 bg-bakery-card px-3 py-3 text-[15px] font-semibold text-bakery-ink"
-            >
-              {services.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : (
-          <Input
-            label={labels.service}
-            value={customService}
-            onChange={(e) => setCustomService(e.target.value)}
-            required
-          />
-        )}
+        <CustomerServicePicker
+          services={services}
+          selectedId={serviceId}
+          onSelect={setServiceId}
+          labels={labels}
+        />
 
         <Input
           label={labels.name}
@@ -251,6 +228,7 @@ export function CustomerRentalBookingModal({
             checkOutDateKey <= checkInDateKey ||
             name.trim().length < 2 ||
             !isValidPhone(phone.trim()) ||
+            services.length === 0 ||
             serviceName.length < 1
           }
         >

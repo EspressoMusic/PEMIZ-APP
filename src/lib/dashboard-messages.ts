@@ -363,6 +363,9 @@ export type DashboardLabels = {
   sellerGuideStepCounter: string;
   appointmentStoreSetupTitle: string;
   appointmentStoreSetupIntro: string;
+  appointmentStoreSetupServicesHeading: string;
+  appointmentStoreSetupServicesHint: string;
+  appointmentStoreSetupNeedService: string;
   appointmentStoreSetupContinue: string;
   sellerGuideWelcomeTipAddProductTitle: string;
   sellerGuideWelcomeTipAddProductBody: string;
@@ -858,9 +861,13 @@ const HE: DashboardLabels = {
   sellerGuideAddProduct: "הוסף מוצר ראשון",
   sellerGuideAddService: "הוסף שירות ראשון",
   sellerGuideAddCalendar: "הגדר יומן ומשבצות",
-  appointmentStoreSetupTitle: "ימי עבודה ושעות פעילות",
+  appointmentStoreSetupTitle: "הגדרת חנות הפגישות",
   appointmentStoreSetupIntro:
-    "לפני שמתחילים — בחרו באילו ימים ושעות לקוחות יוכלו לקבוע תור, ושמרו. בלי זה היומן יישאר ריק.",
+    "לפני שמתחילים — הוסיפו לפחות שירות אחד, ובחרו באילו ימים ושעות לקוחות יוכלו לקבוע תור.",
+  appointmentStoreSetupServicesHeading: "שירותים",
+  appointmentStoreSetupServicesHint:
+    "לקוחות יבחרו מתוך הרשימה — לא יוכלו להקליד שירות חופשי.",
+  appointmentStoreSetupNeedService: "יש להוסיף לפחות שירות אחד לפני שממשיכים.",
   appointmentStoreSetupContinue: "המשך לסיור בלינקי",
   sellerGuideStepCounter: "שלב {current} מתוך {total}",
   sellerGuideWelcomeTipAddProductTitle: "הוספת מוצר",
@@ -1461,9 +1468,13 @@ const EN: DashboardLabels = {
   sellerGuideAddProduct: "Add first product",
   sellerGuideAddService: "Add first service",
   sellerGuideAddCalendar: "Set up calendar & slots",
-  appointmentStoreSetupTitle: "Working days & booking hours",
+  appointmentStoreSetupTitle: "Appointment store setup",
   appointmentStoreSetupIntro:
-    "Before you start — choose which days and hours customers can book, then save. Without this your calendar stays empty.",
+    "Before you start — add at least one service, then choose which days and hours customers can book.",
+  appointmentStoreSetupServicesHeading: "Services",
+  appointmentStoreSetupServicesHint:
+    "Customers pick from your list — they cannot type a custom service.",
+  appointmentStoreSetupNeedService: "Add at least one service before continuing.",
   appointmentStoreSetupContinue: "Continue to the Linky tour",
   sellerGuideStepCounter: "Step {current} of {total}",
   sellerGuideWelcomeTipAddProductTitle: "Add a product",

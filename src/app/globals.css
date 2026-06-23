@@ -3966,6 +3966,40 @@ html:not([data-store-theme="dark"]) .bakery-field {
   background: var(--dashboard-tile-bg);
 }
 
+.customer-service-option {
+  border-radius: 1rem;
+  border: 1.5px solid rgba(92, 74, 62, 0.22);
+  background-color: #fffdf8;
+  color: #0a0a0a;
+  box-shadow: inset 0 1px 3px rgba(78, 52, 46, 0.06);
+  transition:
+    border-color 0.15s ease,
+    border-width 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.customer-service-option:hover {
+  background: #faf6f0;
+}
+
+.customer-service-option--selected {
+  border: 3px solid #5d4037;
+  background-color: #fffdf8;
+  box-shadow: none;
+}
+
+.customer-store-root.customer-theme-dark .customer-service-option {
+  border-color: rgba(255, 255, 255, 0.14);
+  background-color: #2a3038;
+  color: #eceff3;
+}
+
+.customer-store-root.customer-theme-dark .customer-service-option--selected {
+  border-color: #7ec8e3;
+  background-color: #252b34;
+}
+
 /* Dashboard stats line chart — SaaS-style sales overview, bakery cream palette */
 .dashboard-line-chart {
   --chart-accent: #2563eb;
