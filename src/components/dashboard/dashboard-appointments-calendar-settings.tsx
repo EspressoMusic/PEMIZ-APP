@@ -293,6 +293,7 @@ function DashboardAppointmentsCalendarSettingsCore({
       nested
       inline
       sectionLead
+      hideSectionTitle={hideDurationField}
       hideSaveButton
       saveHandleRef={resolvedScheduleSaveRef}
       basePath={basePath}

@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type MutableRefObject,
 } from "react";
 import {
   Button,
@@ -481,8 +482,10 @@ export function ProductsManager({
   autoOpenList = false,
   standaloneList = false,
   inline = false,
+  welcomeSetup = false,
   onStandaloneClose,
   onProductsChange,
+  saveHandleRef,
 }: {
   previewOnly?: boolean;
   initialProducts?: Parameters<typeof toPreviewProducts>[0];
@@ -493,8 +496,11 @@ export function ProductsManager({
   standaloneList?: boolean;
   /** טופס הוספה ורשימה בתוך מסך (למשל הגדרה ראשונית) */
   inline?: boolean;
+  /** הגדרה ראשונית — שמירת שירות בלחיצה על אישור בתחתית */
+  welcomeSetup?: boolean;
   onStandaloneClose?: () => void;
   onProductsChange?: (products: Product[]) => void;
+  saveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
 } = {}) {
   const { labels, formatMoney, locale } = useAppLocale();
   const isServices = mode === "services";
@@ -540,95 +546,136 @@ export function ProductsManager({
   }, [products, onProductsChange]);
 
   useEffect(() => {
-    if (inline && products.length === 0) {
+    if (inline && products.length === 0 && !welcomeSetup) {
       setAddFormOpen(true);
     }
-  }, [inline, products.length]);
+  }, [inline, welcomeSetup, products.length]);
 
-  async function addProduct(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
-    const fd = new FormData(e.currentTarget);
-    const name = String(fd.get("name") ?? "").trim();
-    const price = Number(fd.get("price"));
-    const saleRaw = String(fd.get("salePrice") ?? "").trim();
-    const salePrice = saleRaw ? Number(saleRaw) : null;
-    const maxDiscountRaw = String(fd.get("maxDiscount") ?? "").trim();
+  const persistNewProductFromForm = useCallback(
+    async (fd: FormData): Promise<boolean> => {
+      setError("");
+      const name = String(fd.get("name") ?? "").trim();
+      const price = Number(fd.get("price"));
+      const saleRaw = String(fd.get("salePrice") ?? "").trim();
+      const salePrice = saleRaw ? Number(saleRaw) : null;
+      const maxDiscountRaw = String(fd.get("maxDiscount") ?? "").trim();
 
-    if (!name || Number.isNaN(price)) return;
+      if (!name || Number.isNaN(price)) {
+        setError(labels.appointmentStoreSetupNeedService);
+        return false;
+      }
 
-    if (imageUploading) {
-      setError(labels.productImageUploading);
-      return;
-    }
+      if (imageUploading) {
+        setError(labels.productImageUploading);
+        return false;
+      }
 
-    let serviceDurationMinutes: number | null = null;
-    if (isServices) {
-      const durationRaw = String(fd.get("serviceDurationMinutes") ?? "").trim();
-      const parsedDuration = Number(durationRaw);
-      if (!durationRaw || Number.isNaN(parsedDuration) || parsedDuration < 15) {
-        setError(labels.serviceDurationRequired);
-        return;
+      let serviceDurationMinutes: number | null = null;
+      if (isServices) {
+        const durationRaw = String(fd.get("serviceDurationMinutes") ?? "").trim();
+        const parsedDuration = Number(durationRaw);
+        if (!durationRaw || Number.isNaN(parsedDuration) || parsedDuration < 15) {
+          setError(labels.serviceDurationRequired);
+          return false;
+        }
+        serviceDurationMinutes = Math.round(parsedDuration);
       }
-      serviceDurationMinutes = Math.round(parsedDuration);
-    }
 
-    if (discountOpen) {
-      if (!saleRaw || Number.isNaN(salePrice!)) {
-        setError(labels.productDiscountRequired);
-        return;
+      if (discountOpen) {
+        if (!saleRaw || Number.isNaN(salePrice!)) {
+          setError(labels.productDiscountRequired);
+          return false;
+        }
+        if (salePrice! >= price) {
+          setError(labels.productDiscountBelowPrice);
+          return false;
+        }
+        const maxDiscount = Number(maxDiscountRaw);
+        if (!maxDiscountRaw || Number.isNaN(maxDiscount) || maxDiscount <= 0) {
+          setError(labels.productMaxDiscountRequired);
+          return false;
+        }
+        if (price - salePrice! > maxDiscount) {
+          setError(
+            `${labels.productMaxDiscountRequired} (${formatMoney(maxDiscount)})`
+          );
+          return false;
+        }
       }
-      if (salePrice! >= price) {
-        setError(labels.productDiscountBelowPrice);
-        return;
-      }
-      const maxDiscount = Number(maxDiscountRaw);
-      if (!maxDiscountRaw || Number.isNaN(maxDiscount) || maxDiscount <= 0) {
-        setError(labels.productMaxDiscountRequired);
-        return;
-      }
-      if (price - salePrice! > maxDiscount) {
-        setError(
-          `${labels.productMaxDiscountRequired} (${formatMoney(maxDiscount)})`
-        );
-        return;
-      }
-    }
 
-    let stock: number | null = null;
-    if (!isServices && stockOpen) {
-      const stockRaw = String(fd.get("stock") ?? "").trim();
-      if (!stockRaw) {
-        setError(labels.productStockRequired);
-        return;
+      let stock: number | null = null;
+      if (!isServices && stockOpen) {
+        const stockRaw = String(fd.get("stock") ?? "").trim();
+        if (!stockRaw) {
+          setError(labels.productStockRequired);
+          return false;
+        }
+        const parsedStock = parseStockInput(stockRaw);
+        if (parsedStock == null) {
+          setError(labels.productStockInvalid);
+          return false;
+        }
+        stock = parsedStock;
       }
-      const parsedStock = parseStockInput(stockRaw);
-      if (parsedStock == null) {
-        setError(labels.productStockInvalid);
-        return;
-      }
-      stock = parsedStock;
-    }
 
-    if (previewOnly) {
-      setProducts((prev) => [
-        {
-          id: `preview-${Date.now()}`,
+      if (previewOnly) {
+        setProducts((prev) => [
+          {
+            id: `preview-${Date.now()}`,
+            name,
+            price,
+            salePrice:
+              discountOpen && salePrice != null && !Number.isNaN(salePrice)
+                ? salePrice
+                : null,
+            stock,
+            serviceDurationMinutes,
+            description: String(fd.get("description") ?? "") || null,
+            imageUrl: imageData[0] ?? null,
+            imageUrls: imageData,
+            isActive: true,
+          },
+          ...prev,
+        ]);
+        formRef.current?.reset();
+        setImageData([]);
+        setDiscountOpen(false);
+        setStockOpen(false);
+        setAddFormOpen(false);
+        if (!inline) {
+          setSuccessName(name);
+          setSuccessOpen(true);
+        }
+        return true;
+      }
+
+      setAdding(true);
+      const res = await fetch("/api/dashboard/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           name,
+          description: fd.get("description") || undefined,
           price,
           salePrice:
             discountOpen && salePrice != null && !Number.isNaN(salePrice)
               ? salePrice
               : null,
           stock,
-          serviceDurationMinutes,
-          description: String(fd.get("description") ?? "") || null,
-          imageUrl: imageData[0] ?? null,
-          imageUrls: imageData,
-          isActive: true,
-        },
-        ...prev,
-      ]);
+          serviceDurationMinutes: serviceDurationMinutes ?? undefined,
+          imageUrls: imageData.length > 0 ? imageData : undefined,
+        }),
+      });
+      setAdding(false);
+      if (!res.ok) {
+        const d = await res.json();
+        setError(d.error);
+        return false;
+      }
+      const data = await res.json();
+      if (data.product) {
+        setProducts((prev) => [data.product as Product, ...prev]);
+      }
       formRef.current?.reset();
       setImageData([]);
       setDiscountOpen(false);
@@ -638,45 +685,38 @@ export function ProductsManager({
         setSuccessName(name);
         setSuccessOpen(true);
       }
-      return;
-    }
+      return true;
+    },
+    [
+      discountOpen,
+      formatMoney,
+      imageData,
+      imageUploading,
+      inline,
+      isServices,
+      labels,
+      previewOnly,
+      stockOpen,
+    ]
+  );
 
-    setAdding(true);
-    const res = await fetch("/api/dashboard/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        description: fd.get("description") || undefined,
-        price,
-        salePrice:
-          discountOpen && salePrice != null && !Number.isNaN(salePrice)
-            ? salePrice
-            : null,
-        stock,
-        serviceDurationMinutes: serviceDurationMinutes ?? undefined,
-        imageUrls: imageData.length > 0 ? imageData : undefined,
-      }),
-    });
-    setAdding(false);
-    if (!res.ok) {
-      const d = await res.json();
-      setError(d.error);
-      return;
-    }
-    const data = await res.json();
-    if (data.product) {
-      setProducts((prev) => [data.product as Product, ...prev]);
-    }
-    formRef.current?.reset();
-    setImageData([]);
-    setDiscountOpen(false);
-    setStockOpen(false);
-    setAddFormOpen(false);
-    if (!inline) {
-      setSuccessName(name);
-      setSuccessOpen(true);
-    }
+  const saveDeferredProduct = useCallback(async (): Promise<boolean> => {
+    if (products.filter((p) => p.isActive).length >= 1) return true;
+    if (!formRef.current) return false;
+    return persistNewProductFromForm(new FormData(formRef.current));
+  }, [persistNewProductFromForm, products]);
+
+  useEffect(() => {
+    if (!saveHandleRef) return;
+    saveHandleRef.current = saveDeferredProduct;
+    return () => {
+      saveHandleRef.current = null;
+    };
+  });
+
+  async function addProduct(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    await persistNewProductFromForm(new FormData(e.currentTarget));
   }
 
   const setProductActive = useCallback(
@@ -946,17 +986,19 @@ export function ProductsManager({
           )}
         </>
       )}
-      <Button
-        type="submit"
-        className="dashboard-form-submit-btn mt-0.5 w-full min-h-[42px] rounded-full font-extrabold"
-        disabled={adding || imageUploading}
-      >
-        {imageUploading
-          ? labels.productImageUploading
-          : adding
-            ? labels.adding
-            : addLabel}
-      </Button>
+      {!welcomeSetup ? (
+        <Button
+          type="submit"
+          className="dashboard-form-submit-btn mt-0.5 w-full min-h-[42px] rounded-full font-extrabold"
+          disabled={adding || imageUploading}
+        >
+          {imageUploading
+            ? labels.productImageUploading
+            : adding
+              ? labels.adding
+              : addLabel}
+        </Button>
+      ) : null}
     </form>
   );
 
@@ -1021,6 +1063,9 @@ export function ProductsManager({
   );
 
   if (inline) {
+    const showInlineForm =
+      welcomeSetup ? products.length === 0 : addFormOpen;
+
     return (
       <div className="space-y-3 text-start">
         {error ? (
@@ -1049,11 +1094,11 @@ export function ProductsManager({
             ))}
           </ul>
         ) : null}
-        {addFormOpen ? (
+        {showInlineForm ? (
           <div className="rounded-[18px] border border-bakery-border/30 bg-bakery-card/60 p-3">
             {addFormFields}
           </div>
-        ) : (
+        ) : welcomeSetup ? null : (
           <Button
             type="button"
             variant="secondary"

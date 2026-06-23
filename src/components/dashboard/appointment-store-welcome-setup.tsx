@@ -51,6 +51,7 @@ export function AppointmentStoreWelcomeSetup({
   const [open, setOpen] = useState(required);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const serviceSaveRef = useRef<(() => Promise<boolean>) | null>(null);
   const scheduleSaveRef = useRef<(() => Promise<boolean>) | null>(null);
   const calendarSaveRef = useRef<(() => Promise<boolean>) | null>(null);
 
@@ -82,12 +83,15 @@ export function AppointmentStoreWelcomeSetup({
 
   const handleContinue = useCallback(async () => {
     setSaveError("");
-    if (!servicesConfigured) {
-      setSaveError(labels.appointmentStoreSetupNeedService);
-      return;
-    }
     setSaving(true);
     try {
+      const serviceOk = serviceSaveRef.current
+        ? await serviceSaveRef.current()
+        : true;
+      if (!serviceOk) {
+        setSaveError(labels.appointmentStoreSetupNeedService);
+        return;
+      }
       const scheduleOk = scheduleSaveRef.current
         ? await scheduleSaveRef.current()
         : true;
@@ -106,7 +110,11 @@ export function AppointmentStoreWelcomeSetup({
     } finally {
       setSaving(false);
     }
-  }, [finish, labels.appointmentStoreSetupNeedService, labels.saveError, servicesConfigured]);
+  }, [
+    finish,
+    labels.appointmentStoreSetupNeedService,
+    labels.saveError,
+  ]);
 
   if (!isScheduleLikeBusinessType(businessType) || !open) return null;
 
@@ -137,29 +145,19 @@ export function AppointmentStoreWelcomeSetup({
               {labels.appointmentStoreSetupIntro}
             </p>
 
-            <section className="space-y-2">
-              <h3 className="text-[15px] font-extrabold text-bakery-ink">
-                {labels.appointmentStoreSetupServicesHeading}
-              </h3>
-              <p className="text-[13px] font-semibold leading-[1.5] text-bakery-muted">
-                {labels.appointmentStoreSetupServicesHint}
-              </p>
-              <ProductsManager
-                inline
-                mode="services"
-                onProductsChange={(items) => {
-                  setActiveServiceCount(
-                    items.filter((item) => item.isActive).length
-                  );
-                }}
-              />
-            </section>
+            <ProductsManager
+              inline
+              welcomeSetup
+              mode="services"
+              saveHandleRef={serviceSaveRef}
+              onProductsChange={(items) => {
+                setActiveServiceCount(
+                  items.filter((item) => item.isActive).length
+                );
+              }}
+            />
 
-            <section className="space-y-2">
-              <h3 className="text-[15px] font-extrabold text-bakery-ink">
-                {labels.appointmentCalendar}
-              </h3>
-              <DashboardAppointmentsCalendarSettings
+            <DashboardAppointmentsCalendarSettings
               inline
               hideDurationField
               saveHandleRef={calendarSaveRef}
@@ -170,7 +168,6 @@ export function AppointmentStoreWelcomeSetup({
                 initialScheduleJson: orderSchedule,
               }}
             />
-            </section>
 
             {saveError ? (
               <p className="rounded-full border border-[#b85c5c]/35 bg-[#faf0ee] px-4 py-2 text-center text-[13px] font-bold text-[#9a4545]">

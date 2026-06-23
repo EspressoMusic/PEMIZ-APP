@@ -31,6 +31,7 @@ export function DashboardOrderScheduleSettings({
   hideSaveButton = false,
   saveHandleRef,
   sectionLead = false,
+  hideSectionTitle = false,
   basePath = "/dashboard",
 }: {
   initialEnabled: boolean;
@@ -49,6 +50,8 @@ export function DashboardOrderScheduleSettings({
   hideSaveButton?: boolean;
   /** Optional ref for programmatic save (welcome setup). */
   saveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
+  /** Hide the section title (welcome setup). */
+  hideSectionTitle?: boolean;
   basePath?: string;
 }) {
   const initial = useMemo(
@@ -307,7 +310,9 @@ export function DashboardOrderScheduleSettings({
           sectionLead ? "" : " border-t border-bakery-border/25 pt-4"
         }`}
       >
-        <p className="text-[15px] font-extrabold text-bakery-ink">{toggleTitle}</p>
+        {!hideSectionTitle ? (
+          <p className="text-[15px] font-extrabold text-bakery-ink">{toggleTitle}</p>
+        ) : null}
         {dayEditor}
       </div>
     );
@@ -316,7 +321,9 @@ export function DashboardOrderScheduleSettings({
   if (inline) {
     return (
       <div className="space-y-2 text-start">
-        <p className="text-[15px] font-extrabold text-bakery-ink">{toggleTitle}</p>
+        {!hideSectionTitle ? (
+          <p className="text-[15px] font-extrabold text-bakery-ink">{toggleTitle}</p>
+        ) : null}
         {dayEditor}
       </div>
     );
