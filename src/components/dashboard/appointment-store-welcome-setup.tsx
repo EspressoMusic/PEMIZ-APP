@@ -178,10 +178,10 @@ export function AppointmentStoreWelcomeSetup({
           </div>
         </div>
 
-        <div className="flex shrink-0 justify-center border-t border-bakery-border/20 px-4 py-3">
+        <div className="shrink-0 border-t border-bakery-border/20 px-4 py-3">
           <Button
             type="button"
-            className="bakery-cta-3d bakery-cta-3d--primary mx-auto w-full min-h-[48px] max-w-[min(100%,20rem)] !rounded-full !shadow-none font-extrabold hover:!opacity-100"
+            className="bakery-cta-3d bakery-cta-3d--primary w-full !max-w-none min-h-[48px] !rounded-full !shadow-none font-extrabold hover:!opacity-100"
             disabled={saving}
             onClick={() => void handleContinue()}
           >
