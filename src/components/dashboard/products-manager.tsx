@@ -712,16 +712,6 @@ export function ProductsManager({
     return existingCount >= 1;
   }, [persistNewProductFromForm, products]);
 
-  const addDraftToList = useCallback(async () => {
-    if (!formRef.current) return;
-    const name = String(new FormData(formRef.current).get("name") ?? "").trim();
-    if (!name) {
-      setError(labels.appointmentStoreSetupNeedService);
-      return;
-    }
-    await persistNewProductFromForm(new FormData(formRef.current));
-  }, [persistNewProductFromForm, labels.appointmentStoreSetupNeedService]);
-
   useEffect(() => {
     if (!saveHandleRef) return;
     saveHandleRef.current = saveDeferredProduct;
@@ -1117,18 +1107,7 @@ export function ProductsManager({
         ) : null}
         {showInlineForm ? (
           welcomeSetup ? (
-            <div className="space-y-3">
-              {addFormFields}
-              <Button
-                type="button"
-                variant="secondary"
-                className="appointment-welcome-add-btn w-full rounded-full font-extrabold"
-                disabled={adding || imageUploading}
-                onClick={() => void addDraftToList()}
-              >
-                {adding ? labels.adding : labels.addServiceToList}
-              </Button>
-            </div>
+            addFormFields
           ) : (
             <div className="rounded-[18px] border border-bakery-border/30 bg-bakery-card/60 p-3">
               {addFormFields}

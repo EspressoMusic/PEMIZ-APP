@@ -1489,13 +1489,6 @@ html:not([data-store-theme="dark"])
 }
 
 html:not([data-store-theme="dark"])
-  .appointment-store-welcome-setup
-  .appointment-welcome-add-btn {
-  background-color: #fffdf8 !important;
-  border: 1.5px solid rgba(93, 64, 55, 0.35) !important;
-}
-
-html:not([data-store-theme="dark"])
   .dashboard-surface
   .bakery-field:focus {
   outline: 2px solid var(--dashboard-soft-border-strong);
