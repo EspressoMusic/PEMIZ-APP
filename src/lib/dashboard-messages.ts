@@ -363,8 +363,6 @@ export type DashboardLabels = {
   sellerGuideStepCounter: string;
   appointmentStoreSetupTitle: string;
   appointmentStoreSetupIntro: string;
-  appointmentStoreSetupServicesHeading: string;
-  appointmentStoreSetupServicesHint: string;
   appointmentStoreSetupNeedService: string;
   appointmentStoreSetupContinue: string;
   sellerGuideWelcomeTipAddProductTitle: string;
@@ -864,9 +862,6 @@ const HE: DashboardLabels = {
   appointmentStoreSetupTitle: "הגדרת חנות הפגישות",
   appointmentStoreSetupIntro:
     "לפני שמתחילים — הוסיפו לפחות שירות אחד, ובחרו באילו ימים ושעות לקוחות יוכלו לקבוע תור.",
-  appointmentStoreSetupServicesHeading: "שירותים",
-  appointmentStoreSetupServicesHint:
-    "לקוחות יבחרו מתוך הרשימה — לא יוכלו להקליד שירות חופשי.",
   appointmentStoreSetupNeedService: "יש להוסיף לפחות שירות אחד לפני שממשיכים.",
   appointmentStoreSetupContinue: "המשך לסיור בלינקי",
   sellerGuideStepCounter: "שלב {current} מתוך {total}",
@@ -1471,9 +1466,6 @@ const EN: DashboardLabels = {
   appointmentStoreSetupTitle: "Appointment store setup",
   appointmentStoreSetupIntro:
     "Before you start — add at least one service, then choose which days and hours customers can book.",
-  appointmentStoreSetupServicesHeading: "Services",
-  appointmentStoreSetupServicesHint:
-    "Customers pick from your list — they cannot type a custom service.",
   appointmentStoreSetupNeedService: "Add at least one service before continuing.",
   appointmentStoreSetupContinue: "Continue to the Linky tour",
   sellerGuideStepCounter: "Step {current} of {total}",

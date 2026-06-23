@@ -55,6 +55,8 @@ type CalendarSettingsProps = {
   openHoursFromQuery?: boolean;
   /** Welcome setup — duration is set per service, not here */
   hideDurationField?: boolean;
+  /** Welcome setup — hide section titles like working days */
+  welcomeSetup?: boolean;
 };
 
 export function DashboardAppointmentsCalendarSettings(
@@ -102,6 +104,7 @@ function DashboardAppointmentsCalendarSettingsCore({
   openedFromActionsHub = false,
   openHoursFromQuery = false,
   hideDurationField = false,
+  welcomeSetup = false,
 }: CalendarSettingsProps & {
   openedFromActionsHub: boolean;
   openHoursFromQuery: boolean;
@@ -293,7 +296,7 @@ function DashboardAppointmentsCalendarSettingsCore({
       nested
       inline
       sectionLead
-      hideSectionTitle={hideDurationField}
+      hideSectionTitle={hideDurationField || welcomeSetup}
       hideSaveButton
       saveHandleRef={resolvedScheduleSaveRef}
       basePath={basePath}
