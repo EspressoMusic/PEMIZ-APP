@@ -134,14 +134,9 @@ export function AuthForm() {
       {confetti ? <DashboardConfettiBackground active={confetti} /> : null}
       <div className="auth-surface mx-auto flex w-full max-w-[min(100%,24rem)] flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel className="dashboard-card flex aspect-square w-full flex-col items-center justify-center gap-8 px-7 py-9 sm:gap-10 sm:px-10 sm:py-11">
-          <div className="space-y-2 text-center">
-            <h1 className="text-[28px] font-extrabold leading-tight text-bakery-ink sm:text-[32px]">
-              {copy.authGoogleEntryTitle}
-            </h1>
-            <p className="text-[15px] leading-relaxed text-bakery-muted sm:text-[16px]">
-              {copy.authGoogleEntrySub}
-            </p>
-          </div>
+          <h1 className="text-center text-[28px] font-extrabold leading-tight text-bakery-ink sm:text-[32px]">
+            {copy.authGoogleEntryTitle}
+          </h1>
           {error ? (
             <div className="w-full">
               <Alert variant="error">{error}</Alert>

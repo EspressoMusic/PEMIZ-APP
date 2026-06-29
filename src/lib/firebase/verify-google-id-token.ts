@@ -1,4 +1,4 @@
-import { getFirebaseAdminAuth } from "@/lib/firebase/admin";
+import { verifyFirebaseIdToken } from "@/lib/firebase/verify-firebase-id-token";
 
 export type GoogleIdentity = {
   email: string;
@@ -22,41 +22,35 @@ export async function verifyGoogleIdToken(
     return { ok: false, error: messages.googleVerificationRequired };
   }
 
-  const auth = getFirebaseAdminAuth();
-  if (!auth) {
+  const verified = await verifyFirebaseIdToken(trimmed);
+  if (!verified.ok) {
     return { ok: false, error: messages.googleVerificationFailed };
   }
 
-  try {
-    const decoded = await auth.verifyIdToken(trimmed, true);
-    const provider =
-      decoded.firebase?.sign_in_provider ??
-      (decoded as { sign_in_provider?: string }).sign_in_provider;
-
-    if (provider !== "google.com") {
-      return { ok: false, error: messages.googleVerificationFailed };
-    }
-
-    const email = decoded.email?.trim().toLowerCase();
-    if (!email || !decoded.email_verified) {
-      return { ok: false, error: messages.googleVerificationFailed };
-    }
-
-    const name =
-      decoded.name?.trim() ||
-      (decoded as { given_name?: string }).given_name?.trim() ||
-      email.split("@")[0] ||
-      "User";
-
-    return {
-      ok: true,
-      identity: {
-        email,
-        name,
-        uid: decoded.uid,
-      },
-    };
-  } catch {
+  const { payload } = verified;
+  const provider = payload.firebase?.sign_in_provider;
+  if (provider !== "google.com") {
     return { ok: false, error: messages.googleVerificationFailed };
   }
+
+  const email = payload.email?.trim().toLowerCase();
+  if (!email || !payload.email_verified) {
+    return { ok: false, error: messages.googleVerificationFailed };
+  }
+
+  const name =
+    payload.name?.trim() ||
+    payload.given_name?.trim() ||
+    email.split("@")[0] ||
+    "User";
+
+  const uid = payload.sub;
+  if (!uid) {
+    return { ok: false, error: messages.googleVerificationFailed };
+  }
+
+  return {
+    ok: true,
+    identity: { email, name, uid },
+  };
 }
