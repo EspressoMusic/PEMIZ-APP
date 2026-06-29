@@ -29,6 +29,26 @@ export function isValidPhone(phone: string): boolean {
   return parseIsraeliMobilePhone(phone) !== null;
 }
 
+/** E.164 format for Firebase SMS (e.g. +972501234567). */
+export function formatIsraeliMobileToE164(phone: string): string | null {
+  const local = parseIsraeliMobilePhone(phone);
+  if (!local) return null;
+  return `+972${local.slice(1)}`;
+}
+
+/** Match Firebase phone_number claim to canonical Israeli mobile. */
+export function firebasePhoneMatchesIsraeliMobile(
+  firebasePhone: string,
+  localPhone: string
+): boolean {
+  const e164 = formatIsraeliMobileToE164(localPhone);
+  if (!e164) return false;
+  const normalizedFirebase = firebasePhone.startsWith("+")
+    ? firebasePhone
+    : `+${firebasePhone.replace(/\D/g, "")}`;
+  return normalizedFirebase === e164;
+}
+
 export const INVALID_PHONE_MESSAGE_HE = "מספר טלפון לא תקין";
 export const INVALID_PHONE_MESSAGE_EN = "Invalid phone number";
 

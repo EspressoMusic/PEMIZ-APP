@@ -18,7 +18,10 @@ export async function reserveStockAndCreateOrder(
   tx: Prisma.TransactionClient,
   businessId: string,
   orderItems: OrderLineInput[],
-  orderData: Omit<Prisma.OrderCreateInput, "items" | "business">
+  orderData: Omit<
+    Prisma.OrderCreateInput,
+    "items" | "business" | "orderNumber" | "businessId"
+  >
 ) {
   for (const item of orderItems) {
     const product = await tx.product.findFirst({
@@ -49,10 +52,18 @@ export async function reserveStockAndCreateOrder(
     }
   }
 
+  const business = await tx.business.update({
+    where: { id: businessId },
+    data: { nextOrderNumber: { increment: 1 } },
+    select: { nextOrderNumber: true },
+  });
+  const orderNumber = business.nextOrderNumber - 1;
+
   return tx.order.create({
     data: {
       ...orderData,
       businessId,
+      orderNumber,
       items: { create: orderItems },
     },
     include: { items: true },

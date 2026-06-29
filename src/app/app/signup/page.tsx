@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth-form";
 import {
@@ -20,9 +21,11 @@ export default async function AppSignupPage() {
   }
 
   return (
-    <AuthForm
-      mode="signup"
-      footer={<SignupFormFooter loginHref={APP_LOGIN_PATH} />}
-    />
+    <Suspense fallback={null}>
+      <AuthForm
+        mode="signup"
+        footer={<SignupFormFooter loginHref={APP_LOGIN_PATH} />}
+      />
+    </Suspense>
   );
 }

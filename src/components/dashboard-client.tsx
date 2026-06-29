@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ClipboardList, History } from "lucide-react";
+import { ClipboardList, History, Search, X } from "lucide-react";
 import {
   Button,
   Input,
@@ -92,6 +92,25 @@ function isActiveOrderStatus(status: string) {
   return ACTIVE_ORDER_STATUSES.has(status);
 }
 
+function filterOrdersBySearch(
+  orders: DashboardOrderView[],
+  query: string
+): DashboardOrderView[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return orders;
+  const numQuery = q.replace(/^#/, "");
+  return orders.filter((order) => {
+    if (order.customerName.toLowerCase().includes(q)) return true;
+    if (
+      order.orderNumber != null &&
+      String(order.orderNumber).includes(numQuery)
+    ) {
+      return true;
+    }
+    return false;
+  });
+}
+
 function normalizeCustomerPhone(phone: string) {
   return phone.replace(/\s/g, "");
 }
@@ -124,6 +143,7 @@ function mapOrdersFromApi(
   locale: AppLocale,
   raw: {
     id: string;
+    orderNumber?: number;
     customerName: string;
     customerPhone: string;
     status: string;
@@ -138,6 +158,7 @@ function mapOrdersFromApi(
   return enrichOrdersWithCustomerJoinedAt(
     raw.map((o) => ({
       id: o.id,
+      orderNumber: o.orderNumber,
       customerName: o.customerName,
       customerPhone: o.customerPhone,
       status: o.status,
@@ -155,6 +176,65 @@ function mapOrdersFromApi(
 
 const ordersModalListClassName =
   "no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[18px] border border-bakery-border/40 bg-bakery-input p-2 shadow-[var(--shadow-bakery-card)] [-webkit-overflow-scrolling:touch]";
+
+function useOrdersSheetSearch(open: boolean) {
+  const { labels } = useAppLocale();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (!open) {
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  }, [open]);
+
+  const hasSearchQuery = searchQuery.trim().length > 0;
+
+  const headerEndAction = searchOpen ? (
+    <button
+      type="button"
+      onClick={() => {
+        setSearchOpen(false);
+        setSearchQuery("");
+      }}
+      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-bakery-ink transition hover:bg-bakery-cream-light/80 active:opacity-80"
+      aria-label={labels.close}
+    >
+      <X className="h-5 w-5" strokeWidth={2.5} />
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={() => setSearchOpen(true)}
+      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-bakery-ink transition hover:bg-bakery-cream-light/80 active:opacity-80"
+      aria-label={labels.searchOrders}
+    >
+      <Search className="h-5 w-5" strokeWidth={2.5} />
+    </button>
+  );
+
+  const searchField = searchOpen ? (
+    <div className="mb-2 px-0.5">
+      <Input
+        type="search"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder={labels.searchOrdersPlaceholder}
+        autoFocus
+        className="rounded-[14px] border-bakery-border/40 bg-bakery-on-primary text-[15px] font-semibold"
+        aria-label={labels.searchOrdersPlaceholder}
+      />
+    </div>
+  ) : null;
+
+  return {
+    headerEndAction,
+    searchField,
+    searchQuery,
+    hasSearchQuery,
+  };
+}
 
 function OrdersPreviewBanner() {
   return (
@@ -292,6 +372,12 @@ function OrdersActiveSheet({
   previewOnly?: boolean;
 }) {
   const { labels } = useAppLocale();
+  const { headerEndAction, searchField, searchQuery, hasSearchQuery } =
+    useOrdersSheetSearch(open);
+  const filteredOrders = useMemo(
+    () => filterOrdersBySearch(activeOrders, searchQuery),
+    [activeOrders, searchQuery]
+  );
 
   return (
     <DashboardActionSheet
@@ -302,14 +388,18 @@ function OrdersActiveSheet({
       placement="center"
       showBackButton
       warmPanel
+      headerEndAction={headerEndAction}
     >
       {previewOnly ? <OrdersPreviewBanner /> : null}
       <div className={ordersModalListClassName}>
+        {searchField}
         <DashboardOrdersList
-          orders={activeOrders}
+          orders={filteredOrders}
           onStatusChange={onStatusChange}
           onCustomerClick={onCustomerClick}
-          emptyMessage={labels.noActiveOrders}
+          emptyMessage={
+            hasSearchQuery ? labels.noOrderSearchResults : labels.noActiveOrders
+          }
           emptyCompact
         />
       </div>
@@ -329,6 +419,12 @@ function OrdersHistorySheet({
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
 }) {
   const { labels } = useAppLocale();
+  const { headerEndAction, searchField, searchQuery, hasSearchQuery } =
+    useOrdersSheetSearch(open);
+  const filteredOrders = useMemo(
+    () => filterOrdersBySearch(historyOrders, searchQuery),
+    [historyOrders, searchQuery]
+  );
 
   return (
     <DashboardActionSheet
@@ -339,12 +435,18 @@ function OrdersHistorySheet({
       placement="center"
       showBackButton
       warmPanel
+      headerEndAction={headerEndAction}
     >
       <div className={ordersModalListClassName}>
+        {searchField}
         <DashboardOrdersList
-          orders={historyOrders}
+          orders={filteredOrders}
           onCustomerClick={onCustomerClick}
-          emptyMessage={labels.noOrderHistory}
+          emptyMessage={
+            hasSearchQuery
+              ? labels.noOrderSearchResults
+              : labels.noOrderHistory
+          }
           emptyCompact
           showPrices
         />

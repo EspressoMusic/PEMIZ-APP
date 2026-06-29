@@ -25,6 +25,8 @@ export function DashboardActionSheet({
   backButtonOutside = false,
   /** Centered line at top of compact header (e.g. order date). */
   headerNote,
+  /** Opposite corner from back button (e.g. search in history sheet). */
+  headerEndAction,
   /** Full-height sheet from top to bottom; disabled automatically when fitContent. */
   expanded = true,
 }: {
@@ -50,6 +52,7 @@ export function DashboardActionSheet({
   /** עם compact — מציב את «חזרה» מעל המלבן ולא בתוך הכותרת */
   backButtonOutside?: boolean;
   headerNote?: string;
+  headerEndAction?: ReactNode;
   expanded?: boolean;
 }) {
   const { labels } = useAppLocale();
@@ -168,6 +171,9 @@ export function DashboardActionSheet({
             title ? (
               <div className="relative shrink-0 px-3 pb-1 pt-3">
                 <div className="absolute start-2 top-2.5 z-10">{backControl}</div>
+                {headerEndAction ? (
+                  <div className="absolute end-2 top-2.5 z-10">{headerEndAction}</div>
+                ) : null}
                 <h2
                   className={`px-10 text-center font-extrabold leading-tight text-bakery-ink ${
                     compact ? "text-[17px]" : "text-[18px]"

@@ -11,6 +11,7 @@ import {
   getDevPreviewRentalSeller,
 } from "@/lib/dev-preview-data";
 import { parseServiceFromNotes } from "@/lib/customer-appointment-history";
+import { getDashboardLabels } from "@/lib/app-locale";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
 import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
 
@@ -269,4 +270,43 @@ export function isStoreOnlyNotificationKind(
   kind: DashboardNotificationKind
 ): boolean {
   return kind === "new_order" || kind === "low_stock";
+}
+
+export async function loadDashboardNotifications(options: {
+  previewOnly: boolean;
+  businessType: import("@/lib/types").BusinessType;
+  locale: import("@/lib/app-locale").AppLocale;
+}): Promise<DashboardNotification[]> {
+  const { previewOnly, businessType, locale } = options;
+  if (previewOnly) {
+    return loadPreviewDashboardNotifications(businessType, locale);
+  }
+  return fetchLiveDashboardNotifications(businessType);
+}
+
+export function loadPreviewDashboardNotifications(
+  businessType: import("@/lib/types").BusinessType,
+  locale: import("@/lib/app-locale").AppLocale
+): DashboardNotification[] {
+  const labels = getDashboardLabels(locale);
+  if (businessType === "RENTAL") {
+    return buildDevRentalDashboardNotifications(labels);
+  }
+  if (businessType === "APPOINTMENTS") {
+    return buildDevAppointmentsDashboardNotifications(labels);
+  }
+  return buildDevDashboardNotifications(labels);
+}
+
+export async function fetchLiveDashboardNotifications(
+  businessType: import("@/lib/types").BusinessType
+): Promise<DashboardNotification[]> {
+  const res = await fetch("/api/dashboard/notifications");
+  const data = await res.json();
+  if (!res.ok) return [];
+  const items: DashboardNotification[] = data.notifications ?? [];
+  if (businessType === "APPOINTMENTS" || businessType === "RENTAL") {
+    return items.filter((item) => !isStoreOnlyNotificationKind(item.kind));
+  }
+  return items;
 }

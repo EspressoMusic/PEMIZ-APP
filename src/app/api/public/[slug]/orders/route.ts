@@ -184,7 +184,7 @@ export async function POST(
         orderItems
       );
       await grantCustomerPhoneAccess(business.id, phone);
-      return jsonOk({ orderId: order.id, dealApplied: true });
+      return jsonOk({ orderId: order.id, orderNumber: order.orderNumber, dealApplied: true });
     } catch (e) {
       if (e instanceof OrderStockError) return jsonError(e.message);
       throw e;
@@ -223,7 +223,7 @@ export async function POST(
       orderItems
     );
     await grantCustomerPhoneAccess(business.id, phone);
-    return jsonOk({ orderId: order.id });
+    return jsonOk({ orderId: order.id, orderNumber: order.orderNumber });
   } catch (e) {
     if (e instanceof OrderStockError) return jsonError(e.message);
     throw e;

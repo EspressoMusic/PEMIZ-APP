@@ -880,7 +880,7 @@ export function ProductsManager({
     >
       <Input
         name="name"
-        label={labels.productName}
+        label={isServices ? labels.serviceName : labels.productName}
         labelClassName="text-[13px]"
         className={inlineFieldClass}
         required

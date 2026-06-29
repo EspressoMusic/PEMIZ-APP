@@ -19,6 +19,7 @@ export type DashboardOrderItemView = {
 
 export type DashboardOrderView = {
   id: string;
+  orderNumber?: number;
   customerName: string;
   customerPhone: string;
   status: string;
@@ -77,6 +78,11 @@ function DashboardOrderDetails({
 
   return (
     <div className="space-y-2.5 text-start">
+      {order.orderNumber != null ? (
+        <p className="text-center text-[13px] font-bold text-bakery-muted">
+          {labels.orderNumber} #{order.orderNumber}
+        </p>
+      ) : null}
       <div className="flex items-center gap-3 rounded-[16px] border border-bakery-border/30 bg-bakery-cream-light/90 px-3 py-2.5">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-bakery-border/35 bg-bakery-on-primary text-[16px] font-extrabold text-bakery-primary">
           {customerProfileInitial(
@@ -139,7 +145,7 @@ function DashboardOrderDetails({
         <div className="grid grid-cols-2 gap-2 border-t border-bakery-border/25 pt-2.5">
           <Button
             variant="primary"
-            className="min-h-[34px] w-full rounded-full px-3 py-1.5 text-[13px] font-extrabold"
+            className="min-h-[38px] w-full rounded-full px-3 py-2 text-[16px] font-extrabold"
             onClick={() => {
               onStatusChange?.(order.id, "CONFIRMED");
               onClose();
@@ -149,7 +155,7 @@ function DashboardOrderDetails({
           </Button>
           <button
             type="button"
-            className="inline-flex min-h-[34px] w-full items-center justify-center rounded-full border border-bakery-error bg-transparent px-3 py-1.5 text-[13px] font-extrabold text-bakery-error transition hover:bg-bakery-error/5 active:scale-[0.99]"
+            className="inline-flex min-h-[38px] w-full items-center justify-center rounded-full border border-bakery-error bg-transparent px-3 py-2 text-[16px] font-extrabold text-bakery-error transition hover:bg-bakery-error/5 active:scale-[0.99]"
             onClick={() => {
               onStatusChange?.(order.id, "CANCELLED");
               onClose();

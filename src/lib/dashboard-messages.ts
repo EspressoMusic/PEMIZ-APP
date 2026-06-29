@@ -111,6 +111,16 @@ export type DashboardLabels = {
   notificationOpenProducts: string;
   notificationStockOut: string;
   notificationStockLeft: string;
+  sellerNudgeManyInquiries: string;
+  sellerNudgeInquiry: string;
+  sellerNudgeManyOrders: string;
+  sellerNudgeOrder: string;
+  sellerNudgeManyChats: string;
+  sellerNudgeChat: string;
+  sellerNudgeManyAppointments: string;
+  sellerNudgeAppointment: string;
+  sellerNudgeLowStock: string;
+  sellerNudgePreviewDemo: string;
   accountAndLink: string;
   storePanelsTitle: string;
   storePanelDeals: string;
@@ -178,6 +188,10 @@ export type DashboardLabels = {
   completed: string;
   cancelled: string;
   order: string;
+  orderNumber: string;
+  searchOrders: string;
+  searchOrdersPlaceholder: string;
+  noOrderSearchResults: string;
   unit: string;
   units: string;
   customer: string;
@@ -436,6 +450,7 @@ export type DashboardLabels = {
   confirmDeleteFaq: string;
   confirmDeleteDeal: string;
   productName: string;
+  serviceName: string;
   productPrice: string;
   productDescription: string;
   productDiscount: string;
@@ -661,6 +676,10 @@ const HE: DashboardLabels = {
   completed: "הושלם",
   cancelled: "בוטל",
   order: "הזמנה",
+  orderNumber: "מספר הזמנה",
+  searchOrders: "חיפוש הזמנה",
+  searchOrdersPlaceholder: "שם או מספר הזמנה",
+  noOrderSearchResults: "לא נמצאו הזמנות לחיפוש",
   unit: "יחידה",
   units: "יחידות",
   customer: "לקוח",
@@ -952,6 +971,7 @@ const HE: DashboardLabels = {
   confirmDeleteFaq: "למחוק שאלה זו?",
   confirmDeleteDeal: "למחוק את הדיל?",
   productName: "שם",
+  serviceName: "שם שירות",
   productPrice: "מחיר",
   productDescription: "תיאור",
   productDiscount: "הנחה",
@@ -1150,6 +1170,16 @@ const HE: DashboardLabels = {
   notificationOpenProducts: "לניהול מוצרים",
   notificationStockOut: "אזל מהמלאי",
   notificationStockLeft: "נשארו {n}",
+  sellerNudgeManyInquiries: "וואו, יש הרבה פניות שמחכות לטיפול!",
+  sellerNudgeInquiry: "יש פנייה חדשה שמחכה לתשובה",
+  sellerNudgeManyOrders: "כמה הזמנות מחכות לאישור שלך",
+  sellerNudgeOrder: "יש הזמנה חדשה שמחכה לאישור",
+  sellerNudgeManyChats: "יש הודעות צ'אט שלא טיפלת בהן",
+  sellerNudgeChat: "יש הודעה חדשה בצ'אט",
+  sellerNudgeManyAppointments: "יש כמה תורים חדשים לבדיקה",
+  sellerNudgeAppointment: "יש תור חדש שמחכה לאישור",
+  sellerNudgeLowStock: "שימי לב — יש מוצרים במלאי נמוך",
+  sellerNudgePreviewDemo: "וואו, יש הרבה פניות שמחכות לטיפול!",
   customerPreview: "תצוגת לקוח →",
   viewCustomerSide: "לראות את צד הלקוח",
   broadcastMessage: "תוכן ההודעה",
@@ -1275,6 +1305,10 @@ const EN: DashboardLabels = {
   completed: "Completed",
   cancelled: "Cancelled",
   order: "Order",
+  orderNumber: "Order number",
+  searchOrders: "Search orders",
+  searchOrdersPlaceholder: "Name or order number",
+  noOrderSearchResults: "No orders match your search",
   unit: "unit",
   units: "units",
   customer: "customer",
@@ -1567,6 +1601,7 @@ const EN: DashboardLabels = {
   confirmDeleteFaq: "Delete this question?",
   confirmDeleteDeal: "Delete this deal?",
   productName: "Name",
+  serviceName: "Service name",
   productPrice: "Price",
   productDescription: "Description",
   productDiscount: "Discount",
@@ -1764,6 +1799,16 @@ const EN: DashboardLabels = {
   notificationOpenProducts: "Manage products",
   notificationStockOut: "Out of stock",
   notificationStockLeft: "{n} left",
+  sellerNudgeManyInquiries: "Wow — quite a few inquiries need your reply!",
+  sellerNudgeInquiry: "A new inquiry is waiting for your reply",
+  sellerNudgeManyOrders: "Several orders are waiting for your approval",
+  sellerNudgeOrder: "A new order is waiting for approval",
+  sellerNudgeManyChats: "You have unread chat messages",
+  sellerNudgeChat: "A new chat message is waiting",
+  sellerNudgeManyAppointments: "Several new appointments to review",
+  sellerNudgeAppointment: "A new appointment is waiting",
+  sellerNudgeLowStock: "Heads up — some products are running low",
+  sellerNudgePreviewDemo: "Wow — quite a few inquiries need your reply!",
   customerPreview: "Customer preview →",
   viewCustomerSide: "View customer store",
   broadcastMessage: "Message",

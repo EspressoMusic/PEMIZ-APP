@@ -123,6 +123,7 @@ export const DEV_PREVIEW_INQUIRIES = [
 export const DEV_PREVIEW_ORDERS = [
   {
     id: "ord-demo-1",
+    orderNumber: 1042,
     customerName: "Barbosa",
     customerPhone: "0586122187",
     customerJoinedAt: "2025-11-12T10:00:00.000Z",
@@ -146,6 +147,7 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-2",
+    orderNumber: 1041,
     customerName: "Shila",
     customerPhone: "0527654321",
     status: "PENDING",
@@ -168,6 +170,7 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-3",
+    orderNumber: 1038,
     customerName: "Yael Cohen",
     customerPhone: "050-1234567",
     status: "CONFIRMED",
@@ -190,6 +193,7 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-4",
+    orderNumber: 1031,
     customerName: "Michal Abraham",
     customerPhone: "054-1112233",
     status: "COMPLETED",
@@ -206,6 +210,7 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-anon",
+    orderNumber: 1028,
     customerName: "",
     customerPhone: "053-4445566",
     status: "COMPLETED",
@@ -222,6 +227,7 @@ export const DEV_PREVIEW_ORDERS = [
   },
   {
     id: "ord-demo-5",
+    orderNumber: 1015,
     customerName: "Danny Levy",
     customerPhone: "052-9876543",
     status: "CANCELLED",
@@ -513,6 +519,7 @@ export const DEV_STORE_BUSINESS = {
         id: "demo-order-history",
         placedAt: "2026-05-28T14:15:00.000Z",
         statusLabel: "Completed",
+        orderNumber: 1028,
         lines: [
           {
             name: "Chocolate Cake",

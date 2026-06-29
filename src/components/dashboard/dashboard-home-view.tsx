@@ -2,6 +2,7 @@
 
 import { DashboardPrepSummary } from "@/components/dashboard/dashboard-prep-summary";
 import { DashboardInquiryBell } from "@/components/dashboard/dashboard-inquiry-bell";
+import { DashboardSellerNudge } from "@/components/dashboard/dashboard-seller-nudge";
 import { DashboardCustomerLinkCard } from "@/components/dashboard/dashboard-customer-link-card";
 import {
   DashboardAppointmentsHomeCalendar,
@@ -81,14 +82,21 @@ export function DashboardHomeView({
       } ${center}`}
     >
       <div className={`${homeStack} shrink-0 ${isAppointments ? "pb-1.5" : "pb-2"}`}>
-        <div className="dashboard-home-header dashboard-home-header--greeting relative flex items-center justify-center px-4 py-4">
-          <div className="absolute end-3 top-1/2 z-10 -translate-y-1/2">
+        <div className="dashboard-home-header dashboard-home-header--greeting relative flex flex-col items-center justify-center px-4 py-3">
+          <div className="absolute end-3 top-3 z-10">
             {inquiryBell}
           </div>
           {ownerName.trim() ? (
-            <h1 className="w-full truncate px-14 text-center text-[18px] font-extrabold leading-tight text-bakery-ink sm:text-[19px]">
-              {labels.hello}, {ownerName.trim()}!
-            </h1>
+            <>
+              <h1 className="w-full truncate px-14 text-center text-[18px] font-extrabold leading-tight text-bakery-ink sm:text-[19px]">
+                {labels.hello}, {ownerName.trim()}!
+              </h1>
+              <DashboardSellerNudge
+                businessSlug={businessSlug}
+                previewOnly={inquiryBellPreview}
+                businessType={businessType}
+              />
+            </>
           ) : (
             <span className="block min-h-[2.75rem] w-full" aria-hidden />
           )}

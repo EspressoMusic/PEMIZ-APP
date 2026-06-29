@@ -129,6 +129,7 @@ model Business {
   ownerId         String   @unique
   owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   termsAcceptedAt DateTime?
+  nextOrderNumber Int      @default(1)
   createdAt       DateTime @default(now())
   products        Product[]
   storeDeals      StoreDeal[]
@@ -224,6 +225,7 @@ model Order {
   id            String      @id @default(cuid())
   businessId    String
   business      Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  orderNumber   Int
   customerName  String
   customerPhone String
   customerEmail String?
@@ -232,6 +234,7 @@ model Order {
   createdAt     DateTime    @default(now())
   items         OrderItem[]
 
+  @@unique([businessId, orderNumber])
   @@index([businessId])
 }
 

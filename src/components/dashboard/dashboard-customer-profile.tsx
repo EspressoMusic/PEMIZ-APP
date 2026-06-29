@@ -231,12 +231,14 @@ export function useDashboardCustomerProfile(options?: {
           d.orders.map(
             (o: {
               id: string;
+              orderNumber?: number;
               customerName: string;
               customerPhone: string;
               status: string;
               createdAt: string;
             }) => ({
               id: o.id,
+              orderNumber: o.orderNumber,
               customerName: o.customerName,
               customerPhone: o.customerPhone,
               status: o.status,

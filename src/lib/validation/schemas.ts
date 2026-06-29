@@ -41,6 +41,7 @@ export function signupSchemaForLocale(locale: AppLocale) {
     phone: buildCustomerPhoneSchema(locale),
     password: z.string().min(8, msg.passwordMinLength).max(128),
     name: z.string().trim().min(2, msg.nameTooShort).max(80),
+    firebaseIdToken: z.string().min(1, msg.googleVerificationRequired),
   });
 }
 

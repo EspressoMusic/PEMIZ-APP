@@ -19,6 +19,8 @@ export type CustomerOrderHistoryEntry = {
   lines: OrderPreviewLine[];
   total: number;
   statusLabel?: string;
+  orderNumber?: number;
+  orderNumbers?: number[];
 };
 
 function storageKey(slug: string) {
@@ -47,6 +49,20 @@ export function appendCustomerOrderHistory(
   const next = [entry, ...prev];
   setCustomerDeviceItem(storageKey(slug), JSON.stringify(next));
   return next;
+}
+
+export function formatCustomerOrderNumbers(
+  orderNumber: number | undefined,
+  orderNumbers: number[] | undefined
+): string | null {
+  const nums =
+    orderNumbers && orderNumbers.length > 0
+      ? orderNumbers
+      : orderNumber != null
+        ? [orderNumber]
+        : [];
+  if (nums.length === 0) return null;
+  return nums.map((n) => `#${n}`).join(", ");
 }
 
 export function formatCustomerOrderDate(

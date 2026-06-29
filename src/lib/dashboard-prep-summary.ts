@@ -120,6 +120,7 @@ export async function getPrepSummaryForBusiness(
 
 export type PendingOrderRecord = {
   id: string;
+  orderNumber: number;
   customerName: string;
   customerPhone: string;
   status: string;
@@ -159,6 +160,7 @@ export function mapPendingOrdersFromRecords(
   };
   return records.map((o) => ({
     id: o.id,
+    orderNumber: o.orderNumber,
     customerName: o.customerName,
     customerPhone: o.customerPhone,
     status: o.status,

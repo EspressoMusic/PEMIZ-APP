@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Piece = {
   id: number;
@@ -12,12 +12,18 @@ type Piece = {
 };
 
 export function DashboardConfettiBackground({ active }: { active: boolean }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const reducedMotion =
-    typeof window !== "undefined" &&
+    mounted &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const pieces = useMemo<Piece[]>(() => {
-    if (reducedMotion) return [];
+    if (!mounted || !active || reducedMotion) return [];
     const colors = ["#e6d4b8", "#5c4a3e", "#c9b89a", "#43a047", "#7eb8ff", "#f4f0e8"];
     return Array.from({ length: 24 }, (_, id) => ({
       id,
@@ -27,9 +33,9 @@ export function DashboardConfettiBackground({ active }: { active: boolean }) {
       color: colors[id % colors.length]!,
       size: 5 + Math.floor(Math.random() * 7),
     }));
-  }, [active, reducedMotion]);
+  }, [active, mounted, reducedMotion]);
 
-  if (!active || reducedMotion || pieces.length === 0) return null;
+  if (!active || !mounted || reducedMotion || pieces.length === 0) return null;
 
   return (
     <div

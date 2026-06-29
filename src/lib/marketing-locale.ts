@@ -96,6 +96,16 @@ export type MarketingCopy = {
   authSignupError: string;
   authServerError: string;
   authNetworkError: string;
+  authGoogleButton: string;
+  authGoogleLoading: string;
+  authGoogleError: string;
+  authGoogleCancelled: string;
+  authGoogleNotConfigured: string;
+  authGoogleSignupSub: string;
+  authGoogleLoginSub: string;
+  authGoogleTermsPrefix: string;
+  authGoogleTermsMiddle: string;
+  authGoogleTermsSuffix: string;
   onboardTitle: string;
   onboardBusinessName: string;
   onboardDescription: string;
@@ -251,6 +261,16 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     authSignupError: "Could not create account",
     authServerError: "Temporary server issue. Please try again later.",
     authNetworkError: "No server connection — check your internet and try again",
+    authGoogleButton: "Continue with Google",
+    authGoogleLoading: "Signing in…",
+    authGoogleError: "Google sign-in failed — try again",
+    authGoogleCancelled: "Google sign-in was cancelled",
+    authGoogleNotConfigured: "Google sign-in is not available right now",
+    authGoogleSignupSub: "Free sign-up with your Google account",
+    authGoogleLoginSub: "Sign in with your Google account",
+    authGoogleTermsPrefix: "By continuing with Google, you agree to the",
+    authGoogleTermsMiddle: "and",
+    authGoogleTermsSuffix: ".",
     onboardTitle: "Open your business",
     onboardBusinessName: "Business name",
     onboardDescription: "Short description",
@@ -403,6 +423,16 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     authSignupError: "לא הצלחנו ליצור חשבון",
     authServerError: "תקלה זמנית בשרת. נסה שוב מאוחר יותר.",
     authNetworkError: "אין חיבור לשרת — בדוק את האינטרנט ונסה שוב",
+    authGoogleButton: "המשך עם Google",
+    authGoogleLoading: "מתחבר…",
+    authGoogleError: "התחברות עם Google נכשלה — נסו שוב",
+    authGoogleCancelled: "התחברות Google בוטלה",
+    authGoogleNotConfigured: "כניסה עם Google לא זמינה כרגע",
+    authGoogleSignupSub: "הרשמה חינמית עם חשבון Google",
+    authGoogleLoginSub: "התחברות עם חשבון Google",
+    authGoogleTermsPrefix: "בלחיצה על \"המשך עם Google\" את/ה מסכים/ה ל",
+    authGoogleTermsMiddle: "ול",
+    authGoogleTermsSuffix: ".",
     onboardTitle: "פתיחת העסק שלך",
     onboardBusinessName: "שם העסק",
     onboardDescription: "תיאור קצר",

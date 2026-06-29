@@ -43,6 +43,7 @@ const EN = {
   deviceDataNote:
     "Orders, appointments and customer details are stored securely with the business owner — not only on your device.",
   orderDetails: "Order details",
+  orderNumber: "Order number",
   orderAgain: "Order again",
   noPastOrders: "No past orders",
   noSlots: "No appointments available.",
@@ -260,6 +261,7 @@ const HE: typeof EN = {
   deviceDataNote:
     "הזמנות, תורים ופרטי לקוח נשמרים בצורה מאובטחת אצל בעל העסק — לא רק במכשיר שלך.",
   orderDetails: "פרטי הזמנה",
+  orderNumber: "מספר הזמנה",
   orderAgain: "הזמן שוב",
   noPastOrders: "אין הזמנות קודמות",
   noSlots: "אין תורים זמינים.",

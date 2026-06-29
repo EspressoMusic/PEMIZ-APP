@@ -3,11 +3,37 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Input, Alert, Panel, PageTitle, Toggle } from "@/components/ui";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { Alert, Panel } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { useMarketingLocale } from "@/components/marketing/marketing-locale-provider";
 import { localizeAuthError } from "@/lib/auth-messages";
+import { getFirebaseAuth, isFirebaseClientConfigured } from "@/lib/firebase/client";
+import { extractFirebaseErrorCode } from "@/lib/firebase/phone-auth-dev";
+
+function GoogleIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true" className="shrink-0">
+      <path
+        fill="#FFC107"
+        d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.083 36 24 36c-5.522 0-10-4.478-10-10s4.478-10 10-10c2.484 0 4.735.91 6.471 2.419l6.313-6.313C33.468 9.254 28.977 7 24 7 13.507 7 5 15.507 5 26s8.507 19 19 19 19-8.507 19-19c0-1.341-.138-2.65-.389-3.917z"
+      />
+      <path
+        fill="#FF3D00"
+        d="M6.306 14.691l7.031 5.155C15.655 16.108 19.561 13 24 13c2.484 0 4.735.91 6.471 2.419l6.313-6.313C33.468 9.254 28.977 7 24 7 13.507 7 5 15.507 5 26c0 3.017.805 5.847 2.212 8.291z"
+      />
+      <path
+        fill="#4CAF50"
+        d="M24 45c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 36.091 26.715 37 24 37c-5.202 0-9.619-3.317-11.283-7.946l-7.016 5.404C7.954 39.556 15.455 45 24 45z"
+      />
+      <path
+        fill="#1976D2"
+        d="M43.611 20.083H42V20H24v8h11.303c-1.005 2.947-3.343 5.089-6.303 5.089v6h10.611c5.953-5.488 9.389-13.574 9.389-23.089 0-1.341-.138-2.65-.389-3.917z"
+      />
+    </svg>
+  );
+}
 
 export function AuthForm({
   mode,
@@ -22,7 +48,6 @@ export function AuthForm({
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [signupConfetti, setSignupConfetti] = useState(mode === "signup");
 
   useEffect(() => {
@@ -38,64 +63,53 @@ export function AuthForm({
     return () => window.clearTimeout(timer);
   }, [mode]);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function signInWithGoogle() {
     setError("");
-    if (mode === "signup" && !acceptTerms) {
-      setError(copy.onboardTermsError);
+    if (!isFirebaseClientConfigured()) {
+      setError(copy.authGoogleNotConfigured);
       return;
     }
-    setLoading(true);
-    const fd = new FormData(e.currentTarget);
-    const payload =
-      mode === "signup"
-        ? {
-            phone: fd.get("phone"),
-            password: fd.get("password"),
-            name: fd.get("name"),
-          }
-        : {
-            identifier: fd.get("identifier"),
-            password: fd.get("password"),
-          };
 
+    setLoading(true);
     try {
-      const res = await fetch(`/api/auth/${mode}`, {
+      const auth = getFirebaseAuth();
+      if (!auth) {
+        setError(copy.authGoogleNotConfigured);
+        return;
+      }
+
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      const result = await signInWithPopup(auth, provider);
+      const firebaseIdToken = await result.user.getIdToken(true);
+      await signOut(auth).catch(() => {});
+
+      const res = await fetch("/api/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          firebaseIdToken,
+          allowCreate: mode === "signup",
+        }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
-        role?: string;
         hasBusiness?: boolean;
         redirectTo?: string;
       };
 
       if (!res.ok) {
-        if (res.status >= 500 && data.error) {
-          setError(localizeAuthError(data.error, locale));
-          return;
-        }
         setError(
           localizeAuthError(
             data.error ??
-              (res.status === 401
-                ? mode === "login"
-                  ? copy.authLoginError
-                  : copy.authSignupError
-                : res.status >= 500
-                  ? copy.authServerError
-                  : copy.authSignupError),
+              (mode === "login" ? copy.authLoginError : copy.authSignupError),
             locale
           )
         );
         return;
       }
 
-      if (mode === "signup") {
-        router.push("/onboarding");
-      } else if (data.redirectTo) {
+      if (data.redirectTo) {
         router.push(data.redirectTo);
       } else if (data.hasBusiness === false) {
         router.push("/onboarding");
@@ -103,8 +117,19 @@ export function AuthForm({
         router.push("/dashboard");
       }
       router.refresh();
-    } catch {
-      setError(copy.authNetworkError);
+    } catch (err) {
+      const code = extractFirebaseErrorCode(err);
+      if (
+        code === "auth/popup-closed-by-user" ||
+        code === "auth/cancelled-popup-request"
+      ) {
+        setError(copy.authGoogleCancelled);
+      } else {
+        if (process.env.NODE_ENV === "development") {
+          console.error("[Linky google auth]", code || err);
+        }
+        setError(copy.authGoogleError);
+      }
     } finally {
       setLoading(false);
     }
@@ -113,111 +138,51 @@ export function AuthForm({
   return (
     <WebShell lockViewport>
       {mode === "signup" && <DashboardConfettiBackground active={signupConfetti} />}
-      <div className="auth-surface mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
-        <Panel className="dashboard-card sm:p-8">
-          <PageTitle>
+      <div className="auth-surface mx-auto flex w-full max-w-[min(100%,24rem)] flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
+        <Panel className="dashboard-card flex aspect-square w-full flex-col items-center justify-center gap-8 px-7 py-9 sm:gap-10 sm:px-10 sm:py-11">
+          <h1 className="text-center text-[28px] font-extrabold leading-tight text-bakery-ink sm:text-[32px]">
             {mode === "login" ? copy.authSignInTitle : copy.authCreateAccountTitle}
-          </PageTitle>
-          {error && (
-            <div className="mb-4">
+          </h1>
+          {error ? (
+            <div className="w-full">
               <Alert variant="error">{error}</Alert>
             </div>
-          )}
-          {info && (
-            <div className="mb-4">
+          ) : null}
+          {info ? (
+            <div className="w-full">
               <Alert variant="success">{info}</Alert>
             </div>
-          )}
-          <form onSubmit={onSubmit} className="space-y-3">
-            {mode === "signup" && (
-              <Input
-                name="name"
-                label={copy.authFullName}
-                required
-                autoComplete="name"
-              />
-            )}
+          ) : null}
+          <div className="w-full space-y-6">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => void signInWithGoogle()}
+              className="flex min-h-[58px] w-full items-center justify-center gap-3 rounded-full border-2 border-bakery-border bg-white px-5 py-4 text-[17px] font-bold text-bakery-ink shadow-sm transition hover:bg-bakery-surface disabled:opacity-60 sm:min-h-[62px] sm:text-[18px]"
+            >
+              <GoogleIcon />
+              {loading ? copy.authGoogleLoading : copy.authGoogleButton}
+            </button>
             {mode === "signup" ? (
-              <Input
-                name="phone"
-                type="tel"
-                label={copy.authMobilePhone}
-                required
-                autoComplete="tel"
-                dir="ltr"
-                placeholder="050-1234567"
-              />
-            ) : (
-              <Input
-                name="identifier"
-                type="tel"
-                label={copy.authPhone}
-                required
-                autoComplete="tel"
-                dir="ltr"
-                placeholder="050-1234567"
-              />
-            )}
-            <Input
-              name="password"
-              type="password"
-              label={copy.authPassword}
-              required
-              minLength={6}
-              autoComplete={
-                mode === "login" ? "current-password" : "new-password"
-              }
-              dir="ltr"
-            />
-            {mode === "login" ? (
-              <p className="text-end">
+              <p className="text-center text-[14px] leading-relaxed text-bakery-muted sm:text-[15px]">
+                {copy.authGoogleTermsPrefix}{" "}
                 <Link
-                  href="/forgot-password"
-                  className="text-[14px] font-bold text-bakery-primary underline-offset-2 hover:underline"
+                  href="/terms"
+                  className="font-bold text-bakery-ink hover:underline"
                 >
-                  {copy.authForgotPassword}
+                  {locale === "he" ? "תנאי השימוש" : "Terms of Service"}
+                </Link>{" "}
+                {copy.authGoogleTermsMiddle}{" "}
+                <Link
+                  href="/privacy"
+                  className="font-bold text-bakery-ink hover:underline"
+                >
+                  {locale === "he" ? "מדיניות הפרטיות" : "Privacy Policy"}
                 </Link>
+                {copy.authGoogleTermsSuffix}
               </p>
             ) : null}
-            {mode === "signup" ? (
-              <div className="flex items-start justify-between gap-3 pt-1 text-[13px] leading-[1.45]">
-                <span className="min-w-0 flex-1 text-bakery-muted">
-                  {copy.onboardAcceptTermsPrefix}{" "}
-                  <Link
-                    href="/terms"
-                    className="font-bold text-bakery-ink hover:underline"
-                  >
-                    {locale === "he" ? "תנאי השימוש" : "Terms of Service"}
-                  </Link>{" "}
-                  {copy.onboardAcceptTermsMiddle}{" "}
-                  <Link
-                    href="/privacy"
-                    className="font-bold text-bakery-ink hover:underline"
-                  >
-                    {locale === "he" ? "מדיניות הפרטיות" : "Privacy Policy"}
-                  </Link>
-                  {copy.onboardAcceptTermsSuffix}
-                </span>
-                <Toggle
-                  enabled={acceptTerms}
-                  onChange={setAcceptTerms}
-                  ariaLabel={copy.onboardAcceptTermsAria}
-                  variant="auth"
-                />
-              </div>
-            ) : null}
-            <Button
-              type="submit"
-              className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home mt-2 !w-full !rounded-full !shadow-none hover:!opacity-100"
-              disabled={loading}
-            >
-              {loading
-                ? copy.authLoading
-                : mode === "login"
-                  ? copy.authSubmitSignIn
-                  : copy.authSubmitSignUp}
-            </Button>
-          </form>
+          </div>
         </Panel>
         {footer}
       </div>

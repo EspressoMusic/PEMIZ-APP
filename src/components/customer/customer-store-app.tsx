@@ -78,6 +78,7 @@ import type { PublicStoreDeal } from "@/lib/public-deals";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 import {
   appendCustomerOrderHistory,
+  formatCustomerOrderNumbers,
   loadCustomerOrderHistory,
   type CustomerOrderHistoryEntry,
 } from "@/lib/customer-order-history";
@@ -303,6 +304,7 @@ type DemoOrderPreview = {
   statusLabel: string;
   lines: OrderPreviewLine[];
   total: number;
+  orderNumber?: number;
 };
 
 export function CustomerStoreApp({
@@ -965,6 +967,7 @@ export function CustomerStoreApp({
       customerName: name,
       customerPhone: phone,
     };
+    const placedOrderNumbers: number[] = [];
 
     for (const deal of cartDeals) {
       const res = await fetch(`/api/public/${business.slug}/orders`, {
@@ -981,6 +984,12 @@ export function CustomerStoreApp({
             (locale === "he" ? "שגיאה בשליחת ההזמנה" : "Could not place order")
         );
         return;
+      }
+      const data = (await res.json().catch(() => ({}))) as {
+        orderNumber?: number;
+      };
+      if (typeof data.orderNumber === "number") {
+        placedOrderNumbers.push(data.orderNumber);
       }
     }
 
@@ -1006,9 +1015,19 @@ export function CustomerStoreApp({
         );
         return;
       }
+      const data = (await res.json().catch(() => ({}))) as {
+        orderNumber?: number;
+      };
+      if (typeof data.orderNumber === "number") {
+        placedOrderNumbers.push(data.orderNumber);
+      }
     } else {
       setOrderSubmitting(false);
     }
+
+    orderSnapshot.orderNumbers =
+      placedOrderNumbers.length > 0 ? placedOrderNumbers : undefined;
+    orderSnapshot.orderNumber = placedOrderNumbers[0];
 
     setCustomerName(name);
     setOrderPhone(phone);
@@ -2090,6 +2109,18 @@ export function CustomerStoreApp({
       >
         {historyDetailOrder ? (
           <div className="space-y-4">
+            {formatCustomerOrderNumbers(
+              historyDetailOrder.orderNumber,
+              historyDetailOrder.orderNumbers
+            ) ? (
+              <p className="text-center text-[14px] font-bold text-bakery-muted">
+                {labels.orderNumber}{" "}
+                {formatCustomerOrderNumbers(
+                  historyDetailOrder.orderNumber,
+                  historyDetailOrder.orderNumbers
+                )}
+              </p>
+            ) : null}
             <OrderPreviewCard
               lines={historyDetailOrder.lines}
               locale={locale}

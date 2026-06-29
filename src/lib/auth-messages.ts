@@ -17,6 +17,9 @@ export type AuthMessages = {
   passwordMinLength: string;
   invalidData: string;
   nameTooShort: string;
+  googleVerificationRequired: string;
+  googleVerificationFailed: string;
+  firebaseAuthNotConfigured: string;
 };
 
 export const AUTH_MESSAGES: Record<AppLocale, AuthMessages> = {
@@ -32,6 +35,9 @@ export const AUTH_MESSAGES: Record<AppLocale, AuthMessages> = {
     passwordMinLength: "Password must be at least 8 characters",
     invalidData: "Invalid data",
     nameTooShort: "Name must be at least 2 characters",
+    googleVerificationRequired: "Google verification is required",
+    googleVerificationFailed: "Google verification failed — try again",
+    firebaseAuthNotConfigured: "Google sign-in is not configured",
   },
   he: {
     accountExists: "כבר קיים חשבון עם מספר הטלפון הזה",
@@ -45,6 +51,9 @@ export const AUTH_MESSAGES: Record<AppLocale, AuthMessages> = {
     passwordMinLength: "הסיסמה חייבת להכיל לפחות 8 תווים",
     invalidData: "נתונים לא תקינים",
     nameTooShort: "השם חייב להכיל לפחות 2 תווים",
+    googleVerificationRequired: "נדרש אימות Google",
+    googleVerificationFailed: "אימות Google נכשל — נסו שוב",
+    firebaseAuthNotConfigured: "כניסה עם Google לא מוגדרת",
   },
 };
 
