@@ -2,6 +2,19 @@ import type { NextConfig } from "next";
 
 const isProd = process.env.NODE_ENV === "production";
 
+const googleAuthCsp = [
+  "https://apis.google.com",
+  "https://www.gstatic.com",
+].join(" ");
+
+const firebaseAuthConnectCsp = [
+  "https://identitytoolkit.googleapis.com",
+  "https://securetoken.googleapis.com",
+  "https://www.googleapis.com",
+  "https://firebase.googleapis.com",
+  "https://firebaseinstallations.googleapis.com",
+].join(" ");
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -23,11 +36,12 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${googleAuthCsp}`,
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.supabase.co",
+      "img-src 'self' data: blob: https://*.supabase.co https://*.google.com https://*.gstatic.com https://lh3.googleusercontent.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${firebaseAuthConnectCsp}`,
+      "frame-src 'self' https://accounts.google.com https://*.firebaseapp.com https://*.google.com",
       "worker-src 'self'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
