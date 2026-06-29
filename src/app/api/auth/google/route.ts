@@ -54,13 +54,15 @@ export async function POST(req: Request) {
   const { email, name } = verified.identity;
 
   try {
+    let isNewUser = false;
     let user = await prisma.user.findUnique({
       where: { email },
       select: safeUserSelect,
     });
 
     if (!user) {
-      if (!parsed.data.allowCreate) {
+      const allowCreate = parsed.data.allowCreate !== false;
+      if (!allowCreate) {
         return jsonError(msg.noAccountFound, 401);
       }
       if (!(await isSignupEnabled())) {
@@ -80,6 +82,7 @@ export async function POST(req: Request) {
         },
         select: safeUserSelect,
       });
+      isNewUser = true;
     }
 
     const business = await resolveOwnerBusiness(user);
@@ -100,7 +103,7 @@ export async function POST(req: Request) {
       hasBusiness: !!business,
       businessActive: business?.isActive ?? false,
       redirectTo: consolePath,
-      isNewUser: !business,
+      isNewUser,
     });
   } catch (error) {
     return jsonServerError(error, "auth:google");

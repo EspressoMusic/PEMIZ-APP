@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
@@ -35,33 +35,20 @@ function GoogleIcon() {
   );
 }
 
-export function AuthForm({
-  mode,
-  footer,
-}: {
-  mode: "login" | "signup";
-  footer?: ReactNode;
-}) {
+export function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { copy, locale } = useMarketingLocale();
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
-  const [signupConfetti, setSignupConfetti] = useState(mode === "signup");
+  const [confetti, setConfetti] = useState(false);
 
   useEffect(() => {
-    if (mode === "login" && searchParams.get("reset") === "1") {
+    if (searchParams.get("reset") === "1") {
       setInfo(copy.authPasswordResetInfo);
     }
-  }, [mode, searchParams, copy.authPasswordResetInfo]);
-
-  useEffect(() => {
-    if (mode !== "signup") return;
-    setSignupConfetti(true);
-    const timer = window.setTimeout(() => setSignupConfetti(false), 5000);
-    return () => window.clearTimeout(timer);
-  }, [mode]);
+  }, [searchParams, copy.authPasswordResetInfo]);
 
   async function signInWithGoogle() {
     setError("");
@@ -87,26 +74,22 @@ export function AuthForm({
       const res = await fetch("/api/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firebaseIdToken,
-          allowCreate: mode === "signup",
-        }),
+        body: JSON.stringify({ firebaseIdToken }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
         hasBusiness?: boolean;
         redirectTo?: string;
+        isNewUser?: boolean;
       };
 
       if (!res.ok) {
-        setError(
-          localizeAuthError(
-            data.error ??
-              (mode === "login" ? copy.authLoginError : copy.authSignupError),
-            locale
-          )
-        );
+        setError(localizeAuthError(data.error ?? copy.authGoogleError, locale));
         return;
+      }
+
+      if (data.isNewUser) {
+        setConfetti(true);
       }
 
       if (data.redirectTo) {
@@ -137,12 +120,17 @@ export function AuthForm({
 
   return (
     <WebShell lockViewport>
-      {mode === "signup" && <DashboardConfettiBackground active={signupConfetti} />}
+      {confetti ? <DashboardConfettiBackground active={confetti} /> : null}
       <div className="auth-surface mx-auto flex w-full max-w-[min(100%,24rem)] flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel className="dashboard-card flex aspect-square w-full flex-col items-center justify-center gap-8 px-7 py-9 sm:gap-10 sm:px-10 sm:py-11">
-          <h1 className="text-center text-[28px] font-extrabold leading-tight text-bakery-ink sm:text-[32px]">
-            {mode === "login" ? copy.authSignInTitle : copy.authCreateAccountTitle}
-          </h1>
+          <div className="space-y-2 text-center">
+            <h1 className="text-[28px] font-extrabold leading-tight text-bakery-ink sm:text-[32px]">
+              {copy.authGoogleEntryTitle}
+            </h1>
+            <p className="text-[15px] leading-relaxed text-bakery-muted sm:text-[16px]">
+              {copy.authGoogleEntrySub}
+            </p>
+          </div>
           {error ? (
             <div className="w-full">
               <Alert variant="error">{error}</Alert>
@@ -163,28 +151,25 @@ export function AuthForm({
               <GoogleIcon />
               {loading ? copy.authGoogleLoading : copy.authGoogleButton}
             </button>
-            {mode === "signup" ? (
-              <p className="text-center text-[14px] leading-relaxed text-bakery-muted sm:text-[15px]">
-                {copy.authGoogleTermsPrefix}{" "}
-                <Link
-                  href="/terms"
-                  className="font-bold text-bakery-ink hover:underline"
-                >
-                  {locale === "he" ? "תנאי השימוש" : "Terms of Service"}
-                </Link>{" "}
-                {copy.authGoogleTermsMiddle}{" "}
-                <Link
-                  href="/privacy"
-                  className="font-bold text-bakery-ink hover:underline"
-                >
-                  {locale === "he" ? "מדיניות הפרטיות" : "Privacy Policy"}
-                </Link>
-                {copy.authGoogleTermsSuffix}
-              </p>
-            ) : null}
+            <p className="text-center text-[14px] leading-relaxed text-bakery-muted sm:text-[15px]">
+              {copy.authGoogleTermsPrefix}{" "}
+              <Link
+                href="/terms"
+                className="font-bold text-bakery-ink hover:underline"
+              >
+                {locale === "he" ? "תנאי השימוש" : "Terms of Service"}
+              </Link>{" "}
+              {copy.authGoogleTermsMiddle}{" "}
+              <Link
+                href="/privacy"
+                className="font-bold text-bakery-ink hover:underline"
+              >
+                {locale === "he" ? "מדיניות הפרטיות" : "Privacy Policy"}
+              </Link>
+              {copy.authGoogleTermsSuffix}
+            </p>
           </div>
         </Panel>
-        {footer}
       </div>
     </WebShell>
   );

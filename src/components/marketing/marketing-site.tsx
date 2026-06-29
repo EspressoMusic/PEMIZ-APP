@@ -207,7 +207,7 @@ function MarketingSiteContent() {
               </a>
             ))}
             <Link
-              href="/signup"
+              href="/login"
               prefetch={false}
               className="btn btn-primary nav-cta-mobile"
               onClick={() => setNavOpen(false)}
@@ -253,7 +253,7 @@ function MarketingSiteContent() {
               {copy.signIn}
             </Link>
             <Link
-              href="/signup"
+              href="/login"
               prefetch={false}
               className="btn btn-primary nav-cta nav-sign-up"
             >
@@ -314,7 +314,7 @@ function MarketingSiteContent() {
             </p>
 
             <div className="hero-cta" data-reveal="left">
-              <Link href="/signup" prefetch={false} className="btn btn-primary btn-big">
+              <Link href="/login" prefetch={false} className="btn btn-primary btn-big">
                 <span>{copy.startPilot}</span>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M5 12h14M13 6l6 6-6 6" />
@@ -410,7 +410,7 @@ function MarketingSiteContent() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Link href="/signup" prefetch={false} className="btn btn-primary price-btn">
+              <Link href="/login" prefetch={false} className="btn btn-primary price-btn">
                 {copy.joinPilot}
               </Link>
             </article>
@@ -427,7 +427,7 @@ function MarketingSiteContent() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Link href="/signup" prefetch={false} className="btn btn-primary price-btn">
+              <Link href="/login" prefetch={false} className="btn btn-primary price-btn">
                 {copy.getPremium}
               </Link>
             </article>
@@ -452,7 +452,7 @@ function MarketingSiteContent() {
       <section className="app-cta-section" aria-label="Open BiziLink app">
         <div className="container">
           <div className="app-cta-inner" data-reveal="scale">
-            <Link href="/signup" prefetch={false} className="app-cta-link">
+            <Link href="/login" prefetch={false} className="app-cta-link">
               <Image
                 src="/marketing/logo-transparent.png"
                 alt="Open BiziLink app"

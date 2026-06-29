@@ -95,7 +95,7 @@ export function HomeLandingHero() {
             )}
             <div className="flex flex-col items-stretch gap-3 sm:gap-4">
               {signupsEnabled ? (
-                <Link href="/signup" prefetch={false} className="block w-full">
+                <Link href="/login" prefetch={false} className="block w-full">
                   <Button className="bakery-cta-3d bakery-cta-3d--primary bakery-cta-3d--home !w-full !rounded-full !shadow-none hover:!opacity-100">
                     {copy.openStore}
                   </Button>

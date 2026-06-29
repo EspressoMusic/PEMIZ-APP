@@ -76,6 +76,8 @@ export type MarketingCopy = {
   bottomStore: string;
   authSignInTitle: string;
   authCreateAccountTitle: string;
+  authGoogleEntryTitle: string;
+  authGoogleEntrySub: string;
   authFullName: string;
   authMobilePhone: string;
   authPassword: string;
@@ -239,6 +241,8 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     bottomStore: "Store",
     authSignInTitle: "Sign in",
     authCreateAccountTitle: "Create account",
+    authGoogleEntryTitle: "Sign in",
+    authGoogleEntrySub: "Continue with Google — we’ll sign you in or create your account.",
     authFullName: "Full name",
     authMobilePhone: "Mobile phone",
     authPassword: "Password",
@@ -401,6 +405,8 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     bottomStore: "חנות",
     authSignInTitle: "התחברות",
     authCreateAccountTitle: "יצירת חשבון",
+    authGoogleEntryTitle: "כניסה",
+    authGoogleEntrySub: "המשיכו עם Google — נזהה אם יש לכם חשבון או ניצור אחד חדש.",
     authFullName: "שם מלא",
     authMobilePhone: "טלפון נייד",
     authPassword: "סיסמה",

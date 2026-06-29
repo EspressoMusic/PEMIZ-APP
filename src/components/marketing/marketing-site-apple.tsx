@@ -147,7 +147,7 @@ function MarketingSiteAppleContent() {
               {copy.signIn}
             </Link>
             <Link
-              href="/signup"
+              href="/login"
               prefetch={false}
               className="apple-nav-btn apple-nav-btn--primary"
             >
@@ -180,7 +180,7 @@ function MarketingSiteAppleContent() {
             {copy.heroSub}
           </p>
           <div className="apple-hero-cta" data-reveal>
-            <AppleLinkCta href="/signup">{copy.startPilot}</AppleLinkCta>
+            <AppleLinkCta href="/login">{copy.startPilot}</AppleLinkCta>
             <AppleLinkCta
               href="#product"
               onClick={(e) => {
@@ -267,7 +267,7 @@ function MarketingSiteAppleContent() {
             {copy.pricingTitle} {copy.pricingTitleEm}
           </h2>
           <div className="apple-hero-cta" data-reveal>
-            <AppleLinkCta href="/signup">{copy.joinPilot}</AppleLinkCta>
+            <AppleLinkCta href="/login">{copy.joinPilot}</AppleLinkCta>
             <AppleLinkCta
               href="#pricing"
               onClick={(e) => {
@@ -298,7 +298,7 @@ function MarketingSiteAppleContent() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Link href="/signup" prefetch={false} className="apple-price-btn">
+              <Link href="/login" prefetch={false} className="apple-price-btn">
                 {copy.joinPilot}
               </Link>
             </article>
@@ -314,7 +314,7 @@ function MarketingSiteAppleContent() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Link href="/signup" prefetch={false} className="apple-price-btn">
+              <Link href="/login" prefetch={false} className="apple-price-btn">
                 {copy.getPremium}
               </Link>
             </article>
