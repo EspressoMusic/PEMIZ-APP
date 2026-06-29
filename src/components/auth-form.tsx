@@ -162,20 +162,20 @@ export function AuthForm() {
               <GoogleIcon />
               {loading ? copy.authGoogleLoading : copy.authGoogleButton}
             </button>
-            <p className="text-center text-[14px] leading-relaxed text-bakery-muted sm:text-[15px]">
-              {copy.authGoogleTermsPrefix}{" "}
+            <p className="whitespace-nowrap text-center text-[10.5px] leading-tight text-bakery-muted sm:text-[11px]">
+              {copy.authGoogleTermsPrefix}
               <Link
                 href="/terms"
                 className="font-bold text-bakery-ink hover:underline"
               >
-                {locale === "he" ? "תנאי השימוש" : "Terms of Service"}
-              </Link>{" "}
-              {copy.authGoogleTermsMiddle}{" "}
+                {locale === "he" ? "תנאים" : "Terms"}
+              </Link>
+              {copy.authGoogleTermsMiddle}
               <Link
                 href="/privacy"
                 className="font-bold text-bakery-ink hover:underline"
               >
-                {locale === "he" ? "מדיניות הפרטיות" : "Privacy Policy"}
+                {locale === "he" ? "פרטיות" : "Privacy"}
               </Link>
               {copy.authGoogleTermsSuffix}
             </p>
