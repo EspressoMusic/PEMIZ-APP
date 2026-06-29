@@ -76,15 +76,26 @@ export function AuthForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ firebaseIdToken }),
       });
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        hasBusiness?: boolean;
-        redirectTo?: string;
-        isNewUser?: boolean;
-      };
+      const contentType = res.headers.get("content-type") ?? "";
+      const data = contentType.includes("application/json")
+        ? ((await res.json().catch(() => ({}))) as {
+            error?: string;
+            hasBusiness?: boolean;
+            redirectTo?: string;
+            isNewUser?: boolean;
+          })
+        : {};
 
       if (!res.ok) {
-        setError(localizeAuthError(data.error ?? copy.authGoogleError, locale));
+        setError(
+          localizeAuthError(
+            data.error ??
+              (res.status >= 500
+                ? copy.authServerError
+                : copy.authGoogleError),
+            locale
+          )
+        );
         return;
       }
 
