@@ -357,9 +357,6 @@ img { max-width: 100%; display: block; }
 .marketing-site[dir="rtl"] .price-badge {
   font-weight: 700;
 }
-.marketing-site[dir="rtl"] .hero-cta .btn-big svg {
-  transform: scaleX(-1);
-}
 .marketing-site[dir="rtl"] .nav-inner {
   direction: rtl;
 }
@@ -389,6 +386,12 @@ img { max-width: 100%; display: block; }
 .btn-ghost { background: transparent; color: var(--heading); border: 1px solid var(--line); }
 .btn-ghost:hover { background: var(--surface); }
 .btn-big { padding: 16px 30px; font-size: 15px; }
+.hero-cta .btn-hero-cta {
+  padding: 20px 48px;
+  font-size: 19px;
+  font-weight: 700;
+  min-height: 60px;
+}
 
 .menu-toggle { display: none; flex-direction: column; gap: 5px; padding: 8px; z-index: 101; }
 .menu-toggle span { width: 24px; height: 2px; background: var(--heading); border-radius: 2px; transition: transform .35s var(--ease), opacity .25s var(--ease); }

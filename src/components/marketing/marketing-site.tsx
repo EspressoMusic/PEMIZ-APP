@@ -15,7 +15,7 @@ import {
   useMarketingLocale,
 } from "./marketing-locale-provider";
 import { MarketingSideConfetti } from "./marketing-side-confetti";
-import { MarketingLocaleFixedPrice } from "./marketing-plan-price";
+import { MarketingPlanPrice } from "./marketing-plan-price";
 import { MarketingWhatsAppCta } from "./marketing-whatsapp-cta";
 
 const BENEFIT_ICONS = [
@@ -212,14 +212,6 @@ function MarketingSiteContent() {
               className="btn btn-primary nav-cta-mobile"
               onClick={() => setNavOpen(false)}
             >
-              {copy.authSubmitSignUp}
-            </Link>
-            <Link
-              href="/login"
-              prefetch={false}
-              className="btn btn-ghost nav-auth-mobile"
-              onClick={() => setNavOpen(false)}
-            >
               {copy.signIn}
             </Link>
           </nav>
@@ -248,16 +240,9 @@ function MarketingSiteContent() {
             <Link
               href="/login"
               prefetch={false}
-              className="btn btn-ghost nav-sign-in"
+              className="btn btn-primary nav-cta"
             >
               {copy.signIn}
-            </Link>
-            <Link
-              href="/login"
-              prefetch={false}
-              className="btn btn-primary nav-cta nav-sign-up"
-            >
-              {copy.authSubmitSignUp}
             </Link>
             <button
               type="button"
@@ -314,19 +299,9 @@ function MarketingSiteContent() {
             </p>
 
             <div className="hero-cta" data-reveal="left">
-              <Link href="/login" prefetch={false} className="btn btn-primary btn-big">
-                <span>{copy.startPilot}</span>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
+              <Link href="/login" prefetch={false} className="btn btn-primary btn-big btn-hero-cta">
+                {copy.startPilot}
               </Link>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => scrollToSection("contact")}
-              >
-                {copy.contactUs}
-              </button>
             </div>
           </div>
 
@@ -416,9 +391,8 @@ function MarketingSiteContent() {
             </article>
             <article className="price-card price-card--gold" data-reveal="scale" data-tilt>
               <div className="price-badge">{copy.premiumBadge}</div>
-              <MarketingLocaleFixedPrice
-                amountHe={89}
-                amountEn={24}
+              <MarketingPlanPrice
+                planId="premium"
                 locale={locale}
                 period={copy.premiumPeriod}
               />
@@ -481,16 +455,6 @@ function MarketingSiteContent() {
             <p className="contact-lead">{copy.contactLead}</p>
 
             <MarketingWhatsAppCta locale={locale} label={copy.whatsappMegaCta} />
-
-            <div className="contact-channels">
-              <a href="mailto:hello@bizilink.app" className="contact-btn">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 4h16v16H4z" />
-                  <path d="m22 6-10 7L2 6" />
-                </svg>
-                {copy.email}
-              </a>
-            </div>
           </div>
 
           <form className="contact-form" data-reveal="right" onSubmit={handleContactSubmit}>

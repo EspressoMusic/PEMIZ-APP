@@ -296,7 +296,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     startPilot: "התחל פיילוט",
     contactUs: "צור קשר",
     scroll: "גלול",
-    heroTagline: "קישור אחד פשוט לעסק הקטן שלך.",
+    heroTagline: "קישור אחד פשוט לעסק שלך.",
     heroSub: "נהל הזמנות, תורים והודעות לקוחות מלוח בקרה אחד ונקי.",
     eyebrowProduct: "מי אנחנו",
     productTitle: "כל מה שצריך.",

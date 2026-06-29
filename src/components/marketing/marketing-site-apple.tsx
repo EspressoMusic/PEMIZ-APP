@@ -12,6 +12,11 @@ import {
 } from "./marketing-locale-provider";
 import { MarketingWhatsAppCta } from "./marketing-whatsapp-cta";
 import { useMarketingSiteEffects } from "./use-marketing-site-effects";
+import {
+  formatPlanPrice,
+  getSubscriptionPlan,
+  planPrice,
+} from "@/lib/subscription-plans";
 
 function AppleChevron() {
   return (
@@ -143,15 +148,12 @@ function MarketingSiteAppleContent() {
               copy={copy}
               className="apple-nav-btn"
             />
-            <Link href="/login" prefetch={false} className="apple-nav-btn">
-              {copy.signIn}
-            </Link>
             <Link
               href="/login"
               prefetch={false}
               className="apple-nav-btn apple-nav-btn--primary"
             >
-              {copy.startPilot}
+              {copy.signIn}
             </Link>
             <button
               type="button"
@@ -306,7 +308,10 @@ function MarketingSiteAppleContent() {
             <article className="apple-price-card" data-reveal>
               <p className="apple-price-badge">{copy.premiumBadge}</p>
               <p className="apple-price-amount" dir="ltr">
-                {locale === "he" ? "₪89" : "$24"}
+                {formatPlanPrice(
+                  planPrice(getSubscriptionPlan("premium"), locale),
+                  locale
+                )}
               </p>
               <p className="apple-price-period">{copy.premiumPeriod}</p>
               <ul className="apple-price-features">
@@ -354,11 +359,6 @@ function MarketingSiteAppleContent() {
               </h2>
               <p>{copy.contactLead}</p>
               <MarketingWhatsAppCta locale={locale} label={copy.whatsappMegaCta} />
-              <div className="apple-contact-channels">
-                <a href="mailto:hello@bizilink.app" className="apple-contact-channel">
-                  {copy.email}
-                </a>
-              </div>
             </div>
 
             <form

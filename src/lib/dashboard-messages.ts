@@ -1065,7 +1065,7 @@ const HE: DashboardLabels = {
   deleteStoreModalBody:
     "פעולה בלתי הפיכה. כל המוצרים, ההזמנות, השאלות הנפוצות והנתונים של החנות יימחקו לצמיתות ולא ניתן לשחזר אותם.",
   deleteStoreModalBodyNamed:
-    "פעולה בלתי הפיכה. כל המוצרים, ההזמנות, השאלות והנתונים של «{name}» יימחקו לצמיתות ולא ניתן לשחזר אותם.",
+    "פעולה בלתי הפיכה. כל המוצרים, ההזמנות, השאלות והנתונים של {name} יימחקו לצמיתות ולא ניתן לשחזר אותם.",
   deleteStoreModalConfirm: "כן, מחק לצמיתות",
   deleteStoreError: "לא ניתן למחוק את החנות כרגע",
   deleteStorePreviewOnly: "בתצוגה מקומית — מחיקה אינה זמינה",
@@ -1695,7 +1695,7 @@ const EN: DashboardLabels = {
   deleteStoreModalBody:
     "This cannot be undone. All products, orders, FAQs, and store data will be permanently deleted and cannot be recovered.",
   deleteStoreModalBodyNamed:
-    "This cannot be undone. All products, orders, FAQs, and data for «{name}» will be permanently deleted and cannot be recovered.",
+    "This cannot be undone. All products, orders, FAQs, and data for {name} will be permanently deleted and cannot be recovered.",
   deleteStoreModalConfirm: "Yes, delete permanently",
   deleteStoreError: "Could not delete the store",
   deleteStorePreviewOnly: "Preview mode — delete is not available",

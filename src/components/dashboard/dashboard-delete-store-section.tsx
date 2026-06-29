@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { Alert, Button } from "@/components/ui";
+import { Alert } from "@/components/ui";
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import {
@@ -33,14 +33,15 @@ export function DashboardDeleteStoreSection({
 
   function openConfirm() {
     setError("");
-    if (previewOnly) {
-      setError(labels.deleteStorePreviewOnly);
-      return;
-    }
     setConfirmOpen(true);
   }
 
   async function executeDelete() {
+    if (previewOnly) {
+      setConfirmOpen(false);
+      setError(labels.deleteStorePreviewOnly);
+      return;
+    }
     setDeleting(true);
     setError("");
     try {
@@ -108,33 +109,35 @@ export function DashboardDeleteStoreSection({
         onClose={() => !deleting && setConfirmOpen(false)}
         title={labels.deleteStoreModalTitle}
         ariaLabel={labels.deleteStoreModalTitle}
+        placement="center"
+        expanded={false}
+        fitContent
+        panelClassName="w-full max-w-md"
       >
-        <div className="space-y-4 text-center">
+        <div className="space-y-6 px-2 py-2 text-center">
           <p className="text-[15px] font-semibold leading-relaxed text-bakery-ink">
             {modalBody}
           </p>
           {error && (
             <p className="text-[13px] font-semibold text-bakery-error">{error}</p>
           )}
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Button
+          <div className="flex flex-row items-stretch justify-center gap-3">
+            <button
               type="button"
-              variant="secondary"
-              className="w-full sm:flex-1"
               disabled={deleting}
               onClick={() => setConfirmOpen(false)}
+              className="min-h-[48px] min-w-[7.5rem] rounded-xl border-2 border-bakery-border bg-bakery-card px-4 text-[15px] font-extrabold text-bakery-ink transition hover:bg-bakery-surface active:opacity-80 disabled:opacity-50"
             >
               {labels.cancel}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant="secondary"
               disabled={deleting}
-              className="w-full border-bakery-error/45 bg-bakery-card text-bakery-error hover:bg-bakery-error/10 sm:flex-1"
               onClick={() => void executeDelete()}
+              className="min-h-[48px] min-w-[7.5rem] rounded-xl border-2 border-bakery-error/45 bg-bakery-card px-4 text-[15px] font-extrabold text-bakery-error transition hover:bg-bakery-error/10 active:opacity-80 disabled:opacity-50"
             >
               {deleting ? labels.deleting : labels.deleteStoreModalConfirm}
-            </Button>
+            </button>
           </div>
         </div>
       </DashboardActionSheet>
