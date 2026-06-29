@@ -55,6 +55,9 @@ export function parseStoreTheme(value?: string | null): StoreThemeId {
   if (value === "light" || value === "dark" || value === "calm") {
     return value;
   }
+  if (value === "modern") {
+    return "calm";
+  }
   if (
     value &&
     (LEGACY_THEME_IDS as readonly string[]).includes(value)
