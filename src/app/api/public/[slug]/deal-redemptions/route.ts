@@ -4,12 +4,21 @@ import {
   INVALID_PHONE_MESSAGE_HE,
   parseIsraeliMobilePhone,
 } from "@/lib/phone";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  const limited = await enforceRateLimit(
+    req,
+    `deal-redemptions:${slug.toLowerCase()}`,
+    30,
+    60_000
+  );
+  if (limited) return limited;
+
   const phoneRaw = new URL(req.url).searchParams.get("phone") ?? "";
   const phone = parseIsraeliMobilePhone(phoneRaw);
   if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { getEffectivePrice } from "@/lib/product-price";
@@ -31,13 +32,14 @@ import {
   isDealRedemptionLimitReached,
 } from "@/lib/store-deal-redemption";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
-import { grantCustomerPhoneAccess } from "@/lib/customer-phone-access";
 import {
   getPlatformLimits,
   orderItemsLimitMessage,
   totalOrderItemQuantity,
 } from "@/lib/platform-limits";
 import { assertCanAcceptCustomerBooking } from "@/lib/subscription-usage";
+import { requireCustomerGoogleAccess } from "@/lib/customer-google-access";
+import { mapPublicOrdersToHistory } from "@/lib/public-customer-orders";
 
 function afterOrderPlaced(
   businessId: string,
@@ -62,6 +64,79 @@ const schema = z.object({
     )
     .optional(),
 });
+
+function orderStatusLabelHe(status: string): string {
+  switch (status) {
+    case "CONFIRMED":
+      return "אושר";
+    case "COMPLETED":
+      return "הושלם";
+    case "CANCELLED":
+      return "בוטל";
+    default:
+      return "ממתין לאישור";
+  }
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+  const limited = await enforceRateLimit(
+    req,
+    `public:orders:get:${slug.toLowerCase()}`,
+    30,
+    10 * 60 * 1000
+  );
+  if (limited) return limited;
+
+  const business = await prisma.business.findUnique({
+    where: { slug: slug.toLowerCase() },
+    select: { id: true, type: true, isActive: true, storeLocale: true },
+  });
+  if (!business || !business.isActive) return jsonError("עסק לא נמצא", 404);
+  if (business.type !== "STORE") {
+    return jsonError("עסק זה אינו מקבל הזמנות", 400);
+  }
+
+  const access = await requireCustomerGoogleAccess(business.id);
+  if (access instanceof NextResponse) return access;
+
+  const orders = await prisma.order.findMany({
+    where: {
+      businessId: business.id,
+      customerEmail: { equals: access.email, mode: "insensitive" },
+    },
+    include: {
+      items: {
+        include: {
+          product: { select: { name: true, imageUrl: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  const label =
+    business.storeLocale === "en"
+      ? (status: string) => {
+          switch (status) {
+            case "CONFIRMED":
+              return "Confirmed";
+            case "COMPLETED":
+              return "Completed";
+            case "CANCELLED":
+              return "Cancelled";
+            default:
+              return "Pending";
+          }
+        }
+      : orderStatusLabelHe;
+
+  return jsonOk({ orders: mapPublicOrdersToHistory(orders, label) });
+}
 
 export async function POST(
   req: Request,
@@ -183,7 +258,6 @@ export async function POST(
         { id: order.id, customerName: order.customerName },
         orderItems
       );
-      await grantCustomerPhoneAccess(business.id, phone);
       return jsonOk({ orderId: order.id, orderNumber: order.orderNumber, dealApplied: true });
     } catch (e) {
       if (e instanceof OrderStockError) return jsonError(e.message);
@@ -222,7 +296,6 @@ export async function POST(
       { id: order.id, customerName: order.customerName },
       orderItems
     );
-    await grantCustomerPhoneAccess(business.id, phone);
     return jsonOk({ orderId: order.id, orderNumber: order.orderNumber });
   } catch (e) {
     if (e instanceof OrderStockError) return jsonError(e.message);

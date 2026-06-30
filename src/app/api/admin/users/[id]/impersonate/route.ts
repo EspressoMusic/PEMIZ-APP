@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
-import { hasPlatformAdminAccess } from "@/lib/admin-access";
+import { requirePlatformAdmin } from "@/lib/admin-access";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api";
 import type { Role } from "@/lib/types";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
@@ -12,7 +12,8 @@ export async function POST(
   const limited = await enforceRateLimit(_req, "admin:impersonate", 30, 60 * 60 * 1000);
   if (limited) return limited;
 
-  if (!(await hasPlatformAdminAccess())) return jsonError("אין הרשאה", 403);
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
 
   const { id } = await params;
 

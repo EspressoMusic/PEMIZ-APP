@@ -114,6 +114,7 @@ import {
 } from "@/lib/appointment-cancel-policy";
 import { CustomerCenterModal } from "./customer-center-modal";
 import { CustomerPhoneVerification } from "./customer-phone-verification";
+import { CustomerGoogleSignIn } from "./customer-google-sign-in";
 import type { ContactView } from "./customer-contact-modal";
 
 const CustomerContactModal = dynamic(
@@ -389,6 +390,14 @@ export function CustomerStoreApp({
   const [localOrderHistory, setLocalOrderHistory] = useState<
     CustomerOrderHistoryEntry[]
   >([]);
+  const [serverOrderHistory, setServerOrderHistory] = useState<
+    CustomerOrderHistoryEntry[]
+  >([]);
+  const [customerGoogleEmail, setCustomerGoogleEmail] = useState<string | null>(
+    null
+  );
+  const [orderHistoryLoading, setOrderHistoryLoading] = useState(false);
+  const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
   const [historyDetailOrder, setHistoryDetailOrder] =
     useState<CustomerOrderHistoryEntry | null>(null);
   const prevActiveOrderCountRef = useRef(0);
@@ -559,6 +568,63 @@ export function CustomerStoreApp({
     setProfileDraftPhone(orderPhone);
     setProfileSavedFlash(false);
   }, [profileModalOpen, customerName, orderPhone]);
+
+  const loadServerOrderHistory = useCallback(async () => {
+    if (business.slug === "demo-store" || isScheduleLike) return;
+    setOrderHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/public/${business.slug}/orders`, {
+        credentials: "include",
+      });
+      if (res.status === 403) {
+        setServerOrderHistory([]);
+        return;
+      }
+      const data = (await res.json().catch(() => ({}))) as {
+        orders?: CustomerOrderHistoryEntry[];
+      };
+      if (res.ok) setServerOrderHistory(data.orders ?? []);
+    } catch {
+      setServerOrderHistory([]);
+    } finally {
+      setOrderHistoryLoading(false);
+    }
+  }, [business.slug, isScheduleLike]);
+
+  const refreshCustomerGoogleSession = useCallback(async () => {
+    if (business.slug === "demo-store" || isScheduleLike) return;
+    try {
+      const res = await fetch(
+        `/api/public/${business.slug}/customer-auth/status`,
+        { credentials: "include" }
+      );
+      const data = (await res.json().catch(() => ({}))) as { email?: string | null };
+      if (res.ok && data.email) {
+        setCustomerGoogleEmail(data.email);
+        await loadServerOrderHistory();
+      } else {
+        setCustomerGoogleEmail(null);
+        setServerOrderHistory([]);
+      }
+    } catch {
+      setCustomerGoogleEmail(null);
+      setServerOrderHistory([]);
+    }
+  }, [business.slug, isScheduleLike, loadServerOrderHistory]);
+
+  useEffect(() => {
+    if (unavailable || isScheduleLike) return;
+    void refreshCustomerGoogleSession();
+  }, [unavailable, isScheduleLike, refreshCustomerGoogleSession]);
+
+  async function signOutCustomerGoogle() {
+    await fetch(`/api/public/${business.slug}/customer-auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    }).catch(() => {});
+    setCustomerGoogleEmail(null);
+    setServerOrderHistory([]);
+  }
 
   const [profilePhoneError, setProfilePhoneError] = useState("");
 
@@ -841,7 +907,11 @@ export function CustomerStoreApp({
   const orderHistoryList = useMemo(() => {
     const seen = new Set<string>();
     const merged: CustomerOrderHistoryEntry[] = [];
-    for (const order of [...localOrderHistory, ...demoHistoryOrders]) {
+    for (const order of [
+      ...serverOrderHistory,
+      ...localOrderHistory,
+      ...demoHistoryOrders,
+    ]) {
       if (seen.has(order.id)) continue;
       seen.add(order.id);
       merged.push(order);
@@ -849,16 +919,20 @@ export function CustomerStoreApp({
     return merged.sort(
       (a, b) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime()
     );
-  }, [localOrderHistory, demoHistoryOrders]);
+  }, [serverOrderHistory, localOrderHistory, demoHistoryOrders]);
   const visibleOrderHistory = useMemo(
     () =>
-      orderHistoryList.filter((order) =>
-        isWithinCustomerHistoryWindow(order.placedAt)
-      ),
-    [orderHistoryList]
+      customerGoogleEmail
+        ? orderHistoryList
+        : orderHistoryList.filter((order) =>
+            isWithinCustomerHistoryWindow(order.placedAt)
+          ),
+    [orderHistoryList, customerGoogleEmail]
   );
   const orderHistorySuspended =
-    orderHistoryList.length > 0 && visibleOrderHistory.length === 0;
+    !customerGoogleEmail &&
+    orderHistoryList.length > 0 &&
+    visibleOrderHistory.length === 0;
   const activeProductLines = useMemo(
     (): OrderPreviewLine[] =>
       cartLines.map((l) => ({
@@ -966,6 +1040,9 @@ export function CustomerStoreApp({
     const payloadBase = {
       customerName: name,
       customerPhone: phone,
+      ...(customerGoogleEmail
+        ? { customerEmail: customerGoogleEmail }
+        : {}),
     };
     const placedOrderNumbers: number[] = [];
 
@@ -1049,6 +1126,7 @@ export function CustomerStoreApp({
     setOrderSuccessOpen(true);
     const nextHistory = appendCustomerOrderHistory(business.slug, orderSnapshot);
     setLocalOrderHistory(nextHistory);
+    if (customerGoogleEmail) void loadServerOrderHistory();
     setActiveOrdersOpen(false);
   }
 
@@ -1609,6 +1687,69 @@ export function CustomerStoreApp({
     setContactView("menu");
   }
 
+  function renderMyOrderHistorySection() {
+    return (
+      <SettingsCollapsibleSection
+        title={labels.orderHistory}
+        icon={Receipt}
+        expanded={orderHistoryOpen}
+        onToggle={() => setOrderHistoryOpen((open) => !open)}
+      >
+        {!customerGoogleEmail ? (
+          <CustomerGoogleSignIn
+            slug={business.slug}
+            locale={locale}
+            labels={labels}
+            compact
+            onSignedIn={(email) => {
+              setCustomerGoogleEmail(email);
+              void loadServerOrderHistory();
+            }}
+          />
+        ) : (
+          <div className="space-y-3">
+            <p className="text-center text-[13px] font-semibold text-bakery-muted">
+              {labels.googleSignedInAs}{" "}
+              <span dir="ltr" className="font-bold text-bakery-ink">
+                {customerGoogleEmail}
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={() => void signOutCustomerGoogle()}
+              className="mx-auto block text-[13px] font-bold text-bakery-primary underline-offset-2 hover:underline"
+            >
+              {labels.googleSignOut}
+            </button>
+            {orderHistoryLoading ? (
+              <HubEmptyText>{labels.loadingOrderHistory}</HubEmptyText>
+            ) : visibleOrderHistory.length === 0 ? (
+              <HubEmptyText>{labels.noPastOrders}</HubEmptyText>
+            ) : (
+              <ul className="space-y-2">
+                {visibleOrderHistory.map((order) => (
+                  <li key={order.id}>
+                    <OrderHistorySummaryRow
+                      placedAt={order.placedAt}
+                      total={order.total}
+                      locale={locale}
+                      onClick={() => setHistoryDetailOrder(order)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+        {orderHistorySuspended ? (
+          <p className="pt-2 text-center text-[13px] font-semibold leading-relaxed text-bakery-muted">
+            {labels.historySuspended}
+          </p>
+        ) : null}
+      </SettingsCollapsibleSection>
+    );
+  }
+
   function renderMyAppointmentsSection() {
     return (
       <SettingsCollapsibleSection
@@ -1725,7 +1866,7 @@ export function CustomerStoreApp({
               />
             ) : null}
             <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
-              {isScheduleLike ? renderMyAppointmentsSection() : null}
+              {isScheduleLike ? renderMyAppointmentsSection() : renderMyOrderHistorySection()}
               {panels.faq ? (
                 <SettingsMenuRow
                   icon={HelpCircle}

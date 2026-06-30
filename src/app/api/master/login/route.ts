@@ -5,6 +5,10 @@ import {
   getMasterKeyFromEnv,
   verifyMasterKey,
 } from "@/lib/master-auth";
+import {
+  isMasterKeyStrongEnough,
+  isMasterLoginAllowedFromIp,
+} from "@/lib/master-access-guard";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { masterLoginSchema, zodFirstError } from "@/lib/validation/schemas";
 
@@ -12,8 +16,22 @@ export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, "master:login", 8, 15 * 60 * 1000);
   if (limited) return limited;
 
-  if (!getMasterKeyFromEnv()) {
+  if (!isMasterLoginAllowedFromIp(req)) {
+    return jsonError("גישה נחסמה", 403);
+  }
+
+  const masterKey = getMasterKeyFromEnv();
+  if (!masterKey) {
     return jsonError("סיסמת מנהל לא הוגדרה בשרת (MASTER_KEY)", 503);
+  }
+
+  if (
+    process.env.NODE_ENV === "production" &&
+    !isMasterKeyStrongEnough(masterKey)
+  ) {
+    console.error(
+      "[master] MASTER_KEY is shorter than 16 characters — use a long random password and rotate periodically"
+    );
   }
 
   const body = await req.json().catch(() => null);

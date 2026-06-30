@@ -80,6 +80,17 @@ export function rateLimitResponse(retryAfterSec: number) {
 }
 
 /** Apply rate limit; returns a Response to return early, or null to continue. */
+export async function enforceKeyRateLimit(
+  key: string,
+  limit: number,
+  windowMs: number
+): Promise<NextResponse | null> {
+  const result = await checkRateLimitDistributed(key, limit, windowMs);
+  if (!result.ok) return rateLimitResponse(result.retryAfterSec);
+  return null;
+}
+
+/** Apply rate limit; returns a Response to return early, or null to continue. */
 export async function enforceRateLimit(
   req: Request,
   scope: string,

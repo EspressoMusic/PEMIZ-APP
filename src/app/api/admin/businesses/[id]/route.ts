@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { hasPlatformAdminAccess } from "@/lib/admin-access";
+import { requirePlatformAdmin } from "@/lib/admin-access";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api";
 import { deleteBusinessById } from "@/lib/delete-business";
 
@@ -12,7 +12,8 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await hasPlatformAdminAccess())) return jsonError("אין הרשאה", 403);
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
 
   const { id } = await params;
   const body = await req.json().catch(() => null);
@@ -39,7 +40,8 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await hasPlatformAdminAccess())) return jsonError("אין הרשאה", 403);
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
 
   const { id } = await params;
   const existing = await prisma.business.findUnique({ where: { id } });

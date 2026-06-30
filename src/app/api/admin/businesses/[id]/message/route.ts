@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { hasPlatformAdminAccess } from "@/lib/admin-access";
+import { requirePlatformAdmin } from "@/lib/admin-access";
 import { jsonError, jsonOk } from "@/lib/api";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 
@@ -15,7 +15,8 @@ export async function POST(
   const limited = await enforceRateLimit(req, "admin:seller-message", 30, 60 * 60 * 1000);
   if (limited) return limited;
 
-  if (!(await hasPlatformAdminAccess())) return jsonError("אין הרשאה", 403);
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
 
   const { id } = await params;
   const raw = await req.json().catch(() => null);

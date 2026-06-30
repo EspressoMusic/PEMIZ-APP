@@ -214,12 +214,6 @@ export function MasterPanel() {
   }, [authenticated]);
 
   async function checkAuth() {
-    const res = await fetch("/api/master/status");
-    const data = await res.json();
-    if (data.authenticated === true) {
-      setAuthenticated(true);
-      return;
-    }
     const biz = await fetch("/api/admin/businesses");
     if (biz.ok) {
       const bizData = await biz.json();

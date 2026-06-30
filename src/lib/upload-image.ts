@@ -58,7 +58,10 @@ export function isValidRemoteImageUrl(url: string): boolean {
   if (url.length > 2048) return false;
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "https:";
+    if (parsed.protocol !== "https:") return false;
+    if (!parsed.hostname.endsWith(".supabase.co")) return false;
+    const bucket = process.env.SUPABASE_PRODUCT_IMAGE_BUCKET ?? "product-images";
+    return parsed.pathname.startsWith(`/storage/v1/object/public/${bucket}/`);
   } catch {
     return false;
   }

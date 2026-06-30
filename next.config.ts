@@ -15,6 +15,10 @@ const firebaseAuthConnectCsp = [
   "https://firebaseinstallations.googleapis.com",
 ].join(" ");
 
+const scriptSrc = isProd
+  ? `script-src 'self' 'unsafe-inline' ${googleAuthCsp}`
+  : `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${googleAuthCsp}`;
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -36,7 +40,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${googleAuthCsp}`,
+      scriptSrc,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.supabase.co https://*.google.com https://*.gstatic.com https://lh3.googleusercontent.com",
       "font-src 'self' data:",

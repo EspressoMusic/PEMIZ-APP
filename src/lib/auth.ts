@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { randomInt } from "crypto";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { withDbTimeout } from "@/lib/db-query-timeout";
@@ -77,5 +78,5 @@ export const getCurrentUser = cache(async (): Promise<SafeUser | null> => {
 });
 
 export function generateOtp(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(randomInt(100_000, 1_000_000));
 }

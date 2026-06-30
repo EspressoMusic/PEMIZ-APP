@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { hasPlatformAdminAccess } from "@/lib/admin-access";
+import { requirePlatformAdmin } from "@/lib/admin-access";
 import { jsonError, jsonOk } from "@/lib/api";
 import { publicBusinessUrl } from "@/lib/business";
 
 export async function GET() {
-  if (!(await hasPlatformAdminAccess())) return jsonError("אין הרשאה", 403);
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
 
   const businesses = await prisma.business.findMany({
     orderBy: { createdAt: "desc" },

@@ -1,6 +1,6 @@
-import { isMasterSession } from "@/lib/master-auth";
-import { jsonOk } from "@/lib/api";
+import { jsonError } from "@/lib/api";
 
+/** Deprecated — use /api/admin/businesses to probe session without leaking master state. */
 export async function GET() {
-  return jsonOk({ authenticated: await isMasterSession() });
+  return jsonError("לא נמצא", 404);
 }

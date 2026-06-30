@@ -6,6 +6,7 @@ import {
   trialExpiredErrorMessage,
 } from "@/lib/business-subscription";
 import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
+import { enforceKeyRateLimit } from "@/lib/security/rate-limit";
 
 type AuthUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 type UserWithBusiness = AuthUser & {
@@ -23,6 +24,15 @@ export async function requireBusinessOwner(): Promise<DashboardAuthResult> {
   }
   if (!user.business) {
     return { ok: false, response: jsonError("אין עסק", 404) };
+  }
+
+  const limited = await enforceKeyRateLimit(
+    `dashboard:${user.id}`,
+    400,
+    60_000
+  );
+  if (limited) {
+    return { ok: false, response: limited };
   }
 
   const session = await getSession();

@@ -1,10 +1,11 @@
 import { z } from "zod";
-import { hasPlatformAdminAccess } from "@/lib/admin-access";
+import { requirePlatformAdmin } from "@/lib/admin-access";
 import { getPlatformConfig, updatePlatformConfig } from "@/lib/platform-config";
 import { jsonError, jsonOk } from "@/lib/api";
 
 export async function GET() {
-  if (!(await hasPlatformAdminAccess())) return jsonError("אין הרשאה", 403);
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
   const config = await getPlatformConfig();
   return jsonOk({
     signupsEnabled: config.signupsEnabled,
@@ -36,7 +37,8 @@ const patchSchema = z
   );
 
 export async function PATCH(req: Request) {
-  if (!(await hasPlatformAdminAccess())) return jsonError("אין הרשאה", 403);
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
 
   const body = await req.json().catch(() => null);
   const parsed = patchSchema.safeParse(body);
