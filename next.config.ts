@@ -57,6 +57,15 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
+  // Inline CSS into the HTML <head> as <style> instead of separate <link>
+  // files. Styles arrive with the page, eliminating the request waterfall that
+  // caused an intermittent unstyled flash (e.g. the white Google button
+  // briefly showing as the beige card behind it) on cold/slow/mobile loads.
+  // Recommended by Next.js for atomic-CSS (Tailwind) apps; CSP already allows
+  // 'unsafe-inline' for style-src.
+  experimental: {
+    inlineCss: true,
+  },
   images: {
     remotePatterns: [
       {
