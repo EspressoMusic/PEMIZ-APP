@@ -108,12 +108,37 @@ export async function DELETE(
   const existing = await findOwnedProduct(ctx.user.business.id, id);
   if (!existing) return jsonError("מוצר לא נמצא", 404);
 
-  await prisma.product.delete({
-    where: { id, businessId: ctx.user.business.id },
+  const orderItemCount = await prisma.orderItem.count({
+    where: { productId: id },
   });
+  if (orderItemCount > 0) {
+    return jsonError(
+      "לא ניתן למחוק מוצר שמופיע בהזמנות. השתמש ב«הסתר» כדי שלא יוצג ללקוחות.",
+      409
+    );
+  }
+
+  const businessId = ctx.user.business.id;
+
+  try {
+    await prisma.$transaction([
+      prisma.storeDeal.updateMany({
+        where: { businessId, productAId: id },
+        data: { productAId: null },
+      }),
+      prisma.storeDeal.updateMany({
+        where: { businessId, productBId: id },
+        data: { productBId: null },
+      }),
+      prisma.storeDealItem.deleteMany({ where: { productId: id } }),
+      prisma.product.delete({ where: { id, businessId } }),
+    ]);
+  } catch {
+    return jsonError("לא ניתן למחוק את המוצר כרגע. נסו «הסתר» במקום.", 409);
+  }
 
   if (ctx.user.business.type === "APPOINTMENTS") {
-    await regenerateAppointmentCalendar(ctx.user.business.id);
+    await regenerateAppointmentCalendar(businessId);
   }
 
   return jsonOk({ ok: true });
