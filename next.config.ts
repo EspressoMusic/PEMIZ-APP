@@ -66,6 +66,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Proxy Firebase Auth handler/iframe so Google sign-in can run on the app's
+  // own domain (NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=peymiz.com) instead of the
+  // default *.firebaseapp.com. Both paths are served by Firebase, not Next.
+  async rewrites() {
+    return [
+      {
+        source: "/__/auth/:path*",
+        destination: "https://peymiz-e5692.firebaseapp.com/__/auth/:path*",
+      },
+      {
+        source: "/__/firebase/:path*",
+        destination: "https://peymiz-e5692.firebaseapp.com/__/firebase/:path*",
+      },
+    ];
+  },
   async headers() {
     return [
       {
