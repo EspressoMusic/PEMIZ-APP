@@ -449,6 +449,8 @@ export type DashboardLabels = {
   liveTourSaveHighlight: string;
   confirmDeleteFaq: string;
   confirmDeleteDeal: string;
+  confirmDeleteProduct: string;
+  productDeleteHasOrders: string;
   productName: string;
   serviceName: string;
   productPrice: string;
@@ -970,6 +972,9 @@ const HE: DashboardLabels = {
   liveTourSaveHighlight: "שמרו בלחיצה על הכפתור המודגש",
   confirmDeleteFaq: "למחוק שאלה זו?",
   confirmDeleteDeal: "למחוק את הדיל?",
+  confirmDeleteProduct: "למחוק את «{name}»? לא ניתן לשחזר.",
+  productDeleteHasOrders:
+    "לא ניתן למחוק מוצר שמופיע בהזמנות. השתמש ב«הסתר» כדי שלא יוצג ללקוחות.",
   productName: "שם",
   serviceName: "שם שירות",
   productPrice: "מחיר",
@@ -1600,6 +1605,9 @@ const EN: DashboardLabels = {
   liveTourSaveHighlight: "Save using the highlighted button",
   confirmDeleteFaq: "Delete this question?",
   confirmDeleteDeal: "Delete this deal?",
+  confirmDeleteProduct: "Delete «{name}»? This cannot be undone.",
+  productDeleteHasOrders:
+    "This product appears in orders and cannot be deleted. Use Hide instead.",
   productName: "Name",
   serviceName: "Service name",
   productPrice: "Price",

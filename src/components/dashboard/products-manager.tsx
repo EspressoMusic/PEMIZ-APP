@@ -531,6 +531,11 @@ export function ProductsManager({
   );
   const [successOpen, setSuccessOpen] = useState(false);
   const [successName, setSuccessName] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState(false);
 
   const load = useCallback(async () => {
     if (previewOnly) return;
@@ -825,31 +830,41 @@ export function ProductsManager({
     [previewOnly, products, labels.saveError]
   );
 
-  const deleteProduct = useCallback(
-    async (id: string, name: string) => {
-      const msg =
-        locale === "he"
-          ? `למחוק את «${name}»?`
-          : `Delete «${name}»?`;
-      if (!confirm(msg)) return;
+  const requestDeleteProduct = useCallback((id: string, name: string) => {
+    setError("");
+    setDeleteTarget({ id, name });
+  }, []);
 
-      if (previewOnly) {
-        setProducts((prev) => prev.filter((p) => p.id !== id));
-        return;
-      }
+  const executeDeleteProduct = useCallback(async () => {
+    if (!deleteTarget) return;
+    const { id } = deleteTarget;
 
-      const prev = products;
-      setProducts((list) => list.filter((p) => p.id !== id));
-      const res = await fetch(`/api/dashboard/products/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        setProducts(prev);
-        setError(labels.saveError);
-      }
-    },
-    [previewOnly, products, locale, labels.saveError]
-  );
+    if (previewOnly) {
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      setDeleteTarget(null);
+      return;
+    }
+
+    setDeletingProduct(true);
+    const prev = products;
+    setProducts((list) => list.filter((p) => p.id !== id));
+
+    const res = await fetch(`/api/dashboard/products/${id}`, {
+      method: "DELETE",
+    });
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+
+    setDeletingProduct(false);
+
+    if (!res.ok) {
+      setProducts(prev);
+      setError(data.error ?? labels.saveError);
+      setDeleteTarget(null);
+      return;
+    }
+
+    setDeleteTarget(null);
+  }, [deleteTarget, previewOnly, products, labels.saveError]);
 
   const productsGrid = (
     <div className="grid grid-cols-2 gap-2">
@@ -862,7 +877,7 @@ export function ProductsManager({
           formatMoney={formatMoney}
           previewOnly={previewOnly}
           onHide={() => void setProductActive(p.id, p.isActive)}
-          onDelete={() => void deleteProduct(p.id, p.name)}
+          onDelete={() => requestDeleteProduct(p.id, p.name)}
           onStockSave={(stock) => updateProductStock(p.id, stock)}
           onImagesSave={(urls) => updateProductImages(p.id, urls)}
           showStock={!isServices}
@@ -1030,6 +1045,46 @@ export function ProductsManager({
     </DashboardActionSheet>
   );
 
+  const deleteProductSheet = (
+    <DashboardActionSheet
+      open={deleteTarget !== null}
+      onClose={() => !deletingProduct && setDeleteTarget(null)}
+      title={labels.delete}
+      ariaLabel={labels.delete}
+      placement="center"
+      expanded={false}
+      fitContent
+      panelClassName="w-full max-w-md"
+    >
+      <div className="space-y-6 px-2 py-2 text-center">
+        <p className="text-[15px] font-semibold leading-relaxed text-bakery-ink">
+          {labels.confirmDeleteProduct.replace(
+            "{name}",
+            deleteTarget?.name ?? ""
+          )}
+        </p>
+        <div className="flex flex-row items-stretch justify-center gap-3">
+          <button
+            type="button"
+            disabled={deletingProduct}
+            onClick={() => setDeleteTarget(null)}
+            className="min-h-[48px] min-w-[7.5rem] rounded-xl border-2 border-bakery-border bg-bakery-card px-4 text-[15px] font-extrabold text-bakery-ink transition hover:bg-bakery-surface active:opacity-80 disabled:opacity-50"
+          >
+            {labels.cancel}
+          </button>
+          <button
+            type="button"
+            disabled={deletingProduct}
+            onClick={() => void executeDeleteProduct()}
+            className="min-h-[48px] min-w-[7.5rem] rounded-xl border-2 border-bakery-error/45 bg-bakery-card px-4 text-[15px] font-extrabold text-bakery-error transition hover:bg-bakery-error/10 active:opacity-80 disabled:opacity-50"
+          >
+            {deletingProduct ? labels.deleting : labels.delete}
+          </button>
+        </div>
+      </div>
+    </DashboardActionSheet>
+  );
+
   const productFeedback = (
     <>
       <DashboardConfettiBackground active={successOpen} />
@@ -1138,6 +1193,7 @@ export function ProductsManager({
         ) : null}
         {productsListSheet}
         {addFormSheet}
+        {deleteProductSheet}
         {productFeedback}
       </>
     );
@@ -1201,6 +1257,8 @@ export function ProductsManager({
       {addFormSheet}
 
       {productsListSheet}
+
+      {deleteProductSheet}
 
       {productFeedback}
     </div>
