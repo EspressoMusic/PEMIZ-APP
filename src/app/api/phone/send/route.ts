@@ -40,9 +40,11 @@ export async function POST(req: Request) {
     data: { phone },
   });
 
-  const devCode =
-    process.env.NODE_ENV === "development" ? code : undefined;
-  if (process.env.NODE_ENV === "development") {
+  // Only ever expose the raw code on a true local machine — never on Vercel.
+  const isLocalDev =
+    process.env.NODE_ENV === "development" && !process.env.VERCEL_ENV;
+  const devCode = isLocalDev ? code : undefined;
+  if (isLocalDev) {
     console.log(`[Linky OTP] ${phone}: ${code}`);
   }
 

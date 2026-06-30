@@ -25,7 +25,12 @@ function getSecret() {
   if (secret && secret.length >= 32) {
     return new TextEncoder().encode(secret);
   }
-  if (process.env.NODE_ENV !== "production") {
+  // Only allow the well-known fallback on a true local machine. Any real
+  // deployment (NODE_ENV=production OR running on Vercel) must provide a
+  // real secret, even if NODE_ENV was misconfigured.
+  const isDeployed =
+    process.env.NODE_ENV === "production" || !!process.env.VERCEL_ENV;
+  if (!isDeployed) {
     return new TextEncoder().encode(DEV_SESSION_FALLBACK);
   }
   throw new Error("SESSION_SECRET must be at least 32 characters");

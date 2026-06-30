@@ -7,7 +7,6 @@ import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { loginSchemaForLocale, zodFirstError } from "@/lib/validation/schemas";
 import {
   authenticateOwnerLogin,
-  findLoginCandidates,
   resolveOwnerBusiness,
 } from "@/lib/owner-login";
 import { getAuthMessages, readLocaleFromRequest } from "@/lib/auth-messages";
@@ -36,11 +35,9 @@ export async function POST(req: Request) {
   try {
     const user = await authenticateOwnerLogin(identifier, parsed.data.password);
     if (!user) {
-      const candidates = await findLoginCandidates(identifier);
-      if (candidates.length === 0) {
-        return jsonError(msg.noAccountFound, 401);
-      }
-      return jsonError(msg.incorrectPassword, 401);
+      // Unified response: never reveal whether the phone number is registered,
+      // so attackers can't enumerate customer accounts.
+      return jsonError(msg.invalidCredentials, 401);
     }
 
     const business = await resolveOwnerBusiness(user);

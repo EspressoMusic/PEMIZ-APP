@@ -12,12 +12,17 @@ export async function sendPublicPhoneOtp(businessId: string, phone: string) {
     data: { businessId, phone, code, expiresAt },
   });
 
-  if (process.env.NODE_ENV === "development") {
+  // Only ever expose the raw code on a true local machine — never on Vercel,
+  // even if NODE_ENV was somehow set to "development" on a deployment.
+  const isLocalDev =
+    process.env.NODE_ENV === "development" && !process.env.VERCEL_ENV;
+
+  if (isLocalDev) {
     console.log(`[Linky customer OTP] business=${businessId} phone=${phone} code=${code}`);
   }
 
   return {
-    devCode: process.env.NODE_ENV === "development" ? code : undefined,
+    devCode: isLocalDev ? code : undefined,
   };
 }
 

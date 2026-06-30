@@ -13,6 +13,7 @@ export type AuthMessages = {
   invalidPhone: string;
   noAccountFound: string;
   incorrectPassword: string;
+  invalidCredentials: string;
   passwordRequired: string;
   passwordMinLength: string;
   invalidData: string;
@@ -31,6 +32,7 @@ export const AUTH_MESSAGES: Record<AppLocale, AuthMessages> = {
     invalidPhone: "Invalid phone number",
     noAccountFound: "No account found with this phone number",
     incorrectPassword: "Incorrect password",
+    invalidCredentials: "Phone number or password is incorrect",
     passwordRequired: "Please enter a password",
     passwordMinLength: "Password must be at least 8 characters",
     invalidData: "Invalid data",
@@ -47,6 +49,7 @@ export const AUTH_MESSAGES: Record<AppLocale, AuthMessages> = {
     invalidPhone: "מספר טלפון לא תקין",
     noAccountFound: "לא נמצא חשבון עם מספר הטלפון הזה",
     incorrectPassword: "סיסמה שגויה",
+    invalidCredentials: "מספר הטלפון או הסיסמה שגויים",
     passwordRequired: "יש להזין סיסמה",
     passwordMinLength: "הסיסמה חייבת להכיל לפחות 8 תווים",
     invalidData: "נתונים לא תקינים",
