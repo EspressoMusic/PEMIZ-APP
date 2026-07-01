@@ -10,7 +10,7 @@ import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-co
 import { useMarketingLocale } from "@/components/marketing/marketing-locale-provider";
 import { localizeAuthError } from "@/lib/auth-messages";
 import { getFirebaseAuth, isFirebaseClientConfigured } from "@/lib/firebase/client";
-import { extractFirebaseErrorCode } from "@/lib/firebase/phone-auth-dev";
+import { extractFirebaseErrorCode } from "@/lib/firebase/config";
 
 function GoogleIcon() {
   return (

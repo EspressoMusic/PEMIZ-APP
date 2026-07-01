@@ -7,7 +7,7 @@ import {
 } from "@/lib/phone";
 import { customerPhoneSchema } from "@/lib/validation/schemas";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
-import { sendPublicPhoneOtp } from "@/lib/public-phone-otp";
+import { grantCustomerPhoneAccess } from "@/lib/customer-phone-access";
 
 const schema = z.object({
   phone: customerPhoneSchema,
@@ -20,8 +20,8 @@ export async function POST(
   const { slug } = await params;
   const limited = await enforceRateLimit(
     req,
-    `public:phone:send:${slug.toLowerCase()}`,
-    5,
+    `public:phone:confirm:${slug.toLowerCase()}`,
+    10,
     15 * 60 * 1000
   );
   if (limited) return limited;
@@ -40,10 +40,7 @@ export async function POST(
   const phone = parseIsraeliMobilePhone(parsed.data.phone);
   if (!phone) return jsonError(INVALID_PHONE_MESSAGE_HE);
 
-  const { devCode } = await sendPublicPhoneOtp(business.id, phone);
+  await grantCustomerPhoneAccess(business.id, phone);
 
-  return jsonOk({
-    message: "קוד אימות נשלח",
-    devCode,
-  });
+  return jsonOk({ confirmed: true });
 }

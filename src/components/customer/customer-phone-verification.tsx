@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input } from "@/components/ui";
+import { Button } from "@/components/ui";
 import type { CustomerLabels } from "@/components/customer/customer-labels";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { parseIsraeliMobilePhone } from "@/lib/phone";
@@ -21,55 +21,23 @@ export function CustomerPhoneVerification({
   onVerified: () => void;
   compact?: boolean;
 }) {
-  const [code, setCode] = useState("");
-  const [sending, setSending] = useState(false);
-  const [verifying, setVerifying] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
-  const [sent, setSent] = useState(false);
 
   const phoneNorm = parseIsraeliMobilePhone(phone);
   if (!phoneNorm) return null;
 
-  async function sendOtp() {
+  async function confirm() {
     setError("");
-    setSending(true);
+    setConfirming(true);
     try {
-      const res = await fetch(`/api/public/${slug}/phone/send`, {
+      const res = await fetch(`/api/public/${slug}/phone/confirm`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: phoneNorm }),
       });
-      const data = (await res.json()) as { error?: string; devCode?: string };
-      if (!res.ok) {
-        setError(data.error ?? labels.phoneVerifySendError);
-        return;
-      }
-      setSent(true);
-      if (data.devCode) setCode(data.devCode);
-    } catch {
-      setError(labels.phoneVerifySendError);
-    } finally {
-      setSending(false);
-    }
-  }
-
-  async function verify() {
-    const trimmed = code.trim();
-    if (trimmed.length < 4) {
-      setError(labels.phoneVerifyCodeRequired);
-      return;
-    }
-    setError("");
-    setVerifying(true);
-    try {
-      const res = await fetch(`/api/public/${slug}/phone/verify`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phoneNorm, code: trimmed }),
-      });
-      const data = (await res.json()) as { error?: string; verified?: boolean };
+      const data = (await res.json()) as { error?: string; confirmed?: boolean };
       if (!res.ok) {
         setError(data.error ?? labels.phoneVerifyError);
         return;
@@ -78,7 +46,7 @@ export function CustomerPhoneVerification({
     } catch {
       setError(labels.phoneVerifyError);
     } finally {
-      setVerifying(false);
+      setConfirming(false);
     }
   }
 
@@ -92,43 +60,14 @@ export function CustomerPhoneVerification({
       dir={locale === "he" ? "rtl" : "ltr"}
     >
       <p className="mb-3 text-[var(--store-text)]">{labels.phoneVerifyIntro}</p>
-      {!sent ? (
-        <Button
-          type="button"
-          variant="secondary"
-          className="w-full"
-          disabled={sending}
-          onClick={() => void sendOtp()}
-        >
-          {sending ? labels.phoneVerifySending : labels.phoneVerifySend}
-        </Button>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <Input
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder={labels.phoneVerifyCodePlaceholder}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-          />
-          <Button
-            type="button"
-            className="w-full"
-            disabled={verifying}
-            onClick={() => void verify()}
-          >
-            {verifying ? labels.phoneVerifyConfirming : labels.phoneVerifyConfirm}
-          </Button>
-          <button
-            type="button"
-            className="text-xs text-[var(--store-muted)] underline"
-            disabled={sending}
-            onClick={() => void sendOtp()}
-          >
-            {labels.phoneVerifyResend}
-          </button>
-        </div>
-      )}
+      <Button
+        type="button"
+        className="w-full"
+        disabled={confirming}
+        onClick={() => void confirm()}
+      >
+        {confirming ? labels.phoneVerifyConfirming : labels.phoneVerifyConfirm}
+      </Button>
       {error ? (
         <p className="mt-2 text-sm text-red-600" role="alert">
           {error}

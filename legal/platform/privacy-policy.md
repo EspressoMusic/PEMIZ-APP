@@ -1,7 +1,8 @@
 # Privacy Policy
 
-**Last updated:** June 2026  
-**Contact:** shilohdhd1@gmail.com
+**Last updated:** July 2026  
+**Contact:** shilohdhd1@gmail.com  
+**Operated by:** An individual doing business as Peymiz, contactable at shilohdhd1@gmail.com. [No registered business name, registration number (ע.מ / ח.פ), or registered address yet — required before commercial launch under Israeli law.]
 
 ---
 
@@ -75,12 +76,14 @@ Depending on your location, we rely on one or more of: performance of a contract
 
 ## 5. Service Providers and Processors
 
-We use trusted third-party providers to help operate the Service, such as:
+We use trusted third-party providers to help operate the Service, including:
 
-- Cloud hosting and database providers
-- Payment processors (for subscription billing)
+- **Vercel** — application hosting
+- **Supabase** — database and file/image storage
+- **Stripe and/or Paddle** — subscription billing. Depending on which processor bills your account, that processor may act as the merchant of record for your subscription (see Terms of Service, Payment section)
+- **Firebase (Google)** — account sign-in and identity verification
+- **Web push infrastructure** (via your browser vendor) — optional dashboard notifications for business owners who enable them
 - Email delivery services
-- Analytics and monitoring tools
 
 These providers process data only on our instructions and under appropriate contractual safeguards. They may be located outside your country.
 
@@ -100,6 +103,8 @@ We do **not** share your business operational data with other businesses on the 
 We implement administrative, technical, and organizational measures designed to protect information, including encryption in transit, access controls, and secure infrastructure practices.
 
 No method of transmission or storage is 100% secure. You are responsible for securing your account credentials.
+
+**Support access.** Authorized Peymiz personnel may temporarily access or sign in to your account to diagnose issues or provide support you request. This access is limited to what is necessary, is not used for any other purpose, and does not transfer ownership or control of your data.
 
 ## 8. Data Retention
 
@@ -122,21 +127,25 @@ Depending on applicable law, you may have the right to:
 
 To exercise these rights, contact **shilohdhd1@gmail.com**. We may verify your identity before responding.
 
-If you are an end customer of a business using Peymiz, contact that business first regarding orders, messages, or personal data they hold about you.
+If you are an end customer of a business using Peymiz, contact that business first regarding orders, messages, or personal data they hold about you, since the business controls that data. Peymiz does not provide a self-service account or deletion portal for end customers. If the business is unreachable or no longer operating, you may contact **shilohdhd1@gmail.com** and we will assist to the extent technically feasible.
 
 ## 10. International Users
 
-Peymiz may be accessed from multiple countries. Your information may be processed in Israel and in other countries where we or our providers operate. By using the Service, you acknowledge such transfers and our safeguards.
+Peymiz may be accessed from multiple countries. Your information may be processed in Israel and in other countries where we or our infrastructure and service providers (including hosting, database, authentication, and payment providers listed above) operate or maintain servers, which may include the United States and the European Union. By using the Service, you acknowledge such transfers and our safeguards.
 
-## 11. Children's Privacy
+## 11. Mobile Applications
+
+Peymiz is also available as an Android and iOS app that displays the same Service in a native app shell. The app may request device permissions such as camera or photo library access (to upload product images) and notification permissions (to deliver dashboard alerts you enable). This Privacy Policy applies to the app; the applicable app store's own terms and privacy practices also apply to your download and use of the app.
+
+## 12. Children's Privacy
 
 The Service is intended for business users and is not directed to children under 16. We do not knowingly collect personal information from children.
 
-## 12. Changes to This Policy
+## 13. Changes to This Policy
 
 We may update this Privacy Policy from time to time. We will post the revised version on the Platform and update the "Last updated" date. Material changes may be notified by email or in-app notice.
 
-## 13. Contact
+## 14. Contact
 
 Privacy questions and requests:
 

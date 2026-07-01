@@ -11,7 +11,7 @@ export function marketingWhatsAppPhone(): string {
 export function marketingWhatsAppUrl(locale: MarketingLocale): string | null {
   const text =
     locale === "he"
-      ? "היי, אני מעוניין/ת לשמוע על BiziLink"
-      : "Hi, I'd like to learn about BiziLink";
+      ? "היי, אני מעוניין/ת לשמוע על Peymiz"
+      : "Hi, I'd like to learn about Peymiz";
   return buildWhatsAppChatUrl(marketingWhatsAppPhone(), text);
 }

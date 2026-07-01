@@ -4,7 +4,7 @@ import { useState } from "react";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { Button } from "@/components/ui";
 import { getFirebaseAuth, isFirebaseClientConfigured } from "@/lib/firebase/client";
-import { extractFirebaseErrorCode } from "@/lib/firebase/phone-auth-dev";
+import { extractFirebaseErrorCode } from "@/lib/firebase/config";
 import type { CustomerLabels } from "@/components/customer/customer-labels";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 

@@ -6,7 +6,6 @@ export const safeUserSelect = {
   email: true,
   name: true,
   phone: true,
-  phoneVerified: true,
   emailVerified: true,
   role: true,
   createdAt: true,

@@ -37,9 +37,11 @@ export function isFirebaseAuthConfigured(): boolean {
   return readFirebaseClientConfig() !== null && readFirebaseProjectId() !== null;
 }
 
-/** @deprecated Use isFirebaseAuthConfigured */
-export function isFirebasePhoneAuthConfigured(): boolean {
-  return isFirebaseAuthConfigured();
+export function extractFirebaseErrorCode(err: unknown): string {
+  if (err && typeof err === "object" && "code" in err) {
+    return String((err as { code: string }).code);
+  }
+  return "";
 }
 
 /** @deprecated Service account no longer required for Google sign-in verification */

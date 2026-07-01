@@ -1,7 +1,8 @@
 # Terms of Service
 
-**Last updated:** June 2026  
-**Contact:** shilohdhd1@gmail.com
+**Last updated:** July 2026  
+**Contact:** shilohdhd1@gmail.com  
+**Operated by:** An individual doing business as Peymiz, contactable at shilohdhd1@gmail.com. [No registered business name, registration number (ע.מ / ח.פ), or registered address yet — required before commercial launch under Israeli law.]
 
 ---
 
@@ -59,6 +60,8 @@ You must provide accurate account and business information. You are responsible 
 
 We may suspend access if we suspect fraud, abuse, or security risk.
 
+**Support access.** To diagnose problems or provide support you request, authorized Peymiz personnel may temporarily access or sign in to your account (including your dashboard). This access is limited to what is reasonably necessary to provide support, is not used to compete with you or misuse your data, and does not change our processor role described in our Privacy Policy.
+
 ## 6. Business User Responsibilities
 
 As a business user, you are solely responsible for:
@@ -73,7 +76,20 @@ As a business user, you are solely responsible for:
 
 You agree that Peymiz acts only as a technology provider and does not control or endorse your business activities.
 
-## 7. Prohibited Use
+## 7. Products, Services, and Defects — No Peymiz Liability
+
+Peymiz does not manufacture, inspect, test, package, ship, prepare, or sell any product or service listed by a business on the Platform. We have no involvement in and no control over the quality, safety, legality, accuracy, or fitness of any product or service a business offers.
+
+Each business is exclusively responsible for:
+
+- The safety, quality, and legality of the products and services it sells, including compliance with product safety, food safety, labeling, licensing, and consumer protection laws
+- Any defect, malfunction, contamination, mislabeling, or other fault in a product or service
+- Any injury, illness, death, property damage, or other loss arising from a product or service it sells
+- Handling warranty claims, product recalls, and any related notifications to customers or regulators
+
+To the maximum extent permitted by law, Peymiz is **not liable for any claim, damage, or loss arising from a defective, unsafe, counterfeit, contaminated, or non-compliant product or service sold by a business** through the Platform. Customers with a complaint about a product or service must contact the business directly, not Peymiz.
+
+## 8. Prohibited Use
 
 You may not use the Service to:
 
@@ -87,33 +103,36 @@ You may not use the Service to:
 
 We may investigate violations and take action including suspension or termination.
 
-## 8. Payment and Subscription Terms
+## 9. Payment and Subscription Terms
 
 Paid subscriptions are billed in advance on a recurring basis (e.g., monthly) until cancelled. By subscribing, you authorize us (or our payment provider) to charge your payment method for applicable fees and taxes.
 
 - Fees are stated on our pricing page or at checkout
 - Failure to pay may result in suspension or termination of access
 - You remain responsible for all charges incurred before cancellation
+- Plans may include usage limits (for example, a maximum number of orders or appointments per billing period, or other technical quotas) as described on our pricing page. Exceeding a limit may require upgrading to a higher plan to keep using the affected feature.
+
+Subscriptions may be billed through a third-party payment processor. Where our processor acts as the **merchant of record** for your subscription, that processor — not Peymiz — is the seller of the subscription for billing, invoicing, and tax (e.g., VAT/sales tax) purposes, and its terms apply in addition to these Terms.
 
 See our **Refund Policy** for cancellation and refund rules.
 
-## 9. Free Trial
+## 10. Free Trial
 
 If a free trial is offered, you may use the Service without charge for the trial period disclosed at signup. Unless you cancel before the trial ends, your account may convert to a paid subscription and your payment method may be charged according to the plan you selected.
 
-## 10. Cancellation
+## 11. Cancellation
 
 You may cancel your subscription at any time through your account settings or by contacting us. Cancellation stops **future** renewals; it does not automatically entitle you to a refund for amounts already paid (see Refund Policy).
 
 Upon cancellation or termination, your access may end at the close of the current billing period unless otherwise stated.
 
-## 11. Service Availability — No Guarantee
+## 12. Service Availability — No Guarantee
 
 We strive to keep the Platform available and secure, but we do **not** guarantee uninterrupted, error-free, or permanent availability. Maintenance, updates, outages, and third-party failures may occur.
 
 We may modify, suspend, or discontinue features with reasonable notice when practicable.
 
-## 12. Suspension and Termination
+## 13. Suspension and Termination
 
 We may suspend or terminate your account immediately if you:
 
@@ -124,25 +143,25 @@ We may suspend or terminate your account immediately if you:
 
 You may stop using the Service at any time. Provisions that by nature should survive (liability limits, IP, governing law) will survive termination.
 
-## 13. Intellectual Property
+## 14. Intellectual Property
 
 The Platform, software, design, trademarks, and documentation are owned by Peymiz or its licensors. Except for the limited subscription license above, no rights are granted to you.
 
 You retain ownership of content you upload. You grant Peymiz a worldwide, non-exclusive license to host, store, display, and process your content solely to operate and improve the Service.
 
-## 14. Customer Data and Privacy
+## 15. Customer Data and Privacy
 
 You may enter or collect customer data through the Platform (orders, messages, appointments, contact details). **You are the controller** of your customers' data for your business purposes. Peymiz processes such data on your behalf to provide the Service, as described in our **Privacy Policy**.
 
 You must comply with applicable privacy laws and provide appropriate notices to your customers.
 
-## 15. Disclaimer of Warranties
+## 16. Disclaimer of Warranties
 
 THE SERVICE IS PROVIDED **"AS IS"** AND **"AS AVAILABLE"** WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
 
 We do not warrant that the Service will meet your requirements or that results will be accurate or reliable.
 
-## 16. Limitation of Liability
+## 17. Limitation of Liability
 
 TO THE MAXIMUM EXTENT PERMITTED BY LAW:
 
@@ -151,19 +170,19 @@ TO THE MAXIMUM EXTENT PERMITTED BY LAW:
 
 Some jurisdictions do not allow certain limitations; in those cases, our liability is limited to the fullest extent permitted by law.
 
-## 17. Indemnification
+## 18. Indemnification
 
-You agree to indemnify and hold harmless Peymiz from claims, damages, losses, and expenses (including reasonable legal fees) arising from your use of the Service, your business operations, your content, your customers, or your violation of these Terms or applicable law.
+You agree to indemnify and hold harmless Peymiz from claims, damages, losses, and expenses (including reasonable legal fees) arising from your use of the Service, your business operations, your products or services (including any defect, safety issue, or resulting injury, illness, or property damage), your content, your customers, or your violation of these Terms or applicable law.
 
-## 18. Changes to the Service and Terms
+## 19. Changes to the Service and Terms
 
 We may update the Service and these Terms from time to time. Material changes will be posted on the Platform or notified by email where appropriate. Continued use after changes become effective constitutes acceptance. If you do not agree, you must stop using the Service and cancel your subscription.
 
-## 19. Governing Law and Jurisdiction
+## 20. Governing Law and Jurisdiction
 
 These Terms are governed by the laws of the **State of Israel**, without regard to conflict-of-law principles. Courts in Israel shall have exclusive jurisdiction over disputes arising from these Terms or the Service, subject to mandatory consumer protections that may apply to you under local law.
 
-## 20. Contact
+## 21. Contact
 
 Questions about these Terms:
 

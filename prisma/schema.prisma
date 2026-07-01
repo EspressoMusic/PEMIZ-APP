@@ -25,7 +25,6 @@ model User {
   passwordHash               String
   name                       String
   phone                      String?
-  phoneVerified              Boolean   @default(false)
   emailVerified              Boolean   @default(false)
   emailVerificationToken     String?   @unique
   emailVerificationExpiresAt DateTime?
@@ -34,7 +33,6 @@ model User {
   role                       String    @default("OWNER")
   createdAt                  DateTime  @default(now())
   business                   Business?
-  otpCodes                   OtpCode[]
   pushSubscriptions          SellerPushSubscription[]
 }
 
@@ -50,28 +48,6 @@ model SellerPushSubscription {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
-}
-
-model OtpCode {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  code      String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-}
-
-model PublicPhoneOtp {
-  id         String   @id @default(cuid())
-  businessId String
-  phone      String
-  code       String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-
-  @@index([businessId, phone])
 }
 
 model RateLimitBucket {
