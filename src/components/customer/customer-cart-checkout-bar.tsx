@@ -2,6 +2,7 @@
 
 import { formatCustomerMoney } from "@/lib/customer-money";
 import type { CustomerLocale } from "@/lib/customer-preferences";
+import { CUSTOMER_BOTTOM_NAV_OFFSET } from "./customer-store-frame";
 import type { CustomerLabels } from "./customer-labels";
 
 export function CustomerCartCheckoutBar({
@@ -26,11 +27,12 @@ export function CustomerCartCheckoutBar({
       className={
         phoneColumn
           ? "customer-cart-checkout-bar pointer-events-auto relative z-40 w-full shrink-0 border-t border-bakery-border/30 bg-bakery-card/98 shadow-[0_-4px_16px_rgba(58,47,38,0.08)] backdrop-blur-sm"
-          : "customer-cart-checkout-bar pointer-events-auto fixed bottom-[calc(3.75rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 border-t border-bakery-border/30 bg-bakery-card/98 shadow-[0_-4px_16px_rgba(58,47,38,0.08)] backdrop-blur-sm"
+          : "customer-cart-checkout-bar pointer-events-auto fixed left-0 right-0 z-40 border-t border-bakery-border/30 bg-bakery-card/98 shadow-[0_-4px_16px_rgba(58,47,38,0.08)] backdrop-blur-sm"
       }
+      style={phoneColumn ? undefined : { bottom: CUSTOMER_BOTTOM_NAV_OFFSET }}
     >
       <div
-        className={`px-3 py-2.5 ${phoneColumn ? "" : "mx-auto max-w-[360px]"}`}
+        className={`px-3 pt-2.5 pb-3 ${phoneColumn ? "" : "mx-auto max-w-[360px]"}`}
       >
         <button
           type="button"
@@ -52,7 +54,7 @@ export function CustomerCartCheckoutBar({
         <button
           type="button"
           onClick={onClear}
-          className="mt-1.5 w-full py-1 text-center text-[13px] font-bold text-bakery-muted transition hover:text-bakery-ink"
+          className="mt-2 flex min-h-[2rem] w-full items-center justify-center py-1.5 text-center text-[13px] font-bold leading-none text-bakery-muted transition hover:text-bakery-ink"
         >
           {labels.cancelOrder}
         </button>

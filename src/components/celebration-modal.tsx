@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { Check } from "lucide-react";
 import { Button } from "@/components/ui";
 type Piece = {
   id: number;
@@ -11,6 +10,46 @@ type Piece = {
   color: string;
   size: number;
 };
+
+function AnimatedSuccessCheck({
+  tone,
+}: {
+  tone: "default" | "calendar";
+}) {
+  const isCalendar = tone === "calendar";
+  const size = isCalendar ? 56 : 64;
+
+  return (
+    <div
+      className={`celebration-check-wrap ${isCalendar ? "celebration-check-wrap--calendar mb-3" : "mb-4"}`}
+      aria-hidden
+    >
+      <svg
+        viewBox="0 0 72 72"
+        width={size}
+        height={size}
+        className="celebration-check-svg mx-auto"
+      >
+        <circle
+          className="celebration-check-circle"
+          cx="36"
+          cy="36"
+          r="32"
+          fill={isCalendar ? "rgba(67,160,71,0.12)" : "rgba(67,160,71,0.15)"}
+        />
+        <path
+          className="celebration-check-mark"
+          d="M22 37 L32 47 L50 27"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+}
 
 export function CelebrationModal({
   open,
@@ -60,20 +99,7 @@ export function CelebrationModal({
   const lang = locale === "he" ? "he" : "en";
   const isCalendar = tone === "calendar";
 
-  const iconBlock = (
-    <div
-      className={`mx-auto flex items-center justify-center rounded-full ${
-        isCalendar
-          ? "mb-3 h-14 w-14 bg-bakery-success/12 text-bakery-primary"
-          : "mb-4 h-16 w-16 bg-bakery-success/15 text-bakery-success"
-      }`}
-    >
-      <Check
-        className={isCalendar ? "h-8 w-8" : "h-9 w-9"}
-        strokeWidth={2.5}
-      />
-    </div>
-  );
+  const iconBlock = <AnimatedSuccessCheck tone={isCalendar ? "calendar" : "default"} />;
 
   const textBlock = (
     <>

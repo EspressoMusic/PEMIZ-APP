@@ -27,22 +27,12 @@ import {
 } from "@/components/customer/customer-whatsapp-contact-row";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 import type { CustomerResolution } from "@/lib/customer-resolution";
-import { isWithinCustomerHistoryWindow } from "@/lib/customer-history-access";
 
 function formatChatTime(iso: string, locale: CustomerLocale) {
   return new Date(iso).toLocaleTimeString(
     locale === "he" ? "he-IL" : "en-GB",
     { hour: "2-digit", minute: "2-digit" }
   );
-}
-
-function formatInquiryDate(iso: string | undefined, locale: CustomerLocale) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString(locale === "he" ? "he-IL" : "en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 export type ContactView = "menu" | "inquiry" | "seller-chat";
@@ -78,8 +68,6 @@ export function CustomerContactModal({
   hasPendingInquiry = false,
   hideChat = false,
   hideInquiries = false,
-  inquiryPhoneVerifyRequired = false,
-  onInquiryPhoneVerified,
   onSubmitInquiryResolution,
   onSubmitChatResolution,
   onSubmitInquiry,
@@ -105,8 +93,6 @@ export function CustomerContactModal({
   hasPendingInquiry?: boolean;
   hideChat?: boolean;
   hideInquiries?: boolean;
-  inquiryPhoneVerifyRequired?: boolean;
-  onInquiryPhoneVerified?: () => void;
   onSubmitInquiryResolution: (
     inquiryId: string,
     resolution: CustomerResolution
@@ -139,6 +125,7 @@ export function CustomerContactModal({
   }, [open, customerName, customerPhone]);
 
   const isSellerChat = view === "seller-chat";
+  const isInquiry = view === "inquiry";
   const closeLabel = locale === "he" ? "סגור" : "Close";
 
   const latestSellerMessage = useMemo(() => {
@@ -324,17 +311,6 @@ export function CustomerContactModal({
     [sellerContactPhone, storeName, locale]
   );
 
-  const visibleInquiries = useMemo(
-    () =>
-      myInquiries.filter(
-        (inq) => inq.createdAt && isWithinCustomerHistoryWindow(inq.createdAt)
-      ),
-    [myInquiries]
-  );
-
-  const inquiryHistorySuspended =
-    myInquiries.length > 0 && visibleInquiries.length === 0;
-
   function renderMenu() {
     return (
       <div className="space-y-2 px-4 py-4">
@@ -365,7 +341,7 @@ export function CustomerContactModal({
 
   function renderInquiry() {
     return (
-      <div className="space-y-4 px-4 py-4">
+      <div className="px-4 py-4">
         {hasPendingInquiry ? (
           <Panel className="rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square px-4 py-4 text-center">
             <p className="text-[15px] font-semibold leading-relaxed text-bakery-ink">
@@ -427,88 +403,6 @@ export function CustomerContactModal({
               </Button>
             </form>
           </Panel>
-        )}
-
-        {inquiryPhoneVerifyRequired && parseIsraeliMobilePhone(contactPhone) ? (
-          <CustomerPhoneVerification
-            slug={slug}
-            phone={contactPhone}
-            locale={locale}
-            labels={labels}
-            onVerified={() => onInquiryPhoneVerified?.()}
-          />
-        ) : null}
-
-        {inquiryHistorySuspended && !inquiryPhoneVerifyRequired ? (
-          <Panel className="rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square px-4 py-4 text-center">
-            <p className="text-[15px] font-semibold leading-relaxed text-bakery-muted">
-              {labels.historySuspended}
-            </p>
-          </Panel>
-        ) : null}
-
-        {visibleInquiries.length > 0 && !inquiryPhoneVerifyRequired && (
-          <div className="space-y-3">
-            <h2 className="text-center text-[16px] font-extrabold text-bakery-ink">
-              {labels.yourPastInquiries}
-            </h2>
-            {visibleInquiries.map((inq) => (
-              <div
-                key={inq.id}
-                className="overflow-hidden rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square p-3 shadow-[0_3px_10px_rgba(58,47,38,0.1)]"
-              >
-                <div className="rounded-[14px] border border-bakery-border/20 bg-bakery-cream-light px-3 py-3">
-                  {inq.createdAt ? (
-                    <p className="mb-2 text-center text-[12px] font-bold text-bakery-muted">
-                      {formatInquiryDate(inq.createdAt, locale)}
-                    </p>
-                  ) : null}
-                  {inq.subject ? (
-                    <p className="text-center text-[15px] font-extrabold text-bakery-ink">
-                      {inq.subject}
-                    </p>
-                  ) : null}
-                  <p className="mt-2 whitespace-pre-wrap text-center text-[15px] leading-relaxed text-bakery-ink">
-                    {inq.message}
-                  </p>
-                  {inq.sellerReply ? (
-                    <div className="mt-3 rounded-[12px] border border-bakery-primary/25 bg-bakery-primary/10 px-3 py-2">
-                      <p className="text-center text-[12px] font-bold text-bakery-primary">
-                        {labels.sellerReplyLabel}
-                      </p>
-                      <p className="mt-1 whitespace-pre-wrap text-center text-[14px] leading-relaxed text-bakery-ink">
-                        {inq.sellerReply}
-                      </p>
-                      <div className="mt-3">
-                        <CustomerResolutionFeedback
-                          locale={locale}
-                          labels={labels}
-                          currentResolution={inq.customerResolution}
-                          submitting={resolutionSubmitting === `inq-${inq.id}`}
-                          compact
-                          onSubmit={async (resolution) => {
-                            setResolutionSubmitting(`inq-${inq.id}`);
-                            try {
-                              await onSubmitInquiryResolution(
-                                inq.id,
-                                resolution
-                              );
-                            } finally {
-                              setResolutionSubmitting(null);
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="mt-3 text-center text-[13px] font-semibold text-bakery-muted">
-                      {labels.awaitingReply}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
         )}
       </div>
     );
@@ -659,9 +553,19 @@ export function CustomerContactModal({
       onClose={onClose}
       locale={locale}
       storeTheme={storeTheme}
-      panelClassName={isSellerChat ? "customer-center-modal__panel--chat" : ""}
+      panelClassName={
+        isSellerChat
+          ? "customer-center-modal__panel--chat"
+          : isInquiry
+            ? "customer-inquiry-modal-panel max-h-fit"
+            : ""
+      }
       bodyClassName={
-        isSellerChat ? "flex min-h-0 flex-1 flex-col overflow-hidden p-0" : ""
+        isSellerChat
+          ? "flex min-h-0 flex-1 flex-col overflow-hidden p-0"
+          : isInquiry
+            ? "overflow-hidden p-0"
+            : ""
       }
       ariaLabel={title}
       header={

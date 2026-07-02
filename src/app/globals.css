@@ -1191,6 +1191,53 @@ html[data-store-theme="dark"] .master-surface .master-panel-inner {
   }
 }
 
+@keyframes celebration-check-pop {
+  0% {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes celebration-check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.celebration-check-wrap {
+  color: #43a047;
+}
+
+.celebration-check-wrap--calendar {
+  color: #5c4a3e;
+}
+
+.celebration-check-svg {
+  display: block;
+  transform-origin: center;
+  animation: celebration-check-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.celebration-check-circle {
+  stroke-dasharray: 201;
+  stroke-dashoffset: 201;
+  animation: celebration-check-draw 0.42s ease-out 0.12s forwards;
+}
+
+.celebration-check-mark {
+  stroke-dasharray: 52;
+  stroke-dashoffset: 52;
+  animation: celebration-check-draw 0.38s ease-out 0.48s forwards;
+}
+
 @keyframes dashboard-water-wave-a {
   0% {
     transform: translate3d(0, 0, 0) rotate(0deg);

@@ -419,8 +419,6 @@ export function CustomerStoreApp({
     propsSellerNotice.sentAt
   );
   const [myInquiries, setMyInquiries] = useState<MyInquiry[]>([]);
-  const [inquiryPhoneVerifyRequired, setInquiryPhoneVerifyRequired] =
-    useState(false);
   const [phoneVerifyPrompt, setPhoneVerifyPrompt] = useState<string | null>(null);
   const [pendingCancelAppointmentId, setPendingCancelAppointmentId] = useState<
     string | null
@@ -723,11 +721,9 @@ export function CustomerStoreApp({
           code?: string;
         };
         if (res.status === 403 && data.code === "PHONE_VERIFICATION_REQUIRED") {
-          setInquiryPhoneVerifyRequired(true);
           setMyInquiries([]);
           return;
         }
-        setInquiryPhoneVerifyRequired(false);
         if (res.ok) setMyInquiries(data.inquiries ?? []);
       } catch {
         setMyInquiries([]);
@@ -1609,7 +1605,7 @@ export function CustomerStoreApp({
 
   function renderProductGrid() {
     if (business.products.length === 0) {
-      return <EmptyStateCard message={labels.noServices} />;
+      return <EmptyStateCard message={labels.noProducts} />;
     }
     return (
       <div className="grid min-w-0 grid-cols-2 items-stretch gap-2">
@@ -1912,7 +1908,7 @@ export function CustomerStoreApp({
     isScheduleLike && mainTab === "home" && !unavailable;
 
   const showCartCheckoutBar =
-    !unavailable && !isScheduleLike && cartHasItems;
+    !unavailable && !isScheduleLike && cartHasItems && mainTab !== "settings";
 
   const storeBody = (
     <>
@@ -2066,16 +2062,6 @@ export function CustomerStoreApp({
         hasPendingInquiry={hasPendingInquiry}
         hideChat={!panels.chat}
         hideInquiries={!panels.inquiries}
-        inquiryPhoneVerifyRequired={inquiryPhoneVerifyRequired}
-        onInquiryPhoneVerified={() => {
-          const phone =
-            orderPhone ||
-            (typeof window !== "undefined"
-              ? getCustomerDeviceItem(inquiryPhoneKey(business.slug))
-              : null) ||
-            "";
-          if (phone) void loadMyInquiries(phone);
-        }}
         onSubmitInquiryResolution={submitInquiryResolution}
         onSubmitChatResolution={submitChatResolution}
         onSubmitInquiry={sendInquiry}
