@@ -10,7 +10,7 @@ export default async function LoginPage() {
 
   return (
     <Suspense fallback={null}>
-      <AuthForm />
+      <AuthForm allowGuest={process.env.VERCEL_ENV === "preview"} />
     </Suspense>
   );
 }

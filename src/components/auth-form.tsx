@@ -35,7 +35,7 @@ function GoogleIcon() {
   );
 }
 
-export function AuthForm() {
+export function AuthForm({ allowGuest = false }: { allowGuest?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { copy, locale } = useMarketingLocale();
@@ -129,6 +129,30 @@ export function AuthForm() {
     }
   }
 
+  // TEST-ONLY: sandbox guest login. The button only renders on Vercel preview
+  // (allowGuest) and the /api/auth/guest route is itself hard-gated to preview.
+  async function signInAsGuest() {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/guest", { method: "POST" });
+      const data = (await res.json().catch(() => ({}))) as {
+        redirectTo?: string;
+        error?: string;
+      };
+      if (!res.ok) {
+        setError(data.error ?? "Guest login unavailable");
+        return;
+      }
+      router.push(data.redirectTo ?? "/dashboard");
+      router.refresh();
+    } catch {
+      setError("Guest login failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <WebShell lockViewport>
       {confetti ? <DashboardConfettiBackground active={confetti} /> : null}
@@ -157,6 +181,16 @@ export function AuthForm() {
               <GoogleIcon />
               {loading ? copy.authGoogleLoading : copy.authGoogleButton}
             </button>
+            {allowGuest ? (
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => void signInAsGuest()}
+                className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full border-2 border-dashed border-bakery-border bg-bakery-square/50 px-5 py-3 text-[15px] font-bold text-bakery-ink transition hover:bg-bakery-square disabled:opacity-60"
+              >
+                🧪 כניסה כאורח (בדיקת תשלום)
+              </button>
+            ) : null}
             <p className="whitespace-nowrap text-center text-[10.5px] leading-tight text-bakery-muted sm:text-[11px]">
               {copy.authGoogleTermsPrefix}
               <Link
