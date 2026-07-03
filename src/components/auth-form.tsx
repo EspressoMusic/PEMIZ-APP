@@ -136,18 +136,30 @@ export function AuthForm({ allowGuest = false }: { allowGuest?: boolean }) {
     setLoading(true);
     try {
       const res = await fetch("/api/auth/guest", { method: "POST" });
-      const data = (await res.json().catch(() => ({}))) as {
-        redirectTo?: string;
-        error?: string;
-      };
+      const contentType = res.headers.get("content-type") ?? "";
+      const data = contentType.includes("application/json")
+        ? ((await res.json().catch(() => ({}))) as {
+            redirectTo?: string;
+            error?: string;
+          })
+        : {};
       if (!res.ok) {
-        setError(data.error ?? "Guest login unavailable");
+        setError(
+          data.error ??
+            (locale === "he"
+              ? `כניסת אורח נכשלה (${res.status}). ודאו שאתם ב-Preview URL ולא ב-production.`
+              : `Guest login failed (${res.status}). Use the Preview URL, not production.`)
+        );
         return;
       }
       router.push(data.redirectTo ?? "/dashboard");
       router.refresh();
     } catch {
-      setError("Guest login failed");
+      setError(
+        locale === "he"
+          ? "כניסת אורח נכשלה — בדקו חיבור לרשת"
+          : "Guest login failed — check your network connection"
+      );
     } finally {
       setLoading(false);
     }
