@@ -1,3 +1,5 @@
+import { isBusinessTrialBypassed } from "@/lib/trial-dev";
+
 export const BUSINESS_TRIAL_DAYS = 14;
 
 export function trialWarningScheduleLabelHe() {
@@ -16,6 +18,7 @@ export function businessTrialEndsAt(createdAt: Date): Date {
 }
 
 export function isBusinessTrialExpired(business: BusinessTrialFields): boolean {
+  if (isBusinessTrialBypassed()) return false;
   if (business.subscriptionActiveAt) return false;
   return Date.now() >= businessTrialEndsAt(business.createdAt).getTime();
 }
@@ -33,6 +36,8 @@ export type BusinessTrialStatus = {
   minutesRemaining: number;
   expired: boolean;
   hasSubscription: boolean;
+  /** True when trial is disabled in dev/preview environments. */
+  bypassed: boolean;
 };
 
 export function getBusinessTrialStatus(
@@ -40,6 +45,7 @@ export function getBusinessTrialStatus(
   now = Date.now()
 ): BusinessTrialStatus {
   const trialEndsAt = businessTrialEndsAt(business.createdAt);
+  const bypassed = isBusinessTrialBypassed();
 
   if (business.subscriptionActiveAt) {
     return {
@@ -49,6 +55,19 @@ export function getBusinessTrialStatus(
       minutesRemaining: 0,
       expired: false,
       hasSubscription: true,
+      bypassed,
+    };
+  }
+
+  if (bypassed) {
+    return {
+      trialEndsAt,
+      daysRemaining: 0,
+      hoursRemaining: 0,
+      minutesRemaining: 0,
+      expired: false,
+      hasSubscription: false,
+      bypassed: true,
     };
   }
 
@@ -61,6 +80,7 @@ export function getBusinessTrialStatus(
       minutesRemaining: 0,
       expired: true,
       hasSubscription: false,
+      bypassed: false,
     };
   }
 
@@ -76,5 +96,6 @@ export function getBusinessTrialStatus(
     minutesRemaining,
     expired: false,
     hasSubscription: false,
+    bypassed: false,
   };
 }

@@ -3,24 +3,13 @@ import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import { jsonError, jsonOk } from "@/lib/api";
+import { isGuestLoginAllowed } from "@/lib/auth-guest-dev";
 import { generateUniqueBusinessSlug } from "@/lib/business";
 
 export const runtime = "nodejs";
 
-/**
- * TEST-ONLY guest login for sandbox payment testing.
- *
- * HARD-GATED to Vercel *preview* deployments (VERCEL_ENV === "preview"): it is
- * inert on production (peymiz.com), on localhost, and on any non-Vercel host.
- * This code lives only on the `paddle-sandbox-preview` branch and must NEVER be
- * merged into `main`. Delete the branch after testing.
- */
-function guestLoginAllowed(): boolean {
-  return process.env.VERCEL_ENV === "preview";
-}
-
 export async function POST() {
-  if (!guestLoginAllowed()) {
+  if (!isGuestLoginAllowed()) {
     return jsonError("Not found", 404);
   }
 

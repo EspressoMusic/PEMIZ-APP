@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getBusinessTrialStatus } from "@/lib/business-trial";
+import { isBusinessTrialBypassed } from "@/lib/trial-dev";
 import {
   areTrialWarningEmailsEnabled,
   isTrialClosureEnabled,
@@ -49,6 +50,10 @@ function pushCopy(daysLeft: TrialWarningDaysLeft, storeName: string) {
 }
 
 export async function processTrialWarnings(now = Date.now()) {
+  if (isBusinessTrialBypassed()) {
+    return { skipped: true, sent: 0, reason: "trial-bypassed" as const };
+  }
+
   const [warningsEnabled, closureEnabled] = await Promise.all([
     areTrialWarningEmailsEnabled(),
     isTrialClosureEnabled(),

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth-form";
 import { getCurrentUser } from "@/lib/auth";
+import { isGuestLoginAllowed } from "@/lib/auth-guest-dev";
 
 export default async function AppLoginPage() {
   const user = await getCurrentUser();
@@ -10,7 +11,7 @@ export default async function AppLoginPage() {
 
   return (
     <Suspense fallback={null}>
-      <AuthForm />
+      <AuthForm allowGuest={isGuestLoginAllowed()} />
     </Suspense>
   );
 }

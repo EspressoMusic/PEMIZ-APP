@@ -7,7 +7,7 @@ import { zodFirstError } from "@/lib/validation/schemas";
 import type { SubscriptionPlanId } from "@/lib/subscription-plans";
 
 const checkoutSchema = z.object({
-  planId: z.enum(["premium", "ultimate"]),
+  planId: z.enum(["premium"]),
 });
 
 export async function POST(req: Request) {

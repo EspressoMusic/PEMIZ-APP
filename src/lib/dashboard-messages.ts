@@ -64,6 +64,7 @@ export type DashboardLabels = {
   subscription: string;
   subscriptionPlansTitle: string;
   subscriptionPlansHint: string;
+  subscriptionPlansHintNoTrial: string;
   subscriptionPremium: string;
   subscriptionUltimate: string;
   subscriptionPerMonth: string;
@@ -1127,6 +1128,7 @@ const HE: DashboardLabels = {
   subscription: "מנוי",
   subscriptionPlansTitle: "חבילות מנוי",
   subscriptionPlansHint: "14 ימי ניסיון חינם, ואז בחרו מנוי חודשי",
+  subscriptionPlansHintNoTrial: "בחרו מנוי חודשי",
   subscriptionPremium: "רגיל",
   subscriptionUltimate: "מתקדם",
   subscriptionPerMonth: "לחודש",
@@ -1759,6 +1761,7 @@ const EN: DashboardLabels = {
   subscription: "Subscription",
   subscriptionPlansTitle: "Subscription plans",
   subscriptionPlansHint: "14-day free trial, then choose a monthly plan",
+  subscriptionPlansHintNoTrial: "Choose a monthly plan",
   subscriptionPremium: "Standard",
   subscriptionUltimate: "Pro",
   subscriptionPerMonth: "per month",

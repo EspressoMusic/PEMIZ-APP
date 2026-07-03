@@ -27,6 +27,7 @@ type SubscriptionStatusResponse = {
     expired: boolean;
     hasSubscription: boolean;
     trialEndsAt: string;
+    bypassed: boolean;
   };
   usage: {
     hasSubscription: boolean;
@@ -111,6 +112,10 @@ function SubscriptionStatusPanel({
             </p>
           ) : null}
         </>
+      ) : status.trial.bypassed ? (
+        <p className="mt-2 text-[13px] font-semibold leading-relaxed text-bakery-muted">
+          {labels.subscriptionNoBillingYet}
+        </p>
       ) : status.trial.expired ? (
         <p className="mt-2 text-[15px] font-extrabold text-bakery-sale">
           {labels.subscriptionTrialExpiredShort}
@@ -271,7 +276,9 @@ export function DashboardSubscriptionSection({
           {showPlanPicker || previewOnly ? (
             <>
               <p className="text-[14px] font-semibold leading-relaxed text-bakery-muted">
-                {labels.subscriptionPlansHint}
+                {status?.trial.bypassed
+                  ? labels.subscriptionPlansHintNoTrial
+                  : labels.subscriptionPlansHint}
               </p>
 
               <div className="space-y-3">

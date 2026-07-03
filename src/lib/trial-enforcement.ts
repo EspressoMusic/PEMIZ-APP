@@ -4,6 +4,7 @@ import {
   isBusinessTrialExpired,
   type BusinessTrialFields,
 } from "@/lib/business-trial";
+import { isBusinessTrialBypassed } from "@/lib/trial-dev";
 
 export async function isTrialClosureEnabled(): Promise<boolean> {
   if (!isSubscriptionPaymentsEnabled()) return false;
@@ -19,6 +20,7 @@ export async function areTrialWarningEmailsEnabled(): Promise<boolean> {
 export async function isTrialEnforcedAndExpired(
   business: BusinessTrialFields
 ): Promise<boolean> {
+  if (isBusinessTrialBypassed()) return false;
   if (!(await isTrialClosureEnabled())) return false;
   return isBusinessTrialExpired(business);
 }

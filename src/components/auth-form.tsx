@@ -129,8 +129,8 @@ export function AuthForm({ allowGuest = false }: { allowGuest?: boolean }) {
     }
   }
 
-  // TEST-ONLY: sandbox guest login. The button only renders on Vercel preview
-  // (allowGuest) and the /api/auth/guest route is itself hard-gated to preview.
+  // TEST-ONLY: sandbox guest login (dev + Vercel preview). Route is hard-gated in
+  // /api/auth/guest — never available on production.
   async function signInAsGuest() {
     setError("");
     setLoading(true);
