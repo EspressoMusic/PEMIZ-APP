@@ -4,6 +4,7 @@ import type {
   SubscriptionCheckoutInput,
   SubscriptionCheckoutResult,
 } from "@/lib/billing/types";
+import { buildPaddleCheckoutPageUrl } from "@/lib/paddle-client-config";
 import type { SubscriptionPlanId } from "@/lib/subscription-plans";
 
 function paddleApiBaseUrl(): string {
@@ -33,7 +34,6 @@ type PaddleApiEnvelope<T> = {
 
 type PaddleTransaction = {
   id: string;
-  checkout?: { url?: string | null };
 };
 
 async function paddleRequest<T>(
@@ -121,16 +121,16 @@ export const paddleBillingProvider: SubscriptionBillingProvider = {
       };
     }
 
-    const checkoutUrl = created.data.checkout?.url?.trim();
-    if (!checkoutUrl) {
+    const transactionId = created.data.id?.trim();
+    if (!transactionId) {
       return {
         ok: false,
         status: 500,
-        message: "Paddle did not return a checkout URL.",
+        message: "Paddle did not return a transaction ID.",
       };
     }
 
-    return { ok: true, url: checkoutUrl };
+    return { ok: true, url: buildPaddleCheckoutPageUrl(transactionId) };
   },
 
   async createBillingPortalSession(

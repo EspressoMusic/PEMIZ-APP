@@ -15,9 +15,15 @@ const firebaseAuthConnectCsp = [
   "https://firebaseinstallations.googleapis.com",
 ].join(" ");
 
+const paddleScriptCsp = "https://cdn.paddle.com";
+const paddleFrameCsp =
+  "https://buy.paddle.com https://sandbox-buy.paddle.com https://*.paddle.com";
+const paddleConnectCsp =
+  "https://checkout-service.paddle.com https://sandbox-checkout-service.paddle.com https://api.paddle.com https://sandbox-api.paddle.com";
+
 const scriptSrc = isProd
-  ? `script-src 'self' 'unsafe-inline' ${googleAuthCsp}`
-  : `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${googleAuthCsp}`;
+  ? `script-src 'self' 'unsafe-inline' ${googleAuthCsp} ${paddleScriptCsp}`
+  : `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${googleAuthCsp} ${paddleScriptCsp}`;
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -41,11 +47,11 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       scriptSrc,
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline' https://cdn.paddle.com https://sandbox-cdn.paddle.com",
       "img-src 'self' data: blob: https://*.supabase.co https://*.google.com https://*.gstatic.com https://lh3.googleusercontent.com",
       "font-src 'self' data:",
-      `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${firebaseAuthConnectCsp}`,
-      "frame-src 'self' https://accounts.google.com https://*.firebaseapp.com https://*.google.com",
+      `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${firebaseAuthConnectCsp} ${paddleConnectCsp}`,
+      `frame-src 'self' https://accounts.google.com https://*.firebaseapp.com https://*.google.com ${paddleFrameCsp}`,
       "worker-src 'self'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
