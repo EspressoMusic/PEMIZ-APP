@@ -66,7 +66,7 @@ export function CustomerAppointmentDetailModal({
   appointment,
   locale,
   labels,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
   rentalMode = false,
   canCancel,
   cancelling = false,

@@ -7,7 +7,7 @@ export function DashboardShell({
   businessId,
   basePath = "/dashboard",
   storeLocale = "he",
-  storeTheme = "calm",
+  storeTheme = "turquoise",
   orderScheduleEnabled = false,
   orderSchedule = null,
   initialActiveServiceCount = 0,

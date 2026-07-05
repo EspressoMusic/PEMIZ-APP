@@ -17,7 +17,7 @@ export function CustomerServicePickerModal({
   onSelect,
   labels,
   locale,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
 }: {
   open: boolean;
   onClose: () => void;

@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { AppLogo } from "@/components/app-logo";
 import {
   CalendarDays,
   Link2,
@@ -58,13 +58,9 @@ export function HomeLandingMarketing() {
       <section className="app-safe-x px-4 pb-10 pt-[max(1.5rem,env(safe-area-inset-top))] text-center sm:pb-14 sm:pt-10">
         <div className="mx-auto flex max-w-lg flex-col items-center">
           <div className="h-28 w-28 overflow-hidden rounded-[22%] sm:h-32 sm:w-32">
-            <Image
-              src="/icons/linky-app-logo.png"
-              alt="BiziLink"
-              width={160}
-              height={160}
+            <AppLogo
+              size={160}
               priority
-              unoptimized
               className="h-full w-full object-contain"
             />
           </div>

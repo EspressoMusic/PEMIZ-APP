@@ -38,7 +38,7 @@ function DashboardSellerDetailsBody({
   const { labels } = useAppLocale();
 
   return (
-    <div className="overflow-hidden rounded-[20px] border border-bakery-border/25 bg-[#faf6f0] p-3 text-center">
+    <div className="overflow-hidden rounded-[20px] border border-bakery-border/25 bg-bakery-card p-3 text-center">
       <div className="space-y-3">
         <p className="flex items-center justify-center gap-2 text-[12px] font-bold text-bakery-muted">
           <User className="h-3.5 w-3.5" strokeWidth={2.25} />

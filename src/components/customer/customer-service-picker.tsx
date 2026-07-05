@@ -15,7 +15,7 @@ export function CustomerServicePicker({
   onSelect,
   labels,
   locale,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
 }: {
   services: ServiceOption[];
   selectedId: string;

@@ -1,6 +1,8 @@
-export const STORE_THEME_IDS = ["calm", "light", "dark"] as const;
+export const STORE_THEME_IDS = ["turquoise", "calm", "light", "dark"] as const;
 
 export type StoreThemeId = (typeof STORE_THEME_IDS)[number];
+
+export const DEFAULT_STORE_THEME: StoreThemeId = "turquoise";
 
 /** Legacy colorful themes — mapped to relaxed brown on read */
 const LEGACY_THEME_IDS = [
@@ -25,6 +27,14 @@ export type StoreThemeMeta = {
 };
 
 export const STORE_THEMES: StoreThemeMeta[] = [
+  {
+    id: "turquoise",
+    label: "טורקיז",
+    labelEn: "Turquoise",
+    preview: "from-[#ffffff] to-[#0d9488]",
+    descriptionHe: "לבן וטורקיז — ברירת המחדל",
+    descriptionEn: "White & turquoise",
+  },
   {
     id: "calm",
     label: "רגוע",
@@ -52,11 +62,16 @@ export const STORE_THEMES: StoreThemeMeta[] = [
 ];
 
 export function parseStoreTheme(value?: string | null): StoreThemeId {
-  if (value === "light" || value === "dark" || value === "calm") {
+  if (
+    value === "turquoise" ||
+    value === "light" ||
+    value === "dark" ||
+    value === "calm"
+  ) {
     return value;
   }
   if (value === "modern") {
-    return "calm";
+    return "turquoise";
   }
   if (
     value &&
@@ -64,7 +79,7 @@ export function parseStoreTheme(value?: string | null): StoreThemeId {
   ) {
     return "calm";
   }
-  return "calm";
+  return DEFAULT_STORE_THEME;
 }
 
 export function storeThemeLabel(

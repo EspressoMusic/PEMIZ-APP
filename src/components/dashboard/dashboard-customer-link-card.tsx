@@ -9,6 +9,10 @@ import {
 } from "@/components/dashboard/dashboard-settings-tile";
 import { DASHBOARD_SETTINGS_ACTION } from "@/components/dashboard/dashboard-settings-bar";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import {
+  DASHBOARD_PRESSABLE_CLASS,
+  getDashboardPressProps,
+} from "@/lib/dashboard-press";
 
 function toAbsoluteUrl(url: string): string {
   if (/^https?:\/\//i.test(url)) return url;
@@ -201,36 +205,28 @@ export function DashboardCustomerLinkCard({
   return (
     <>
       <div
-        className={
-          dense
-            ? "dashboard-home-header dashboard-home-header--compact"
-            : "dashboard-home-header"
-        }
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-home-header dashboard-home-header--store-link cursor-pointer ${
+          dense ? "dashboard-home-header--compact" : ""
+        }`}
+        aria-label={labels.storeLinkBarLabel}
+        {...getDashboardPressProps<HTMLDivElement>()}
       >
-        <div
-          className={`dashboard-home-header__inner text-center ${
-            dense ? "px-2.5 py-2" : "px-3 py-3.5"
+        <span
+          className={`pointer-events-none min-w-0 truncate text-center font-extrabold leading-none ${
+            dense ? "text-[17px] sm:text-[18px]" : "text-[19px] sm:text-[20px]"
           }`}
         >
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className={
-              dense
-                ? "dashboard-home-store-link dashboard-home-store-link--compact"
-                : "dashboard-home-store-link"
-            }
-            aria-label={labels.storeLinkBarLabel}
-          >
-            <span
-              className={`block min-w-0 truncate font-extrabold ${
-                dense ? "text-[17px] sm:text-[18px]" : "text-[19px] sm:text-[20px]"
-              }`}
-            >
-              {labels.storeLinkBarLabel}
-            </span>
-          </button>
-        </div>
+          {labels.storeLinkBarLabel}
+        </span>
       </div>
 
       {shareSheet}

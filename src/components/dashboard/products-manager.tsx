@@ -424,7 +424,7 @@ const ProductCard = memo(function ProductCard({
       >
         <button
           type="button"
-          className="flex min-h-[2rem] items-center justify-center rounded-[10px] bg-[#614136] px-1 py-1.5 text-[11px] font-bold text-[#FAF4E6] transition hover:opacity-90 active:scale-[0.98]"
+          className="flex min-h-[2rem] items-center justify-center rounded-[10px] bg-bakery-primary px-1 py-1.5 text-[11px] font-bold text-bakery-on-primary transition hover:opacity-90 active:scale-[0.98]"
           onClick={onHide}
         >
           {p.isActive ? labels.hide : labels.show}
@@ -457,7 +457,7 @@ const AddProductCard = memo(function AddProductCard({
       className="dashboard-product-list-card overflow-hidden rounded-[14px] p-0 text-center transition hover:brightness-[0.98] active:scale-[0.98]"
     >
       <div className="flex h-[5.75rem] w-full flex-col items-center justify-center">
-        <Plus className="h-7 w-7 text-[#614136]" strokeWidth={1.75} />
+        <Plus className="h-7 w-7 text-bakery-primary" strokeWidth={1.75} />
       </div>
       <div className="flex min-h-[4.5rem] flex-col items-center justify-center gap-1.5 px-2 py-2">
         <p className="text-[15px] font-extrabold leading-snug text-bakery-ink">

@@ -136,7 +136,7 @@ const AddDealCard = memo(function AddDealCard({
     >
       <div className="flex h-[5.75rem] w-full flex-col items-center justify-center">
         <span className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-bakery-border/35 bg-bakery-cream-light/90">
-          <Plus className="h-6 w-6 text-[#614136]" strokeWidth={1.75} />
+          <Plus className="h-6 w-6 text-bakery-primary" strokeWidth={1.75} />
         </span>
       </div>
       <div className="flex min-h-[4rem] flex-col items-center justify-center gap-1.5 px-2 py-2">
@@ -188,7 +188,7 @@ function DealProductTiles({
       {lines.map((line, index) => (
         <div
           key={`${line.name}-${index}`}
-          className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] border border-bakery-border/30 bg-[#faf6f0] shadow-[0_1px_4px_rgba(78,52,46,0.08)]"
+          className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] border border-bakery-border/30 bg-bakery-card shadow-none"
           title={line.quantity > 1 ? `${line.name} ×${line.quantity}` : line.name}
         >
           {line.imageUrl ? (
@@ -242,7 +242,7 @@ const DealListItem = memo(function DealListItem({
               <button
                 type="button"
                 onClick={() => setDetailOpen(true)}
-                className="dashboard-deal-info-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#faf6f0] text-bakery-ink transition hover:bg-bakery-card active:scale-[0.96]"
+                className="dashboard-deal-info-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-bakery-card text-bakery-ink transition hover:bg-bakery-cream-light active:scale-[0.96]"
                 aria-label={`${labels.extras} — ${d.name}`}
               >
                 <Info className="h-4 w-4" strokeWidth={2.25} />
@@ -299,7 +299,7 @@ const DealListItem = memo(function DealListItem({
           <button
             type="button"
             onClick={onEdit}
-            className="inline-flex min-h-[36px] flex-1 items-center justify-center gap-1.5 rounded-full bg-[#5C4A3E] px-3 text-[13px] font-extrabold text-[#FAF4E6] shadow-[0_2px_8px_rgba(58,47,38,0.18)] transition active:scale-[0.98]"
+            className="inline-flex min-h-[36px] flex-1 items-center justify-center gap-1.5 rounded-full bg-bakery-primary px-3 text-[13px] font-extrabold text-bakery-on-primary shadow-none transition active:scale-[0.98]"
           >
             <Pencil className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} />
             {labels.edit}
@@ -874,7 +874,7 @@ export function DealsManager({
                           className={`flex w-full items-center gap-2.5 rounded-[12px] border px-2 py-1.5 text-start transition ${
                             quantityEditorId === p.id
                               ? "border-bakery-primary/40 bg-bakery-primary/8"
-                              : "border-bakery-border/35 bg-[#F9F3E5]"
+                              : "border-bakery-border/35 bg-bakery-cream-light"
                           }`}
                         >
                           {p.imageUrl ? (

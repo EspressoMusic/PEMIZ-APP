@@ -30,7 +30,7 @@ export function CustomerAppointmentCalendarModal({
   onNeedPhone,
   onBook,
   rentalMode = false,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
 }: {
   open: boolean;
   onClose: () => void;

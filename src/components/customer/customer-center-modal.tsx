@@ -54,7 +54,7 @@ export function CustomerCenterModal({
   children,
   ariaLabel,
   header,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
   bodyClassName = "",
   panelClassName = "",
 }: {

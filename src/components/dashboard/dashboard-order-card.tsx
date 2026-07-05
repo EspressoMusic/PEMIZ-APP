@@ -9,6 +9,10 @@ import {
   customerProfileInitial,
   type CustomerProfileInput,
 } from "@/components/dashboard/dashboard-customer-profile";
+import {
+  DASHBOARD_PRESSABLE_CLASS,
+  getDashboardPressProps,
+} from "@/lib/dashboard-press";
 
 export type DashboardOrderItemView = {
   name: string;
@@ -203,7 +207,8 @@ export function DashboardOrderCard({
             onOpenChange(true);
           }
         }}
-        className="dashboard-action-square dashboard-order-row flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition"
+        className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-action-square dashboard-order-row flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start`}
+        {...getDashboardPressProps<HTMLDivElement>()}
       >
         <button
           type="button"
@@ -215,6 +220,7 @@ export function DashboardOrderCard({
               fallbackDate: order.customerJoinedAt ?? order.createdAt,
             });
           }}
+          onPointerDown={(e) => e.stopPropagation()}
           className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-bakery-border/35 bg-bakery-on-primary text-[18px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)] transition hover:opacity-90 active:scale-[0.98]"
           aria-label={`${labels.customer}: ${order.customerName}`}
         >

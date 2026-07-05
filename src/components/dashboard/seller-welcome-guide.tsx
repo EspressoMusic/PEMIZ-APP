@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import Image from "next/image";
+import { AppLogo } from "@/components/app-logo";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -81,12 +81,9 @@ function WelcomeGuideModal({
       />
 
       <div className="relative z-10 mx-auto w-full max-w-md shrink-0 rounded-[24px] border border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-5 shadow-[var(--shadow-bakery-panel)]">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] shadow-[0_4px_14px_rgba(58,47,38,0.15)]">
-          <Image
-            src="/icons/linky-app-logo.png"
-            alt="Linky"
-            width={80}
-            height={80}
+        <div className="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] shadow-[0_4px_14px_rgba(13,148,136,0.15)]">
+          <AppLogo
+            size={80}
             className="h-full w-full object-contain"
             priority
           />

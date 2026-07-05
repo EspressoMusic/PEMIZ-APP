@@ -20,6 +20,10 @@ import {
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
+import {
+  DASHBOARD_PRESSABLE_CLASS,
+  getDashboardPressProps,
+} from "@/lib/dashboard-press";
 
 function ProductThumb({
   name,
@@ -340,7 +344,8 @@ export function DashboardPrepSummary({
           <div className="shrink-0 border-t border-bakery-border/20 px-3 py-2.5 sm:px-4">
             <button
               type="button"
-              className="dashboard-icon-tile-dark flex w-full min-h-[44px] items-center justify-center rounded-[14px] px-4 text-[15px] font-extrabold text-[var(--bakery-on-primary)] transition hover:opacity-95 active:scale-[0.99]"
+              className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-icon-tile-dark flex w-full min-h-[44px] items-center justify-center rounded-[14px] px-4 text-[15px] font-extrabold text-[var(--bakery-on-primary)] hover:opacity-95`}
+              {...getDashboardPressProps<HTMLButtonElement>()}
               onClick={() => setSummaryOpen(true)}
             >
               {labels.prepSummaryButton}

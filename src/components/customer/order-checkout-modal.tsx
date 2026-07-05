@@ -12,7 +12,7 @@ export function OrderCheckoutModal({
   open,
   onClose,
   locale,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
   total,
   initialName,
   initialPhone,

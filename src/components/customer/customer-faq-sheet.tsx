@@ -40,7 +40,7 @@ export function CustomerFaqSheet({
   items,
   storeTerms,
   locale = "en",
-  storeTheme = "calm",
+  storeTheme = "turquoise",
 }: {
   open: boolean;
   onClose: () => void;

@@ -5,6 +5,7 @@ import {
   parseLocaleCookie,
   parseThemeCookie,
 } from "@/lib/dashboard-appearance-boot";
+import { DEFAULT_STORE_THEME } from "@/lib/store-themes";
 import { PwaRoot } from "@/components/pwa/pwa-root";
 
 export const metadata: Metadata = {
@@ -56,7 +57,7 @@ export default async function RootLayout({
       lang={locale}
       dir={locale === "en" ? "ltr" : "rtl"}
       className="h-full overflow-x-hidden antialiased"
-      data-store-theme={theme ?? undefined}
+      data-store-theme={theme ?? DEFAULT_STORE_THEME}
       data-locale={locale}
       suppressHydrationWarning
     >

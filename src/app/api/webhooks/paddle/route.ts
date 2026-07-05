@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import { paddleBillingLog } from "@/lib/billing/paddle-billing-log";
 import {
   activateBusinessSubscription,
   deactivateBusinessSubscription,
@@ -48,13 +49,32 @@ function verifyPaddleSignature(body: string, signatureHeader: string): boolean {
 }
 
 async function handlePaddleSubscription(
-  subscription: PaddleSubscriptionPayload
+  subscription: PaddleSubscriptionPayload,
+  eventType: string
 ) {
+  const businessIdFromCustomData = parsePaddleBusinessId(subscription.custom_data);
   const businessId =
-    parsePaddleBusinessId(subscription.custom_data) ??
+    businessIdFromCustomData ??
     (await findBusinessIdByExternalSubscriptionId("paddle", subscription.id));
 
-  if (!businessId) return;
+  if (!businessId) {
+    paddleBillingLog("business_not_matched", {
+      eventType,
+      subscriptionId: subscription.id,
+      status: subscription.status,
+      customData: subscription.custom_data ?? null,
+    });
+    return;
+  }
+
+  paddleBillingLog("business_matched", {
+    eventType,
+    businessId,
+    subscriptionId: subscription.id,
+    status: subscription.status,
+    matchSource: businessIdFromCustomData ? "custom_data" : "external_subscription_id",
+    userId: subscription.custom_data?.userId ?? null,
+  });
 
   const { periodStart, periodEnd } = paddleSubscriptionPeriod(subscription);
   const planId = parsePaddlePlanId(subscription.custom_data);
@@ -69,6 +89,15 @@ async function handlePaddleSubscription(
         externalSubscriptionId: subscription.id,
         periodStart,
         periodEnd,
+      });
+      paddleBillingLog("subscription_activated", {
+        eventType,
+        businessId,
+        planId,
+        subscriptionId: subscription.id,
+        customerId: subscription.customer_id,
+        periodStart: periodStart.toISOString(),
+        periodEnd: periodEnd.toISOString(),
       });
       return;
     }
@@ -85,6 +114,12 @@ async function handlePaddleSubscription(
 
   if (paddleSubscriptionIsInactive(subscription.status)) {
     await deactivateBusinessSubscription(businessId);
+    paddleBillingLog("subscription_deactivated", {
+      eventType,
+      businessId,
+      subscriptionId: subscription.id,
+      status: subscription.status,
+    });
   }
 }
 
@@ -119,21 +154,30 @@ export async function POST(req: Request) {
     return new Response("Invalid JSON", { status: 400 });
   }
 
+  const eventType = payload.event_type ?? "unknown";
+
   try {
-    switch (payload.event_type) {
+    paddleBillingLog("webhook_received", {
+      eventType,
+      environment: process.env.PADDLE_ENVIRONMENT?.trim().toLowerCase() ?? "production",
+      subscriptionId: payload.data?.id ?? null,
+      status: payload.data?.status ?? null,
+    });
+
+    switch (eventType) {
       case "subscription.activated":
       case "subscription.updated":
       case "subscription.trialing":
       case "subscription.created":
         if (payload.data) {
-          await handlePaddleSubscription(payload.data);
+          await handlePaddleSubscription(payload.data, eventType);
         }
         break;
       case "subscription.canceled":
       case "subscription.past_due":
       case "subscription.paused":
         if (payload.data) {
-          await handlePaddleSubscription(payload.data);
+          await handlePaddleSubscription(payload.data, eventType);
         }
         break;
       default:

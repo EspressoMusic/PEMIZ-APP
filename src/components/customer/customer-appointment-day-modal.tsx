@@ -21,7 +21,7 @@ export function CustomerAppointmentDayModal({
   orderSchedule = null,
   bookingByDay = false,
   rentalMode = false,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
   onBook,
 }: {
   open: boolean;

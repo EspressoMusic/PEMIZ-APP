@@ -123,7 +123,7 @@ function DashboardAppointmentDetailModal({
         onClick={onClose}
         aria-label={labels.close}
       />
-      <div className="relative w-full max-w-md overflow-hidden rounded-[24px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
+      <div className="relative w-full max-w-md overflow-hidden rounded-[24px] border-[3px] border-bakery-primary/22 bg-bakery-card shadow-none">
         <button
           type="button"
           onClick={onClose}
@@ -217,7 +217,7 @@ function DashboardAppointmentDetailModal({
           {onHide ? (
             <Button
               type="button"
-              className="w-full min-h-[44px] rounded-full border-[2px] border-[#5C4A3E]/55 bg-[#5C4A3E] font-extrabold text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] hover:bg-[#5C4A3E]/95 active:scale-[0.98]"
+              className="w-full min-h-[44px] rounded-full border-[2px] border-bakery-primary bg-bakery-primary font-extrabold text-bakery-on-primary shadow-none hover:opacity-95 active:scale-[0.98]"
               onClick={() => {
                 onHide();
                 onClose();
@@ -324,7 +324,7 @@ export function DashboardAppointmentCard({
           highlightAsNext
             ? DASHBOARD_NEXT_APPOINTMENT_FRAME
             : outlined
-              ? `!border-[3px] !border-[#5C4A3E]/18 ${DASHBOARD_DAY_PANEL_HALO}`
+              ? `!border-[3px] !border-bakery-primary/18 ${DASHBOARD_DAY_PANEL_HALO}`
               : ""
         }`}
       >

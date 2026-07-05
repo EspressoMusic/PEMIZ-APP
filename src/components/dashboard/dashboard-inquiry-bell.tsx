@@ -35,6 +35,10 @@ import {
 } from "@/lib/customer-chat-storage";
 import { normalizePhone } from "@/lib/phone";
 import { chatMessagesEqual } from "@/lib/store-chat-query";
+import {
+  DASHBOARD_PRESSABLE_CLASS,
+  getDashboardPressProps,
+} from "@/lib/dashboard-press";
 
 function formatChatTime(iso: string, locale: string) {
   return new Date(iso).toLocaleTimeString(
@@ -358,7 +362,8 @@ export function DashboardInquiryBell({
         key={item.id}
         type="button"
         onClick={() => openNotification(item)}
-        className="dashboard-notification-bar w-full text-start transition hover:opacity-95 active:scale-[0.99]"
+        className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-notification-bar w-full text-start hover:opacity-95`}
+        {...getDashboardPressProps<HTMLButtonElement>()}
       >
         <span className="dashboard-notification-bar__type">
           {notificationKindLabel(item.kind, labels)}
@@ -405,7 +410,7 @@ export function DashboardInquiryBell({
                   </span>
                 </button>
               ) : null}
-              <p className="whitespace-pre-wrap rounded-[12px] border border-bakery-border/30 bg-[#F2EBE0] p-3 text-[14px] leading-snug text-bakery-ink">
+              <p className="whitespace-pre-wrap rounded-[12px] border border-bakery-border/30 bg-bakery-cream-light p-3 text-[14px] leading-snug text-bakery-ink">
                 {active.message}
               </p>
               <p className="text-center text-[11px] text-bakery-muted">
@@ -512,7 +517,7 @@ export function DashboardInquiryBell({
 
           {active.kind === "new_order" && (
             <div className="space-y-3 text-center">
-              <p className="rounded-[12px] border border-bakery-border/30 bg-[#F2EBE0] p-3 text-[14px] font-semibold text-bakery-ink">
+              <p className="rounded-[12px] border border-bakery-border/30 bg-bakery-cream-light p-3 text-[14px] font-semibold text-bakery-ink">
                 {active.message}
               </p>
               <p className="text-[11px] text-bakery-muted">
@@ -550,7 +555,7 @@ export function DashboardInquiryBell({
                   </span>
                 </button>
               ) : null}
-              <p className="rounded-[12px] border border-bakery-border/30 bg-[#F2EBE0] p-3 text-[14px] font-semibold text-bakery-ink">
+              <p className="rounded-[12px] border border-bakery-border/30 bg-bakery-cream-light p-3 text-[14px] font-semibold text-bakery-ink">
                 {active.message}
               </p>
               <p className="text-[11px] text-bakery-muted">
@@ -571,7 +576,7 @@ export function DashboardInquiryBell({
               <p className="text-[16px] font-extrabold text-bakery-ink">
                 {active.productName}
               </p>
-              <p className="rounded-[12px] border border-bakery-border/30 bg-[#F2EBE0] p-3 text-[14px] font-semibold text-bakery-ink">
+              <p className="rounded-[12px] border border-bakery-border/30 bg-bakery-cream-light p-3 text-[14px] font-semibold text-bakery-ink">
                 {active.message}
               </p>
               <Link

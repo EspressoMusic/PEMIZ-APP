@@ -40,7 +40,7 @@ export function CustomerRentalBookingModal({
   services,
   locale,
   labels,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
   initialName,
   initialPhone,
   submitting,

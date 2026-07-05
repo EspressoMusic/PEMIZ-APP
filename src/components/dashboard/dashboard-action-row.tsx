@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import {
+  DASHBOARD_PRESSABLE_CLASS,
+  getDashboardPressProps,
+} from "@/lib/dashboard-press";
 
 export const DASHBOARD_ACTION_ROW_CLASS =
-  "dashboard-action-square dashboard-action-row flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition";
+  `${DASHBOARD_PRESSABLE_CLASS} dashboard-action-square dashboard-action-row flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start`;
 
 function DashboardActionRowIcon({ icon: Icon }: { icon: LucideIcon }) {
   return (
@@ -77,7 +83,11 @@ export function DashboardActionRow({
 
   if (embeddedInPanel) {
     return (
-      <Link href={href} className="dashboard-account-settings-panel__row">
+      <Link
+        href={href}
+        className="dashboard-account-settings-panel__row"
+        {...getDashboardPressProps<HTMLAnchorElement>()}
+      >
         {content}
       </Link>
     );
@@ -85,7 +95,11 @@ export function DashboardActionRow({
 
   return (
     <li>
-      <Link href={href} className={DASHBOARD_ACTION_ROW_CLASS}>
+      <Link
+        href={href}
+        className={DASHBOARD_ACTION_ROW_CLASS}
+        {...getDashboardPressProps<HTMLAnchorElement>()}
+      >
         {content}
       </Link>
     </li>
@@ -143,6 +157,7 @@ export function DashboardActionRowButton({
         className={`${DASHBOARD_ACTION_ROW_CLASS}${
           active ? " bakery-float-tile--active" : ""
         }`}
+        {...getDashboardPressProps<HTMLButtonElement>()}
       >
         {content}
       </button>

@@ -137,7 +137,7 @@ export function CustomerLegalSheet({
   locale,
   textScale,
   onTextScaleChange,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
   platformLegalDocs = [],
 }: {
   open: boolean;

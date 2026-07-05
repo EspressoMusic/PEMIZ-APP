@@ -27,7 +27,7 @@ export function CustomerAppointmentsHomeCalendar({
   onNeedPhone,
   onBook,
   rentalMode = false,
-  storeTheme = "calm",
+  storeTheme = "turquoise",
 }: {
   slots: AppointmentSlot[];
   locale: CustomerLocale;

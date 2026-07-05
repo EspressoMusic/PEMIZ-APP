@@ -12,7 +12,7 @@ import {
 import { buildWhatsAppChatUrl, isValidPhone } from "@/lib/phone";
 
 export const CUSTOMER_DETAIL_BAR =
-  "overflow-hidden rounded-[12px] border-[1.2px] border-bakery-border/35 bg-[#F2EBE0] p-4 shadow-[var(--shadow-bakery-card)]";
+  "dashboard-customer-detail-bar overflow-hidden rounded-[12px] border-[1.2px] border-bakery-border/35 bg-bakery-cream-light p-4 shadow-none";
 
 const CONTACT_ICON_BTN =
   "flex h-12 w-12 items-center justify-center rounded-full text-bakery-primary transition hover:bg-bakery-card/40 active:scale-95";
@@ -82,7 +82,7 @@ export function DashboardCustomerProfileModal({
         onClick={onClose}
         aria-label={labels.close}
       />
-      <div className="dashboard-surface dashboard-card relative w-full max-w-md overflow-hidden rounded-[32px] border-[1.2px] border-bakery-border/35 bg-[#E6D5B8] p-3 shadow-[var(--shadow-bakery-panel)]">
+      <div className="dashboard-customer-profile-modal dashboard-surface dashboard-card relative w-full max-w-md overflow-hidden rounded-[32px] border-[1.2px] border-bakery-border/35 bg-bakery-card p-3 shadow-none">
         <button
           type="button"
           onClick={onClose}
@@ -96,7 +96,7 @@ export function DashboardCustomerProfileModal({
           <section className={CUSTOMER_DETAIL_BAR}>
             <div className="flex items-center gap-3">
               <div
-                className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[16px] border border-bakery-border/35 bg-bakery-on-primary text-[26px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)]"
+                className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[16px] border border-bakery-border/35 bg-bakery-icon-tile text-[26px] font-extrabold text-bakery-primary shadow-none"
                 aria-hidden
               >
                 {customerProfileInitial(

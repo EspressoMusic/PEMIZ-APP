@@ -1,5 +1,10 @@
 import { resolveSiteLocale, SITE_LOCALE } from "@/lib/site-locale";
-import { parseStoreTheme, storeThemeLabel, type StoreThemeId } from "@/lib/store-themes";
+import {
+  DEFAULT_STORE_THEME,
+  parseStoreTheme,
+  storeThemeLabel,
+  type StoreThemeId,
+} from "@/lib/store-themes";
 import { getCustomerDeviceItem, setCustomerDeviceItem } from "@/lib/customer-device-storage";
 
 export type CustomerLocale = "en" | "he";
@@ -14,7 +19,7 @@ export type CustomerPreferences = {
 
 const DEFAULTS: CustomerPreferences = {
   locale: SITE_LOCALE,
-  theme: "calm",
+  theme: DEFAULT_STORE_THEME,
   textScale: "100",
 };
 

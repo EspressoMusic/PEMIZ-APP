@@ -4,6 +4,7 @@ import type {
   SubscriptionCheckoutInput,
   SubscriptionCheckoutResult,
 } from "@/lib/billing/types";
+import { paddleBillingLog } from "@/lib/billing/paddle-billing-log";
 import { buildPaddleCheckoutPageUrl } from "@/lib/paddle-client-config";
 import type { SubscriptionPlanId } from "@/lib/subscription-plans";
 
@@ -129,6 +130,15 @@ export const paddleBillingProvider: SubscriptionBillingProvider = {
         message: "Paddle did not return a transaction ID.",
       };
     }
+
+    paddleBillingLog("checkout_created", {
+      environment: process.env.PADDLE_ENVIRONMENT?.trim().toLowerCase() ?? "production",
+      transactionId,
+      businessId: input.businessId,
+      planId: input.planId,
+      userId: input.userId,
+      checkoutUrl: buildPaddleCheckoutPageUrl(transactionId),
+    });
 
     return { ok: true, url: buildPaddleCheckoutPageUrl(transactionId) };
   },

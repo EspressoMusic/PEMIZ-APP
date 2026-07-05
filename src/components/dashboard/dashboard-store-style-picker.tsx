@@ -187,7 +187,7 @@ export function DashboardStoreStylePicker({
           {SELLER_WELCOME_GUIDE_ENABLED ? (
             <div className="bakery-float-tile space-y-3 rounded-[18px] p-4 text-start">
               <div className="flex items-start gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/20 bg-[#faf6f0]">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/20 bg-bakery-card">
                   <BookOpen className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
                 </span>
                 <div className="min-w-0 flex-1">

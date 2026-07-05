@@ -116,7 +116,7 @@ function DashboardDayAppointmentsModal({
           onClick={onClose}
           aria-label={labels.close}
         />
-        <div className="relative flex max-h-[min(88dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
+        <div className="relative flex max-h-[min(88dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] border-[3px] border-bakery-primary/22 bg-bakery-card shadow-none">
           <div className="relative flex shrink-0 min-h-[52px] items-center justify-center border-b border-bakery-border/25 px-12 py-3">
             <h2 className="w-full text-center text-[17px] font-extrabold leading-tight text-bakery-ink">
               {title}
@@ -179,7 +179,7 @@ function DashboardDayAppointmentsModal({
                           onClick={() => onQuickBookSlot?.(slot.id)}
                           disabled={!onQuickBookSlot || isBooking}
                           dir="ltr"
-                          className={`dashboard-action-square flex w-full items-center gap-2 rounded-[22px] px-3 py-3.5 text-start transition hover:opacity-95 active:scale-[0.99] disabled:opacity-60 !border-[3px] !border-[#5C4A3E]/18 ${DASHBOARD_DAY_PANEL_HALO}`}
+                          className={`dashboard-action-square flex w-full items-center gap-2 rounded-[22px] px-3 py-3.5 text-start transition hover:opacity-95 active:scale-[0.99] disabled:opacity-60 !border-[3px] !border-bakery-primary/18 ${DASHBOARD_DAY_PANEL_HALO}`}
                           aria-label={`${labels.homeCalendarQuickBook}: ${startTime}`}
                         >
                           <span

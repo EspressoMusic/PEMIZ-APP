@@ -14,7 +14,11 @@ import {
   hydrateDashboardTheme,
   writeDashboardThemeSession,
 } from "@/lib/dashboard-appearance-session";
-import { parseStoreTheme, type StoreThemeId } from "@/lib/store-themes";
+import {
+  DEFAULT_STORE_THEME,
+  parseStoreTheme,
+  type StoreThemeId,
+} from "@/lib/store-themes";
 
 type StoreThemeContextValue = {
   theme: StoreThemeId;
@@ -25,7 +29,7 @@ const StoreThemeContext = createContext<StoreThemeContextValue | null>(null);
 
 export function StoreThemeProvider({
   children,
-  initialTheme = "calm",
+  initialTheme = DEFAULT_STORE_THEME,
 }: {
   children: ReactNode;
   initialTheme?: string | null;
@@ -62,7 +66,7 @@ export function useStoreTheme() {
   const ctx = useContext(StoreThemeContext);
   if (!ctx) {
     return {
-      theme: "calm" as StoreThemeId,
+      theme: DEFAULT_STORE_THEME,
       setTheme: () => {},
     };
   }

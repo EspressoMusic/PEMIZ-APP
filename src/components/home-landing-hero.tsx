@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AppLogo } from "@/components/app-logo";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { Button, Alert, Panel } from "@/components/ui";
 import { homeTitleFont } from "@/lib/fonts/home-title-font";
@@ -69,13 +69,9 @@ export function HomeLandingHero() {
             onMouseEnter={stopConfetti}
             onFocus={stopConfetti}
           >
-            <Image
-              src="/icons/linky-app-logo.png"
-              alt="BiziLink"
-              width={176}
-              height={176}
+            <AppLogo
+              size={176}
               priority
-              unoptimized
               className="h-full w-full object-contain"
             />
           </div>
