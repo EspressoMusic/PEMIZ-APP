@@ -69,6 +69,10 @@ export type DashboardLabels = {
   subscriptionUltimate: string;
   subscriptionPerMonth: string;
   subscriptionChoose: string;
+  subscriptionSignUp: string;
+  subscriptionEnterpriseTitle: string;
+  subscriptionEnterpriseHint: string;
+  subscriptionContactUs: string;
   subscriptionComingSoon: string;
   subscriptionPreviewOnly: string;
   subscriptionPremiumFeature1: string;
@@ -1133,6 +1137,11 @@ const HE: DashboardLabels = {
   subscriptionUltimate: "מתקדם",
   subscriptionPerMonth: "לחודש",
   subscriptionChoose: "בחירת חבילה",
+  subscriptionSignUp: "תרשום אותי!",
+  subscriptionEnterpriseTitle: "עסקים ענקיים",
+  subscriptionEnterpriseHint:
+    "נפח הזמנות גבוה, כמה אנשי צוות, או צורך מותאם אישית? בואו נדבר.",
+  subscriptionContactUs: "צור קשר",
   subscriptionComingSoon: "תשלום מנוי יתווסף בהמשך — החנות נשארת פעילה בינתיים",
   subscriptionPreviewOnly: "בתצוגת דמו — בחירת חבילה ללא תשלום",
   subscriptionPremiumFeature1: "עד 500 הזמנות בחודש",
@@ -1766,6 +1775,11 @@ const EN: DashboardLabels = {
   subscriptionUltimate: "Pro",
   subscriptionPerMonth: "per month",
   subscriptionChoose: "Choose plan",
+  subscriptionSignUp: "Sign me up!",
+  subscriptionEnterpriseTitle: "Large businesses",
+  subscriptionEnterpriseHint:
+    "High order volume, multiple staff, or custom needs? Let's talk.",
+  subscriptionContactUs: "Contact us",
   subscriptionComingSoon: "Subscription checkout coming later — your store stays active for now",
   subscriptionPreviewOnly: "Preview mode — plan selection without payment",
   subscriptionPremiumFeature1: "Up to 500 orders per month",

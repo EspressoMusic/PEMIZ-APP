@@ -11,15 +11,13 @@ import {
 import { DASHBOARD_SETTINGS_ACTION } from "@/components/dashboard/dashboard-settings-bar";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
-  formatPlanPrice,
   parseSubscriptionPlanId,
-  planPrice,
-  SUBSCRIPTION_PLANS,
   type SubscriptionPlanId,
 } from "@/lib/subscription-plans";
 import type { DashboardLabels } from "@/lib/app-locale";
 import { useSubscriptionCheckout } from "@/components/dashboard/use-subscription-checkout";
 import { useSubscriptionPortal } from "@/components/dashboard/use-subscription-portal";
+import { DashboardSubscriptionPlanPicker } from "@/components/dashboard/dashboard-subscription-plan-picker";
 
 type SubscriptionStatusResponse = {
   trial: {
@@ -42,25 +40,6 @@ type SubscriptionStatusResponse = {
   providerConfigured: boolean;
   billingPortalAvailable: boolean;
 };
-
-function featureLabel(labels: DashboardLabels, key: string): string {
-  switch (key) {
-    case "subscriptionPremiumFeature1":
-      return labels.subscriptionPremiumFeature1;
-    case "subscriptionPremiumFeature2":
-      return labels.subscriptionPremiumFeature2;
-    case "subscriptionPremiumFeature3":
-      return labels.subscriptionPremiumFeature3;
-    case "subscriptionUltimateFeature1":
-      return labels.subscriptionUltimateFeature1;
-    case "subscriptionUltimateFeature2":
-      return labels.subscriptionUltimateFeature2;
-    case "subscriptionUltimateFeature3":
-      return labels.subscriptionUltimateFeature3;
-    default:
-      return "";
-  }
-}
 
 function planTitle(labels: DashboardLabels, planId: SubscriptionPlanId): string {
   return planId === "premium"
@@ -281,52 +260,13 @@ export function DashboardSubscriptionSection({
                   : labels.subscriptionPlansHint}
               </p>
 
-              <div className="space-y-3">
-                {SUBSCRIPTION_PLANS.map((plan) => {
-                  const title = planTitle(labels, plan.id);
-                  const price = formatPlanPrice(planPrice(plan, locale), locale);
-                  const loading = payingPlan === plan.id;
-
-                  return (
-                    <div
-                      key={plan.id}
-                      className="dashboard-subscription-panel rounded-[22px] border border-bakery-border/40 px-4 py-4 text-center"
-                    >
-                      <p className="text-[18px] font-extrabold text-bakery-ink">
-                        {title}
-                      </p>
-                      <p className="mt-1 flex items-baseline justify-center gap-1">
-                        <span
-                          className="text-[28px] font-extrabold tabular-nums text-bakery-primary"
-                          dir="ltr"
-                        >
-                          {price}
-                        </span>
-                        <span className="text-[13px] font-bold text-bakery-muted">
-                          {labels.subscriptionPerMonth}
-                        </span>
-                      </p>
-                      <ul className="mt-3 space-y-1.5 text-[13px] font-semibold leading-snug text-bakery-ink">
-                        {plan.featureKeys.map((key) => (
-                          <li key={key}>{featureLabel(labels, key)}</li>
-                        ))}
-                      </ul>
-                      <button
-                        type="button"
-                        disabled={loading || previewOnly}
-                        className="bakery-cta-3d bakery-cta-3d--primary mt-4 w-full !rounded-full !py-3 text-[15px] font-extrabold disabled:opacity-60"
-                        onClick={() => choosePlan(plan.id)}
-                      >
-                        {loading
-                          ? labels.saving
-                          : previewOnly
-                            ? labels.subscriptionPreviewOnly
-                            : labels.subscriptionChoose}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+              <DashboardSubscriptionPlanPicker
+                locale={locale}
+                labels={labels}
+                payingPlan={payingPlan}
+                previewOnly={previewOnly}
+                onChoosePlan={choosePlan}
+              />
             </>
           ) : null}
 
