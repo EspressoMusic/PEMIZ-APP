@@ -253,21 +253,13 @@ export function DashboardSubscriptionSection({
           ) : null}
 
           {showPlanPicker || previewOnly ? (
-            <>
-              <p className="text-[14px] font-semibold leading-relaxed text-bakery-muted">
-                {status?.trial.bypassed
-                  ? labels.subscriptionPlansHintNoTrial
-                  : labels.subscriptionPlansHint}
-              </p>
-
-              <DashboardSubscriptionPlanPicker
+            <DashboardSubscriptionPlanPicker
                 locale={locale}
                 labels={labels}
                 payingPlan={payingPlan}
                 previewOnly={previewOnly}
                 onChoosePlan={choosePlan}
               />
-            </>
           ) : null}
 
           {message ? (

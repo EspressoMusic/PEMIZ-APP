@@ -39,10 +39,6 @@ export function DashboardTrialPaywall({
         </span>
       </p>
 
-      <p className="mb-4 text-center text-[14px] font-semibold leading-relaxed text-bakery-muted">
-        {labels.subscriptionPlansHint}
-      </p>
-
       <DashboardSubscriptionPlanPicker
         locale={locale}
         labels={labels}

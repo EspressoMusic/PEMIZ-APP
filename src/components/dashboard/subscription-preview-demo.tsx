@@ -15,9 +15,6 @@ function SubscriptionPreviewBody() {
       <h1 className="mb-4 text-center text-[22px] font-extrabold text-bakery-ink">
         {labels.subscriptionPlansTitle}
       </h1>
-      <p className="mb-4 text-center text-[14px] font-semibold leading-relaxed text-bakery-muted">
-        {labels.subscriptionPlansHint}
-      </p>
       <DashboardSubscriptionPlanPicker
         locale={locale}
         labels={labels}
