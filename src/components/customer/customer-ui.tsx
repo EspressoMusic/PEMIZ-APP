@@ -182,13 +182,13 @@ export function EmptyStateCard({ message }: { message: string }) {
 }
 
 const settingsMenuShell =
-  "block w-full rounded-[22px] border-[1.2px] border-bakery-border/45 bg-[#E6D5B8] bakery-panel-shadow";
+  "customer-settings-menu-shell block w-full rounded-[22px]";
 
 const settingsMenuInner =
-  "rounded-[14px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]";
+  "customer-settings-menu-inner rounded-[14px] px-3 py-3";
 
 const settingsMenuIconBox =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/35 bg-bakery-square shadow-[0_2px_6px_rgba(58,47,38,0.08)]";
+  "customer-settings-menu-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]";
 
 /** Active / history order tiles — single light fill + dark stroke */
 const orderCardShell =
