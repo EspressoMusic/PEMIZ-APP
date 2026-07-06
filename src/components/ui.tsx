@@ -59,7 +59,7 @@ export function Button({
   variant?: "primary" | "secondary" | "square" | "danger" | "ghost";
 }) {
   const base =
-    "inline-flex min-h-[48px] items-center justify-center rounded-[18px] px-5 py-3.5 text-[15px] font-medium transition disabled:opacity-50";
+    "inline-flex min-h-[48px] items-center justify-center rounded-[18px] px-5 py-3.5 text-[15px] font-medium transition duration-150 ease-out active:scale-[0.97] active:duration-75 disabled:opacity-50 disabled:active:scale-100";
   const variants = {
     primary:
       "bg-bakery-primary text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] hover:opacity-95",
@@ -68,7 +68,7 @@ export function Button({
     square:
       "min-h-[48px] border-[1.2px] border-bakery-border/40 bg-bakery-square text-bakery-ink shadow-none hover:bg-bakery-card",
     danger:
-      "bg-bakery-error text-white shadow-none hover:bg-[var(--bakery-error-hover)] hover:opacity-100 active:scale-[0.99]",
+      "bg-bakery-error text-white shadow-none hover:bg-[var(--bakery-error-hover)] hover:opacity-100",
     ghost: "min-h-0 rounded-[14px] px-3 py-2 text-bakery-muted hover:bg-bakery-card/90",
   };
   return (

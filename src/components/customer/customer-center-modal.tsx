@@ -94,7 +94,7 @@ export function CustomerCenterModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
+        className="customer-center-modal-backdrop absolute inset-0 bg-bakery-ink/30 backdrop-blur-[2px]"
         onClick={onClose}
         aria-label={closeLabel}
       />

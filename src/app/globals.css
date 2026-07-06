@@ -665,11 +665,70 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --shadow-bakery-btn: 0 4px 12px rgba(93, 64, 55, 0.28);
 }
 
+/* Fast, light entrance animations for modals/sheets — quick, not sluggish */
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sheet-slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-slide-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .customer-center-modal-backdrop,
+  .customer-center-modal__panel,
+  .dashboard-action-sheet-backdrop,
+  .dashboard-action-sheet-panel-in--bottom,
+  .dashboard-action-sheet-panel-in--top,
+  .dashboard-action-sheet-panel-in--center {
+    animation: none !important;
+  }
+}
+
 /* Center modals (portal on body) — solid panel, not transparent */
+.customer-center-modal-backdrop {
+  animation: modal-fade-in 0.1s ease-out both;
+}
+
 .customer-center-modal__panel {
   background-color: #ffffff;
   color: var(--bakery-ink, #134e4a);
   border: 3px solid rgba(13, 148, 136, 0.22);
+  animation: modal-scale-in 0.14s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .customer-center-modal__header,
@@ -2847,6 +2906,19 @@ html:not([data-store-theme="dark"])
   background: rgba(249, 244, 235, 0.72);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
+  animation: modal-fade-in 0.1s ease-out both;
+}
+
+.dashboard-action-sheet-panel-in--bottom {
+  animation: sheet-slide-in-bottom 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.dashboard-action-sheet-panel-in--top {
+  animation: sheet-slide-in-top 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.dashboard-action-sheet-panel-in--center {
+  animation: modal-scale-in 0.14s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .dashboard-action-sheet-body {

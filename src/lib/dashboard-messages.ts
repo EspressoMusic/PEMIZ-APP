@@ -197,6 +197,8 @@ export type DashboardLabels = {
   searchOrders: string;
   searchOrdersPlaceholder: string;
   noOrderSearchResults: string;
+  filterOrdersByDate: string;
+  clearDateFilter: string;
   unit: string;
   units: string;
   customer: string;
@@ -687,6 +689,8 @@ const HE: DashboardLabels = {
   searchOrders: "חיפוש הזמנה",
   searchOrdersPlaceholder: "שם או מספר הזמנה",
   noOrderSearchResults: "לא נמצאו הזמנות לחיפוש",
+  filterOrdersByDate: "סינון לפי תאריך",
+  clearDateFilter: "נקה סינון תאריך",
   unit: "יחידה",
   units: "יחידות",
   customer: "לקוח",
@@ -1325,6 +1329,8 @@ const EN: DashboardLabels = {
   searchOrders: "Search orders",
   searchOrdersPlaceholder: "Name or order number",
   noOrderSearchResults: "No orders match your search",
+  filterOrdersByDate: "Filter by date",
+  clearDateFilter: "Clear date filter",
   unit: "unit",
   units: "units",
   customer: "customer",

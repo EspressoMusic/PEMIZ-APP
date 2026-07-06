@@ -85,30 +85,47 @@ function orderStatusLabel(status: string, locale: AppLocale): string {
   return map[status] ?? status;
 }
 
-/** רק ממתין דורש פעולה; אושר/הושלם/בוטל — בהיסטוריה */
+/** ממתין נשאר פעיל; אושר/הושלם/בוטל עוברים אוטומטית להיסטוריה ולעולם לא נמחקים */
 const ACTIVE_ORDER_STATUSES = new Set(["PENDING"]);
 
 function isActiveOrderStatus(status: string) {
   return ACTIVE_ORDER_STATUSES.has(status);
 }
 
+function orderMatchesDate(order: DashboardOrderView, dateStr: string): boolean {
+  if (!order.createdAt) return false;
+  const d = new Date(order.createdAt);
+  if (Number.isNaN(d.getTime())) return false;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}` === dateStr;
+}
+
 function filterOrdersBySearch(
   orders: DashboardOrderView[],
-  query: string
+  query: string,
+  dateStr = ""
 ): DashboardOrderView[] {
+  let result = orders;
   const q = query.trim().toLowerCase();
-  if (!q) return orders;
-  const numQuery = q.replace(/^#/, "");
-  return orders.filter((order) => {
-    if (order.customerName.toLowerCase().includes(q)) return true;
-    if (
-      order.orderNumber != null &&
-      String(order.orderNumber).includes(numQuery)
-    ) {
-      return true;
-    }
-    return false;
-  });
+  if (q) {
+    const numQuery = q.replace(/^#/, "");
+    result = result.filter((order) => {
+      if (order.customerName.toLowerCase().includes(q)) return true;
+      if (
+        order.orderNumber != null &&
+        String(order.orderNumber).includes(numQuery)
+      ) {
+        return true;
+      }
+      return false;
+    });
+  }
+  if (dateStr) {
+    result = result.filter((order) => orderMatchesDate(order, dateStr));
+  }
+  return result;
 }
 
 function normalizeCustomerPhone(phone: string) {
@@ -181,15 +198,17 @@ function useOrdersSheetSearch(open: boolean) {
   const { labels } = useAppLocale();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchDate, setSearchDate] = useState("");
 
   useEffect(() => {
     if (!open) {
       setSearchOpen(false);
       setSearchQuery("");
+      setSearchDate("");
     }
   }, [open]);
 
-  const hasSearchQuery = searchQuery.trim().length > 0;
+  const hasSearchQuery = searchQuery.trim().length > 0 || searchDate.length > 0;
 
   const headerEndAction = searchOpen ? (
     <button
@@ -197,6 +216,7 @@ function useOrdersSheetSearch(open: boolean) {
       onClick={() => {
         setSearchOpen(false);
         setSearchQuery("");
+        setSearchDate("");
       }}
       className="inline-flex h-10 w-10 items-center justify-center rounded-full text-bakery-ink transition hover:bg-bakery-cream-light/80 active:opacity-80"
       aria-label={labels.close}
@@ -215,16 +235,28 @@ function useOrdersSheetSearch(open: boolean) {
   );
 
   const searchField = searchOpen ? (
-    <div className="mb-2 px-0.5">
-      <Input
-        type="search"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder={labels.searchOrdersPlaceholder}
-        autoFocus
-        className="rounded-[14px] border-bakery-border/40 bg-bakery-on-primary text-[15px] font-semibold"
-        aria-label={labels.searchOrdersPlaceholder}
-      />
+    <div className="mb-2 flex items-center gap-2 px-0.5">
+      <div className="min-w-0 flex-1">
+        <Input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={labels.searchOrdersPlaceholder}
+          autoFocus
+          className="rounded-[14px] border-bakery-border/40 bg-bakery-on-primary text-[15px] font-semibold"
+          aria-label={labels.searchOrdersPlaceholder}
+        />
+      </div>
+      <div className="w-[152px] shrink-0">
+        <Input
+          type="date"
+          value={searchDate}
+          onChange={(e) => setSearchDate(e.target.value)}
+          className="rounded-[14px] border-bakery-border/40 bg-bakery-on-primary text-[15px] font-semibold"
+          aria-label={labels.filterOrdersByDate}
+          title={labels.filterOrdersByDate}
+        />
+      </div>
     </div>
   ) : null;
 
@@ -232,6 +264,7 @@ function useOrdersSheetSearch(open: boolean) {
     headerEndAction,
     searchField,
     searchQuery,
+    searchDate,
     hasSearchQuery,
   };
 }
@@ -372,11 +405,11 @@ function OrdersActiveSheet({
   previewOnly?: boolean;
 }) {
   const { labels } = useAppLocale();
-  const { headerEndAction, searchField, searchQuery, hasSearchQuery } =
+  const { headerEndAction, searchField, searchQuery, searchDate, hasSearchQuery } =
     useOrdersSheetSearch(open);
   const filteredOrders = useMemo(
-    () => filterOrdersBySearch(activeOrders, searchQuery),
-    [activeOrders, searchQuery]
+    () => filterOrdersBySearch(activeOrders, searchQuery, searchDate),
+    [activeOrders, searchQuery, searchDate]
   );
 
   return (
@@ -419,11 +452,11 @@ function OrdersHistorySheet({
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
 }) {
   const { labels } = useAppLocale();
-  const { headerEndAction, searchField, searchQuery, hasSearchQuery } =
+  const { headerEndAction, searchField, searchQuery, searchDate, hasSearchQuery } =
     useOrdersSheetSearch(open);
   const filteredOrders = useMemo(
-    () => filterOrdersBySearch(historyOrders, searchQuery),
-    [historyOrders, searchQuery]
+    () => filterOrdersBySearch(historyOrders, searchQuery, searchDate),
+    [historyOrders, searchQuery, searchDate]
   );
 
   return (

@@ -49,7 +49,14 @@ async function main() {
 
   const iconPipeline = (size) => sharp(logo).resize(size, size);
 
-  /** Android/Web Push badge — white silhouette only (transparent bg). */
+  /**
+   * Android/Web Push badge — white silhouette only (transparent bg).
+   * Android masks this by alpha alone, ignoring RGB, so the mask must be
+   * built from the artwork's ink (dark lines) vs. its light fill, not from
+   * the source PNG's own alpha channel — otherwise opaque light fill (e.g.
+   * a face background) and opaque dark linework both become one solid
+   * blob and the icon reads as a plain white square in the status bar.
+   */
   async function writeNotificationBadge(name, size) {
     const { data, info } = await sharp(readFileSync(loadingLogoPath))
       .resize(size, size, {
@@ -62,10 +69,12 @@ async function main() {
 
     for (let i = 0; i < data.length; i += 4) {
       const alpha = data[i + 3];
-      if (alpha > 24) {
+      const luminosity = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      if (alpha > 24 && luminosity < 128) {
         data[i] = 255;
         data[i + 1] = 255;
         data[i + 2] = 255;
+        data[i + 3] = 255;
       } else {
         data[i + 3] = 0;
       }

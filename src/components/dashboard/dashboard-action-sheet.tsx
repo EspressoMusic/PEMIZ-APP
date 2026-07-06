@@ -126,6 +126,13 @@ export function DashboardActionSheet({
   const zClass = topLayer ? "z-[130]" : elevated ? "z-[125]" : "z-[80]";
   const backdropPassesThrough = elevated && !topLayer;
 
+  const panelAnimClass =
+    placement === "top" || placement === "upper"
+      ? "dashboard-action-sheet-panel-in--top"
+      : placement === "center"
+        ? "dashboard-action-sheet-panel-in--center"
+        : "dashboard-action-sheet-panel-in--bottom";
+
   return createPortal(
     <div
       className={`fixed inset-0 flex ${fullViewport ? "app-safe-top" : ""} ${fullViewport ? "p-0 sm:p-4" : "p-3 sm:p-4"} ${zClass} ${alignClass}`}
@@ -143,7 +150,7 @@ export function DashboardActionSheet({
         tabIndex={backdropPassesThrough ? -1 : undefined}
       />
       <div
-        className={`relative z-10 flex w-full flex-col ${DASHBOARD_MOBILE_STACK} ${
+        className={`relative z-10 flex w-full flex-col ${DASHBOARD_MOBILE_STACK} ${panelAnimClass} ${
           compact && !backOutside
             ? "gap-0"
             : backOutside
