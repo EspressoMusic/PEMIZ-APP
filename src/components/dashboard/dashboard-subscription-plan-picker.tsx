@@ -1,7 +1,6 @@
 "use client";
 
 import type { AppLocale, DashboardLabels } from "@/lib/app-locale";
-import { marketingWhatsAppUrl } from "@/lib/marketing-contact";
 import {
   formatPlanPrice,
   planPrice,
@@ -37,7 +36,6 @@ export function DashboardSubscriptionPlanPicker({
   chooseLabel?: string;
   onChoosePlan: (planId: SubscriptionPlanId) => void;
 }) {
-  const contactHref = marketingWhatsAppUrl(locale);
   const ctaLabel =
     chooseLabel ??
     (previewOnly ? labels.subscriptionPreviewOnly : labels.subscriptionSignUp);
@@ -89,29 +87,6 @@ export function DashboardSubscriptionPlanPicker({
           </div>
         );
       })}
-
-      <div
-        className={`${planCardClass} border border-bakery-border/40`}
-      >
-        <span className="text-[18px] font-extrabold tracking-wide text-bakery-primary">
-          {labels.subscriptionEnterpriseTitle}
-        </span>
-        <div className="mt-3 flex flex-1 flex-col justify-center">
-          <p className="text-[15px] font-semibold leading-snug text-bakery-muted">
-            {labels.subscriptionEnterpriseHint}
-          </p>
-        </div>
-        {contactHref ? (
-          <a
-            href={contactHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bakery-cta-3d bakery-cta-3d--primary mt-4 inline-flex w-full items-center justify-center !rounded-full !py-3.5 text-[16px] font-extrabold no-underline"
-          >
-            {labels.subscriptionContactUs}
-          </a>
-        ) : null}
-      </div>
     </div>
   );
 }
