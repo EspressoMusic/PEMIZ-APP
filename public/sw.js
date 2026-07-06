@@ -1,3 +1,4 @@
+/* Linky/Peymiz push handler — v2 notification icons */
 self.addEventListener("push", (event) => {
   let payload = {};
   try {
@@ -9,8 +10,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "Linky";
   const options = {
     body: payload.body || "",
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
+    icon: payload.icon || "/icons/notification-icon.png",
+    badge: payload.badge || "/icons/notification-badge.png",
     tag: payload.tag || "linky-alert",
     data: { url: payload.url || "/dashboard" },
     dir: "rtl",

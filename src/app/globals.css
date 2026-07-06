@@ -399,23 +399,26 @@ html[data-store-theme="turquoise"],
   --cs-sheet-bg: #ffffff;
 }
 
-/* Customer settings rows — calm default (tan shell + cream inner) */
+/* Customer settings rows — calm default (matches seller action row) */
 .customer-settings-menu-shell {
-  border: 1.2px solid color-mix(in srgb, var(--bakery-border) 45%, transparent);
-  background: #e6d5b8;
-  box-shadow: 0 3px 10px rgba(58, 47, 38, 0.1);
+  border: 1.5px solid var(--dashboard-soft-border, rgba(78, 52, 46, 0.12));
+  background: var(--dashboard-tile-bg, #f2ebe0);
+  box-shadow: 0 2px 8px var(--dashboard-shadow, rgba(78, 52, 46, 0.08));
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.customer-settings-menu-inner {
-  border: 3px solid rgba(92, 74, 62, 0.22);
+.customer-settings-menu-shell:active {
+  transform: scale(0.985);
+}
+
+.customer-settings-menu-subrow {
+  border: 1.5px solid var(--dashboard-soft-border, rgba(78, 52, 46, 0.1));
   background: var(--bakery-card);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.customer-settings-menu-icon {
-  border: 1px solid color-mix(in srgb, var(--bakery-border) 35%, transparent);
-  background: var(--bakery-square);
-  box-shadow: 0 2px 6px rgba(58, 47, 38, 0.08);
+  box-shadow: 0 1px 4px rgba(58, 47, 38, 0.06);
 }
 
 .customer-faq-card,
@@ -429,20 +432,26 @@ html[data-store-theme="turquoise"],
   background: #e6d5b8;
 }
 
-/* Customer settings + FAQ — turquoise (no brown frames) */
+/* Customer settings + FAQ — turquoise (same tiles as seller dashboard) */
 .customer-store-root.customer-theme-turquoise .customer-settings-menu-shell {
   background: #d4ece7;
   border: 2px solid #0f766e;
   box-shadow: none;
 }
 
-.customer-store-root.customer-theme-turquoise .customer-settings-menu-inner {
+.customer-store-root.customer-theme-turquoise .customer-settings-menu-subrow {
   background: #ffffff;
   border: 2px solid #0f766e;
   box-shadow: none;
 }
 
-.customer-store-root.customer-theme-turquoise .customer-settings-menu-icon {
+.customer-store-root.customer-theme-turquoise .customer-settings-menu-shell .bakery-icon-tile {
+  background: #b6ddd4;
+  border: none;
+  box-shadow: none;
+}
+
+.customer-store-root.customer-theme-turquoise .customer-settings-menu-subrow .bakery-icon-tile {
   background: #b6ddd4;
   border: none;
   box-shadow: none;
@@ -452,6 +461,54 @@ html[data-store-theme="turquoise"],
 .customer-store-root.customer-theme-turquoise .customer-faq-pill-btn {
   background: #d4ece7;
   border: 2px solid #0f766e;
+  box-shadow: none;
+}
+
+/* Customer deal cards */
+.customer-deal-card {
+  border: 3px solid rgba(61, 46, 38, 0.38);
+  background: var(--bakery-square);
+  box-shadow: 0 2px 8px rgba(58, 47, 38, 0.1);
+}
+
+.customer-deal-card__title {
+  border: none;
+  background: transparent;
+}
+
+.customer-deal-card__product-row {
+  border: 1px solid color-mix(in srgb, var(--bakery-border) 35%, transparent);
+  background: var(--bakery-card);
+  box-shadow: 0 2px 6px rgba(58, 47, 38, 0.1);
+}
+
+.customer-deal-card__price-block {
+  border: none;
+  background: var(--bakery-card);
+  box-shadow: none;
+}
+
+.customer-store-root.customer-theme-turquoise .customer-deal-card {
+  border: 2px solid #0f766e;
+  background: #d4ece7;
+  box-shadow: none;
+}
+
+.customer-store-root.customer-theme-turquoise .customer-deal-card__product-row {
+  border: 2px solid #0f766e;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.customer-store-root.customer-theme-turquoise .customer-deal-card__price-block {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.customer-store-root.customer-theme-turquoise .customer-deal-card button.rounded-full.border {
+  border-color: #0f766e;
+  background: #ffffff;
   box-shadow: none;
 }
 

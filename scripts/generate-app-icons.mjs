@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const logoPath = join(root, "public/icons/linky-app-logo.png");
+const loadingLogoPath = join(root, "public/icons/linky-loading-logo.png");
 const outDir = join(root, "public/icons");
 const publicDir = join(root, "public");
 const appDir = join(root, "src/app");
@@ -48,10 +49,68 @@ async function main() {
 
   const iconPipeline = (size) => sharp(logo).resize(size, size);
 
+  /** Android/Web Push badge — white silhouette only (transparent bg). */
+  async function writeNotificationBadge(name, size) {
+    const { data, info } = await sharp(readFileSync(loadingLogoPath))
+      .resize(size, size, {
+        fit: "contain",
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    for (let i = 0; i < data.length; i += 4) {
+      const alpha = data[i + 3];
+      if (alpha > 24) {
+        data[i] = 255;
+        data[i + 1] = 255;
+        data[i + 2] = 255;
+      } else {
+        data[i + 3] = 0;
+      }
+    }
+
+    await sharp(Buffer.from(data), {
+      raw: { width: info.width, height: info.height, channels: 4 },
+    })
+      .png()
+      .toFile(join(outDir, name));
+    console.log(`Wrote ${name}`);
+  }
+
+  /** Large notification icon — character logo on turquoise (readable on Android). */
+  async function writeNotificationIcon(name, size) {
+    const inner = Math.round(size * 0.72);
+    const character = await sharp(readFileSync(loadingLogoPath))
+      .resize(inner, inner, {
+        fit: "contain",
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
+      .png()
+      .toBuffer();
+
+    await sharp({
+      create: {
+        width: size,
+        height: size,
+        channels: 4,
+        background: { r: 165, g: 212, b: 204, alpha: 255 },
+      },
+    })
+      .composite([{ input: character, gravity: "center" }])
+      .png()
+      .toFile(join(outDir, name));
+    console.log(`Wrote ${name}`);
+  }
+
   for (const { name, size } of sizes) {
     await iconPipeline(size).png().toFile(join(outDir, name));
     console.log(`Wrote ${name}`);
   }
+
+  await writeNotificationBadge("notification-badge.png", 96);
+  await writeNotificationIcon("notification-icon.png", 192);
 
   const favicon32 = await iconPipeline(32).png().toBuffer();
   writeFileSync(join(publicDir, "favicon.ico"), favicon32);

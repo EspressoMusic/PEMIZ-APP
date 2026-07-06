@@ -182,17 +182,10 @@ export function EmptyStateCard({ message }: { message: string }) {
 }
 
 const settingsMenuShell =
-  "customer-settings-menu-shell block w-full rounded-[22px]";
+  "customer-settings-menu-shell flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start";
 
-const settingsMenuInner =
-  "customer-settings-menu-inner rounded-[14px] px-3 py-3";
-
-const settingsMenuIconBox =
-  "customer-settings-menu-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]";
-
-/** Active / history order tiles — single light fill + dark stroke */
-const orderCardShell =
-  "rounded-[18px] border-[2px] border-bakery-primary bg-bakery-card px-3 py-3";
+const settingsMenuSubRow =
+  "customer-settings-menu-subrow flex w-full items-center gap-3 rounded-[14px] px-3 py-3 text-start";
 
 function SettingsMenuInnerRow({
   icon: Icon,
@@ -208,30 +201,31 @@ function SettingsMenuInnerRow({
   trailing?: ReactNode;
 }) {
   return (
-    <div className={`${settingsMenuInner} px-3 py-3`}>
-      <div className="flex items-center gap-3">
-        <span className={iconSlot ? "shrink-0" : settingsMenuIconBox}>
-          {iconSlot ??
-            (Icon ? (
-              <Icon
-                className="h-[26px] w-[26px] text-bakery-ink"
-                strokeWidth={1.75}
-              />
-            ) : null)}
-        </span>
-        <div className="min-w-0 flex-1 text-start">
-          <p className="text-[18px] font-extrabold leading-tight text-bakery-ink">
-            {title}
+    <>
+      <span
+        className={
+          iconSlot
+            ? "shrink-0"
+            : "bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]"
+        }
+      >
+        {iconSlot ??
+          (Icon ? (
+            <Icon className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
+          ) : null)}
+      </span>
+      <div className="min-w-0 flex-1 text-start">
+        <p className="text-[16px] font-extrabold leading-tight text-bakery-ink">
+          {title}
+        </p>
+        {subtitle ? (
+          <p className="mt-0.5 block text-[13px] font-medium text-bakery-muted">
+            {subtitle}
           </p>
-          {subtitle ? (
-            <p className="mt-1 text-[14px] font-semibold leading-[1.35] text-bakery-muted">
-              {subtitle}
-            </p>
-          ) : null}
-        </div>
-        {trailing}
+        ) : null}
       </div>
-    </div>
+      {trailing}
+    </>
   );
 }
 
@@ -249,19 +243,21 @@ function SettingsMenuRowBody({
   trailing?: ReactNode;
 }) {
   return (
-    <div className="m-3">
-      <SettingsMenuInnerRow
-        icon={icon}
-        iconSlot={iconSlot}
-        title={title}
-        subtitle={subtitle}
-        trailing={trailing}
-      />
-    </div>
+    <SettingsMenuInnerRow
+      icon={icon}
+      iconSlot={iconSlot}
+      title={title}
+      subtitle={subtitle}
+      trailing={trailing}
+    />
   );
 }
 
-/** Settings / orders — tan shell, cream inner row (matches seller settings group). */
+/** Active / history order tiles — single light fill + dark stroke */
+const orderCardShell =
+  "rounded-[18px] border-[2px] border-bakery-primary bg-bakery-card px-3 py-3";
+
+/** Settings / orders — single row tile (matches seller dashboard-action-row). */
 export function SettingsCollapsibleSection({
   title,
   icon: Icon,
@@ -276,29 +272,29 @@ export function SettingsCollapsibleSection({
   children: ReactNode;
 }) {
   return (
-    <div className={settingsMenuShell}>
+    <div>
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={expanded}
-        className="w-full text-start transition active:scale-[0.99]"
+        className={`${settingsMenuShell} w-full cursor-pointer transition active:scale-[0.99]`}
       >
-        <SettingsMenuRowBody
+        <SettingsMenuInnerRow
           icon={Icon}
           title={title}
           trailing={
             <ChevronDown
-              className={`h-6 w-6 shrink-0 text-bakery-ink transition-transform duration-200 ${
+              className={`h-5 w-5 shrink-0 text-bakery-ink transition-transform duration-300 ease-out ${
                 expanded ? "rotate-180" : ""
               }`}
-              strokeWidth={2}
+              strokeWidth={2.5}
               aria-hidden
             />
           }
         />
       </button>
       {expanded ? (
-        <div className="space-y-2 px-3 pb-3">{children}</div>
+        <div className="space-y-2 pt-2">{children}</div>
       ) : null}
     </div>
   );
@@ -324,7 +320,10 @@ export function SettingsMenuSubRow({
 
   if (href) {
     return (
-      <a href={href} className="block no-underline transition active:scale-[0.99]">
+      <a
+        href={href}
+        className={`${settingsMenuSubRow} block no-underline transition active:scale-[0.99]`}
+      >
         {content}
       </a>
     );
@@ -334,7 +333,7 @@ export function SettingsMenuSubRow({
     <button
       type="button"
       onClick={onClick}
-      className="w-full cursor-pointer text-start transition active:scale-[0.99]"
+      className={`${settingsMenuSubRow} w-full cursor-pointer transition active:scale-[0.99]`}
     >
       {content}
     </button>
@@ -465,7 +464,7 @@ export function SettingsMenuRow({
     <button
       type="button"
       onClick={onClick}
-      className={`${settingsMenuShell} w-full cursor-pointer text-start transition active:scale-[0.99]`}
+      className={`${settingsMenuShell} w-full cursor-pointer transition active:scale-[0.99]`}
     >
       {content}
     </button>
@@ -1128,7 +1127,7 @@ export function DealCard({
   return (
     <>
       <article
-        className={`relative mx-auto flex w-full max-w-[17.5rem] min-w-0 flex-col gap-2 overflow-hidden rounded-[16px] border-[3px] border-[#3D2E26]/38 bg-bakery-square p-3 shadow-[0_2px_8px_rgba(58,47,38,0.1)] transition-opacity duration-300 ${
+        className={`customer-deal-card relative mx-auto flex w-full max-w-[17.5rem] min-w-0 flex-col gap-2 overflow-hidden rounded-[16px] p-3 transition-opacity duration-300 ${
           faded ? "opacity-45 saturate-[0.65]" : ""
         }`}
       >
@@ -1142,7 +1141,7 @@ export function DealCard({
         ) : null}
 
         <div className="relative flex min-h-[2.25rem] items-center justify-center px-7">
-          <h3 className="line-clamp-2 w-full rounded-[12px] border-2 border-[#3D2E26]/32 bg-bakery-card/50 px-5 py-1.5 text-center text-[15px] font-extrabold leading-[1.2] text-bakery-ink">
+          <h3 className="customer-deal-card__title line-clamp-2 w-full px-5 py-1.5 text-center text-[15px] font-extrabold leading-[1.2] text-bakery-ink">
             {name}
           </h3>
           <button
@@ -1161,7 +1160,7 @@ export function DealCard({
             return (
               <div
                 key={p.id ?? p.name}
-                className="flex min-h-[2.75rem] min-w-0 items-center gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-card px-2 py-1.5 shadow-[0_2px_6px_rgba(58,47,38,0.1)]"
+                className="customer-deal-card__product-row flex min-h-[2.75rem] min-w-0 items-center gap-2 rounded-[12px] px-2 py-1.5"
               >
                 <div className="h-10 w-14 shrink-0 overflow-hidden rounded-[8px] bg-bakery-on-primary">
                   <ProductThumb
@@ -1180,7 +1179,7 @@ export function DealCard({
           })}
         </div>
 
-        <div className="flex flex-col items-center gap-1 rounded-[12px] border border-bakery-border/35 bg-bakery-card px-3 py-2.5 shadow-[0_2px_6px_rgba(58,47,38,0.08)]">
+        <div className="customer-deal-card__price-block flex flex-col items-center gap-1 rounded-[12px] px-3 py-2.5">
           {originalTotal > dealPrice && (
             <p className="text-center text-[13px] font-semibold leading-none text-bakery-muted line-through tabular-nums">
               {formatCustomerMoney(originalTotal, locale)}
