@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import {
   HelpCircle,
   MessagesSquare,
@@ -83,6 +84,7 @@ import {
   type CustomerOrderHistoryEntry,
 } from "@/lib/customer-order-history";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
+import { CustomerSellerPreviewBack } from "./customer-seller-preview-back";
 import {
   buildSellerWhatsAppHref,
   CustomerWhatsAppContactRow,
@@ -147,6 +149,11 @@ import { DEV_PREVIEW_INQUIRIES } from "@/lib/dev-preview-data";
 import type { CustomerResolution } from "@/lib/customer-resolution";
 import { updateDevStoreChatResolution } from "@/lib/customer-chat-storage";
 import { isWithinCustomerHistoryWindow } from "@/lib/customer-history-access";
+import { readSellerPreviewReturn } from "@/lib/seller-customer-preview";
+import {
+  applyCustomerChromeTheme,
+  clearCustomerChromeTheme,
+} from "@/lib/customer-chrome-theme";
 import {
   customerInquiryPhoneKey,
   customerNameKey,
@@ -444,6 +451,19 @@ export function CustomerStoreApp({
   const [displayTheme, setDisplayTheme] =
     useState<CustomerDisplayTheme>(ownerTheme);
   const [textScale, setTextScale] = useState<CustomerTextScale>("100");
+
+  const searchParams = useSearchParams();
+  const sellerPreviewReturnHref = useMemo(
+    () => readSellerPreviewReturn(searchParams),
+    [searchParams]
+  );
+
+  useEffect(() => {
+    applyCustomerChromeTheme(displayTheme);
+    return () => {
+      clearCustomerChromeTheme();
+    };
+  }, [displayTheme]);
 
   const labels = useMemo(() => getCustomerLabels(locale), [locale]);
 
@@ -1914,6 +1934,12 @@ export function CustomerStoreApp({
     <>
       <div className={CUSTOMER_VIEWPORT_HEIGHT}>
         <div className={`${CUSTOMER_MOBILE_STACK} ${CUSTOMER_PAGE_ROOT}`}>
+          {sellerPreviewReturnHref ? (
+            <CustomerSellerPreviewBack
+              href={sellerPreviewReturnHref}
+              label={labels.backToSellerDashboard}
+            />
+          ) : null}
           {!unavailable && showSellerNoticeBanner && (
             <div className="shrink-0">
               <CustomerSellerNoticeBanner

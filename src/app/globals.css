@@ -75,7 +75,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "Plus Jakarta Sans", "Rubik", system-ui, sans-serif;
-  --color-bakery-scaffold: #a5d4cc;
+  --color-bakery-scaffold: var(--bakery-scaffold);
   --color-bakery-classic-cream: var(--bakery-classic-cream);
   --color-bakery-classic-cream-hover: var(--bakery-classic-cream-hover);
   --color-bakery-cream-light: var(--bakery-cream-light);
@@ -161,6 +161,35 @@ html[data-locale="he"] body {
 .bakery-frame-bg {
   min-height: 100dvh;
   background: var(--bakery-scaffold);
+}
+
+/* Customer store — safe-area / frame backdrop follows display theme */
+.bakery-frame-bg:has(.customer-store-root.customer-theme-calm),
+html[data-customer-chrome-theme="calm"] .bakery-frame-bg {
+  background: #faf6f0;
+}
+
+.bakery-frame-bg:has(.customer-store-root.customer-theme-dark),
+html[data-customer-chrome-theme="dark"] .bakery-frame-bg {
+  background: #0f1114;
+}
+
+.bakery-frame-bg:has(.customer-store-root.customer-theme-light),
+.bakery-frame-bg:has(.customer-store-root.customer-theme-turquoise),
+html[data-customer-chrome-theme="light"] .bakery-frame-bg,
+html[data-customer-chrome-theme="turquoise"] .bakery-frame-bg {
+  background: #ffffff;
+}
+
+.customer-store-root {
+  background-color: var(--cs-page-bg, var(--customer-bg, #ffffff));
+}
+
+html[data-customer-chrome-theme="calm"] body,
+html[data-customer-chrome-theme="dark"] body,
+html[data-customer-chrome-theme="light"] body,
+html[data-customer-chrome-theme="turquoise"] body {
+  background-color: var(--bakery-scaffold);
 }
 
 .home-landing-title {
@@ -464,6 +493,61 @@ html[data-store-theme="turquoise"],
   box-shadow: none;
 }
 
+/* Customer settings + FAQ — calm / brown-cream (same tiles as seller dashboard) */
+.customer-store-root.customer-theme-calm .customer-settings-menu-shell {
+  background: var(--dashboard-tile-bg, #f2ebe0);
+  border: 3px solid rgba(58, 47, 38, 0.2);
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+}
+
+.customer-store-root.customer-theme-calm .customer-settings-menu-shell:active {
+  background: var(--dashboard-tile-active-bg, #efe8dc);
+  border-color: rgba(58, 47, 38, 0.3);
+  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
+}
+
+.customer-store-root.customer-theme-calm .customer-settings-menu-subrow {
+  background: var(--bakery-prep-cream, #e8d8c3);
+  border: 3px solid rgba(58, 47, 38, 0.16);
+  box-shadow: 0 1px 4px rgba(58, 47, 38, 0.06);
+}
+
+.customer-store-root.customer-theme-calm .customer-settings-menu-shell .bakery-icon-tile,
+.customer-store-root.customer-theme-calm .customer-settings-menu-subrow .bakery-icon-tile {
+  background: var(--bakery-prep-cream, #e8d8c3);
+  border: 1.5px solid rgba(78, 52, 46, 0.12);
+  box-shadow: none;
+}
+
+.customer-store-root.customer-theme-calm .customer-faq-card,
+.customer-store-root.customer-theme-calm .customer-faq-pill-btn {
+  background: var(--bakery-square, #e6d4b8);
+  border: 3px solid rgba(58, 47, 38, 0.2);
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+}
+
+.customer-store-root.customer-theme-calm .customer-faq-pill-btn {
+  background: var(--bakery-prep-cream, #e8d8c3);
+}
+
+.customer-seller-preview-back {
+  border: 2px solid rgba(58, 47, 38, 0.2);
+  background: var(--dashboard-tile-bg, #f2ebe0);
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+}
+
+.customer-store-root.customer-theme-turquoise .customer-seller-preview-back {
+  border: 2px solid #0f766e;
+  background: #d4ece7;
+  box-shadow: none;
+}
+
+.customer-store-root.customer-theme-calm .customer-seller-preview-back {
+  border: 3px solid rgba(58, 47, 38, 0.2);
+  background: var(--dashboard-tile-bg, #f2ebe0);
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+}
+
 /* Customer deal cards */
 .customer-deal-card {
   border: 3px solid rgba(61, 46, 38, 0.38);
@@ -512,6 +596,26 @@ html[data-store-theme="turquoise"],
   box-shadow: none;
 }
 
+.customer-deal-card__redeem-btn {
+  box-shadow: var(--shadow-bakery-btn);
+}
+
+.customer-store-root.customer-theme-turquoise .customer-deal-card__redeem-btn {
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.22);
+}
+
+.customer-store-root.customer-theme-calm .customer-deal-card__redeem-btn {
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.28);
+}
+
+.customer-store-root.customer-theme-dark .customer-deal-card__redeem-btn {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.customer-store-root.customer-theme-light .customer-deal-card__redeem-btn {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
 html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --bakery-scaffold: #f4f0e8;
   --bakery-classic-cream: #e6dabf;
@@ -550,6 +654,15 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --cs-nav-bg: #f1e3d3;
   --cs-nav-active: #dbc9b5;
   --cs-sheet-bg: #f4ebe0;
+  /* Dashboard tile palette — scoped to store theme, not seller html theme */
+  --dashboard-panel-bg: #e6d5b8;
+  --dashboard-tile-bg: #f2ebe0;
+  --dashboard-tile-hover-bg: #f6f0e6;
+  --dashboard-tile-active-bg: #efe8dc;
+  --dashboard-soft-border: rgba(78, 52, 46, 0.12);
+  --dashboard-soft-border-strong: rgba(78, 52, 46, 0.18);
+  --dashboard-shadow: rgba(78, 52, 46, 0.14);
+  --shadow-bakery-btn: 0 4px 12px rgba(93, 64, 55, 0.28);
 }
 
 /* Center modals (portal on body) — solid panel, not transparent */
@@ -638,6 +751,7 @@ html[data-store-theme="light"] , .customer-store-root.customer-theme-light {
   --color-customer-nav-active: #e5e5e5;
   --color-customer-soft: #fafafa;
   --bakery-icon-tile: #f5f5f5;
+  --shadow-bakery-btn: 0 4px 12px rgba(0, 0, 0, 0.16);
 }
 
 html[data-store-theme="dark"] {
@@ -762,6 +876,7 @@ html[data-store-theme="dark"] , .customer-store-root.customer-theme-dark {
   --dashboard-cyan-border-soft: rgba(126, 200, 227, 0.28);
   --dashboard-cyan-border-medium: rgba(126, 200, 227, 0.42);
   --dashboard-cyan-surface: rgba(126, 200, 227, 0.1);
+  --shadow-bakery-btn: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 html[data-store-theme="modern"] , .customer-store-root.customer-theme-modern {
@@ -813,6 +928,7 @@ html[data-store-theme="modern"] , .customer-store-root.customer-theme-modern {
 }
 
 html[data-store-theme="light"] .bg-customer-bg, .customer-store-root.customer-theme-light .bg-customer-bg,
+html[data-store-theme="calm"] .bg-customer-bg, .customer-store-root.customer-theme-calm .bg-customer-bg,
 html[data-store-theme="dark"] .bg-customer-bg , .customer-store-root.customer-theme-dark .bg-customer-bg,
 html[data-store-theme="turquoise"] .bg-customer-bg , .customer-store-root.customer-theme-turquoise .bg-customer-bg,
 html[data-store-theme="modern"] .bg-customer-bg , .customer-store-root.customer-theme-modern .bg-customer-bg {
@@ -820,6 +936,7 @@ html[data-store-theme="modern"] .bg-customer-bg , .customer-store-root.customer-
 }
 
 html[data-store-theme="light"] .bg-customer-nav, .customer-store-root.customer-theme-light .bg-customer-nav,
+html[data-store-theme="calm"] .bg-customer-nav, .customer-store-root.customer-theme-calm .bg-customer-nav,
 html[data-store-theme="dark"] .bg-customer-nav , .customer-store-root.customer-theme-dark .bg-customer-nav,
 html[data-store-theme="turquoise"] .bg-customer-nav , .customer-store-root.customer-theme-turquoise .bg-customer-nav,
 html[data-store-theme="modern"] .bg-customer-nav , .customer-store-root.customer-theme-modern .bg-customer-nav {

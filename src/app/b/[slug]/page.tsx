@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import {
   getBusinessBySlug,
@@ -44,8 +45,9 @@ export default async function PublicBusinessPage({
   return (
     <div className="bakery-frame-bg h-dvh overflow-hidden">
       <div className="app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-4">
-    <PublicStorefront
-      business={{
+        <Suspense fallback={null}>
+          <PublicStorefront
+            business={{
         slug: business.slug,
         name: business.name,
         description: business.description,
@@ -89,9 +91,10 @@ export default async function PublicBusinessPage({
         storePanelsVisible: storePanelsFromBusiness(business),
         sellerContactPhone: business.owner?.phone ?? null,
       }}
-      unavailable={unavailable}
-      platformLegalDocs={platformLegalDocs}
-    />
+            unavailable={unavailable}
+            platformLegalDocs={platformLegalDocs}
+          />
+        </Suspense>
       </div>
     </div>
   );

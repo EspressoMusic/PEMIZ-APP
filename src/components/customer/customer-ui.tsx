@@ -1197,7 +1197,7 @@ export function DealCard({
           type="button"
           onClick={onRedeem}
           disabled={redeemDisabled || faded}
-          className="mx-auto min-h-[34px] w-full max-w-[9rem] rounded-full bg-bakery-primary px-4 py-1.5 text-[12px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
+          className="customer-deal-card__redeem-btn mx-auto min-h-[34px] w-full max-w-[9rem] rounded-full bg-bakery-primary px-4 py-1.5 text-[12px] font-extrabold leading-tight text-bakery-on-primary transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
         >
           {faded
             ? labels.dealRedeemed
@@ -1282,7 +1282,7 @@ export function DealCard({
               onRedeem();
             }}
             disabled={redeemDisabled || faded}
-            className="min-h-[44px] w-full rounded-full bg-bakery-primary px-5 py-2.5 text-[14px] font-extrabold leading-tight text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
+            className="customer-deal-card__redeem-btn min-h-[44px] w-full rounded-full bg-bakery-primary px-5 py-2.5 text-[14px] font-extrabold leading-tight text-bakery-on-primary transition hover:opacity-95 active:scale-[0.98] disabled:opacity-50"
           >
             {faded
               ? labels.dealRedeemed

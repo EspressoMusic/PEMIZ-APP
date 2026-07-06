@@ -146,6 +146,7 @@ export function DashboardHomeView({
           <DashboardCustomerLinkCard
             url={customerLink}
             previewHref={previewHref}
+            sellerReturnHref={basePath}
             dense={isAppointments}
           />
         </div>

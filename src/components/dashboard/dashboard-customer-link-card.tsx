@@ -13,6 +13,7 @@ import {
   DASHBOARD_PRESSABLE_CLASS,
   getDashboardPressProps,
 } from "@/lib/dashboard-press";
+import { appendSellerPreviewQuery } from "@/lib/seller-customer-preview";
 
 function toAbsoluteUrl(url: string): string {
   if (/^https?:\/\//i.test(url)) return url;
@@ -40,11 +41,14 @@ function resolveCustomerStoreHref(url: string, previewHref?: string): string | n
 export function DashboardCustomerLinkCard({
   url,
   previewHref,
+  sellerReturnHref = "/dashboard",
   variant = "compact",
   dense = false,
 }: {
   url: string;
   previewHref?: string;
+  /** Dashboard home path — used for «back» on the customer preview. */
+  sellerReturnHref?: string;
   variant?: "compact" | "settingsBar";
   dense?: boolean;
 }) {
@@ -53,7 +57,10 @@ export function DashboardCustomerLinkCard({
   const [copied, setCopied] = useState(false);
   const [absoluteUrl, setAbsoluteUrl] = useState(url);
   const pathLabel = displayPath(url);
-  const customerStoreHref = resolveCustomerStoreHref(url, previewHref);
+  const customerStorePath = resolveCustomerStoreHref(url, previewHref);
+  const customerStoreHref = customerStorePath
+    ? appendSellerPreviewQuery(customerStorePath, sellerReturnHref)
+    : null;
 
   useEffect(() => {
     setAbsoluteUrl(toAbsoluteUrl(url));
@@ -158,8 +165,6 @@ export function DashboardCustomerLinkCard({
           {customerStoreHref ? (
             <Link
               href={customerStoreHref}
-              target="_blank"
-              rel="noopener noreferrer"
               onClick={closeSheet}
               className="dashboard-share-tile flex w-full min-h-[52px] items-center justify-center gap-2 rounded-[9999px] px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition hover:opacity-95 active:scale-[0.99]"
             >
