@@ -145,8 +145,20 @@ export const storeLegalPatchSchema = z.object({
   storeTerms: z.string().max(20_000).nullable().optional(),
 });
 
+export const storeInfoPatchSchema = z.object({
+  storeOpeningHours: z.string().max(500).nullable().optional(),
+  storeAddress: z.string().max(300).nullable().optional(),
+});
+
 export const storeBroadcastPatchSchema = z.object({
   message: z.string().trim().min(1).max(500),
+});
+
+export const publicReviewSchema = z.object({
+  customerName: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
+  customerPhone: customerPhoneSchema,
+  rating: z.number().int().min(1, "Rating is required").max(5),
+  comment: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
 export function zodFirstError(

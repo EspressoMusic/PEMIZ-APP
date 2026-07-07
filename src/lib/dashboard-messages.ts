@@ -134,6 +134,7 @@ export type DashboardLabels = {
   storePanelInquiries: string;
   storePanelFaq: string;
   storePanelOrderLimits: string;
+  storePanelSettings: string;
   storePanelsSaveFailed: string;
   extras: string;
   customers: string;
@@ -348,6 +349,13 @@ export type DashboardLabels = {
   questionPlaceholder: string;
   answerPlaceholder: string;
   faqStorePolicy: string;
+  faqStoreInfo: string;
+  faqStoreInfoTitle: string;
+  storeHoursLabel: string;
+  storeHoursPlaceholder: string;
+  storeAddressLabel: string;
+  storeAddressPlaceholder: string;
+  saveStoreInfo: string;
   faqHiddenFromCustomers: string;
   faqPublishedTitle: string;
   faqPublishedDetail: string;
@@ -626,6 +634,7 @@ const HE: DashboardLabels = {
   storePanelInquiries: "פניות",
   storePanelFaq: "שאלות נפוצות",
   storePanelOrderLimits: "הגבלות הזמנה",
+  storePanelSettings: "פאנל הגדרות",
   storePanelsSaveFailed: "שמירת ההגדרות נכשלה",
   extras: "פרטים נוספים",
   customers: "לקוחות",
@@ -844,6 +853,13 @@ const HE: DashboardLabels = {
   questionPlaceholder: "לדוגמה: מה שעות הפעילות?",
   answerPlaceholder: "לדוגמה: א׳–ה׳ 08:00–20:00",
   faqStorePolicy: "מדיניות החנות",
+  faqStoreInfo: "שעות פתיחה ומיקום",
+  faqStoreInfoTitle: "שעות פתיחה ומיקום",
+  storeHoursLabel: "שעות פתיחה",
+  storeHoursPlaceholder: "לדוגמה: א׳–ה׳ 09:00–18:00, ו׳ 09:00–14:00",
+  storeAddressLabel: "כתובת / מיקום",
+  storeAddressPlaceholder: "לדוגמה: הרצל 12, תל אביב",
+  saveStoreInfo: "שמור פרטים",
   faqHiddenFromCustomers: "מוסתר מלקוחות",
   faqPublishedTitle: "השאלה פורסמה בהצלחה!",
   faqPublishedDetail: "הלקוחות יראו אותה בעמוד החנות",
@@ -1266,6 +1282,7 @@ const EN: DashboardLabels = {
   storePanelInquiries: "Inquiries",
   storePanelFaq: "FAQ",
   storePanelOrderLimits: "Order limits",
+  storePanelSettings: "Settings panel",
   storePanelsSaveFailed: "Could not save panel settings",
   extras: "More details",
   customers: "Customers",
@@ -1485,6 +1502,13 @@ const EN: DashboardLabels = {
   questionPlaceholder: "e.g. What are your hours?",
   answerPlaceholder: "e.g. Mon–Fri 8:00 AM–8:00 PM",
   faqStorePolicy: "Store policy",
+  faqStoreInfo: "Hours & location",
+  faqStoreInfoTitle: "Hours & location",
+  storeHoursLabel: "Opening hours",
+  storeHoursPlaceholder: "e.g. Mon–Thu 9:00 AM–6:00 PM, Fri 9:00 AM–2:00 PM",
+  storeAddressLabel: "Address / location",
+  storeAddressPlaceholder: "e.g. 12 Main St, Tel Aviv",
+  saveStoreInfo: "Save details",
   faqHiddenFromCustomers: "Hidden from customers",
   faqPublishedTitle: "Question published!",
   faqPublishedDetail: "Customers will see it on your store page",

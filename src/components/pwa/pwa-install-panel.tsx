@@ -44,7 +44,7 @@ export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
       <button
         type="button"
         onClick={handleTap}
-        className={`${installTapClass} rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/80 px-4 py-4 text-center`}
+        className={`${installTapClass} rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/80 px-4 py-4 !text-center`}
       >
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-[16px] bg-bakery-square/70">
           <Smartphone className="h-7 w-7 text-bakery-primary" strokeWidth={1.75} />
@@ -63,16 +63,7 @@ export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
         ) : null}
       </button>
 
-      {canInstall ? (
-        <button
-          type="button"
-          onClick={handleTap}
-          className={`${installTapClass} flex min-h-[44px] items-center justify-center gap-2 rounded-full border-[3px] border-[#5C4A3E]/22 bg-bakery-primary px-4 py-2.5 text-center text-[14px] font-extrabold text-bakery-on-primary shadow-[var(--shadow-bakery-btn)]`}
-        >
-          <Download className="h-5 w-5" strokeWidth={2} />
-          {copy.installButton}
-        </button>
-      ) : isIos ? (
+      {canInstall ? null : isIos ? (
         <button
           type="button"
           onClick={handleTap}
@@ -91,19 +82,11 @@ export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
         <button
           type="button"
           onClick={handleTap}
-          className={`${installTapClass} rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/50 px-4 py-3 text-center text-[13px] font-semibold leading-relaxed text-bakery-muted`}
+          className={`${installTapClass} rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/50 px-4 py-3 !text-center text-[13px] font-semibold leading-relaxed text-bakery-muted`}
         >
           {copy.androidHint}
         </button>
       )}
-
-      <button
-        type="button"
-        onClick={handleTap}
-        className={`${installTapClass} rounded-[14px] px-2 py-1 text-center text-[12px] font-medium leading-relaxed text-bakery-muted`}
-      >
-        {copy.desktopHint}
-      </button>
     </div>
   );
 }

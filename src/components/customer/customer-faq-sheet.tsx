@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock, MapPin, X } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
@@ -39,6 +39,8 @@ export function CustomerFaqSheet({
   onClose,
   items,
   storeTerms,
+  openingHours,
+  address,
   locale = "en",
   storeTheme = "turquoise",
 }: {
@@ -46,11 +48,15 @@ export function CustomerFaqSheet({
   onClose: () => void;
   items: FaqEntry[];
   storeTerms?: string | null;
+  openingHours?: string | null;
+  address?: string | null;
   locale?: CustomerLocale;
   storeTheme?: StoreThemeId;
 }) {
   const closeLabel = locale === "he" ? "סגור" : "Close";
   const termsTitle = locale === "he" ? "תקנון החנות" : "Store terms";
+  const hoursTitle = locale === "he" ? "שעות פתיחה" : "Opening hours";
+  const addressTitle = locale === "he" ? "כתובת" : "Address";
   const emptyTitle =
     locale === "he" ? "אין שאלות ברשימה עדיין." : "No questions listed yet.";
   const emptySub =
@@ -63,6 +69,14 @@ export function CustomerFaqSheet({
   const hasTerms = termsBody.length > 0;
   const hasFaq = items.length > 0;
   const hasAny = hasTerms || hasFaq;
+  const hoursBody = openingHours?.trim() ?? "";
+  const addressBody = address?.trim() ?? "";
+  const hasHours = hoursBody.length > 0;
+  const hasAddress = addressBody.length > 0;
+  const hasStoreInfo = hasHours || hasAddress;
+  const mapsHref = hasAddress
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressBody)}`
+    : "";
 
   useEffect(() => {
     if (!open) {
@@ -150,6 +164,48 @@ export function CustomerFaqSheet({
                 />
               )}
             </ul>
+          )}
+
+          {hasStoreInfo && (
+            <div className="customer-faq-card mt-3 space-y-3 overflow-hidden rounded-[22px] px-4 py-4">
+              {hasHours && (
+                <div className="flex items-start gap-3">
+                  <Clock
+                    className="mt-0.5 h-5 w-5 shrink-0 text-bakery-ink"
+                    strokeWidth={1.75}
+                  />
+                  <div className="min-w-0 flex-1 text-start">
+                    <p className="text-[13px] font-bold text-bakery-muted">
+                      {hoursTitle}
+                    </p>
+                    <p className="mt-0.5 whitespace-pre-wrap text-[15px] font-extrabold leading-snug text-bakery-ink">
+                      {hoursBody}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {hasAddress && (
+                <div className="flex items-start gap-3">
+                  <MapPin
+                    className="mt-0.5 h-5 w-5 shrink-0 text-bakery-ink"
+                    strokeWidth={1.75}
+                  />
+                  <div className="min-w-0 flex-1 text-start">
+                    <p className="text-[13px] font-bold text-bakery-muted">
+                      {addressTitle}
+                    </p>
+                    <a
+                      href={mapsHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-0.5 block text-[15px] font-extrabold leading-snug text-bakery-primary underline-offset-2 hover:underline"
+                    >
+                      {addressBody}
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </CustomerCenterModal>

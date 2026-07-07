@@ -11,6 +11,7 @@ import {
 } from "@/components/dashboard/dashboard-panel-frame";
 import {
   ChevronDown,
+  Clock,
   FileText,
   HelpCircle,
   Pencil,
@@ -189,11 +190,15 @@ export function FaqManager({
   initialItems,
   initialPolicy = "",
   initialTerms = "",
+  initialOpeningHours = "",
+  initialAddress = "",
 }: {
   previewOnly?: boolean;
   initialItems?: { id: string; question: string; answer: string }[];
   initialPolicy?: string;
   initialTerms?: string;
+  initialOpeningHours?: string;
+  initialAddress?: string;
 }) {
   const { labels } = useAppLocale();
   const [items, setItems] = useState<FaqRow[]>(() =>
@@ -201,21 +206,28 @@ export function FaqManager({
   );
   const [storePolicy, setStorePolicy] = useState(initialPolicy);
   const [storeTerms, setStoreTerms] = useState(initialTerms);
+  const [storeOpeningHours, setStoreOpeningHours] = useState(initialOpeningHours);
+  const [storeAddress, setStoreAddress] = useState(initialAddress);
   const [error, setError] = useState("");
   const [legalMessage, setLegalMessage] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
 
   const [policyModalOpen, setPolicyModalOpen] = useState(false);
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [adding, setAdding] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const [savingLegal, setSavingLegal] = useState<"policy" | "terms" | null>(null);
+  const [savingInfo, setSavingInfo] = useState(false);
   const [faqSuccessOpen, setFaqSuccessOpen] = useState(false);
   const [faqSuccessQuestion, setFaqSuccessQuestion] = useState("");
   const addLockRef = useRef(false);
 
   const [policyDraft, setPolicyDraft] = useState(initialPolicy);
+  const [hoursDraft, setHoursDraft] = useState(initialOpeningHours);
+  const [addressDraft, setAddressDraft] = useState(initialAddress);
 
   async function load() {
     if (previewOnly) return;
@@ -238,14 +250,74 @@ export function FaqManager({
     }
   }
 
+  async function loadInfo() {
+    if (previewOnly) {
+      setStoreOpeningHours(initialOpeningHours);
+      setStoreAddress(initialAddress);
+      return;
+    }
+    const res = await fetch("/api/dashboard/store-info");
+    const data = await res.json();
+    if (res.ok) {
+      setStoreOpeningHours(data.storeOpeningHours ?? "");
+      setStoreAddress(data.storeAddress ?? "");
+    }
+  }
+
   useEffect(() => {
     load();
     loadLegal();
+    loadInfo();
   }, [previewOnly]);
 
   function openPolicyModal() {
     setPolicyDraft(storePolicy);
     setPolicyModalOpen(true);
+  }
+
+  function openInfoModal() {
+    setHoursDraft(storeOpeningHours);
+    setAddressDraft(storeAddress);
+    setInfoModalOpen(true);
+  }
+
+  async function saveInfo() {
+    setError("");
+    setInfoMessage("");
+    setSavingInfo(true);
+    const hours = hoursDraft.trim();
+    const address = addressDraft.trim();
+
+    if (previewOnly) {
+      setStoreOpeningHours(hours);
+      setStoreAddress(address);
+      setSavingInfo(false);
+      setInfoMessage(labels.saved);
+      setTimeout(() => setInfoMessage(""), 2000);
+      setInfoModalOpen(false);
+      return;
+    }
+
+    const res = await fetch("/api/dashboard/store-info", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        storeOpeningHours: hours || null,
+        storeAddress: address || null,
+      }),
+    });
+    setSavingInfo(false);
+    if (!res.ok) {
+      const d = await res.json();
+      setError(d.error ?? labels.saveError);
+      return;
+    }
+    const data = await res.json();
+    setStoreOpeningHours(data.storeOpeningHours ?? "");
+    setStoreAddress(data.storeAddress ?? "");
+    setInfoMessage(labels.saved);
+    setTimeout(() => setInfoMessage(""), 2000);
+    setInfoModalOpen(false);
   }
 
   async function saveLegal(field: "policy" | "terms", value: string) {
@@ -445,9 +517,9 @@ export function FaqManager({
         </div>
       </DashboardPanelFrame>
 
-      <DashboardPanelFrame className="shrink-0 !p-3 text-start">
+      <DashboardPanelFrame className="shrink-0 space-y-2 !p-3 text-start">
         {legalMessage && (
-          <p className="mb-2 text-center text-[12px] font-semibold text-bakery-success">
+          <p className="text-center text-[12px] font-semibold text-bakery-success">
             {legalMessage}
           </p>
         )}
@@ -459,7 +531,61 @@ export function FaqManager({
             {labels.faqStorePolicy}
           </span>
         </button>
+        {infoMessage && (
+          <p className="text-center text-[12px] font-semibold text-bakery-success">
+            {infoMessage}
+          </p>
+        )}
+        <button type="button" onClick={openInfoModal} className={faqRowClass}>
+          <span className="bakery-icon-tile flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px]">
+            <Clock className="h-5 w-5" strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0 flex-1 text-[14px] font-extrabold text-bakery-ink">
+            {labels.faqStoreInfo}
+          </span>
+        </button>
       </DashboardPanelFrame>
+
+      <EditorModal
+        open={infoModalOpen}
+        title={labels.faqStoreInfoTitle}
+        closeLabel={labels.close}
+        editLabel={labels.edit}
+        onClose={() => setInfoModalOpen(false)}
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="primary"
+              className="flex-1 font-extrabold"
+              disabled={savingInfo}
+              onClick={() => saveInfo()}
+            >
+              {savingInfo ? labels.saving : labels.saveStoreInfo}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setInfoModalOpen(false)}
+            >
+              {labels.cancel}
+            </Button>
+          </>
+        }
+      >
+        <Input
+          label={labels.storeHoursLabel}
+          value={hoursDraft}
+          onChange={(e) => setHoursDraft(e.target.value)}
+          placeholder={labels.storeHoursPlaceholder}
+        />
+        <Input
+          label={labels.storeAddressLabel}
+          value={addressDraft}
+          onChange={(e) => setAddressDraft(e.target.value)}
+          placeholder={labels.storeAddressPlaceholder}
+        />
+      </EditorModal>
 
       <EditorModal
         open={policyModalOpen}

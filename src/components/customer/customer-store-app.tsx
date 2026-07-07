@@ -11,6 +11,7 @@ import {
   ShieldPlus,
   UserRound,
   Smartphone,
+  Star,
 } from "lucide-react";
 import { Button, Input, Textarea } from "@/components/ui";
 import {
@@ -26,6 +27,8 @@ import {
   type CustomerMainTab,
 } from "./customer-store-tab-nav";
 import { CustomerFaqSheet } from "./customer-faq-sheet";
+import { CustomerReviewsSheet } from "./customer-reviews-sheet";
+import { CustomerReviewPromptModal } from "./customer-review-prompt-modal";
 import { CustomerDisplaySheet } from "./customer-display-sheet";
 import { CustomerLegalSheet } from "./customer-legal-sheet";
 import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
@@ -334,6 +337,8 @@ export function CustomerStoreApp({
     storeLocale?: string;
     storePolicy?: string | null;
     storeTerms?: string | null;
+    storeOpeningHours?: string | null;
+    storeAddress?: string | null;
     orderScheduleEnabled?: boolean;
     orderSchedule?: string | null;
     appointmentBookingByDay?: boolean;
@@ -384,6 +389,8 @@ export function CustomerStoreApp({
   const [profileSavedFlash, setProfileSavedFlash] = useState(false);
   const [orderPhone, setOrderPhone] = useState("");
   const [faqOpen, setFaqOpen] = useState(false);
+  const [reviewsSheetOpen, setReviewsSheetOpen] = useState(false);
+  const [reviewPromptOpen, setReviewPromptOpen] = useState(false);
   const [displayOpen, setDisplayOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
   const [installAppOpen, setInstallAppOpen] = useState(false);
@@ -795,6 +802,12 @@ export function CustomerStoreApp({
       setMainTab("home");
     }
   }, [isScheduleLike, panels.deals, mainTab]);
+
+  useEffect(() => {
+    if (!panels.settings && mainTab === "settings") {
+      setMainTab("home");
+    }
+  }, [panels.settings, mainTab]);
 
   useEffect(() => {
     if (mainTab === "orders") {
@@ -1883,6 +1896,13 @@ export function CustomerStoreApp({
             ) : null}
             <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
               {isScheduleLike ? renderMyAppointmentsSection() : renderMyOrderHistorySection()}
+              {panels.reviews ? (
+                <SettingsMenuRow
+                  icon={Star}
+                  title={labels.reviews}
+                  onClick={() => setReviewsSheetOpen(true)}
+                />
+              ) : null}
               {panels.faq ? (
                 <SettingsMenuRow
                   icon={HelpCircle}
@@ -1904,6 +1924,11 @@ export function CustomerStoreApp({
                   unavailableLabel={labels.contactOptionWhatsAppUnavailable}
                 />
               ) : null}
+              <SettingsMenuRow
+                icon={Smartphone}
+                title={labels.installApp}
+                onClick={() => setInstallAppOpen(true)}
+              />
             </div>
           </div>
         );
@@ -1991,6 +2016,7 @@ export function CustomerStoreApp({
           dealsBadge={dealsBadge > 0 ? dealsBadge : undefined}
           hideDeals={isScheduleLike || !panels.deals}
           hideOrders
+          hideSettings={!panels.settings}
           phoneColumn={isScheduleLike}
           isAppointments={isAppointments}
           isRental={isRental}
@@ -2022,6 +2048,8 @@ export function CustomerStoreApp({
         onClose={() => setFaqOpen(false)}
         items={business.faqItems}
         storeTerms={business.storeTerms}
+        openingHours={business.storeOpeningHours}
+        address={business.storeAddress}
         locale={locale}
         storeTheme={displayTheme}
       />
@@ -2050,6 +2078,7 @@ export function CustomerStoreApp({
         onClose={() => setInstallAppOpen(false)}
         locale={locale}
         storeTheme={displayTheme}
+        slug={business.slug}
         copy={{
           title: labels.installApp,
           panelTitle: labels.installAppPanelTitle,
@@ -2061,6 +2090,18 @@ export function CustomerStoreApp({
           iosStep3: labels.installAppIosStep3,
           androidHint: labels.installAppAndroidHint,
           desktopHint: labels.installAppDesktopHint,
+          pushEnableTitle: labels.pushEnableTitle,
+          pushEnableHint: labels.pushEnableHint,
+          pushSubscribeButton: labels.pushSubscribeButton,
+          pushSubscribed: labels.pushSubscribed,
+          pushPermissionDenied: labels.pushPermissionDenied,
+          pushUnsupported: labels.pushUnsupported,
+          pushUnconfigured: labels.pushUnconfigured,
+          pushSubscribeError: labels.pushSubscribeError,
+          pushServiceUnavailable: labels.pushServiceUnavailable,
+          pushIosNeedsInstall: labels.pushIosNeedsInstall,
+          pushInvalidVapidKey: labels.pushInvalidVapidKey,
+          pushServiceWorkerFailed: labels.pushServiceWorkerFailed,
         }}
       />
 
@@ -2175,7 +2216,10 @@ export function CustomerStoreApp({
       {orderSuccessOpen && (
       <CelebrationModal
         open
-        onClose={() => setOrderSuccessOpen(false)}
+        onClose={() => {
+          setOrderSuccessOpen(false);
+          if (panels.reviews) setReviewPromptOpen(true);
+        }}
         title={labels.orderSuccessTitle}
         detail={labels.orderSuccessDetail}
         buttonLabel={labels.great}
@@ -2183,6 +2227,34 @@ export function CustomerStoreApp({
         locale={locale}
       />
       )}
+
+      <CustomerReviewPromptModal
+        open={reviewPromptOpen}
+        onClose={() => setReviewPromptOpen(false)}
+        slug={business.slug}
+        customerName={customerName}
+        customerPhone={orderPhone}
+        locale={locale}
+        storeTheme={displayTheme}
+        labels={labels}
+      />
+
+      <CustomerReviewsSheet
+        open={reviewsSheetOpen}
+        onClose={() => setReviewsSheetOpen(false)}
+        slug={business.slug}
+        locale={locale}
+        storeTheme={displayTheme}
+        labels={labels}
+        customerName={customerName}
+        customerPhone={orderPhone}
+        onIdentitySave={(name, phone) => {
+          setCustomerName(name);
+          setOrderPhone(phone);
+          setCustomerDeviceItem(customerNameKey(business.slug), name);
+          setCustomerDeviceItem(inquiryPhoneKey(business.slug), phone);
+        }}
+      />
 
       {appointmentSuccessOpen && (
         <CelebrationModal

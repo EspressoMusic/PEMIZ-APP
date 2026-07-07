@@ -39,6 +39,7 @@ export function CustomerStoreTabNav({
   dealsBadge,
   hideDeals = false,
   hideOrders = false,
+  hideSettings = false,
   phoneColumn = false,
   isAppointments = false,
   isRental = false,
@@ -51,6 +52,8 @@ export function CustomerStoreTabNav({
   hideDeals?: boolean;
   /** חנות מוצרים — בלי לשונית הזמנות; העגלה מוצגת בסרגל תחתון */
   hideOrders?: boolean;
+  /** המוכר הסתיר את פאנל ההגדרות מהלקוחות */
+  hideSettings?: boolean;
   /** בתוך עמודת 360px — לא נמתח על כל רוחב הדסקטופ */
   phoneColumn?: boolean;
   /** חנות פגישות — לשונית הזמנות מוצגת כ«תורים». */
@@ -61,6 +64,7 @@ export function CustomerStoreTabNav({
   const tabs = TABS.filter((tab) => {
     if (hideDeals && tab.id === "deals") return false;
     if (hideOrders && tab.id === "orders") return false;
+    if (hideSettings && tab.id === "settings") return false;
     return true;
   });
 

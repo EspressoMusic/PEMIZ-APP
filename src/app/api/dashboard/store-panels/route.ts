@@ -15,6 +15,7 @@ const schema = z.object({
   inquiries: z.boolean().optional(),
   faq: z.boolean().optional(),
   orderLimits: z.boolean().optional(),
+  settings: z.boolean().optional(),
 });
 
 export async function GET() {

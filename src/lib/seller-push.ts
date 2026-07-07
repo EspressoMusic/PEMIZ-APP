@@ -1,6 +1,7 @@
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
 import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
+import { notificationIconForTheme } from "@/lib/store-themes";
 
 export { LOW_STOCK_THRESHOLD };
 
@@ -16,6 +17,7 @@ export type SellerPushPayload = {
   body: string;
   url: string;
   tag?: string;
+  icon?: string;
 };
 
 function normalizeVapidEnvValue(value: string | undefined | null): string | null {
@@ -47,7 +49,7 @@ function normalizeVapidSubject(subject: string): string {
   return subject;
 }
 
-function configureWebPush() {
+export function configureWebPush() {
   const publicKey = getVapidPublicKey();
   const privateKey = normalizeVapidEnvValue(process.env.VAPID_PRIVATE_KEY);
   const subject = normalizeVapidEnvValue(process.env.VAPID_SUBJECT);
@@ -63,11 +65,12 @@ function configureWebPush() {
 async function ownerForPush(
   businessId: string,
   kind: SellerPushKind
-): Promise<string | null> {
+): Promise<{ ownerId: string; storeTheme: string } | null> {
   const business = await prisma.business.findUnique({
     where: { id: businessId },
     select: {
       ownerId: true,
+      storeTheme: true,
       sellerAlertsEnabled: true,
       sellerAlertOnInquiry: true,
       sellerAlertOnChat: true,
@@ -86,7 +89,9 @@ async function ownerForPush(
           ? business.sellerAlertOnChat
           : business.sellerAlertOnLowStock;
 
-  return enabled ? business.ownerId : null;
+  return enabled
+    ? { ownerId: business.ownerId, storeTheme: business.storeTheme }
+    : null;
 }
 
 export async function dispatchSellerPush(
@@ -100,11 +105,12 @@ export async function dispatchSellerPush(
   }
 
   try {
-    const ownerId = await ownerForPush(businessId, kind);
-    if (!ownerId) {
+    const owner = await ownerForPush(businessId, kind);
+    if (!owner) {
       console.warn("[seller-push] skipped: alerts disabled", { businessId, kind });
       return;
     }
+    const { ownerId, storeTheme } = owner;
 
     const subs = await prisma.sellerPushSubscription.findMany({
       where: { userId: ownerId },
@@ -115,7 +121,10 @@ export async function dispatchSellerPush(
     }
 
     configureWebPush();
-    const payload = JSON.stringify(notification);
+    const payload = JSON.stringify({
+      ...notification,
+      icon: notification.icon ?? notificationIconForTheme(storeTheme),
+    });
 
     await Promise.allSettled(
       subs.map(async (sub) => {

@@ -50,6 +50,20 @@ model SellerPushSubscription {
   @@index([userId])
 }
 
+model CustomerPushSubscription {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([businessId])
+}
+
 model RateLimitBucket {
   key     String   @id
   count   Int
@@ -66,6 +80,8 @@ model Business {
   storeLocale            String   @default("he")
   storePolicy            String?
   storeTerms             String?
+  storeOpeningHours      String?
+  storeAddress           String?
   storeBroadcast         String?
   storeBroadcastAt       DateTime?
   storeBroadcastHistory  String?
@@ -115,6 +131,22 @@ model Business {
   inquiries       Inquiry[]
   chatMessages    StoreChatMessage[]
   faqItems        FaqItem[]
+  customerPushSubscriptions CustomerPushSubscription[]
+  reviews         StoreReview[]
+}
+
+model StoreReview {
+  id            String   @id @default(cuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerName  String
+  customerPhone String
+  rating        Int
+  comment       String?
+  createdAt     DateTime @default(now())
+
+  @@unique([businessId, customerPhone])
+  @@index([businessId, createdAt])
 }
 
 model FaqItem {

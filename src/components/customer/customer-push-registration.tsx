@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { BellRing } from "lucide-react";
-import { Alert, Button } from "@/components/ui";
-import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { Alert } from "@/components/ui";
+import { Toggle } from "@/components/ui-toggle";
 import {
   isIosDevice,
   isInstalledPwa,
@@ -11,17 +11,22 @@ import {
   subscribeToPush,
 } from "@/lib/push-client";
 
-function pushSubscribeErrorMessage(
-  error: unknown,
-  labels: {
-    pushSubscribeError: string;
-    pushPermissionDenied: string;
-    pushServiceUnavailable: string;
-    pushIosNeedsInstall: string;
-    pushInvalidVapidKey: string;
-    pushServiceWorkerFailed: string;
-  }
-): string {
+type PushLabels = {
+  pushEnableTitle: string;
+  pushEnableHint: string;
+  pushSubscribeButton: string;
+  pushSubscribed: string;
+  pushPermissionDenied: string;
+  pushUnsupported: string;
+  pushUnconfigured: string;
+  pushSubscribeError: string;
+  pushServiceUnavailable: string;
+  pushIosNeedsInstall: string;
+  pushInvalidVapidKey: string;
+  pushServiceWorkerFailed: string;
+};
+
+function pushSubscribeErrorMessage(error: unknown, labels: PushLabels): string {
   if (error instanceof Error) {
     if (error.message === "invalid_vapid_public_key") {
       return labels.pushInvalidVapidKey;
@@ -55,27 +60,24 @@ function pushSubscribeErrorMessage(
 
 type PushState = "idle" | "loading" | "subscribed" | "denied" | "unsupported" | "unconfigured";
 
-export function DashboardSellerPushRegistration({
-  alertsEnabled,
-  previewOnly = false,
+export function CustomerPushRegistration({
+  slug,
+  labels,
 }: {
-  alertsEnabled: boolean;
-  previewOnly?: boolean;
+  slug: string;
+  labels: PushLabels;
 }) {
-  const { labels } = useAppLocale();
   const [state, setState] = useState<PushState>("idle");
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   const refreshConfig = useCallback(async () => {
-    if (previewOnly || !isPushSupported()) {
-      setState(isPushSupported() ? "unconfigured" : "unsupported");
+    if (!isPushSupported()) {
+      setState("unsupported");
       return;
     }
     try {
-      const res = await fetch("/api/dashboard/push/config", {
-        credentials: "same-origin",
-      });
+      const res = await fetch(`/api/public/${slug}/push/config`);
       const data = (await res.json()) as {
         configured?: boolean;
         publicKey?: string | null;
@@ -90,21 +92,13 @@ export function DashboardSellerPushRegistration({
     } catch {
       setState("unconfigured");
     }
-  }, [previewOnly]);
+  }, [slug]);
 
   useEffect(() => {
     void refreshConfig();
   }, [refreshConfig]);
 
   async function subscribe() {
-    if (previewOnly) {
-      setError(labels.pushPreviewOnly);
-      return;
-    }
-    if (!alertsEnabled) {
-      setError(labels.pushAlertsMustEnable);
-      return;
-    }
     if (!publicKey) {
       setError(labels.pushUnconfigured);
       return;
@@ -139,9 +133,8 @@ export function DashboardSellerPushRegistration({
         return;
       }
 
-      const res = await fetch("/api/dashboard/push/subscribe", {
+      const res = await fetch(`/api/public/${slug}/push/subscribe`, {
         method: "POST",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           endpoint: json.endpoint,
@@ -163,51 +156,46 @@ export function DashboardSellerPushRegistration({
     }
   }
 
-  if (!alertsEnabled) return null;
-
   if (state === "unsupported") {
-    return (
-      <Alert variant="info">{labels.pushUnsupported}</Alert>
-    );
+    return <Alert variant="info">{labels.pushUnsupported}</Alert>;
   }
 
   if (state === "unconfigured") {
-    return (
-      <Alert variant="info">{labels.pushUnconfigured}</Alert>
-    );
+    return <Alert variant="info">{labels.pushUnconfigured}</Alert>;
   }
 
+  const subscribed = state === "subscribed";
+  const loading = state === "loading";
+
   return (
-    <div className="w-full space-y-3 border-t border-bakery-border/25 pt-3">
-      <div className="flex items-start gap-2 text-center sm:text-start">
-        <span className="mx-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-bakery-square/60 sm:mx-0">
-          <BellRing className="h-5 w-5 text-bakery-primary" strokeWidth={1.75} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-[15px] font-extrabold text-bakery-ink">
-            {labels.pushEnableTitle}
-          </p>
-          <p className="mt-1 text-[13px] font-semibold leading-relaxed text-bakery-muted">
-            {labels.pushEnableHint}
-          </p>
+    <div className="w-full space-y-2">
+      <div className="flex w-full items-center justify-between gap-3 rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/80 px-4 py-4 text-start">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-bakery-square/70">
+            <BellRing className="h-5 w-5 text-bakery-primary" strokeWidth={1.75} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[15px] font-extrabold text-bakery-ink">
+              {labels.pushEnableTitle}
+            </p>
+            <p className="mt-0.5 text-[13px] font-semibold leading-relaxed text-bakery-muted">
+              {labels.pushEnableHint}
+            </p>
+          </div>
         </div>
+        <Toggle
+          enabled={subscribed}
+          onChange={() => {
+            if (!subscribed && !loading) void subscribe();
+          }}
+          ariaLabel={labels.pushSubscribeButton}
+          disabled={loading || subscribed}
+        />
       </div>
 
-      {state === "subscribed" ? (
-        <Alert variant="success">{labels.pushSubscribed}</Alert>
-      ) : state === "denied" ? (
+      {state === "denied" ? (
         <Alert variant="error">{labels.pushPermissionDenied}</Alert>
-      ) : (
-        <Button
-          type="button"
-          className="w-full"
-          disabled={state === "loading" || !alertsEnabled}
-          onClick={() => void subscribe()}
-        >
-          {state === "loading" ? labels.chatLoading : labels.pushSubscribeButton}
-        </Button>
-      )}
-
+      ) : null}
       {error ? <Alert variant="error">{error}</Alert> : null}
     </div>
   );

@@ -127,6 +127,12 @@ export function DashboardStorePanelsSettings({
         disabled={saving}
         onChange={(orderLimits) => void patch({ orderLimits })}
       />
+      <PanelToggleRow
+        label={labels.storePanelSettings}
+        enabled={panels.settings}
+        disabled={saving}
+        onChange={(settings) => void patch({ settings })}
+      />
     </div>
   );
 }

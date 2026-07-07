@@ -83,9 +83,11 @@ export function DashboardActionsHub({
         open={customersOpen}
         onClose={() => setCustomersOpen(false)}
         ariaLabel={labels.customers}
-        placement="top"
+        placement="center"
         showBackButton
         backButtonLabel={labels.backToActions}
+        compact
+        fitContent
       >
         <DashboardCustomersHubGrid basePath={basePath} embedded />
       </DashboardActionSheet>
@@ -95,9 +97,11 @@ export function DashboardActionsHub({
           open={storeOpen}
           onClose={() => setStoreOpen(false)}
           ariaLabel={labels.store}
-          placement="top"
+          placement="center"
           showBackButton
           backButtonLabel={labels.backToActions}
+          compact
+          fitContent
         >
           <DashboardStoreSettingsHubPanel basePath={basePath} embedded />
         </DashboardActionSheet>
@@ -107,9 +111,11 @@ export function DashboardActionsHub({
           open={storeOpen}
           onClose={() => setStoreOpen(false)}
           ariaLabel={labels.store}
-          placement="top"
+          placement="center"
           showBackButton
           backButtonLabel={labels.backToActions}
+          compact
+          fitContent
         >
           <DashboardAppointmentsSettingsHubPanel
             basePath={basePath}

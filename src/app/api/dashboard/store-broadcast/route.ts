@@ -7,6 +7,7 @@ import {
   mergeBroadcastHistory,
   serializeStoreBroadcastHistory,
 } from "@/lib/store-broadcast-history";
+import { notifyCustomersBroadcast } from "@/lib/customer-push";
 
 export async function GET() {
   const ctx = await requireBusinessOwner();
@@ -64,6 +65,13 @@ export async function PATCH(req: Request) {
     updated.storeBroadcast,
     updated.storeBroadcastAt
   );
+
+  void notifyCustomersBroadcast(b.id, trimmed, {
+    name: b.name,
+    slug: b.slug,
+    storeLocale: b.storeLocale,
+    storeTheme: b.storeTheme,
+  });
 
   return jsonOk({
     message: updated.storeBroadcast ?? "",

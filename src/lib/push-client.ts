@@ -54,7 +54,7 @@ export function isInstalledPwa(): boolean {
   );
 }
 
-export async function subscribeToSellerPush(
+export async function subscribeToPush(
   publicKey: string
 ): Promise<PushSubscription> {
   const normalizedKey = normalizeVapidPublicKey(publicKey);

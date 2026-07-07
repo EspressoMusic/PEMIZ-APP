@@ -1,6 +1,7 @@
 "use client";
 
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
+import { CustomerPushRegistration } from "@/components/customer/customer-push-registration";
 import { PwaInstallPanel } from "@/components/pwa/pwa-install-panel";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
@@ -10,6 +11,7 @@ type Props = {
   onClose: () => void;
   locale: CustomerLocale;
   storeTheme?: StoreThemeId;
+  slug: string;
   copy: {
     title: string;
     panelTitle: string;
@@ -21,6 +23,18 @@ type Props = {
     iosStep3: string;
     androidHint: string;
     desktopHint: string;
+    pushEnableTitle: string;
+    pushEnableHint: string;
+    pushSubscribeButton: string;
+    pushSubscribed: string;
+    pushPermissionDenied: string;
+    pushUnsupported: string;
+    pushUnconfigured: string;
+    pushSubscribeError: string;
+    pushServiceUnavailable: string;
+    pushIosNeedsInstall: string;
+    pushInvalidVapidKey: string;
+    pushServiceWorkerFailed: string;
   };
 };
 
@@ -29,6 +43,7 @@ export function CustomerInstallAppSheet({
   onClose,
   locale,
   storeTheme,
+  slug,
   copy,
 }: Props) {
   return (
@@ -54,6 +69,9 @@ export function CustomerInstallAppSheet({
           desktopHint: copy.desktopHint,
         }}
       />
+      <div className="px-4 pb-4">
+        <CustomerPushRegistration slug={slug} labels={copy} />
+      </div>
     </CustomerCenterModal>
   );
 }

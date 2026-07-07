@@ -5,6 +5,8 @@ export type StorePanelsVisible = {
   inquiries: boolean;
   faq: boolean;
   orderLimits: boolean;
+  settings: boolean;
+  reviews: boolean;
 };
 
 export const DEFAULT_STORE_PANELS_VISIBLE: StorePanelsVisible = {
@@ -14,6 +16,8 @@ export const DEFAULT_STORE_PANELS_VISIBLE: StorePanelsVisible = {
   inquiries: true,
   faq: true,
   orderLimits: true,
+  settings: true,
+  reviews: true,
 };
 
 const KEYS = Object.keys(

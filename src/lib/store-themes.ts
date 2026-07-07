@@ -98,3 +98,15 @@ export function customerThemeClass(theme: StoreThemeId): string {
 export function isDarkStoreTheme(theme: StoreThemeId): boolean {
   return theme === "dark";
 }
+
+const NOTIFICATION_ICON_BY_THEME: Record<StoreThemeId, string> = {
+  turquoise: "/icons/notification-icon.png",
+  calm: "/icons/notification-icon-calm.png",
+  light: "/icons/notification-icon-light.png",
+  dark: "/icons/notification-icon-dark.png",
+};
+
+/** Push-notification icon tinted to match the store's chosen theme. */
+export function notificationIconForTheme(theme?: string | null): string {
+  return NOTIFICATION_ICON_BY_THEME[parseStoreTheme(theme)];
+}

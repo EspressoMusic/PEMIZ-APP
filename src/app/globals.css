@@ -422,10 +422,58 @@ html.linky-native-app .app-safe-top {
 /* Customer storefront display themes */
 html[data-store-theme="turquoise"],
 .customer-store-root.customer-theme-turquoise {
+  /* Self-contained — never inherits --bakery-* from a stale html[data-store-theme]
+     left over from the seller's own dashboard appearance preference. */
+  --bakery-scaffold: #a5d4cc;
+  --bakery-classic-cream: #f8fffe;
+  --bakery-classic-cream-hover: #eef8f6;
+  --bakery-classic-cream-strip: #c6e8e2;
+  --bakery-prep-cream: #e8f5f2;
+  --bakery-prep-cream-hover: #d9ede8;
+  --bakery-cream-light: #f8fffe;
+  --bakery-modal-overlay: rgba(15, 23, 42, 0.35);
+  --bakery-cream: #f8fffe;
+  --bakery-cream-mid: #e8f5f2;
+  --bakery-cream-sheet: #f8fffe;
+  --bakery-cream-hover: #d9ede8;
+  --bakery-panel-top: #f8fffe;
+  --bakery-panel-bottom: #e0f0ec;
+  --bakery-card: #f8fffe;
+  --bakery-square: #d9ede8;
+  --bakery-ink: #134e4a;
+  --bakery-muted: #4b6b66;
+  --bakery-primary: #0d9488;
+  --bakery-on-primary: #ffffff;
+  --bakery-input: #f8fffe;
+  --bakery-border: #5eb8aa;
+  --bakery-sale: #db2777;
+  --bakery-sale-hover: #be185d;
+  --bakery-error: #e11d48;
+  --bakery-error-hover: #be123c;
+  --bakery-success: #059669;
+  --customer-bg: #f8fffe;
+  --customer-nav-bg: #f8fffe;
+  --customer-nav-active: #d9ede8;
+  --customer-soft-wrap: #e8f5f2;
+  --bakery-icon-tile: #b6ddd4;
+  --bakery-primary-deep: #0f766e;
+  --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
+    0 10px 22px rgba(13, 148, 136, 0.28);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(13, 148, 136, 0.45),
+    0 8px 18px rgba(13, 148, 136, 0.18);
+  --shadow-bakery-btn: 0 4px 10px rgba(13, 148, 136, 0.24);
   --cs-page-bg: #ffffff;
   --cs-nav-bg: #ffffff;
   --cs-nav-active: #ccfbf1;
   --cs-sheet-bg: #ffffff;
+  /* Dashboard tile palette — scoped to store theme, not seller html theme */
+  --dashboard-panel-bg: #f8fffe;
+  --dashboard-tile-bg: #d4ece7;
+  --dashboard-tile-hover-bg: #c5e5de;
+  --dashboard-tile-active-bg: #b6ddd4;
+  --dashboard-soft-border: rgba(15, 118, 110, 0.45);
+  --dashboard-soft-border-strong: #0f766e;
+  --dashboard-shadow: rgba(15, 118, 110, 0.08);
 }
 
 /* Customer settings rows — calm default (matches seller action row) */
@@ -514,8 +562,8 @@ html[data-store-theme="turquoise"],
 
 .customer-store-root.customer-theme-calm .customer-settings-menu-shell .bakery-icon-tile,
 .customer-store-root.customer-theme-calm .customer-settings-menu-subrow .bakery-icon-tile {
-  background: var(--bakery-prep-cream, #e8d8c3);
-  border: 1.5px solid rgba(78, 52, 46, 0.12);
+  background: #f2e6d2;
+  border: none;
   box-shadow: none;
 }
 
@@ -650,13 +698,17 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --customer-soft-wrap: #faf4e6;
   --bakery-icon-tile: #faf4e6;
   --bakery-primary-deep: #43362c;
+  --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
+    0 10px 22px rgba(92, 74, 62, 0.28);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(92, 74, 62, 0.45),
+    0 8px 18px rgba(92, 74, 62, 0.18);
   --cs-page-bg: #faf6f0;
   --cs-nav-bg: #f1e3d3;
   --cs-nav-active: #dbc9b5;
   --cs-sheet-bg: #f4ebe0;
   /* Dashboard tile palette — scoped to store theme, not seller html theme */
   --dashboard-panel-bg: #e6d5b8;
-  --dashboard-tile-bg: #f2ebe0;
+  --dashboard-tile-bg: #e6d4b8;
   --dashboard-tile-hover-bg: #f6f0e6;
   --dashboard-tile-active-bg: #efe8dc;
   --dashboard-soft-border: rgba(78, 52, 46, 0.12);
@@ -743,6 +795,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 
 .customer-store-root.customer-theme-calm.customer-center-modal__panel {
   background: linear-gradient(180deg, #faf4e6 0%, #f4ebe0 100%);
+  border-color: rgba(93, 64, 55, 0.22);
 }
 
 .customer-center-modal__panel.customer-profile-modal-panel,
@@ -776,6 +829,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 
 .customer-store-root.customer-theme-light.customer-center-modal__panel {
   background-color: #fafafa;
+  border-color: #d4d4d4;
 }
 
 .customer-store-root.customer-theme-dark.customer-center-modal__panel {
@@ -811,6 +865,11 @@ html[data-store-theme="light"] , .customer-store-root.customer-theme-light {
   --color-customer-soft: #fafafa;
   --bakery-icon-tile: #f5f5f5;
   --shadow-bakery-btn: 0 4px 12px rgba(0, 0, 0, 0.16);
+  --bakery-primary-deep: #0a0a0a;
+  --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
+    0 10px 22px rgba(23, 23, 23, 0.22);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(23, 23, 23, 0.35),
+    0 8px 18px rgba(23, 23, 23, 0.14);
 }
 
 html[data-store-theme="dark"] {
@@ -936,6 +995,10 @@ html[data-store-theme="dark"] , .customer-store-root.customer-theme-dark {
   --dashboard-cyan-border-medium: rgba(126, 200, 227, 0.42);
   --dashboard-cyan-surface: rgba(126, 200, 227, 0.1);
   --shadow-bakery-btn: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
+    0 10px 22px rgba(0, 0, 0, 0.45);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(0, 0, 0, 0.55),
+    0 8px 18px rgba(0, 0, 0, 0.35);
 }
 
 html[data-store-theme="modern"] , .customer-store-root.customer-theme-modern {
@@ -984,6 +1047,11 @@ html[data-store-theme="modern"] , .customer-store-root.customer-theme-modern {
   --bakery-prep-cream-hover: #e0f2fe;
   --bakery-classic-cream-strip: #eef6ff;
   --bakery-classic-cream-hover: #dbeafe;
+  --shadow-bakery-btn: 0 4px 10px rgba(2, 132, 199, 0.24);
+  --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
+    0 10px 22px rgba(2, 132, 199, 0.28);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(2, 132, 199, 0.45),
+    0 8px 18px rgba(2, 132, 199, 0.18);
 }
 
 html[data-store-theme="light"] .bg-customer-bg, .customer-store-root.customer-theme-light .bg-customer-bg,
