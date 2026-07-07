@@ -466,6 +466,13 @@ export function CustomerStoreApp({
   );
 
   useEffect(() => {
+    if (business.slug === "demo-store" && searchParams.get("previewReview") === "1") {
+      setReviewPromptOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  useEffect(() => {
     applyCustomerChromeTheme(displayTheme);
     return () => {
       clearCustomerChromeTheme();
@@ -2233,7 +2240,6 @@ export function CustomerStoreApp({
         onClose={() => setReviewPromptOpen(false)}
         slug={business.slug}
         customerName={customerName}
-        customerPhone={orderPhone}
         locale={locale}
         storeTheme={displayTheme}
         labels={labels}
@@ -2247,12 +2253,9 @@ export function CustomerStoreApp({
         storeTheme={displayTheme}
         labels={labels}
         customerName={customerName}
-        customerPhone={orderPhone}
-        onIdentitySave={(name, phone) => {
+        onNameSave={(name) => {
           setCustomerName(name);
-          setOrderPhone(phone);
           setCustomerDeviceItem(customerNameKey(business.slug), name);
-          setCustomerDeviceItem(inquiryPhoneKey(business.slug), phone);
         }}
       />
 

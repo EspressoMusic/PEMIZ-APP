@@ -130,7 +130,7 @@ export function CustomerSellerNoticeBanner({
                 onClick={onClose}
                 aria-label={labels.close}
               />
-              <div className="customer-seller-notice-panel relative flex max-h-[min(80dvh,520px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] border-[3px] border-[#5C4A3E]/22 bg-[#E6D5B8] shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
+              <div className="customer-seller-notice-panel customer-seller-notice-modal-panel relative flex max-h-[min(80dvh,520px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
                 <div className="relative flex min-h-[52px] shrink-0 items-center justify-center px-12 py-3">
                   <h2 className="w-full text-center text-[18px] font-extrabold text-bakery-ink">
                     {labels.sellerNoticeTitle}
@@ -145,7 +145,7 @@ export function CustomerSellerNoticeBanner({
                   </button>
                 </div>
                 <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-2 pt-1">
-                  <div className="rounded-[16px] border-[3px] border-[#5C4A3E]/18 bg-bakery-cream-light px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+                  <div className="customer-seller-notice-modal-inner rounded-[16px] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                     <p className="whitespace-pre-wrap text-center text-[16px] font-semibold leading-[1.55] text-bakery-ink">
                       {message}
                     </p>

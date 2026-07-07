@@ -6,6 +6,7 @@ import { Button, Textarea } from "@/components/ui";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
+import { hasReviewedStore, markReviewedStore } from "@/lib/customer-reviewed-flag";
 import type { CustomerLabels } from "./customer-labels";
 
 export function CustomerReviewPromptModal({
@@ -13,7 +14,6 @@ export function CustomerReviewPromptModal({
   onClose,
   slug,
   customerName,
-  customerPhone,
   locale,
   storeTheme = "turquoise",
   labels,
@@ -22,12 +22,10 @@ export function CustomerReviewPromptModal({
   onClose: () => void;
   slug: string;
   customerName: string;
-  customerPhone: string;
   locale: CustomerLocale;
   storeTheme?: StoreThemeId;
   labels: CustomerLabels;
 }) {
-  const [checking, setChecking] = useState(true);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -35,42 +33,14 @@ export function CustomerReviewPromptModal({
 
   useEffect(() => {
     if (!open) return;
-    let cancelled = false;
-    setChecking(true);
     setRating(0);
     setComment("");
     setError("");
-
-    async function checkEligibility() {
-      try {
-        const res = await fetch(
-          `/api/public/${slug}/reviews?phone=${encodeURIComponent(customerPhone)}`
-        );
-        if (cancelled) return;
-        if (!res.ok) {
-          onClose();
-          return;
-        }
-        const data = (await res.json()) as { hasReviewed?: boolean };
-        if (cancelled) return;
-        if (data.hasReviewed) {
-          onClose();
-          return;
-        }
-        setChecking(false);
-      } catch {
-        if (!cancelled) onClose();
-      }
-    }
-    void checkEligibility();
-
-    return () => {
-      cancelled = true;
-    };
+    if (hasReviewedStore(slug)) onClose();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, slug, customerPhone]);
+  }, [open, slug]);
 
-  if (!open || checking) return null;
+  if (!open || hasReviewedStore(slug)) return null;
 
   async function submit() {
     if (rating < 1) return;
@@ -82,7 +52,6 @@ export function CustomerReviewPromptModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customerName,
-          customerPhone,
           rating,
           comment: comment.trim() || undefined,
         }),
@@ -93,6 +62,7 @@ export function CustomerReviewPromptModal({
         setSubmitting(false);
         return;
       }
+      markReviewedStore(slug);
       onClose();
     } catch {
       setError(labels.reviewSubmitError);

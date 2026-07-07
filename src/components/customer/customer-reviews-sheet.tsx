@@ -6,6 +6,7 @@ import { Button, Input, Textarea } from "@/components/ui";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
+import { hasReviewedStore, markReviewedStore } from "@/lib/customer-reviewed-flag";
 import type { CustomerLabels } from "./customer-labels";
 
 type ReviewEntry = {
@@ -73,8 +74,7 @@ export function CustomerReviewsSheet({
   storeTheme = "turquoise",
   labels,
   customerName = "",
-  customerPhone = "",
-  onIdentitySave,
+  onNameSave,
 }: {
   open: boolean;
   onClose: () => void;
@@ -83,14 +83,12 @@ export function CustomerReviewsSheet({
   storeTheme?: StoreThemeId;
   labels: CustomerLabels;
   customerName?: string;
-  customerPhone?: string;
-  onIdentitySave?: (name: string, phone: string) => void;
+  onNameSave?: (name: string) => void;
 }) {
   const [loading, setLoading] = useState(true);
   const [average, setAverage] = useState(0);
   const [count, setCount] = useState(0);
   const [reviews, setReviews] = useState<ReviewEntry[]>([]);
-  const [hasReviewed, setHasReviewed] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [name, setName] = useState(customerName);
   const [rating, setRating] = useState(0);
@@ -99,19 +97,15 @@ export function CustomerReviewsSheet({
   const [error, setError] = useState("");
   const closeLabel = locale === "he" ? "סגור" : "Close";
 
-  function loadReviews(withPhone: string) {
+  function loadReviews() {
     setLoading(true);
-    const query = withPhone
-      ? `?phone=${encodeURIComponent(withPhone)}`
-      : "";
-    return fetch(`/api/public/${slug}/reviews${query}`)
+    return fetch(`/api/public/${slug}/reviews`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!data) return;
         setAverage(data.average ?? 0);
         setCount(data.count ?? 0);
         setReviews(data.reviews ?? []);
-        setHasReviewed(Boolean(data.hasReviewed));
       })
       .finally(() => setLoading(false));
   }
@@ -123,13 +117,12 @@ export function CustomerReviewsSheet({
     setComment("");
     setError("");
     setName(customerName);
-    void loadReviews(customerPhone);
+    void loadReviews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, slug]);
 
   async function submitReview() {
     const trimmedName = name.trim();
-    const trimmedPhone = customerPhone.trim();
     if (trimmedName.length < 2) {
       setError(labels.reviewNameRequired);
       return;
@@ -144,7 +137,6 @@ export function CustomerReviewsSheet({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customerName: trimmedName,
-          customerPhone: trimmedPhone,
           rating,
           comment: comment.trim() || undefined,
         }),
@@ -155,17 +147,20 @@ export function CustomerReviewsSheet({
         setSubmitting(false);
         return;
       }
-      onIdentitySave?.(trimmedName, trimmedPhone);
+      markReviewedStore(slug);
+      onNameSave?.(trimmedName);
       setFormOpen(false);
       setRating(0);
       setComment("");
-      await loadReviews(trimmedPhone);
+      await loadReviews();
     } catch {
       setError(labels.reviewSubmitError);
     } finally {
       setSubmitting(false);
     }
   }
+
+  const hasReviewed = hasReviewedStore(slug);
 
   return (
     <CustomerCenterModal

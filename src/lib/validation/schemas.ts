@@ -156,7 +156,6 @@ export const storeBroadcastPatchSchema = z.object({
 
 export const publicReviewSchema = z.object({
   customerName: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
-  customerPhone: customerPhoneSchema,
   rating: z.number().int().min(1, "Rating is required").max(5),
   comment: z.string().trim().max(1000).optional().or(z.literal("")),
 });

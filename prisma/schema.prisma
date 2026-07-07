@@ -136,16 +136,14 @@ model Business {
 }
 
 model StoreReview {
-  id            String   @id @default(cuid())
-  businessId    String
-  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  customerName  String
-  customerPhone String
-  rating        Int
-  comment       String?
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  businessId   String
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerName String
+  rating       Int
+  comment      String?
+  createdAt    DateTime @default(now())
 
-  @@unique([businessId, customerPhone])
   @@index([businessId, createdAt])
 }
 
