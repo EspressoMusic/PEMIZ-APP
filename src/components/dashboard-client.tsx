@@ -309,6 +309,25 @@ function useOrdersManager({
       return;
     }
     void load();
+
+    // New orders arrive via push notification, not a live connection to this
+    // tab — poll while visible and refetch immediately when the seller
+    // returns to the tab (e.g. after tapping the notification) so the order
+    // shows up without a manual reload.
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") void load();
+    }, 15000);
+    function handleVisible() {
+      if (document.visibilityState === "visible") void load();
+    }
+    document.addEventListener("visibilitychange", handleVisible);
+    window.addEventListener("focus", handleVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisible);
+      window.removeEventListener("focus", handleVisible);
+    };
   }, [locale, previewOnly, previewOrders]);
 
   async function setStatus(orderId: string, status: string) {
