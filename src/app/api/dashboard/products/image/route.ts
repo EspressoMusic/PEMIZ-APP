@@ -3,11 +3,8 @@ import { requireCatalogOwner } from "@/lib/dashboard-catalog-auth";
 import { storeProductImage } from "@/lib/product-image-storage";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { recordSystemIncident } from "@/lib/system-incidents";
-import {
-  maxImageBytes,
-  resolveUploadedImageMime,
-  verifyImageBuffer,
-} from "@/lib/upload-image";
+import { maxImageBytes, resolveUploadedImageMime } from "@/lib/upload-image";
+import { verifyImageBuffer } from "@/lib/upload-image-server";
 
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, "dashboard:product-image", 40, 60 * 60 * 1000);

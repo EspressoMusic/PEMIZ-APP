@@ -8,7 +8,7 @@ export type MarketingCopy = {
   navProduct: string;
   navPricing: string;
   navContact: string;
-  startPilot: string;
+  startTrial: string;
   contactUs: string;
   scroll: string;
   heroTagline: string;
@@ -21,11 +21,6 @@ export type MarketingCopy = {
   eyebrowPricing: string;
   pricingTitle: string;
   pricingTitleEm: string;
-  pilotBadge: string;
-  pilotFree: string;
-  pilotPeriod: string;
-  pilotFeatures: string[];
-  joinPilot: string;
   premiumBadge: string;
   premiumPeriod: string;
   premiumFeatures: string[];
@@ -128,7 +123,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     navProduct: "Who are we",
     navPricing: "Pricing",
     navContact: "Contact",
-    startPilot: "Start Pilot",
+    startTrial: "Free Trial",
     contactUs: "Contact Us",
     scroll: "Scroll",
     heroTagline: "One simple link for your small business.",
@@ -168,16 +163,6 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     eyebrowPricing: "Pricing",
     pricingTitle: "Start free.",
     pricingTitleEm: "Scale later.",
-    pilotBadge: "Pilot Plan",
-    pilotFree: "Free",
-    pilotPeriod: "during pilot",
-    pilotFeatures: [
-      "Full Peymiz access",
-      "Business page + link",
-      "Dashboard for orders & messages",
-      "Product store or booking",
-    ],
-    joinPilot: "Join the Pilot",
     premiumBadge: "Monthly Plan",
     premiumPeriod: "/ month",
     premiumFeatures: [
@@ -198,13 +183,13 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     getUltimate: "Contact us",
     enterpriseHeadline: "Custom",
     learnMore: "Learn more",
-    pricingNote: "Start free during pilot. Upgrade when you're ready to scale.",
+    pricingNote: "Start with a free trial. Upgrade when you're ready to scale.",
     tryNow: "TRY NOW",
     eyebrowContact: "Contact",
     contactTitle: "Interested in trying",
     contactTitleEm: "Peymiz?",
     contactLead:
-      "Contact us to join the pilot and get your business online with one simple link.",
+      "Contact us to start your free trial and get your business online with one simple link.",
     email: "Email",
     whatsapp: "WhatsApp",
     whatsappMegaCta: "Chat with us on WhatsApp",
@@ -291,7 +276,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     navProduct: "מי אנחנו",
     navPricing: "מחירים",
     navContact: "צור קשר",
-    startPilot: "התחל פיילוט",
+    startTrial: "נסיון בחינם",
     contactUs: "צור קשר",
     scroll: "גלול",
     heroTagline: "קישור אחד פשוט לעסק שלך.",
@@ -330,16 +315,6 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     eyebrowPricing: "מחירים",
     pricingTitle: "מתחילים בחינם.",
     pricingTitleEm: "גדלים בהמשך.",
-    pilotBadge: "תוכנית פיילוט",
-    pilotFree: "חינם",
-    pilotPeriod: "במהלך הפיילוט",
-    pilotFeatures: [
-      "גישה מלאה ל-Peymiz",
-      "דף עסק + קישור",
-      "לוח בקרה להזמנות והודעות",
-      "חנות מוצרים או תורים",
-    ],
-    joinPilot: "הצטרפו לפיילוט",
     premiumBadge: "תוכנית חודשית",
     premiumPeriod: "/ חודש",
     premiumFeatures: [
@@ -360,13 +335,13 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     getUltimate: "צור קשר",
     enterpriseHeadline: "לעסקים גדולים",
     learnMore: "למידע נוסף",
-    pricingNote: "מתחילים בחינם בפיילוט. משדרגים כשמוכנים לגדול.",
+    pricingNote: "מתחילים בנסיון חינם. משדרגים כשמוכנים לגדול.",
     tryNow: "נסו עכשיו",
     eyebrowContact: "צור קשר",
     contactTitle: "מעוניינים לנסות את",
     contactTitleEm: "Peymiz?",
     contactLead:
-      "צרו קשר כדי להצטרף לפיילוט ולהעלות את העסק אונליין עם קישור אחד פשוט.",
+      "צרו קשר כדי להתחיל נסיון חינם ולהעלות את העסק אונליין עם קישור אחד פשוט.",
     email: "אימייל",
     whatsapp: "WhatsApp",
     whatsappMegaCta: "דברו איתנו בוואטסאפ",

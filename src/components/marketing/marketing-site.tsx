@@ -298,7 +298,7 @@ function MarketingSiteContent() {
 
             <div className="hero-cta" data-reveal="left">
               <Link href="/login" prefetch={false} className="btn btn-primary btn-big btn-hero-cta">
-                {copy.startPilot}
+                {copy.startTrial}
               </Link>
             </div>
           </div>
@@ -371,22 +371,7 @@ function MarketingSiteContent() {
               {copy.pricingTitle} <em>{copy.pricingTitleEm}</em>
             </h2>
           </div>
-          <div className="pricing-grid pricing-grid--three">
-            <article className="price-card featured" data-reveal="scale" data-tilt>
-              <div className="price-badge popular">{copy.pilotBadge}</div>
-              <div className="price-amount price-free">
-                <strong>{copy.pilotFree}</strong>
-                <span className="period">{copy.pilotPeriod}</span>
-              </div>
-              <ul className="price-features">
-                {copy.pilotFeatures.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <Link href="/login" prefetch={false} className="btn btn-primary price-btn">
-                {copy.joinPilot}
-              </Link>
-            </article>
+          <div className="pricing-grid pricing-grid--two">
             <article className="price-card price-card--gold" data-reveal="scale" data-tilt>
               <div className="price-badge">{copy.premiumBadge}</div>
               <MarketingPlanPrice

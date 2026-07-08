@@ -182,7 +182,7 @@ function MarketingSiteAppleContent() {
             {copy.heroSub}
           </p>
           <div className="apple-hero-cta" data-reveal>
-            <AppleLinkCta href="/login">{copy.startPilot}</AppleLinkCta>
+            <AppleLinkCta href="/login">{copy.startTrial}</AppleLinkCta>
             <AppleLinkCta
               href="#product"
               onClick={(e) => {
@@ -269,7 +269,7 @@ function MarketingSiteAppleContent() {
             {copy.pricingTitle} {copy.pricingTitleEm}
           </h2>
           <div className="apple-hero-cta" data-reveal>
-            <AppleLinkCta href="/login">{copy.joinPilot}</AppleLinkCta>
+            <AppleLinkCta href="/login">{copy.startTrial}</AppleLinkCta>
             <AppleLinkCta
               href="#pricing"
               onClick={(e) => {
@@ -292,20 +292,6 @@ function MarketingSiteAppleContent() {
 
           <div className="apple-pricing-grid">
             <article className="apple-price-card apple-price-card--featured" data-reveal>
-              <p className="apple-price-badge">{copy.pilotBadge}</p>
-              <p className="apple-price-amount">{copy.pilotFree}</p>
-              <p className="apple-price-period">{copy.pilotPeriod}</p>
-              <ul className="apple-price-features">
-                {copy.pilotFeatures.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <Link href="/login" prefetch={false} className="apple-price-btn">
-                {copy.joinPilot}
-              </Link>
-            </article>
-
-            <article className="apple-price-card" data-reveal>
               <p className="apple-price-badge">{copy.premiumBadge}</p>
               <p className="apple-price-amount" dir="ltr">
                 {formatPlanPrice(

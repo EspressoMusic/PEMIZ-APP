@@ -366,7 +366,7 @@ export function DashboardPrepSummary({
         warmPanel
         panelClassName="dashboard-order-schedule-sheet"
       >
-        <div className="space-y-2.5 text-start">
+        <div className="space-y-2.5 pt-2 text-start">
           <ul className="space-y-2">
             {products.map((p) => (
               <li key={p.productId}>

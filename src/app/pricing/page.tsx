@@ -3,7 +3,7 @@ import { MarketingPricingPage } from "@/components/marketing/marketing-pricing-p
 
 const TITLE = "Pricing — Peymiz";
 const DESCRIPTION =
-  "Simple pricing for small businesses: start free during the pilot, upgrade to the monthly plan when you're ready to scale.";
+  "Simple pricing for small businesses: start with a free trial, upgrade to the monthly plan when you're ready to scale.";
 
 export const metadata: Metadata = {
   title: TITLE,
