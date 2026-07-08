@@ -7,13 +7,38 @@ import {
 } from "@/lib/dashboard-appearance-boot";
 import { DEFAULT_STORE_THEME } from "@/lib/store-themes";
 import { PwaRoot } from "@/components/pwa/pwa-root";
+import { getAppBaseUrl } from "@/lib/app-url";
+
+const SITE_URL = getAppBaseUrl() || "https://peymiz.com";
+const SITE_TITLE = "Peymiz — Your business, online";
+const SITE_DESCRIPTION =
+  "SaaS for small businesses: customer link, orders, appointments, and a simple seller dashboard.";
 
 export const metadata: Metadata = {
-  title: "Peymiz — Your business, online",
-  description:
-    "SaaS for small businesses: customer link, orders, appointments, and a simple seller dashboard.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   manifest: "/manifest.webmanifest",
   applicationName: "Peymiz",
+  // The he/en toggle is a client-side cookie preference, not separate URLs,
+  // so there's nothing distinct to declare via hreflang — only a canonical.
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Peymiz",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: "/icons/linky-app-logo.png", width: 1024, height: 1024 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/icons/linky-app-logo.png"],
+  },
   appleWebApp: {
     capable: true,
     title: "Peymiz",

@@ -6,13 +6,17 @@ import { jsonError, jsonInfrastructureError, jsonOk, jsonServerError } from "@/l
 import { isGuestLoginAllowed } from "@/lib/auth-guest-dev";
 import { generateUniqueBusinessSlug } from "@/lib/business";
 import { isDatabaseConfigured, databaseConfigHint } from "@/lib/db-env";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
-export async function POST() {
+export async function POST(req: Request) {
   if (!isGuestLoginAllowed()) {
     return jsonError("Guest login is only available in preview and local dev.", 404);
   }
+
+  const limited = await enforceRateLimit(req, "auth:guest", 10, 15 * 60 * 1000);
+  if (limited) return limited;
 
   if (!isDatabaseConfigured()) {
     return jsonInfrastructureError(

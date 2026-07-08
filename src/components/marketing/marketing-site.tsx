@@ -169,15 +169,13 @@ function MarketingSiteContent() {
             <span className="logo-mark">
               <Image
                 src="/marketing/logo-transparent.png"
-                alt="BiziLink"
+                alt="Peymiz"
                 width={40}
                 height={40}
                 className="logo-img"
               />
             </span>
-            <span className="logo-text">
-              Bizi<span>Link</span>
-            </span>
+            <span className="logo-text">Peymiz</span>
           </a>
 
           {navOpen ? (
@@ -284,7 +282,7 @@ function MarketingSiteContent() {
             <h1 className="hero-brand" data-reveal="left">
               <Image
                 src="/marketing/wordmark.png"
-                alt="BiziLink"
+                alt="Peymiz"
                 width={520}
                 height={120}
                 className="hero-wordmark"
@@ -309,7 +307,7 @@ function MarketingSiteContent() {
             <div className="hero-logo-wrap" id="heroLogoWrap">
               <Image
                 src="/marketing/hero-logo-transparent.png"
-                alt="BiziLink logo"
+                alt="Peymiz logo"
                 width={480}
                 height={480}
                 className="hero-logo-giant"
@@ -423,13 +421,13 @@ function MarketingSiteContent() {
         </div>
       </section>
 
-      <section className="app-cta-section" aria-label="Open BiziLink app">
+      <section className="app-cta-section" aria-label="Open Peymiz app">
         <div className="container">
           <div className="app-cta-inner" data-reveal="scale">
             <Link href="/login" prefetch={false} className="app-cta-link">
               <Image
                 src="/marketing/logo-transparent.png"
-                alt="Open BiziLink app"
+                alt="Open Peymiz app"
                 width={180}
                 height={180}
                 className="app-cta-logo"

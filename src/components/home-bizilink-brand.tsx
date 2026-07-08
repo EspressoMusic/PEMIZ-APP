@@ -10,9 +10,9 @@ export function HomeBizilinkBrand({
       onFocus={onPointerEnter}
       tabIndex={0}
       role="img"
-      aria-label="BiziLink"
+      aria-label="Peymiz"
     >
-      BiziLink
+      Peymiz
     </span>
   );
 }

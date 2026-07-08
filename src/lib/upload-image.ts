@@ -1,7 +1,33 @@
 import { randomBytes } from "crypto";
+import sharp from "sharp";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp"] as const;
+
+const FORMAT_TO_MIME: Partial<Record<string, (typeof ALLOWED_MIME)[number]>> = {
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
+/**
+ * The client-declared MIME type (file.type) is just a label the caller
+ * chose — never proof of what the bytes actually are. This decodes the
+ * buffer to confirm it's a real image in an allowed format before it's
+ * ever stored or served back to customers. Verification only: the
+ * original bytes are stored unchanged, nothing is re-encoded.
+ */
+export async function verifyImageBuffer(
+  buffer: Buffer
+): Promise<(typeof ALLOWED_MIME)[number] | null> {
+  try {
+    const metadata = await sharp(buffer).metadata();
+    if (!metadata.format) return null;
+    return FORMAT_TO_MIME[metadata.format] ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export type AllowedImageExt = "jpg" | "png" | "webp";
 

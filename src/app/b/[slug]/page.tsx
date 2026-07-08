@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   getBusinessBySlug,
@@ -13,6 +14,43 @@ import { ServiceUnavailableNotice } from "@/components/service-unavailable-notic
 import { recordSystemIncident } from "@/lib/system-incidents";
 import { formatServerError } from "@/lib/server-errors";
 import { storePanelsFromBusiness } from "@/lib/store-panels-visible";
+import { prisma } from "@/lib/prisma";
+import { isDemoStoreSlug } from "@/lib/demo-store-slugs";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const normalizedSlug = slug.toLowerCase();
+  const business = await prisma.business.findUnique({
+    where: { slug: normalizedSlug },
+    select: { name: true, description: true, isActive: true, storeAddress: true },
+  });
+
+  if (!business) {
+    return { title: "Store not found — Peymiz" };
+  }
+
+  const title = `${business.name} — Peymiz`;
+  const description =
+    business.description?.trim() ||
+    (business.storeAddress
+      ? `${business.name} — ${business.storeAddress}`
+      : `${business.name} — powered by Peymiz`);
+  const shouldIndex = business.isActive && !isDemoStoreSlug(normalizedSlug);
+  const path = `/b/${normalizedSlug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    robots: { index: shouldIndex, follow: true },
+    openGraph: { type: "website", url: path, title, description },
+    twitter: { card: "summary", title, description },
+  };
+}
 
 export default async function PublicBusinessPage({
   params,
@@ -42,8 +80,46 @@ export default async function PublicBusinessPage({
   const unavailable = !isBusinessAcceptingCustomers(business);
   const platformLegalDocs = getAllPlatformLegalDocuments();
 
+  const reviewAggregate = !unavailable
+    ? await prisma.storeReview.aggregate({
+        where: { businessId: business.id },
+        _avg: { rating: true },
+        _count: { rating: true },
+      })
+    : null;
+
+  const localBusinessJsonLd = !unavailable
+    ? {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        name: business.name,
+        url: publicBusinessUrl(business.slug),
+        ...(business.description ? { description: business.description } : {}),
+        ...(business.storeAddress
+          ? { address: { "@type": "PostalAddress", streetAddress: business.storeAddress } }
+          : {}),
+        ...(reviewAggregate && reviewAggregate._count.rating > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: Number((reviewAggregate._avg.rating ?? 0).toFixed(1)),
+                reviewCount: reviewAggregate._count.rating,
+              },
+            }
+          : {}),
+      }
+    : null;
+
   return (
     <div className="bakery-frame-bg h-dvh overflow-hidden">
+      {localBusinessJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(localBusinessJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+      )}
       <div className="app-safe-x mx-auto flex h-full min-h-0 w-full max-w-[1040px] flex-col overflow-hidden py-4">
         <Suspense fallback={null}>
           <PublicStorefront

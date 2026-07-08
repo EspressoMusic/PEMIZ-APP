@@ -115,11 +115,11 @@ function MarketingSiteAppleContent() {
           >
             <Image
               src="/marketing/logo-transparent.png"
-              alt="BiziLink"
+              alt="Peymiz"
               width={28}
               height={28}
             />
-            <span>BiziLink</span>
+            <span>Peymiz</span>
           </a>
 
           <nav
@@ -173,7 +173,7 @@ function MarketingSiteAppleContent() {
       <main>
         <section className="apple-hero" id="home">
           <p className="apple-hero-eyebrow" data-reveal>
-            BiziLink
+            Peymiz
           </p>
           <h1 className="apple-hero-title" data-reveal>
             {copy.heroTagline}
@@ -196,7 +196,7 @@ function MarketingSiteAppleContent() {
           <div className="apple-hero-visual" data-reveal>
             <Image
               src="/marketing/hero-logo-transparent.png"
-              alt="BiziLink"
+              alt="Peymiz"
               width={520}
               height={520}
               priority

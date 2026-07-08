@@ -43,7 +43,7 @@ const STEPS = [
   {
     step: "2",
     title: "Share one link",
-    text: "Send your BiziLink to customers on Instagram, WhatsApp, or anywhere.",
+    text: "Send your Peymiz link to customers on Instagram, WhatsApp, or anywhere.",
   },
   {
     step: "3",

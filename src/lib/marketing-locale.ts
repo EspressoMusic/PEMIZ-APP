@@ -53,7 +53,6 @@ export type MarketingCopy = {
   formMessagePlaceholder: string;
   sendMessage: string;
   messageSent: string;
-  footerCopy: string;
   footerCopyPeymiz: string;
   privacy: string;
   terms: string;
@@ -124,7 +123,7 @@ export type MarketingCopy = {
 
 export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
   en: {
-    loading: "Loading BiziLink...",
+    loading: "Loading Peymiz...",
     navHome: "Home",
     navProduct: "Who are we",
     navPricing: "Pricing",
@@ -139,7 +138,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     productTitle: "Everything you need.",
     productTitleEm: "Nothing extra.",
     productLead:
-      "BiziLink helps small businesses run online without building a custom app or juggling too many tools.",
+      "Peymiz helps small businesses run online without building a custom app or juggling too many tools.",
     benefits: [
       {
         title: "One digital business page",
@@ -173,7 +172,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     pilotFree: "Free",
     pilotPeriod: "during pilot",
     pilotFeatures: [
-      "Full BiziLink access",
+      "Full Peymiz access",
       "Business page + link",
       "Dashboard for orders & messages",
       "Product store or booking",
@@ -182,7 +181,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     premiumBadge: "Monthly Plan",
     premiumPeriod: "/ month",
     premiumFeatures: [
-      "Full BiziLink access",
+      "Full Peymiz access",
       "Business page + shareable link",
       "Orders, bookings & messages dashboard",
       "Product store or booking",
@@ -203,7 +202,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     tryNow: "TRY NOW",
     eyebrowContact: "Contact",
     contactTitle: "Interested in trying",
-    contactTitleEm: "BiziLink?",
+    contactTitleEm: "Peymiz?",
     contactLead:
       "Contact us to join the pilot and get your business online with one simple link.",
     email: "Email",
@@ -217,7 +216,6 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     formMessagePlaceholder: "Tell us about your business...",
     sendMessage: "Send Message",
     messageSent: "Message sent ✓",
-    footerCopy: "© 2026 BiziLink. One link. One dashboard.",
     footerCopyPeymiz: "© 2026 Peymiz. B2B software for small businesses.",
     privacy: "Privacy",
     terms: "Terms",
@@ -288,7 +286,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardTermsError: "Please accept the Terms of Service and Privacy Policy",
   },
   he: {
-    loading: "טוען את BiziLink...",
+    loading: "טוען את Peymiz...",
     navHome: "בית",
     navProduct: "מי אנחנו",
     navPricing: "מחירים",
@@ -302,7 +300,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     productTitle: "כל מה שצריך.",
     productTitleEm: "בלי עודף.",
     productLead:
-      "BiziLink עוזר לעסקים קטנים לעבוד אונליין בלי לבנות אפליקציה ייעודית או לנהל יותר מדי כלים.",
+      "Peymiz עוזר לעסקים קטנים לעבוד אונליין בלי לבנות אפליקציה ייעודית או לנהל יותר מדי כלים.",
     benefits: [
       {
         title: "דף עסק דיגיטלי אחד",
@@ -336,7 +334,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     pilotFree: "חינם",
     pilotPeriod: "במהלך הפיילוט",
     pilotFeatures: [
-      "גישה מלאה ל-BiziLink",
+      "גישה מלאה ל-Peymiz",
       "דף עסק + קישור",
       "לוח בקרה להזמנות והודעות",
       "חנות מוצרים או תורים",
@@ -345,7 +343,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     premiumBadge: "תוכנית חודשית",
     premiumPeriod: "/ חודש",
     premiumFeatures: [
-      "גישה מלאה ל-BiziLink",
+      "גישה מלאה ל-Peymiz",
       "דף עסק + קישור לשיתוף",
       "לוח בקרה להזמנות, תורים והודעות",
       "חנות מוצרים או תורים",
@@ -366,7 +364,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     tryNow: "נסו עכשיו",
     eyebrowContact: "צור קשר",
     contactTitle: "מעוניינים לנסות את",
-    contactTitleEm: "BiziLink?",
+    contactTitleEm: "Peymiz?",
     contactLead:
       "צרו קשר כדי להצטרף לפיילוט ולהעלות את העסק אונליין עם קישור אחד פשוט.",
     email: "אימייל",
@@ -380,7 +378,6 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     formMessagePlaceholder: "ספרו לנו על העסק שלכם...",
     sendMessage: "שליחת הודעה",
     messageSent: "ההודעה נשלחה ✓",
-    footerCopy: "© 2026 BiziLink. קישור אחד. לוח בקרה אחד.",
     footerCopyPeymiz: "© 2026 Peymiz. תוכנה לעסקים קטנים.",
     privacy: "פרטיות",
     terms: "תנאים",
