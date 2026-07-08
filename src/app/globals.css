@@ -249,24 +249,27 @@ button.bg-bakery-error:hover {
   background-color: var(--bakery-error-hover) !important;
 }
 
-/* פאנל מתכנת — מסגרת #E6D5B8, תוכן #F2EBE0 (קבוע, לא תלוי data-store-theme) */
+/* פאנל מתכנת — טורקיז כברירת מחדל, כמו פאנל המוכר */
 .master-surface {
-  --master-panel-bg: #e6d5b8;
-  --master-tile-bg: #f2ebe0;
-  --master-tile-hover-bg: #f6f0e6;
-  --master-tile-active-bg: #efe8dc;
-  --master-frame-border: rgba(78, 52, 46, 0.24);
-  background: #f9f4eb;
-  color: #4e342e;
+  --master-panel-bg: #d4ece7;
+  --master-tile-bg: #eef8f6;
+  --master-tile-hover-bg: #e0f0ec;
+  --master-tile-active-bg: #d4ece7;
+  --master-frame-border: rgba(15, 118, 110, 0.35);
+  background: #f8fffe;
+  color: #134e4a;
   min-height: 100dvh;
 }
 
 .master-surface .master-panel-outer {
-  background: var(--master-panel-bg);
-  border: 1.5px solid var(--master-frame-border);
-  border-radius: 22px;
+  background: linear-gradient(180deg, #f8fffe 0%, #eef8f6 100%);
+  border: 1.5px solid rgba(15, 118, 110, 0.28);
+  border-radius: 28px;
   padding: 1rem;
-  box-shadow: 0 4px 14px rgba(78, 52, 46, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 3px 0 rgba(15, 118, 110, 0.04),
+    0 12px 28px rgba(15, 118, 110, 0.1);
 }
 
 @media (min-width: 640px) {
@@ -290,11 +293,11 @@ button.bg-bakery-error:hover {
 }
 
 .master-surface .master-panel-inner {
-  background: var(--master-tile-bg);
-  border: 1.5px solid var(--master-frame-border);
-  border-radius: 16px;
+  background: #eef8f6;
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  border-radius: 18px;
   padding: 0.75rem;
-  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.05);
   transition:
     background 0.14s ease,
     box-shadow 0.14s ease,
@@ -310,21 +313,21 @@ button.bg-bakery-error:hover {
 .master-surface button.master-panel-inner:hover,
 .master-surface .master-panel-row:hover {
   background: var(--master-tile-hover-bg);
-  border-color: rgba(78, 52, 46, 0.28);
-  box-shadow: 0 4px 12px rgba(78, 52, 46, 0.08);
+  border-color: rgba(15, 118, 110, 0.32);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.08);
 }
 
 .master-surface button.master-panel-inner:active,
 .master-surface .master-panel-row:active {
   background: var(--master-tile-active-bg);
-  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.06);
   transform: translateY(0);
 }
 
 .master-surface .master-panel-inner--active {
   background: var(--master-tile-active-bg);
-  border-color: rgba(78, 52, 46, 0.3);
-  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
+  border-color: rgba(15, 118, 110, 0.4);
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.06);
 }
 
 .master-surface .master-panel-row {
@@ -332,7 +335,7 @@ button.bg-bakery-error:hover {
   width: 100%;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.875rem 0.75rem;
+  padding: 1.1rem 1rem;
   text-align: start;
   cursor: pointer;
 }
@@ -343,8 +346,8 @@ button.bg-bakery-error:hover {
 
 .master-surface .master-panel-stat {
   border-radius: 12px;
-  border: 1px solid rgba(78, 52, 46, 0.1);
-  background: #faf4e6;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  background: #f8fffe;
   padding: 0.5rem;
   text-align: center;
 }
@@ -352,8 +355,8 @@ button.bg-bakery-error:hover {
 .master-surface .master-panel-input {
   width: 100%;
   border-radius: 14px;
-  border: 1.5px solid rgba(78, 52, 46, 0.12);
-  background: #faf4e6;
+  border: 1.5px solid rgba(15, 118, 110, 0.25);
+  background: #f8fffe;
   padding: 0.75rem 1rem;
   font-size: 15px;
   color: var(--bakery-ink);
@@ -361,8 +364,8 @@ button.bg-bakery-error:hover {
 }
 
 .master-surface .master-panel-input:focus {
-  border-color: rgba(78, 52, 46, 0.2);
-  box-shadow: 0 0 0 2px rgba(122, 74, 58, 0.15);
+  border-color: rgba(15, 118, 110, 0.45);
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.2);
 }
 
 .master-surface .master-panel-input::placeholder {
@@ -806,6 +809,10 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 .customer-center-modal__panel.customer-order-detail-modal-panel,
 .customer-store-root.customer-theme-calm.customer-center-modal__panel.customer-order-detail-modal-panel {
   background: #e6d5b8;
+}
+
+.customer-store-root.customer-theme-turquoise.customer-center-modal__panel.customer-order-detail-modal-panel {
+  background: #b6ddd4;
 }
 
 .customer-center-modal__panel.customer-appointment-detail-modal-panel,

@@ -1132,3 +1132,90 @@ export function getDevPreviewCustomerOrdersFromRental() {
     }[],
   }));
 }
+
+const DEV_MASTER_NOW = Date.now();
+const daysAgo = (days: number) =>
+  new Date(DEV_MASTER_NOW - days * 24 * 60 * 60 * 1000).toISOString();
+
+/** Preview data for /dev/master — mirrors the shape /api/admin/businesses returns. */
+export const DEV_MASTER_BUSINESSES = [
+  {
+    id: "dev-biz-1",
+    name: "המאפייה של יעל",
+    slug: "yael-bakery",
+    type: "STORE",
+    description: "עוגות ומאפים ביתיים, הזמנה מראש",
+    isActive: true,
+    approvedAt: daysAgo(40),
+    createdAt: daysAgo(42),
+    subscriptionActiveAt: daysAgo(10),
+    subscriptionPlan: "premium-monthly",
+    termsAcceptedAt: daysAgo(42),
+    publicUrl: "https://peymiz.com/b/yael-bakery",
+    owner: {
+      id: "dev-owner-1",
+      email: "yael@example.com",
+      name: "יעל כהן",
+      phone: "0501234567",
+      emailVerified: true,
+      createdAt: daysAgo(42),
+    },
+    _count: { orders: 128, appointments: 0, inquiries: 6, products: 14, slots: 0 },
+  },
+  {
+    id: "dev-biz-2",
+    name: "מיה — עיצוב שיער",
+    slug: "mia-hair",
+    type: "APPOINTMENTS",
+    description: null,
+    isActive: true,
+    approvedAt: daysAgo(5),
+    createdAt: daysAgo(6),
+    subscriptionActiveAt: null,
+    subscriptionPlan: null,
+    termsAcceptedAt: daysAgo(6),
+    publicUrl: "https://peymiz.com/b/mia-hair",
+    owner: {
+      id: "dev-owner-2",
+      email: "mia@example.com",
+      name: "מיה לוי",
+      phone: null,
+      emailVerified: true,
+      createdAt: daysAgo(6),
+    },
+    _count: { orders: 0, appointments: 34, inquiries: 2, products: 5, slots: 12 },
+  },
+  {
+    id: "dev-biz-3",
+    name: "🧪 Guest Test Store",
+    slug: "guest-test-store-9",
+    type: "STORE",
+    description: "Sandbox payment test store — safe to delete.",
+    isActive: false,
+    approvedAt: null,
+    createdAt: daysAgo(1),
+    subscriptionActiveAt: null,
+    subscriptionPlan: null,
+    termsAcceptedAt: daysAgo(1),
+    publicUrl: "https://peymiz.com/b/guest-test-store-9",
+    owner: {
+      id: "dev-owner-3",
+      email: "guest-123@preview.peymiz.test",
+      name: "Guest Tester",
+      phone: null,
+      emailVerified: true,
+      createdAt: daysAgo(1),
+    },
+    _count: { orders: 0, appointments: 0, inquiries: 0, products: 0, slots: 0 },
+  },
+];
+
+export const DEV_MASTER_PENDING_OWNERS = [
+  {
+    id: "dev-pending-1",
+    email: "started-signup@example.com",
+    name: "דני מזרחי",
+    emailVerified: false,
+    createdAt: daysAgo(2),
+  },
+];

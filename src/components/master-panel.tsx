@@ -2,10 +2,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Search } from "lucide-react";
-import { Alert, Button, Badge, PageTitle, Textarea, Input } from "@/components/ui";
+import { ChevronDown, Home, Search, Zap } from "lucide-react";
+import { Alert, Button, Badge, Textarea, Input } from "@/components/ui";
 import { MasterLoginGate } from "@/components/master-login-gate";
 import { WebShell } from "@/components/web-shell";
+import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import {
+  DASHBOARD_MOBILE_STACK,
+  DASHBOARD_PAGE_ROOT,
+} from "@/components/dashboard/dashboard-panel-frame";
+import {
+  DASHBOARD_PRESSABLE_CLASS,
+  getDashboardPressProps,
+} from "@/lib/dashboard-press";
 import {
   BUSINESS_TRIAL_DAYS,
   getBusinessTrialStatus,
@@ -97,6 +106,11 @@ function DetailBox({
   );
 }
 
+function businessInitial(name: string) {
+  const trimmed = name.trim();
+  return trimmed ? trimmed.charAt(0) : "?";
+}
+
 function matchesStoreQuery(b: BusinessRow, query: string) {
   const s = query.trim().toLowerCase();
   if (!s) return true;
@@ -169,10 +183,63 @@ function matchesOwnerQuery(u: PendingOwner, query: string) {
   );
 }
 
-export function MasterPanel() {
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-  const [businesses, setBusinesses] = useState<BusinessRow[]>([]);
-  const [pendingOwners, setPendingOwners] = useState<PendingOwner[]>([]);
+function storeStatus(b: BusinessRow) {
+  if (b.isActive) return { label: "פעיל", tone: "success" as const };
+  if (!b.approvedAt) return { label: "ממתין לאישור", tone: "warning" as const };
+  return { label: "מושבת", tone: "danger" as const };
+}
+
+/** מלבן חנות — כמו שורת הזמנה בדשבורד המוכר (עיגול אות ראשונה + שם + תגיות) */
+function BusinessRowCard({
+  business,
+  onClick,
+}: {
+  business: BusinessRow;
+  onClick: () => void;
+}) {
+  const status = storeStatus(business);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-action-square dashboard-order-row flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start`}
+      {...getDashboardPressProps<HTMLButtonElement>()}
+    >
+      <span
+        className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-bakery-border/35 bg-bakery-on-primary text-[18px] font-extrabold text-bakery-primary shadow-[0_3px_8px_rgba(58,47,38,0.12)]"
+        aria-hidden
+      >
+        {businessInitial(business.name)}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[16px] font-extrabold leading-tight text-bakery-ink">
+          {business.name}
+        </span>
+        <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+          <Badge tone={status.tone}>{status.label}</Badge>
+          <Badge>{business.type === "STORE" ? "חנות" : "תורים"}</Badge>
+        </span>
+      </span>
+    </button>
+  );
+}
+
+export function MasterPanel({
+  previewOnly = false,
+  initialBusinesses = [],
+  initialPendingOwners = [],
+}: {
+  previewOnly?: boolean;
+  initialBusinesses?: BusinessRow[];
+  initialPendingOwners?: PendingOwner[];
+} = {}) {
+  const [authenticated, setAuthenticated] = useState<boolean | null>(
+    previewOnly ? true : null
+  );
+  const [activeTab, setActiveTab] = useState<"home" | "actions">("home");
+  const [businesses, setBusinesses] = useState<BusinessRow[]>(initialBusinesses);
+  const [pendingOwners, setPendingOwners] =
+    useState<PendingOwner[]>(initialPendingOwners);
   const [signupsEnabled, setSignupsEnabled] = useState(true);
   const [trialClosureEnabled, setTrialClosureEnabled] = useState(true);
   const [trialWarningEmailsEnabled, setTrialWarningEmailsEnabled] =
@@ -183,8 +250,9 @@ export function MasterPanel() {
   const [platformLoading, setPlatformLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const [incidents, setIncidents] = useState<SystemIncidentRow[]>([]);
-  const [incidentsOpen, setIncidentsOpen] = useState(true);
+  const [incidentsOpen, setIncidentsOpen] = useState(false);
   const [trialClock, setTrialClock] = useState(0);
   const [ownerMessageDrafts, setOwnerMessageDrafts] = useState<
     Record<string, string>
@@ -233,6 +301,10 @@ export function MasterPanel() {
   }
 
   async function clearIncidents() {
+    if (previewOnly) {
+      setIncidents([]);
+      return;
+    }
     const res = await fetch("/api/admin/incidents", { method: "DELETE" });
     if (res.ok) setIncidents([]);
   }
@@ -267,6 +339,26 @@ export function MasterPanel() {
   async function patchPlatform(
     patch: Record<string, boolean | number>
   ) {
+    if (previewOnly) {
+      setPlatformLoading(true);
+      if (typeof patch.signupsEnabled === "boolean") {
+        setSignupsEnabled(patch.signupsEnabled);
+      }
+      if (typeof patch.trialClosureEnabled === "boolean") {
+        setTrialClosureEnabled(patch.trialClosureEnabled);
+      }
+      if (typeof patch.trialWarningEmailsEnabled === "boolean") {
+        setTrialWarningEmailsEnabled(patch.trialWarningEmailsEnabled);
+      }
+      if (typeof patch.maxAppointmentsPerBusiness === "number") {
+        setMaxAppointmentsPerBusiness(patch.maxAppointmentsPerBusiness);
+      }
+      if (typeof patch.maxOrderItemsPerOrder === "number") {
+        setMaxOrderItemsPerOrder(patch.maxOrderItemsPerOrder);
+      }
+      setPlatformLoading(false);
+      return;
+    }
     setPlatformLoading(true);
     const res = await fetch("/api/admin/platform", {
       method: "PATCH",
@@ -326,28 +418,33 @@ export function MasterPanel() {
 
   async function removePendingOwner(id: string, email: string) {
     if (!confirm(`למחוק את החשבון ${email}? (ללא חנות)`)) return;
+    if (previewOnly) {
+      setPendingOwners((prev) => prev.filter((u) => u.id !== id));
+      return;
+    }
     const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
     if (res.ok) loadBusinesses();
   }
 
   useEffect(() => {
+    if (previewOnly) return;
     checkAuth();
-  }, []);
+  }, [previewOnly]);
 
   useEffect(() => {
-    if (authenticated) {
-      void loadBusinesses();
-      void loadIncidents();
-    }
-  }, [authenticated]);
+    if (previewOnly || !authenticated) return;
+    void loadBusinesses();
+    void loadIncidents();
+  }, [authenticated, previewOnly]);
 
   useEffect(() => {
-    if (!authenticated) return;
+    if (previewOnly || !authenticated) return;
     const timer = window.setInterval(() => void loadIncidents(), 20_000);
     return () => window.clearInterval(timer);
-  }, [authenticated]);
+  }, [authenticated, previewOnly]);
 
   async function logout() {
+    if (previewOnly) return;
     await fetch("/api/master/logout", { method: "POST" });
     setAuthenticated(false);
     setBusinesses([]);
@@ -369,6 +466,18 @@ export function MasterPanel() {
       delete next[b.id];
       return next;
     });
+
+    if (previewOnly) {
+      if (patch.password) {
+        setOwnerPasswordDrafts((prev) => ({ ...prev, [b.id]: "" }));
+      }
+      setOwnerCredFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "success", text: "תצוגה מקדימה — לא נשמר בפועל" },
+      }));
+      setOwnerCredSavingId(null);
+      return;
+    }
 
     try {
       const res = await fetch(`/api/admin/users/${b.owner.id}`, {
@@ -461,6 +570,15 @@ export function MasterPanel() {
       return next;
     });
 
+    if (previewOnly) {
+      setOwnerCredFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "success", text: "תצוגה מקדימה — אין דשבורד אמיתי" },
+      }));
+      setImpersonatingId(null);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/admin/users/${b.owner.id}/impersonate`, {
         method: "POST",
@@ -507,6 +625,16 @@ export function MasterPanel() {
       return next;
     });
 
+    if (previewOnly) {
+      setOwnerMessageDrafts((prev) => ({ ...prev, [b.id]: "" }));
+      setOwnerMessageFeedback((prev) => ({
+        ...prev,
+        [b.id]: { tone: "success", text: "תצוגה מקדימה — לא נשלח בפועל" },
+      }));
+      setOwnerMessageSendingId(null);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/admin/businesses/${b.id}/message`, {
         method: "POST",
@@ -546,6 +674,12 @@ export function MasterPanel() {
   }
 
   async function toggleActive(id: string, isActive: boolean) {
+    if (previewOnly) {
+      setBusinesses((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, isActive: !isActive } : b))
+      );
+      return;
+    }
     await fetch(`/api/admin/businesses/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -556,6 +690,11 @@ export function MasterPanel() {
 
   async function removeStore(id: string, name: string) {
     if (!confirm(`למחוק את החנות "${name}"? פעולה זו בלתי הפיכה.`)) return;
+    if (previewOnly) {
+      if (expandedId === id) setExpandedId(null);
+      setBusinesses((prev) => prev.filter((b) => b.id !== id));
+      return;
+    }
     const res = await fetch(`/api/admin/businesses/${id}`, { method: "DELETE" });
     const data = (await res.json().catch(() => ({}))) as { error?: string };
     if (res.ok) {
@@ -584,16 +723,6 @@ export function MasterPanel() {
     [pendingOwners, searchQuery]
   );
 
-  useEffect(() => {
-    if (filteredStores.length === 1) {
-      setExpandedId(filteredStores[0]!.id);
-      return;
-    }
-    if (expandedId && !filteredStores.some((b) => b.id === expandedId)) {
-      setExpandedId(null);
-    }
-  }, [searchQuery, filteredStores, expandedId]);
-
   if (authenticated === null) {
     return (
       <WebShell>
@@ -621,12 +750,6 @@ export function MasterPanel() {
     return !trial.hasSubscription && trial.expired;
   }).length;
 
-  function storeStatus(b: BusinessRow) {
-    if (b.isActive) return { label: "פעיל", tone: "success" as const };
-    if (!b.approvedAt) return { label: "ממתין לאישור", tone: "warning" as const };
-    return { label: "מושבת", tone: "danger" as const };
-  }
-
   function approveLabel(b: BusinessRow) {
     if (b.isActive) return "השבת חנות";
     if (!b.approvedAt) return "אשר חנות";
@@ -640,74 +763,644 @@ export function MasterPanel() {
     return "w-full sm:flex-1";
   }
 
-  return (
-    <WebShell>
-      <div className="master-surface mx-auto max-w-3xl space-y-4 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8 md:px-[14px]">
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-          <PageTitle>ניהול חנויות</PageTitle>
-          <Button variant="ghost" onClick={logout}>
-            יציאה
-          </Button>
-        </div>
+  const detailBusiness = businesses.find((b) => b.id === expandedId) ?? null;
 
-        <MasterOuter>
-          <MasterInner>
-            <label className="relative block">
-              <span className="sr-only">חיפוש חנויות</span>
-              <Search
-                className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-bakery-muted"
-                aria-hidden
-              />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="חיפוש לפי שם חנות, אימייל או כתובת..."
-                className="master-panel-input py-3 pe-4 ps-11"
-                dir="auto"
-              />
-            </label>
-            {searchQuery.trim() && (
-              <p className="mt-2 text-[13px] font-semibold text-bakery-muted">
-                {filteredStores.length} חנויות · {filteredPendingOwners.length} חשבונות בלי חנות
+  function renderBusinessDetail(b: BusinessRow) {
+    const trial = trialStatusForBusiness(b, trialNow);
+    const trialBadge = trialBadgeMeta(trial);
+    const suspendLabel = approveLabel(b);
+    const isSuspendAction = b.isActive;
+
+    return (
+      <div className="space-y-2 px-3 pb-4 text-start sm:px-4">
+        <div className="flex flex-wrap items-center gap-2 px-1">
+          <Badge tone={storeStatus(b).tone}>{storeStatus(b).label}</Badge>
+          <Badge tone={trialBadge.tone}>{trialBadge.label}</Badge>
+          <Badge>{b.type === "STORE" ? "חנות" : "תורים"}</Badge>
+        </div>
+        <p
+          className="truncate px-1 font-mono text-[13px] text-bakery-primary"
+          dir="ltr"
+        >
+          {b.publicUrl}
+        </p>
+
+        {b.description && (
+          <DetailBox title="תיאור">
+            <p className="leading-[1.45] text-bakery-muted">{b.description}</p>
+          </DetailBox>
+        )}
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          <DetailBox title="בעלים">
+            <p>
+              <span className="font-bold">שם:</span> {b.owner.name}
+            </p>
+            {b.owner.phone && (
+              <p dir="ltr" className="font-mono text-[13px]">
+                {b.owner.phone}
               </p>
             )}
-          </MasterInner>
-        </MasterOuter>
+          </DetailBox>
 
-        <MasterOuter
-          className={incidents.length > 0 ? "master-panel-outer--error" : ""}
-        >
-          <MasterInner>
-            <button
-              type="button"
-              onClick={() => setIncidentsOpen((open) => !open)}
-              className="flex w-full items-center justify-between gap-3 text-start"
-            >
-            <div>
-              <p className="text-[16px] font-extrabold text-bakery-ink">
-                תקלות מערכת (למתכנת בלבד)
-              </p>
-              <p className="mt-1 text-[13px] text-bakery-muted">
-                {incidents.length > 0
-                  ? `${incidents.length} תקלות אחרונות — הלקוחות רואים רק הודעה כללית`
-                  : "אין תקלות מתועדות כרגע"}
-              </p>
-            </div>
-            <ChevronDown
-              className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform ${
-                incidentsOpen ? "rotate-180" : ""
-              }`}
+          <DetailBox title="ניהול חשבון מוכר">
+            <Input
+              label="מייל"
+              type="email"
+              dir="ltr"
+              autoComplete="off"
+              value={ownerEmailDrafts[b.id] ?? b.owner.email}
+              onChange={(e) =>
+                setOwnerEmailDrafts((prev) => ({
+                  ...prev,
+                  [b.id]: e.target.value,
+                }))
+              }
             />
-          </button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="mt-2 w-full sm:w-auto"
+              disabled={ownerCredSavingId === b.id}
+              onClick={() => void saveOwnerEmail(b)}
+            >
+              {ownerCredSavingId === b.id ? "שומר..." : "שמור מייל"}
+            </Button>
 
-          {incidentsOpen && incidents.length > 0 && (
-            <div className="mt-3 space-y-2">
-              {incidents.map((incident) => (
-                <MasterInner
-                  key={incident.id}
-                  className="master-panel-inner--error text-start"
+            <Input
+              label="סיסמה חדשה"
+              type="password"
+              dir="ltr"
+              autoComplete="new-password"
+              className="mt-3"
+              value={ownerPasswordDrafts[b.id] ?? ""}
+              onChange={(e) =>
+                setOwnerPasswordDrafts((prev) => ({
+                  ...prev,
+                  [b.id]: e.target.value,
+                }))
+              }
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              className="mt-2 w-full sm:w-auto"
+              disabled={ownerCredSavingId === b.id}
+              onClick={() => void saveOwnerPassword(b)}
+            >
+              {ownerCredSavingId === b.id ? "שומר..." : "עדכן סיסמה"}
+            </Button>
+
+            {ownerCredFeedback[b.id] ? (
+              <div className="mt-2">
+                <Alert variant={ownerCredFeedback[b.id].tone}>
+                  {ownerCredFeedback[b.id].text}
+                </Alert>
+              </div>
+            ) : null}
+
+            <Button
+              type="button"
+              variant="primary"
+              className="mt-4 w-full"
+              disabled={impersonatingId === b.id}
+              onClick={() => void enterOwnerDashboard(b)}
+            >
+              {impersonatingId === b.id ? "נכנס..." : "כניסה לדשבורד החנות"}
+            </Button>
+            <p className="mt-2 text-[12px] text-bakery-muted">
+              נכנס כמוכר — גם אם החנות מושבתת או שהניסיון נגמר.
+            </p>
+          </DetailBox>
+
+          <DetailBox title="תאריכים">
+            <p>
+              <span className="font-bold">נפתח:</span>{" "}
+              {new Date(b.createdAt).toLocaleString("he-IL")}
+            </p>
+            <p>
+              <span className="font-bold">אישור מנהל:</span>{" "}
+              {b.approvedAt
+                ? new Date(b.approvedAt).toLocaleString("he-IL")
+                : "ממתין"}
+            </p>
+            <p>
+              <span className="font-bold">תנאים:</span>{" "}
+              {b.termsAcceptedAt
+                ? new Date(b.termsAcceptedAt).toLocaleDateString("he-IL")
+                : "—"}
+            </p>
+          </DetailBox>
+        </div>
+
+        <DetailBox title={`ניסיון ${BUSINESS_TRIAL_DAYS} יום`}>
+          <p className="text-[15px] font-extrabold text-bakery-ink">
+            {formatTrialCountdown(trial)}
+          </p>
+          {!trial.hasSubscription ? (
+            <p className="mt-1 text-bakery-muted">
+              <span className="font-bold text-bakery-ink">החנות נעצרת:</span>{" "}
+              {trial.trialEndsAt.toLocaleString("he-IL")}
+            </p>
+          ) : (
+            <p className="mt-1 text-bakery-muted">
+              מנוי מאז{" "}
+              {b.subscriptionActiveAt
+                ? new Date(b.subscriptionActiveAt).toLocaleString("he-IL")
+                : "—"}
+              {b.subscriptionPlan ? ` · ${b.subscriptionPlan}` : ""}
+            </p>
+          )}
+          <p className="mt-1 text-[13px] text-bakery-muted">
+            הספירה מתחילה ממועד פתיחת החנות (
+            {new Date(b.createdAt).toLocaleDateString("he-IL")})
+          </p>
+        </DetailBox>
+
+        <DetailBox title="נתונים">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {(
+              [
+                ["מוצרים", b._count.products],
+                ["הזמנות", b._count.orders],
+                ["תורים", b._count.appointments],
+                ["משבצות", b._count.slots],
+                ["פניות", b._count.inquiries],
+              ] as const
+            ).map(([label, count]) => (
+              <div key={label} className="master-panel-stat">
+                <p className="text-[11px] font-bold text-bakery-muted">{label}</p>
+                <p className="text-[18px] font-extrabold text-bakery-ink">{count}</p>
+              </div>
+            ))}
+          </div>
+        </DetailBox>
+
+        <MasterInner>
+          <Link
+            href={`/b/${b.slug}`}
+            target="_blank"
+            className="text-[14px] font-bold text-bakery-primary hover:underline"
+          >
+            צפייה בעמוד לקוחות →
+          </Link>
+        </MasterInner>
+
+        <DetailBox title="הודעה לחנות">
+          <p className="text-[13px] text-bakery-muted">
+            ההודעה תופיע למוכר/ת בדשבורד החנות — לא במייל.
+          </p>
+          <Textarea
+            className="mt-2 min-h-[96px]"
+            rows={4}
+            maxLength={2000}
+            placeholder="כתוב הודעה שתופיע בדשבורד של המוכר/ת..."
+            value={ownerMessageDrafts[b.id] ?? ""}
+            onChange={(e) =>
+              setOwnerMessageDrafts((prev) => ({
+                ...prev,
+                [b.id]: e.target.value,
+              }))
+            }
+          />
+          {ownerMessageFeedback[b.id] ? (
+            <div className="mt-2">
+              <Alert variant={ownerMessageFeedback[b.id].tone}>
+                {ownerMessageFeedback[b.id].text}
+              </Alert>
+            </div>
+          ) : null}
+          <Button
+            type="button"
+            variant="secondary"
+            className="mt-3 w-full sm:w-auto"
+            disabled={ownerMessageSendingId === b.id}
+            onClick={() => void sendOwnerMessage(b)}
+          >
+            {ownerMessageSendingId === b.id ? "שולח..." : "שלח הודעה לחנות"}
+          </Button>
+        </DetailBox>
+
+        <MasterInner className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            variant={isSuspendAction ? "primary" : b.isActive ? "danger" : "primary"}
+            className={toggleSuspendButtonClass(b)}
+            onClick={() => toggleActive(b.id, b.isActive)}
+          >
+            {suspendLabel}
+          </Button>
+          <Button
+            variant="primary"
+            className="master-btn-matte-danger w-full sm:flex-1"
+            onClick={() => removeStore(b.id, b.name)}
+          >
+            מחק חנות
+          </Button>
+        </MasterInner>
+      </div>
+    );
+  }
+
+  function openDetail(b: BusinessRow) {
+    ensureOwnerEmailDraft(b);
+    setExpandedId(b.id);
+  }
+
+  return (
+    <WebShell>
+      <div className={`master-surface ${DASHBOARD_PAGE_ROOT} h-[100dvh]`}>
+        <div className="min-h-0 flex-1 overflow-y-auto pb-24">
+          {activeTab === "home" ? (
+            <div className={`${DASHBOARD_MOBILE_STACK} space-y-2 px-3 py-3 text-center sm:py-4`}>
+              <div className="dashboard-home-header dashboard-home-header--greeting relative flex flex-col items-center justify-center px-4 py-3">
+                <button
+                  type="button"
+                  onClick={() => setIncidentsOpen(true)}
+                  className="dashboard-icon-tile-dark absolute end-3 top-3 z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] transition hover:opacity-95"
+                  aria-label="תקלות מערכת"
                 >
+                  <span className="relative text-[20px]" aria-hidden>
+                    🔔
+                  </span>
+                  {incidents.length > 0 ? (
+                    <span
+                      className="dashboard-inquiry-dot dashboard-inquiry-dot--dark-tile"
+                      aria-hidden
+                    />
+                  ) : null}
+                </button>
+                <h1 className="w-full truncate px-14 text-center text-[18px] font-extrabold leading-tight text-bakery-ink sm:text-[19px]">
+                  שלום, מנהל המערכת!
+                </h1>
+                <p className="mt-1 text-[13px] font-semibold text-bakery-muted">
+                  {pendingApproval.length > 0
+                    ? `${pendingApproval.length} חנויות ממתינות לאישור שלך`
+                    : "אין חנויות ממתינות לאישור"}
+                </p>
+              </div>
+
+              <div className="dashboard-card bakery-float-panel rounded-[32px] p-3 text-start">
+                {pendingApproval.length === 0 ? (
+                  <p className="py-8 text-center text-[14px] font-semibold text-bakery-muted">
+                    אין חנויות הממתינות לאישור כרגע.
+                  </p>
+                ) : (
+                  <ul className="w-full space-y-2">
+                    {pendingApproval.map((b) => (
+                      <li key={b.id}>
+                        <BusinessRowCard business={b} onClick={() => openDetail(b)} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {businesses.length > 0 ? (
+                  <button
+                    type="button"
+                    className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-icon-tile-dark mt-3 flex w-full min-h-[44px] items-center justify-center rounded-[14px] px-4 text-[15px] font-extrabold hover:opacity-95`}
+                    {...getDashboardPressProps<HTMLButtonElement>()}
+                    onClick={() => setSummaryOpen(true)}
+                  >
+                    סיכום — כל החנויות
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ) : (
+            <div className={`${DASHBOARD_MOBILE_STACK} space-y-3 px-3 py-3 sm:py-4`}>
+              <div className="flex items-center justify-between gap-3 px-1">
+                <h2 className="text-[19px] font-extrabold text-bakery-ink">הגדרות פלטפורמה</h2>
+                <Button variant="ghost" onClick={logout}>
+                  יציאה
+                </Button>
+              </div>
+
+              <MasterOuter
+                className={incidents.length > 0 ? "master-panel-outer--error" : ""}
+              >
+                <MasterInner>
+                  <button
+                    type="button"
+                    onClick={() => setIncidentsOpen((open) => !open)}
+                    className="flex w-full items-center justify-between gap-3 text-start"
+                  >
+                    <div>
+                      <p className="text-[16px] font-extrabold text-bakery-ink">
+                        תקלות מערכת (למתכנת בלבד)
+                      </p>
+                      <p className="mt-1 text-[13px] text-bakery-muted">
+                        {incidents.length > 0
+                          ? `${incidents.length} תקלות אחרונות — הלקוחות רואים רק הודעה כללית`
+                          : "אין תקלות מתועדות כרגע"}
+                      </p>
+                    </div>
+                    <ChevronDown
+                      className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform ${
+                        incidentsOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {incidentsOpen && incidents.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {incidents.map((incident) => (
+                        <MasterInner
+                          key={incident.id}
+                          className="master-panel-inner--error text-start"
+                        >
+                          <p className="text-[12px] font-bold text-bakery-muted">
+                            {new Date(incident.at).toLocaleString("he-IL")} · {incident.context}
+                          </p>
+                          <p className="mt-2 text-[13px] font-semibold text-bakery-ink">
+                            מה שהמשתמש ראה: {incident.publicMessage}
+                          </p>
+                          <p className="mt-2 whitespace-pre-wrap font-mono text-[12px] leading-relaxed text-bakery-error">
+                            {incident.developerMessage}
+                          </p>
+                          {incident.stack ? (
+                            <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap rounded-[10px] bg-bakery-ink/5 p-2 font-mono text-[11px] text-bakery-muted">
+                              {incident.stack}
+                            </pre>
+                          ) : null}
+                        </MasterInner>
+                      ))}
+                      <Button variant="ghost" onClick={clearIncidents} className="w-full">
+                        נקה רשימת תקלות
+                      </Button>
+                    </div>
+                  )}
+                </MasterInner>
+              </MasterOuter>
+
+              <MasterOuter>
+                <MasterInner className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[16px] font-extrabold text-bakery-ink">הרשמה חדשה לאתר</p>
+                    <p className="mt-1 text-[14px] text-bakery-muted">
+                      {signupsEnabled
+                        ? "משתמשים יכולים להירשם ולפתוח חנות"
+                        : "ההרשמה סגורה — רק התחברות לחשבונות קיימים"}
+                    </p>
+                  </div>
+                  <Button
+                    variant={signupsEnabled ? "danger" : "primary"}
+                    onClick={toggleSignups}
+                    disabled={platformLoading}
+                    className={`w-full sm:w-auto ${signupsEnabled ? "master-btn-matte-danger" : ""}`}
+                  >
+                    {platformLoading
+                      ? "שומר..."
+                      : signupsEnabled
+                        ? "השעה הרשמה"
+                        : "פתח הרשמה"}
+                  </Button>
+                </MasterInner>
+              </MasterOuter>
+
+              <MasterOuter>
+                <MasterInner className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[16px] font-extrabold text-bakery-ink">
+                      סגירת חנות אחרי {BUSINESS_TRIAL_DAYS} יום ניסיון
+                    </p>
+                    <p className="mt-1 text-[14px] text-bakery-muted">
+                      {trialClosureEnabled
+                        ? "חנות ללא מנוי תיסגר אוטומטית בסוף תקופת הניסיון"
+                        : "הניסיון לא ייסגר אוטומטית — החנות נשארת פתוחה"}
+                    </p>
+                  </div>
+                  <Button
+                    variant={trialClosureEnabled ? "danger" : "primary"}
+                    onClick={() => void toggleTrialClosure()}
+                    disabled={platformLoading}
+                    className={`w-full sm:w-auto ${trialClosureEnabled ? "master-btn-matte-danger" : ""}`}
+                  >
+                    {platformLoading
+                      ? "שומר..."
+                      : trialClosureEnabled
+                        ? "כבה סגירה אוטומטית"
+                        : "הפעל סגירה אוטומטית"}
+                  </Button>
+                </MasterInner>
+              </MasterOuter>
+
+              <MasterOuter>
+                <MasterInner>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[16px] font-extrabold text-bakery-ink">
+                        התראות לפני סיום ניסיון
+                      </p>
+                      <p className="mt-1 text-[14px] text-bakery-muted">
+                        {trialWarningEmailsEnabled
+                          ? trialWarningScheduleLabelHe()
+                          : "לא נשלחות התראות במייל או בדחיפה למוכרים"}
+                      </p>
+                    </div>
+                    <Button
+                      variant={trialWarningEmailsEnabled ? "danger" : "primary"}
+                      onClick={() => void toggleTrialWarnings()}
+                      disabled={platformLoading || !trialClosureEnabled}
+                      className={`w-full sm:w-auto ${trialWarningEmailsEnabled ? "master-btn-matte-warn" : ""}`}
+                    >
+                      {platformLoading
+                        ? "שומר..."
+                        : trialWarningEmailsEnabled
+                          ? "כבה התראות"
+                          : "הפעל התראות"}
+                    </Button>
+                  </div>
+                  {!trialClosureEnabled ? (
+                    <p className="mt-3 text-[13px] text-bakery-muted">
+                      התראות רלוונטיות רק כשסגירה אוטומטית מופעלת.
+                    </p>
+                  ) : null}
+                </MasterInner>
+              </MasterOuter>
+
+              <MasterOuter>
+                <MasterInner className="space-y-4">
+                  <div>
+                    <p className="text-[16px] font-extrabold text-bakery-ink">
+                      מגבלות קביעת תורים והזמנות
+                    </p>
+                    <p className="mt-1 text-[14px] text-bakery-muted">
+                      מכסה לכל חנות ומגבלת פריטים בהזמנה אחת — חל על כל העסקים בפלטפורמה
+                    </p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Input
+                      label="מקסימום תורים לחנות"
+                      type="number"
+                      min={1}
+                      max={100000}
+                      value={maxAppointmentsPerBusiness}
+                      onChange={(e) =>
+                        setMaxAppointmentsPerBusiness(Number(e.target.value) || 0)
+                      }
+                      dir="ltr"
+                    />
+                    <Input
+                      label="מקסימום פריטים בהזמנה"
+                      type="number"
+                      min={1}
+                      max={100000}
+                      value={maxOrderItemsPerOrder}
+                      onChange={(e) =>
+                        setMaxOrderItemsPerOrder(Number(e.target.value) || 0)
+                      }
+                      dir="ltr"
+                    />
+                  </div>
+                  <Button
+                    variant="primary"
+                    onClick={() => void savePlatformLimits()}
+                    disabled={platformLoading}
+                    className="w-full sm:w-auto"
+                  >
+                    {platformLoading ? "שומר..." : "שמור מגבלות"}
+                  </Button>
+                </MasterInner>
+              </MasterOuter>
+
+              <MasterOuter>
+                <MasterInner className="space-y-2">
+                  <p className="text-[15px] text-bakery-ink">
+                    <span className="font-extrabold">{businesses.length}</span> חנויות ·{" "}
+                    <span className="font-extrabold text-bakery-success">{activeCount}</span> פעילות ·{" "}
+                    <span className="font-extrabold text-bakery-sale">
+                      {pendingApproval.length}
+                    </span>{" "}
+                    ממתינות לאישור ·{" "}
+                    <span className="font-extrabold text-bakery-error">
+                      {businesses.length - activeCount - pendingApproval.length}
+                    </span>{" "}
+                    מושבתות
+                    {pendingOwners.length > 0 && (
+                      <>
+                        {" "}
+                        ·{" "}
+                        <span className="font-extrabold text-bakery-muted">
+                          {pendingOwners.length}
+                        </span>{" "}
+                        חשבונות בלי חנות
+                      </>
+                    )}
+                  </p>
+                  <p className="text-[14px] text-bakery-ink">
+                    ניסיון {BUSINESS_TRIAL_DAYS} יום:{" "}
+                    <span className="font-extrabold text-bakery-sale">
+                      {trialsEndingSoon}
+                    </span>{" "}
+                    נגמרות בשבוע הקרוב ·{" "}
+                    <span className="font-extrabold text-bakery-error">{trialsExpired}</span>{" "}
+                    כבר נגמרו
+                  </p>
+                </MasterInner>
+              </MasterOuter>
+
+              {pendingOwners.length > 0 ? (
+                <MasterOuter>
+                  <MasterInner>
+                    <p className="mb-2 text-[14px] font-extrabold text-bakery-ink">
+                      חשבונות בלי חנות
+                    </p>
+                    <div className="space-y-2">
+                      {pendingOwners.map((u) => (
+                        <div
+                          key={u.id}
+                          className="master-panel-inner flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between"
+                        >
+                          <div className="min-w-0 flex-1 space-y-1 text-start">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-[16px] font-extrabold text-bakery-ink">{u.name}</p>
+                              <Badge tone="warning">בלי חנות</Badge>
+                            </div>
+                            <p dir="ltr" className="font-mono text-[13px] text-bakery-primary">
+                              {u.email}
+                            </p>
+                            <p className="text-[12px] text-bakery-muted">
+                              נרשם/ה: {new Date(u.createdAt).toLocaleString("he-IL")}
+                            </p>
+                          </div>
+                          <Button
+                            variant="primary"
+                            className="master-btn-matte-danger w-full sm:w-auto"
+                            onClick={() => removePendingOwner(u.id, u.email)}
+                          >
+                            מחק חשבון
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </MasterInner>
+                </MasterOuter>
+              ) : null}
+            </div>
+          )}
+        </div>
+
+        <nav
+          className="dashboard-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-bakery-card"
+          style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
+          aria-label="ניווט פאנל מתכנת"
+        >
+          <div className={`flex w-full pt-2 ${DASHBOARD_MOBILE_STACK} px-4`}>
+            {(
+              [
+                { key: "home" as const, label: "בית", icon: Home },
+                { key: "actions" as const, label: "הגדרות", icon: Zap },
+              ]
+            ).map((l) => {
+              const active = activeTab === l.key;
+              const Icon = l.icon;
+              return (
+                <button
+                  key={l.key}
+                  type="button"
+                  onClick={() => setActiveTab(l.key)}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex flex-1 flex-col items-center rounded-full px-2 py-2 transition ${
+                    active ? "dashboard-bottom-nav__link--active" : ""
+                  }`}
+                >
+                  <Icon
+                    className={`h-6 w-6 ${active ? "text-bakery-ink" : "text-bakery-muted"}`}
+                    strokeWidth={active ? 2.25 : 1.75}
+                  />
+                  <span
+                    className={`mt-1 text-center text-[11px] font-bold leading-tight ${
+                      active ? "text-bakery-ink" : "text-bakery-muted"
+                    }`}
+                  >
+                    {l.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
+
+      {/* מודל תקלות מערכת */}
+      <DashboardActionSheet
+        open={incidentsOpen}
+        onClose={() => setIncidentsOpen(false)}
+        title="תקלות מערכת"
+        ariaLabel="תקלות מערכת"
+        placement="center"
+        showBackButton
+        compact
+        fitContent
+      >
+        <div className="space-y-2 text-start">
+          {incidents.length === 0 ? (
+            <p className="py-8 text-center text-[14px] font-semibold text-bakery-muted">
+              אין תקלות מתועדות כרגע
+            </p>
+          ) : (
+            <>
+              {incidents.map((incident) => (
+                <MasterInner key={incident.id} className="master-panel-inner--error">
                   <p className="text-[12px] font-bold text-bakery-muted">
                     {new Date(incident.at).toLocaleString("he-IL")} · {incident.context}
                   </p>
@@ -727,486 +1420,74 @@ export function MasterPanel() {
               <Button variant="ghost" onClick={clearIncidents} className="w-full">
                 נקה רשימת תקלות
               </Button>
-            </div>
+            </>
           )}
-          </MasterInner>
-        </MasterOuter>
+        </div>
+      </DashboardActionSheet>
 
-        <MasterOuter>
-          <MasterInner className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-[16px] font-extrabold text-bakery-ink">הרשמה חדשה לאתר</p>
-              <p className="mt-1 text-[14px] text-bakery-muted">
-                {signupsEnabled
-                  ? "משתמשים יכולים להירשם ולפתוח חנות"
-                  : "ההרשמה סגורה — רק התחברות לחשבונות קיימים"}
-              </p>
-            </div>
-            <Button
-              variant={signupsEnabled ? "danger" : "primary"}
-              onClick={toggleSignups}
-              disabled={platformLoading}
-              className={`w-full sm:w-auto ${signupsEnabled ? "master-btn-matte-danger" : ""}`}
-            >
-              {platformLoading
-                ? "שומר..."
-                : signupsEnabled
-                  ? "השעה הרשמה"
-                  : "פתח הרשמה"}
-            </Button>
-          </MasterInner>
-        </MasterOuter>
-
-        <MasterOuter>
-          <MasterInner className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-[16px] font-extrabold text-bakery-ink">
-                סגירת חנות אחרי {BUSINESS_TRIAL_DAYS} יום ניסיון
-              </p>
-              <p className="mt-1 text-[14px] text-bakery-muted">
-                {trialClosureEnabled
-                  ? "חנות ללא מנוי תיסגר אוטומטית בסוף תקופת הניסיון"
-                  : "הניסיון לא ייסגר אוטומטית — החנות נשארת פתוחה"}
-              </p>
-            </div>
-            <Button
-              variant={trialClosureEnabled ? "danger" : "primary"}
-              onClick={() => void toggleTrialClosure()}
-              disabled={platformLoading}
-              className={`w-full sm:w-auto ${trialClosureEnabled ? "master-btn-matte-danger" : ""}`}
-            >
-              {platformLoading
-                ? "שומר..."
-                : trialClosureEnabled
-                  ? "כבה סגירה אוטומטית"
-                  : "הפעל סגירה אוטומטית"}
-            </Button>
-          </MasterInner>
-        </MasterOuter>
-
-        <MasterOuter>
-          <MasterInner>
-            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-[16px] font-extrabold text-bakery-ink">
-                  התראות לפני סיום ניסיון
-                </p>
-                <p className="mt-1 text-[14px] text-bakery-muted">
-                  {trialWarningEmailsEnabled
-                    ? trialWarningScheduleLabelHe()
-                    : "לא נשלחות התראות במייל או בדחיפה למוכרים"}
-                </p>
-              </div>
-              <Button
-                variant={trialWarningEmailsEnabled ? "danger" : "primary"}
-                onClick={() => void toggleTrialWarnings()}
-                disabled={platformLoading || !trialClosureEnabled}
-                className={`w-full sm:w-auto ${trialWarningEmailsEnabled ? "master-btn-matte-warn" : ""}`}
-              >
-                {platformLoading
-                  ? "שומר..."
-                  : trialWarningEmailsEnabled
-                    ? "כבה התראות"
-                    : "הפעל התראות"}
-              </Button>
-            </div>
-            {!trialClosureEnabled ? (
-              <p className="mt-3 text-[13px] text-bakery-muted">
-                התראות רלוונטיות רק כשסגירה אוטומטית מופעלת.
-              </p>
-            ) : null}
-          </MasterInner>
-        </MasterOuter>
-
-        <MasterOuter>
-          <MasterInner className="space-y-4">
-            <div>
-              <p className="text-[16px] font-extrabold text-bakery-ink">
-                מגבלות קביעת תורים והזמנות
-              </p>
-              <p className="mt-1 text-[14px] text-bakery-muted">
-                מכסה לכל חנות ומגבלת פריטים בהזמנה אחת — חל על כל העסקים בפלטפורמה
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Input
-                label="מקסימום תורים לחנות"
-                type="number"
-                min={1}
-                max={100000}
-                value={maxAppointmentsPerBusiness}
-                onChange={(e) =>
-                  setMaxAppointmentsPerBusiness(Number(e.target.value) || 0)
-                }
-                dir="ltr"
-              />
-              <Input
-                label="מקסימום פריטים בהזמנה"
-                type="number"
-                min={1}
-                max={100000}
-                value={maxOrderItemsPerOrder}
-                onChange={(e) =>
-                  setMaxOrderItemsPerOrder(Number(e.target.value) || 0)
-                }
-                dir="ltr"
-              />
-            </div>
-            <Button
-              variant="primary"
-              onClick={() => void savePlatformLimits()}
-              disabled={platformLoading}
-              className="w-full sm:w-auto"
-            >
-              {platformLoading ? "שומר..." : "שמור מגבלות"}
-            </Button>
-          </MasterInner>
-        </MasterOuter>
-
-        <MasterOuter>
-          <MasterInner className="space-y-2">
-            <p className="text-[15px] text-bakery-ink">
-              <span className="font-extrabold">{businesses.length}</span> חנויות ·{" "}
-              <span className="font-extrabold text-bakery-success">{activeCount}</span> פעילות ·{" "}
-              <span className="font-extrabold text-bakery-sale">
-                {pendingApproval.length}
-              </span>{" "}
-              ממתינות לאישור ·{" "}
-              <span className="font-extrabold text-bakery-error">
-                {businesses.length - activeCount - pendingApproval.length}
-              </span>{" "}
-              מושבתות
-              {pendingOwners.length > 0 && (
-                <>
-                  {" "}
-                  ·{" "}
-                  <span className="font-extrabold text-bakery-muted">
-                    {pendingOwners.length}
-                  </span>{" "}
-                  חשבונות בלי חנות
-                </>
-              )}
+      {/* סיכום — כל החנויות */}
+      <DashboardActionSheet
+        open={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        title="כל החנויות"
+        ariaLabel="כל החנויות"
+        placement="center"
+        showBackButton
+        compact
+        fitContent
+      >
+        <div className="space-y-3 text-start">
+          <label className="relative block">
+            <span className="sr-only">חיפוש חנויות</span>
+            <Search
+              className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-bakery-muted"
+              aria-hidden
+            />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="חיפוש לפי שם חנות, אימייל או כתובת..."
+              className="master-panel-input py-3 pe-4 ps-11"
+              dir="auto"
+            />
+          </label>
+          {filteredStores.length === 0 && filteredPendingOwners.length === 0 ? (
+            <p className="py-6 text-center text-[14px] font-semibold text-bakery-muted">
+              {searchQuery.trim() ? "לא נמצאו תוצאות לחיפוש." : "אין חנויות רשומות במערכת."}
             </p>
-            <p className="text-[14px] text-bakery-ink">
-              ניסיון {BUSINESS_TRIAL_DAYS} יום:{" "}
-              <span className="font-extrabold text-bakery-sale">
-                {trialsEndingSoon}
-              </span>{" "}
-              נגמרות בשבוע הקרוב ·{" "}
-              <span className="font-extrabold text-bakery-error">{trialsExpired}</span>{" "}
-              כבר נגמרו
-            </p>
-          </MasterInner>
-        </MasterOuter>
+          ) : (
+            <ul className="w-full space-y-2">
+              {filteredStores.map((b) => (
+                <li key={b.id}>
+                  <BusinessRowCard
+                    business={b}
+                    onClick={() => {
+                      setSummaryOpen(false);
+                      openDetail(b);
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </DashboardActionSheet>
 
-        {filteredPendingOwners.map((u) => (
-          <MasterOuter key={u.id} className="master-panel-outer--tight">
-            <MasterInner className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-              <div className="min-w-0 flex-1 space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[18px] font-extrabold text-bakery-ink">{u.name}</p>
-                  <Badge tone="warning">בלי חנות</Badge>
-                </div>
-                <p className="text-[14px] text-bakery-muted">
-                  נרשם/ה אך לא השלים/ה יצירת חנות
-                </p>
-                <p dir="ltr" className="font-mono text-[14px] text-bakery-primary">
-                  {u.email}
-                </p>
-                <p className="text-[13px] text-bakery-muted">
-                  נוצר: {new Date(u.createdAt).toLocaleString("he-IL")}
-                </p>
-              </div>
-              <Button
-                variant="primary"
-                className="master-btn-matte-danger w-full sm:w-auto"
-                onClick={() => removePendingOwner(u.id, u.email)}
-              >
-                מחק חשבון
-              </Button>
-            </MasterInner>
-          </MasterOuter>
-        ))}
-
-        {filteredStores.map((b) => {
-          const status = storeStatus(b);
-          const trial = trialStatusForBusiness(b, trialNow);
-          const trialBadge = trialBadgeMeta(trial);
-          const expanded = expandedId === b.id;
-          const suspendLabel = approveLabel(b);
-          const isSuspendAction = b.isActive;
-
-          return (
-            <MasterOuter key={b.id} className="master-panel-outer--tight space-y-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const next = expanded ? null : b.id;
-                  setExpandedId(next);
-                  if (next) ensureOwnerEmailDraft(b);
-                }}
-                className={`master-panel-inner master-panel-row${
-                  expanded ? " master-panel-inner--active" : ""
-                }`}
-                aria-expanded={expanded}
-              >
-                <ChevronDown
-                  className={`h-5 w-5 shrink-0 text-bakery-muted transition-transform ${
-                    expanded ? "rotate-180" : ""
-                  }`}
-                  aria-hidden
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[17px] font-extrabold text-bakery-ink">{b.name}</p>
-                    <Badge tone={status.tone}>{status.label}</Badge>
-                    <Badge tone={trialBadge.tone}>{trialBadge.label}</Badge>
-                    <Badge>{b.type === "STORE" ? "חנות" : "תורים"}</Badge>
-                  </div>
-                  <p
-                    className="mt-1 truncate font-mono text-[13px] text-bakery-primary"
-                    dir="ltr"
-                  >
-                    {b.publicUrl}
-                  </p>
-                </div>
-              </button>
-
-              {expanded && (
-                <div className="space-y-2">
-                  {b.description && (
-                    <DetailBox title="תיאור">
-                      <p className="leading-[1.45] text-bakery-muted">{b.description}</p>
-                    </DetailBox>
-                  )}
-
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <DetailBox title="בעלים">
-                      <p>
-                        <span className="font-bold">שם:</span> {b.owner.name}
-                      </p>
-                      {b.owner.phone && (
-                        <p dir="ltr" className="font-mono text-[13px]">
-                          {b.owner.phone}
-                        </p>
-                      )}
-                    </DetailBox>
-
-                    <DetailBox title="ניהול חשבון מוכר">
-                      <Input
-                        label="מייל"
-                        type="email"
-                        dir="ltr"
-                        autoComplete="off"
-                        value={ownerEmailDrafts[b.id] ?? b.owner.email}
-                        onChange={(e) =>
-                          setOwnerEmailDrafts((prev) => ({
-                            ...prev,
-                            [b.id]: e.target.value,
-                          }))
-                        }
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="mt-2 w-full sm:w-auto"
-                        disabled={ownerCredSavingId === b.id}
-                        onClick={() => void saveOwnerEmail(b)}
-                      >
-                        {ownerCredSavingId === b.id ? "שומר..." : "שמור מייל"}
-                      </Button>
-
-                      <Input
-                        label="סיסמה חדשה"
-                        type="password"
-                        dir="ltr"
-                        autoComplete="new-password"
-                        className="mt-3"
-                        value={ownerPasswordDrafts[b.id] ?? ""}
-                        onChange={(e) =>
-                          setOwnerPasswordDrafts((prev) => ({
-                            ...prev,
-                            [b.id]: e.target.value,
-                          }))
-                        }
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="mt-2 w-full sm:w-auto"
-                        disabled={ownerCredSavingId === b.id}
-                        onClick={() => void saveOwnerPassword(b)}
-                      >
-                        {ownerCredSavingId === b.id ? "שומר..." : "עדכן סיסמה"}
-                      </Button>
-
-                      {ownerCredFeedback[b.id] ? (
-                        <div className="mt-2">
-                          <Alert variant={ownerCredFeedback[b.id].tone}>
-                            {ownerCredFeedback[b.id].text}
-                          </Alert>
-                        </div>
-                      ) : null}
-
-                      <Button
-                        type="button"
-                        variant="primary"
-                        className="mt-4 w-full"
-                        disabled={impersonatingId === b.id}
-                        onClick={() => void enterOwnerDashboard(b)}
-                      >
-                        {impersonatingId === b.id
-                          ? "נכנס..."
-                          : "כניסה לדשבורד החנות"}
-                      </Button>
-                      <p className="mt-2 text-[12px] text-bakery-muted">
-                        נכנס כמוכר — גם אם החנות מושבתת או שהניסיון נגמר.
-                      </p>
-                    </DetailBox>
-
-                    <DetailBox title="תאריכים">
-                      <p>
-                        <span className="font-bold">נפתח:</span>{" "}
-                        {new Date(b.createdAt).toLocaleString("he-IL")}
-                      </p>
-                      <p>
-                        <span className="font-bold">אישור מנהל:</span>{" "}
-                        {b.approvedAt
-                          ? new Date(b.approvedAt).toLocaleString("he-IL")
-                          : "ממתין"}
-                      </p>
-                      <p>
-                        <span className="font-bold">תנאים:</span>{" "}
-                        {b.termsAcceptedAt
-                          ? new Date(b.termsAcceptedAt).toLocaleDateString("he-IL")
-                          : "—"}
-                      </p>
-                    </DetailBox>
-                  </div>
-
-                  <DetailBox title={`ניסיון ${BUSINESS_TRIAL_DAYS} יום`}>
-                    <p className="text-[15px] font-extrabold text-bakery-ink">
-                      {formatTrialCountdown(trial)}
-                    </p>
-                    {!trial.hasSubscription ? (
-                      <p className="mt-1 text-bakery-muted">
-                        <span className="font-bold text-bakery-ink">
-                          החנות נעצרת:
-                        </span>{" "}
-                        {trial.trialEndsAt.toLocaleString("he-IL")}
-                      </p>
-                    ) : (
-                      <p className="mt-1 text-bakery-muted">
-                        מנוי מאז{" "}
-                        {b.subscriptionActiveAt
-                          ? new Date(b.subscriptionActiveAt).toLocaleString("he-IL")
-                          : "—"}
-                        {b.subscriptionPlan ? ` · ${b.subscriptionPlan}` : ""}
-                      </p>
-                    )}
-                    <p className="mt-1 text-[13px] text-bakery-muted">
-                      הספירה מתחילה ממועד פתיחת החנות (
-                      {new Date(b.createdAt).toLocaleDateString("he-IL")})
-                    </p>
-                  </DetailBox>
-
-                  <DetailBox title="נתונים">
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                      {(
-                        [
-                          ["מוצרים", b._count.products],
-                          ["הזמנות", b._count.orders],
-                          ["תורים", b._count.appointments],
-                          ["משבצות", b._count.slots],
-                          ["פניות", b._count.inquiries],
-                        ] as const
-                      ).map(([label, count]) => (
-                        <div
-                          key={label}
-                          className="master-panel-stat"
-                        >
-                          <p className="text-[11px] font-bold text-bakery-muted">{label}</p>
-                          <p className="text-[18px] font-extrabold text-bakery-ink">{count}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </DetailBox>
-
-                  <MasterInner>
-                    <Link
-                      href={`/b/${b.slug}`}
-                      target="_blank"
-                      className="text-[14px] font-bold text-bakery-primary hover:underline"
-                    >
-                      צפייה בעמוד לקוחות →
-                    </Link>
-                  </MasterInner>
-
-                  <DetailBox title="הודעה לחנות">
-                    <p className="text-[13px] text-bakery-muted">
-                      ההודעה תופיע למוכר/ת בדשבורד החנות — לא במייל.
-                    </p>
-                    <Textarea
-                      className="mt-2 min-h-[96px]"
-                      rows={4}
-                      maxLength={2000}
-                      placeholder="כתוב הודעה שתופיע בדשבורד של המוכר/ת..."
-                      value={ownerMessageDrafts[b.id] ?? ""}
-                      onChange={(e) =>
-                        setOwnerMessageDrafts((prev) => ({
-                          ...prev,
-                          [b.id]: e.target.value,
-                        }))
-                      }
-                    />
-                    {ownerMessageFeedback[b.id] ? (
-                      <div className="mt-2">
-                        <Alert variant={ownerMessageFeedback[b.id].tone}>
-                          {ownerMessageFeedback[b.id].text}
-                        </Alert>
-                      </div>
-                    ) : null}
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="mt-3 w-full sm:w-auto"
-                      disabled={ownerMessageSendingId === b.id}
-                      onClick={() => void sendOwnerMessage(b)}
-                    >
-                      {ownerMessageSendingId === b.id
-                        ? "שולח..."
-                        : "שלח הודעה לחנות"}
-                    </Button>
-                  </DetailBox>
-
-                  <MasterInner className="flex flex-col gap-2 sm:flex-row">
-                    <Button
-                      variant={isSuspendAction ? "primary" : b.isActive ? "danger" : "primary"}
-                      className={toggleSuspendButtonClass(b)}
-                      onClick={() => toggleActive(b.id, b.isActive)}
-                    >
-                      {suspendLabel}
-                    </Button>
-                    <Button
-                      variant="primary"
-                      className="master-btn-matte-danger w-full sm:flex-1"
-                      onClick={() => removeStore(b.id, b.name)}
-                    >
-                      מחק חנות
-                    </Button>
-                  </MasterInner>
-                </div>
-              )}
-            </MasterOuter>
-          );
-        })}
-
-        {filteredStores.length === 0 && filteredPendingOwners.length === 0 && (
-          <p className="text-center text-bakery-muted">
-            {searchQuery.trim() ? "לא נמצאו תוצאות לחיפוש." : "אין חנויות רשומות במערכת."}
-          </p>
-        )}
-      </div>
+      {/* פרטי חנות */}
+      <DashboardActionSheet
+        open={detailBusiness !== null}
+        onClose={() => setExpandedId(null)}
+        title={detailBusiness?.name}
+        ariaLabel={detailBusiness?.name ?? "פרטי חנות"}
+        placement="center"
+        showBackButton
+        compact
+        fitContent
+        panelClassName="dashboard-order-schedule-sheet"
+      >
+        {detailBusiness ? renderBusinessDetail(detailBusiness) : null}
+      </DashboardActionSheet>
     </WebShell>
   );
 }

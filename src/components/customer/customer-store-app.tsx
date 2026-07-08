@@ -466,8 +466,12 @@ export function CustomerStoreApp({
   );
 
   useEffect(() => {
-    if (business.slug === "demo-store" && searchParams.get("previewReview") === "1") {
+    if (business.slug !== "demo-store") return;
+    if (searchParams.get("previewReview") === "1") {
       setReviewPromptOpen(true);
+    }
+    if (searchParams.get("previewCheckout") === "1") {
+      setOrderCheckoutOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
