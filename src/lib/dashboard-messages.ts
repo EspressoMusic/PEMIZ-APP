@@ -133,6 +133,7 @@ export type DashboardLabels = {
   storePanelChat: string;
   storePanelInquiries: string;
   storePanelFaq: string;
+  storePanelReviews: string;
   storePanelOrderLimits: string;
   storePanelSettings: string;
   storePanelsSaveFailed: string;
@@ -306,6 +307,9 @@ export type DashboardLabels = {
   inquiriesPending: string;
   inquiriesAllAnswered: string;
   noInquiriesYet: string;
+  reviewsTitle: string;
+  noReviewsYet: string;
+  deleteReview: string;
   replyRequired: string;
   replyToCustomer: string;
   sendReply: string;
@@ -525,6 +529,25 @@ export type DashboardLabels = {
   periodOneWeek: string;
   periodTwoWeeks: string;
   periodCustom: string;
+  couponsTitle: string;
+  addCoupon: string;
+  noExistingCoupons: string;
+  couponCode: string;
+  couponDiscountType: string;
+  couponDiscountPercentage: string;
+  couponDiscountFixed: string;
+  couponDiscountValue: string;
+  couponMinOrderAmount: string;
+  couponMaxRedemptionsPerCustomer: string;
+  couponMaxRedemptionsTotal: string;
+  couponUnlimited: string;
+  couponValidUntil: string;
+  couponNoExpiry: string;
+  couponSaveFailed: string;
+  couponFillCode: string;
+  couponFillValue: string;
+  couponPublishedSuccess: string;
+  confirmDeleteCoupon: string;
   totalRevenue: string;
   totalProfit: string;
   salesCount: string;
@@ -535,6 +558,8 @@ export type DashboardLabels = {
   periodWeek: string;
   periodMonth: string;
   periodYear: string;
+  downloadSalesReport: string;
+  downloadSalesReportHint: string;
   periodSummaryWeek: string;
   periodSummaryMonth: string;
   periodSummaryYear: string;
@@ -633,6 +658,7 @@ const HE: DashboardLabels = {
   storePanelChat: "פנייה בוואטסאפ",
   storePanelInquiries: "פניות",
   storePanelFaq: "שאלות נפוצות",
+  storePanelReviews: "ביקורות לקוחות",
   storePanelOrderLimits: "הגבלות הזמנה",
   storePanelSettings: "פאנל הגדרות",
   storePanelsSaveFailed: "שמירת ההגדרות נכשלה",
@@ -807,6 +833,9 @@ const HE: DashboardLabels = {
   inquiriesPending: "פניות ממתינות לתשובה",
   inquiriesAllAnswered: "כל הפניות נענו",
   noInquiriesYet: "אין פניות מלקוחות עדיין.",
+  reviewsTitle: "ביקורות לקוחות",
+  noReviewsYet: "אין ביקורות מלקוחות עדיין.",
+  deleteReview: "מחיקת ביקורת",
   replyRequired: "יש לכתוב תשובה",
   replyToCustomer: "תשובה ללקוח",
   sendReply: "שלח תשובה",
@@ -1059,6 +1088,25 @@ const HE: DashboardLabels = {
   periodOneWeek: "שבוע",
   periodTwoWeeks: "שבועיים",
   periodCustom: "התאמה אישית",
+  couponsTitle: "קופונים",
+  addCoupon: "הוספת קופון",
+  noExistingCoupons: "אין קופונים עדיין",
+  couponCode: "קוד קופון",
+  couponDiscountType: "סוג הנחה",
+  couponDiscountPercentage: "אחוז",
+  couponDiscountFixed: "סכום קבוע",
+  couponDiscountValue: "הנחה",
+  couponMinOrderAmount: "סכום מינימלי להזמנה (אופציונלי)",
+  couponMaxRedemptionsPerCustomer: "מספר מימושים ללקוח",
+  couponMaxRedemptionsTotal: "מימושים",
+  couponUnlimited: "ללא הגבלה",
+  couponValidUntil: "בתוקף עד",
+  couponNoExpiry: "ללא תאריך תפוגה",
+  couponSaveFailed: "שמירת הקופון נכשלה",
+  couponFillCode: "יש להזין קוד קופון",
+  couponFillValue: "יש להזין ערך הנחה תקין",
+  couponPublishedSuccess: "הקופון נוצר בהצלחה!",
+  confirmDeleteCoupon: "למחוק את הקופון?",
   totalRevenue: "סך המכירות",
   totalProfit: "סך הרווח",
   salesCount: "כמות מכירות",
@@ -1069,6 +1117,8 @@ const HE: DashboardLabels = {
   periodWeek: "שבועי",
   periodMonth: "חודשי",
   periodYear: "שנתי",
+  downloadSalesReport: "הורדת דוח מכירות והזמנות",
+  downloadSalesReportHint: "קובץ CSV עם כל ההזמנות והתאריכים בתקופה שנבחרה — לשימוש מול רואה החשבון או דיווח למס הכנסה",
   sendCustomerMessage: "שלח באפליקציה",
   openCustomerMessageComposer: "שלח הודעה",
   sendCustomerWhatsApp: "שלח בוואטסאפ",
@@ -1281,6 +1331,7 @@ const EN: DashboardLabels = {
   storePanelChat: "WhatsApp contact",
   storePanelInquiries: "Inquiries",
   storePanelFaq: "FAQ",
+  storePanelReviews: "Customer reviews",
   storePanelOrderLimits: "Order limits",
   storePanelSettings: "Settings panel",
   storePanelsSaveFailed: "Could not save panel settings",
@@ -1455,6 +1506,9 @@ const EN: DashboardLabels = {
   inquiriesPending: "inquiries waiting for a reply",
   inquiriesAllAnswered: "All inquiries answered",
   noInquiriesYet: "No customer inquiries yet.",
+  reviewsTitle: "Customer reviews",
+  noReviewsYet: "No customer reviews yet.",
+  deleteReview: "Delete review",
   replyRequired: "Write a reply",
   replyToCustomer: "Reply to customer",
   sendReply: "Send reply",
@@ -1708,6 +1762,25 @@ const EN: DashboardLabels = {
   periodOneWeek: "1 week",
   periodTwoWeeks: "2 weeks",
   periodCustom: "Custom",
+  couponsTitle: "Coupons",
+  addCoupon: "Add coupon",
+  noExistingCoupons: "No coupons yet",
+  couponCode: "Coupon code",
+  couponDiscountType: "Discount type",
+  couponDiscountPercentage: "Percentage",
+  couponDiscountFixed: "Fixed amount",
+  couponDiscountValue: "off",
+  couponMinOrderAmount: "Minimum order amount (optional)",
+  couponMaxRedemptionsPerCustomer: "Redemptions per customer",
+  couponMaxRedemptionsTotal: "redemptions",
+  couponUnlimited: "Unlimited",
+  couponValidUntil: "Valid until",
+  couponNoExpiry: "No expiry",
+  couponSaveFailed: "Could not save the coupon",
+  couponFillCode: "Enter a coupon code",
+  couponFillValue: "Enter a valid discount value",
+  couponPublishedSuccess: "Coupon created successfully!",
+  confirmDeleteCoupon: "Delete this coupon?",
   totalRevenue: "Total sales",
   totalProfit: "Total profit",
   salesCount: "Orders count",
@@ -1718,6 +1791,8 @@ const EN: DashboardLabels = {
   periodWeek: "Weekly",
   periodMonth: "Monthly",
   periodYear: "Yearly",
+  downloadSalesReport: "Download sales & orders report",
+  downloadSalesReportHint: "CSV file with every order and date in the selected period — for your accountant or tax filing",
   sendCustomerMessage: "Send in app",
   openCustomerMessageComposer: "Send message",
   sendCustomerWhatsApp: "Send on WhatsApp",

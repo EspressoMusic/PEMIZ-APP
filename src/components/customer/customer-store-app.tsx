@@ -1055,7 +1055,7 @@ export function CustomerStoreApp({
     }
   }
 
-  async function submitOrder(name: string, phone: string) {
+  async function submitOrder(name: string, phone: string, couponCode?: string) {
     if (cartLines.length === 0 && cartDeals.length === 0) return;
     const orderSnapshot: CustomerOrderHistoryEntry = {
       id: `order-${Date.now()}`,
@@ -1121,6 +1121,7 @@ export function CustomerStoreApp({
             productId: l.product.id,
             quantity: l.qty,
           })),
+          ...(couponCode ? { couponCode } : {}),
         }),
       });
       setOrderSubmitting(false);
@@ -2215,12 +2216,13 @@ export function CustomerStoreApp({
         }
         initialName={customerName}
         initialPhone={orderPhone}
+        showCoupon={cartLines.length > 0}
         submitting={orderSubmitting}
         error={orderError}
-        onSubmit={(name, phone) => {
+        onSubmit={(name, phone, couponCode) => {
           setCustomerName(name);
           setOrderPhone(phone);
-          void submitOrder(name, phone);
+          void submitOrder(name, phone, couponCode);
         }}
       />
 

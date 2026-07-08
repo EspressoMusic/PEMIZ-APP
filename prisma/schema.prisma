@@ -133,16 +133,19 @@ model Business {
   faqItems        FaqItem[]
   customerPushSubscriptions CustomerPushSubscription[]
   reviews         StoreReview[]
+  coupons         Coupon[]
 }
 
 model StoreReview {
-  id           String   @id @default(cuid())
-  businessId   String
-  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  customerName String
-  rating       Int
-  comment      String?
-  createdAt    DateTime @default(now())
+  id            String    @id @default(cuid())
+  businessId    String
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerName  String
+  rating        Int
+  comment       String?
+  sellerReply   String?
+  sellerReplyAt DateTime?
+  createdAt     DateTime  @default(now())
 
   @@index([businessId, createdAt])
 }
@@ -227,18 +230,60 @@ model DealRedemption {
   @@index([dealId, customerPhone])
 }
 
-model Order {
-  id            String      @id @default(cuid())
-  businessId    String
-  business      Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  orderNumber   Int
-  customerName  String
+enum CouponDiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model Coupon {
+  id                        String              @id @default(cuid())
+  businessId                String
+  business                  Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  code                      String
+  discountType              CouponDiscountType
+  discountValue             Float
+  minOrderAmount            Float?
+  // null = unlimited total redemptions
+  maxRedemptions            Int?
+  // 1 = once per customer; 0 = unlimited; N = up to N redemptions
+  maxRedemptionsPerCustomer Int                 @default(1)
+  isActive                  Boolean             @default(true)
+  validUntil                DateTime?
+  createdAt                 DateTime            @default(now())
+  redemptions               CouponRedemption[]
+  orders                    Order[]
+
+  @@unique([businessId, code])
+  @@index([businessId])
+}
+
+model CouponRedemption {
+  id            String   @id @default(cuid())
+  couponId      String
+  coupon        Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
   customerPhone String
-  customerEmail String?
-  notes         String?
-  status        String      @default("PENDING")
-  createdAt     DateTime    @default(now())
-  items         OrderItem[]
+  orderId       String
+  createdAt     DateTime @default(now())
+
+  @@index([couponId, customerPhone])
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  businessId     String
+  business       Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  orderNumber    Int
+  customerName   String
+  customerPhone  String
+  customerEmail  String?
+  notes          String?
+  status         String      @default("PENDING")
+  couponId       String?
+  coupon         Coupon?     @relation(fields: [couponId], references: [id])
+  couponCode     String?
+  discountAmount Float       @default(0)
+  createdAt      DateTime    @default(now())
+  items          OrderItem[]
 
   @@unique([businessId, orderNumber])
   @@index([businessId])

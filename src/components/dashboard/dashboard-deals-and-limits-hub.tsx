@@ -10,6 +10,7 @@ import { Clock } from "lucide-react";
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardDealsEntry } from "@/components/dashboard/deals-manager";
+import { DashboardCouponsEntry } from "@/components/dashboard/coupons-manager";
 import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
@@ -77,6 +78,7 @@ export function DashboardDealsAndLimitsHubGrid({
         initialProducts={initialProducts}
         initialDeals={initialDeals}
       />
+      <DashboardCouponsEntry previewOnly={previewOnly} />
       <DashboardStoreLimitsGroup
         previewOnly={previewOnly}
         initialEnabled={initialOrderScheduleEnabled}

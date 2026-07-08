@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Download } from "lucide-react";
 import { Alert, PageTitle } from "@/components/ui";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { DashboardLineChart } from "@/components/dashboard/dashboard-line-chart";
@@ -27,6 +27,105 @@ const PERIODS: SalesStatsPeriod[] = ["week", "month", "year"];
 
 function profitRecordKey(businessId: string, period: SalesStatsPeriod) {
   return `linky-profit-record-${businessId}-${period}`;
+}
+
+const DEMO_CSV_HEADER = [
+  "מספר הזמנה",
+  "תאריך",
+  "שעה",
+  "שם לקוח",
+  "טלפון",
+  "אימייל",
+  "מוצר",
+  "כמות",
+  "מחיר ליחידה",
+  'סה"כ שורה',
+  'סה"כ הזמנה',
+  "סטטוס",
+];
+
+function csvCell(value: string): string {
+  return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+/** Sample rows so the demo dashboard can show the exact export format without a logged-in business. */
+function buildDemoSalesCsv(): string {
+  const demoOrders: {
+    num: number;
+    daysAgo: number;
+    name: string;
+    phone: string;
+    items: [string, number, number][];
+  }[] = [
+    {
+      num: 1042,
+      daysAgo: 0,
+      name: "נועה כהן",
+      phone: "050-1234567",
+      items: [
+        ["עוגת שוקולד", 2, 85],
+        ["לחם מחמצת", 1, 32],
+      ],
+    },
+    {
+      num: 1041,
+      daysAgo: 1,
+      name: "יוסי לוי",
+      phone: "052-9876543",
+      items: [["קרואסון חמאה", 4, 14]],
+    },
+    {
+      num: 1040,
+      daysAgo: 3,
+      name: "מיכל אברהם",
+      phone: "054-2223344",
+      items: [["עוגת גבינה", 1, 120]],
+    },
+  ];
+
+  const rows = [DEMO_CSV_HEADER.map(csvCell).join(",")];
+  const now = new Date();
+  for (const order of demoOrders) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - order.daysAgo);
+    const dateStr = date.toLocaleDateString("he-IL");
+    const timeStr = date.toLocaleTimeString("he-IL", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const orderTotal = order.items.reduce((sum, [, qty, price]) => sum + qty * price, 0);
+    for (const [productName, qty, price] of order.items) {
+      rows.push(
+        [
+          String(order.num),
+          dateStr,
+          timeStr,
+          order.name,
+          order.phone,
+          "",
+          productName,
+          String(qty),
+          price.toFixed(2),
+          (qty * price).toFixed(2),
+          orderTotal.toFixed(2),
+          "הושלם",
+        ]
+          .map(csvCell)
+          .join(",")
+      );
+    }
+  }
+  return "\uFEFF" + rows.join("\r\n");
+}
+
+function downloadDemoSalesCsv(period: SalesStatsPeriod) {
+  const blob = new Blob([buildDemoSalesCsv()], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `sales-orders-demo-${period}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export function DashboardSalesStats({
@@ -164,6 +263,23 @@ export function DashboardSalesStats({
         <p className="text-[13px] font-semibold text-bakery-muted">
           {periodMeta.summaryLabel}
         </p>
+
+        <a
+          href={previewOnly ? "#" : `/api/dashboard/orders/export?period=${period}`}
+          onClick={
+            previewOnly
+              ? (e) => {
+                  e.preventDefault();
+                  downloadDemoSalesCsv(period);
+                }
+              : undefined
+          }
+          className="inline-flex items-center gap-1.5 text-[13px] font-bold text-bakery-primary underline-offset-2 hover:underline"
+          title={labels.downloadSalesReportHint}
+        >
+          <Download className="h-4 w-4" />
+          {labels.downloadSalesReport}
+        </a>
 
         {error && <Alert variant="error">{error}</Alert>}
 

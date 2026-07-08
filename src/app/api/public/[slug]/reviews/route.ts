@@ -33,6 +33,8 @@ export async function GET(
         customerName: true,
         rating: true,
         comment: true,
+        sellerReply: true,
+        sellerReplyAt: true,
         createdAt: true,
       },
     }),

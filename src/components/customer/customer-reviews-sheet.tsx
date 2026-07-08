@@ -14,6 +14,8 @@ type ReviewEntry = {
   customerName: string;
   rating: number;
   comment: string | null;
+  sellerReply?: string | null;
+  sellerReplyAt?: string | null;
   createdAt: string;
 };
 
@@ -277,6 +279,16 @@ export function CustomerReviewsSheet({
                         <p className="mt-1.5 whitespace-pre-wrap text-[14px] leading-[1.5] text-bakery-muted">
                           {review.comment}
                         </p>
+                      ) : null}
+                      {review.sellerReply ? (
+                        <div className="mt-2 rounded-[16px] bg-bakery-square px-3 py-2.5">
+                          <p className="text-[12px] font-bold text-bakery-primary">
+                            {labels.reviewOwnerReply}
+                          </p>
+                          <p className="mt-0.5 whitespace-pre-wrap text-[13px] leading-[1.5] text-bakery-ink">
+                            {review.sellerReply}
+                          </p>
+                        </div>
                       ) : null}
                     </li>
                   ))}

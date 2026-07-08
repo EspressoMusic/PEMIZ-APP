@@ -19,8 +19,8 @@ export async function reserveStockAndCreateOrder(
   businessId: string,
   orderItems: OrderLineInput[],
   orderData: Omit<
-    Prisma.OrderCreateInput,
-    "items" | "business" | "orderNumber" | "businessId"
+    Prisma.OrderUncheckedCreateInput,
+    "items" | "orderNumber" | "businessId"
   >
 ) {
   for (const item of orderItems) {

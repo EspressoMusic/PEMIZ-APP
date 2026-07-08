@@ -32,6 +32,18 @@ export async function findOwnedFaq(businessId: string, faqId: string) {
   });
 }
 
+export async function findOwnedReview(businessId: string, reviewId: string) {
+  return prisma.storeReview.findFirst({
+    where: { id: reviewId, businessId },
+  });
+}
+
+export async function findOwnedCoupon(businessId: string, couponId: string) {
+  return prisma.coupon.findFirst({
+    where: { id: couponId, businessId },
+  });
+}
+
 export function notFoundOrForbidden(): NextResponse {
   return jsonError("לא נמצא", 404);
 }

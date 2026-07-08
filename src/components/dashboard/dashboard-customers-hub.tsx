@@ -2,7 +2,7 @@
 
 import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
 import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
-import { HelpCircle, Inbox } from "lucide-react";
+import { HelpCircle, Inbox, Star } from "lucide-react";
 import { DashboardBroadcastEntry } from "@/components/dashboard/dashboard-store-broadcast";
 import {
   DashboardActionRow,
@@ -27,6 +27,11 @@ export function DashboardCustomersHubGrid({
         href={`${basePath}/customers/inquiries`}
         icon={Inbox}
         title={labels.customerInquiries}
+      />
+      <DashboardActionRow
+        href={`${basePath}/customers/reviews`}
+        icon={Star}
+        title={labels.reviewsTitle}
       />
       <DashboardActionRow
         href={`${basePath}/faq`}

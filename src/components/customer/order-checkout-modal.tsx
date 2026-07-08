@@ -16,6 +16,7 @@ export function OrderCheckoutModal({
   total,
   initialName,
   initialPhone,
+  showCoupon = false,
   onSubmit,
   submitting,
   error,
@@ -28,19 +29,22 @@ export function OrderCheckoutModal({
   total: number;
   initialName: string;
   initialPhone: string;
-  onSubmit: (name: string, phone: string) => void;
+  showCoupon?: boolean;
+  onSubmit: (name: string, phone: string, couponCode?: string) => void;
   submitting: boolean;
   error?: string;
   summary?: string;
 }) {
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
+  const [couponCode, setCouponCode] = useState("");
   const [localError, setLocalError] = useState("");
 
   useEffect(() => {
     if (open) {
       setName(initialName);
       setPhone(initialPhone);
+      setCouponCode("");
       setLocalError("");
     }
   }, [open, initialName, initialPhone]);
@@ -56,6 +60,7 @@ export function OrderCheckoutModal({
           submitting: "שולח...",
           invalidPhone: "יש להזין מספר נייד ישראלי תקין (למשל 050-1234567)",
           nameRequired: "יש למלא שם",
+          couponCode: "קוד קופון (אופציונלי)",
         }
       : {
           title: "Complete your order",
@@ -66,6 +71,7 @@ export function OrderCheckoutModal({
           submitting: "Sending...",
           invalidPhone: "Enter a valid Israeli mobile number (e.g. 050-1234567)",
           nameRequired: "Please enter your name",
+          couponCode: "Coupon code (optional)",
         };
 
   const displayError = error || localError;
@@ -121,6 +127,16 @@ export function OrderCheckoutModal({
             dir="ltr"
             inputMode="tel"
           />
+          {showCoupon ? (
+            <Input
+              label={t.couponCode}
+              labelClassName="text-center"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+              className="text-center"
+              dir="ltr"
+            />
+          ) : null}
           <Button
             type="button"
             className="w-full min-h-[48px] font-extrabold"
@@ -137,7 +153,7 @@ export function OrderCheckoutModal({
                 return;
               }
               setLocalError("");
-              onSubmit(trimmedName, trimmedPhone);
+              onSubmit(trimmedName, trimmedPhone, couponCode.trim() || undefined);
             }}
           >
             {submitting ? t.submitting : t.submit}

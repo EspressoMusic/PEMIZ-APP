@@ -79,7 +79,7 @@ npm run dev
 ```
 
 מנהל: `admin@linky.local` / `Admin123!`  
-מפתח `/master`: `MASTER_KEY` (ב-Vercel כרגע `11` — שנה בפרודקשן).
+מפתח `/master`: ראה `MASTER_KEY` ב-Vercel → Settings → Environment Variables (לא מתועד כאן — זה סוד).
 
 ---
 

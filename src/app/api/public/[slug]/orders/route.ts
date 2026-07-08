@@ -5,6 +5,14 @@ import { jsonError, jsonOk } from "@/lib/api";
 import { getEffectivePrice } from "@/lib/product-price";
 import { getDealLines, splitDealPrice } from "@/lib/store-deal";
 import {
+  computeCouponDiscount,
+  couponInvalidOrExpiredError,
+  couponMinOrderError,
+  couponRedemptionLimitError,
+  isCouponPerCustomerLimitReached,
+  isCouponTotalLimitReached,
+} from "@/lib/coupon-redemption";
+import {
   INVALID_PHONE_MESSAGE_HE,
   parseIsraeliMobilePhone,
 } from "@/lib/phone";
@@ -55,6 +63,7 @@ const schema = z.object({
   customerEmail: z.string().email().optional().or(z.literal("")),
   notes: z.string().max(500).optional(),
   dealId: z.string().optional(),
+  couponCode: z.string().max(30).optional(),
   items: z
     .array(
       z.object({
@@ -282,15 +291,71 @@ export async function POST(
     return jsonError(orderItemsLimitMessage(maxOrderItemsPerOrder), 403);
   }
 
+  const orderLocale = business.storeLocale === "en" ? "en" : "he";
+  let couponId: string | undefined;
+  let couponCode: string | undefined;
+  let discountAmount = 0;
+
+  if (parsed.data.couponCode) {
+    const coupon = await prisma.coupon.findFirst({
+      where: {
+        businessId: business.id,
+        code: parsed.data.couponCode.toUpperCase(),
+        isActive: true,
+        OR: [{ validUntil: null }, { validUntil: { gt: new Date() } }],
+      },
+    });
+    if (!coupon) return jsonError(couponInvalidOrExpiredError(orderLocale));
+
+    const subtotal = orderItems.reduce(
+      (sum, item) => sum + item.priceAtOrder * item.quantity,
+      0
+    );
+    if (coupon.minOrderAmount != null && subtotal < coupon.minOrderAmount) {
+      return jsonError(couponMinOrderError(coupon.minOrderAmount, orderLocale));
+    }
+
+    const [perCustomerCount, totalCount] = await Promise.all([
+      prisma.couponRedemption.count({
+        where: { couponId: coupon.id, customerPhone: phone },
+      }),
+      prisma.couponRedemption.count({ where: { couponId: coupon.id } }),
+    ]);
+    if (
+      isCouponPerCustomerLimitReached(
+        coupon.maxRedemptionsPerCustomer,
+        perCustomerCount
+      ) ||
+      isCouponTotalLimitReached(coupon.maxRedemptions, totalCount)
+    ) {
+      return jsonError(couponRedemptionLimitError(orderLocale));
+    }
+
+    couponId = coupon.id;
+    couponCode = coupon.code;
+    discountAmount = computeCouponDiscount(coupon, subtotal);
+  }
+
   try {
-    const order = await prisma.$transaction(async (tx) =>
-      reserveStockAndCreateOrder(tx, business.id, orderItems, {
+    const order = await prisma.$transaction(async (tx) => {
+      const created = await reserveStockAndCreateOrder(tx, business.id, orderItems, {
         customerName: parsed.data.customerName,
         customerPhone: phone,
         customerEmail: parsed.data.customerEmail || null,
         notes: parsed.data.notes,
-      })
-    );
+        ...(couponId && {
+          couponId,
+          couponCode,
+          discountAmount,
+        }),
+      });
+      if (couponId) {
+        await tx.couponRedemption.create({
+          data: { couponId, customerPhone: phone, orderId: created.id },
+        });
+      }
+      return created;
+    });
     afterOrderPlaced(
       business.id,
       { id: order.id, customerName: order.customerName },
