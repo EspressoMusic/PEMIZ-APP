@@ -9,7 +9,9 @@ export default async function SettingsOrdersPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-      <DashboardSettingsBackLink />
+      <div data-tour-id="tour-orders">
+        <DashboardSettingsBackLink />
+      </div>
       <div className="min-h-0 flex-1 overflow-hidden">
         <OrdersManager autoOpenActive />
       </div>

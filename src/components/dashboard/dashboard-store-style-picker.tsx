@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Palette } from "lucide-react";
+import { BookOpen, Flower2, Leaf, Palette, Sparkles } from "lucide-react";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useStoreTheme } from "@/components/dashboard/store-theme-provider";
@@ -12,6 +12,7 @@ import {
   STORE_THEMES,
   parseStoreTheme,
   storeThemeLabel,
+  type StoreDecorationId,
   type StoreThemeId,
 } from "@/lib/store-themes";
 import { isScheduleLikeBusinessType } from "@/lib/types";
@@ -33,13 +34,16 @@ export function DashboardStoreStylePicker({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const { locale, labels, setLocale: setAppLocale } = useAppLocale();
-  const { theme, setTheme: setAppTheme } = useStoreTheme();
+  const { theme, setTheme: setAppTheme, decoration, setDecoration: setAppDecoration } =
+    useStoreTheme();
 
   async function saveAppearance(patch: {
     storeTheme?: StoreThemeId;
+    storeDecoration?: StoreDecorationId;
     storeLocale?: CustomerLocale;
   }) {
     if (patch.storeTheme != null) setAppTheme(patch.storeTheme);
+    if (patch.storeDecoration != null) setAppDecoration(patch.storeDecoration);
     if (patch.storeLocale != null) setAppLocale(patch.storeLocale);
     if (previewOnly) return;
 
@@ -54,6 +58,7 @@ export function DashboardStoreStylePicker({
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
         storeTheme?: string;
+        storeDecoration?: string;
         storeLocale?: string;
       };
       if (!res.ok) {
@@ -61,6 +66,9 @@ export function DashboardStoreStylePicker({
         return;
       }
       if (data.storeTheme != null) setAppTheme(parseStoreTheme(data.storeTheme));
+      if (data.storeDecoration != null) {
+        setAppDecoration(data.storeDecoration === "flowers" ? "flowers" : "none");
+      }
       if (data.storeLocale != null) {
         setAppLocale(data.storeLocale === "en" ? "en" : "he");
       }
@@ -182,6 +190,45 @@ export function DashboardStoreStylePicker({
                 </button>
               );
             })}
+          </div>
+
+          <div className="flex justify-center gap-3">
+            <button
+              type="button"
+              disabled={saving}
+              aria-label={labels.storeDecorationTitle}
+              aria-pressed={decoration === "flowers"}
+              onClick={() =>
+                saveAppearance({
+                  storeDecoration: decoration === "flowers" ? "none" : "flowers",
+                })
+              }
+              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border transition ${
+                decoration === "flowers"
+                  ? "border-bakery-primary bg-bakery-primary/15 ring-2 ring-bakery-primary/30"
+                  : "border-bakery-border/35 bg-bakery-input/80"
+              }`}
+            >
+              <Flower2 className="h-6 w-6 text-bakery-primary" strokeWidth={1.75} />
+            </button>
+            <button
+              type="button"
+              disabled
+              aria-hidden="true"
+              tabIndex={-1}
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border border-dashed border-bakery-border/30 opacity-40"
+            >
+              <Sparkles className="h-6 w-6 text-bakery-muted" strokeWidth={1.75} />
+            </button>
+            <button
+              type="button"
+              disabled
+              aria-hidden="true"
+              tabIndex={-1}
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border border-dashed border-bakery-border/30 opacity-40"
+            >
+              <Leaf className="h-6 w-6 text-bakery-muted" strokeWidth={1.75} />
+            </button>
           </div>
 
           {SELLER_WELCOME_GUIDE_ENABLED ? (

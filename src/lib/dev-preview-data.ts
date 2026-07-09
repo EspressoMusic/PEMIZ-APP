@@ -408,6 +408,7 @@ export const DEV_STORE_BUSINESS = {
   name: "My Bakery (Preview)",
   description: null,
   type: "STORE" as const,
+  storeDecoration: "flowers",
   sellerContactPhone: "050-1234567",
   products: devPreviewCustomerProducts(),
   deals: [

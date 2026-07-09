@@ -6,9 +6,11 @@ import { DashboardHubShell } from "@/components/dashboard/dashboard-hub-shell";
 import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
 import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
 import {
+  buildPrepSummaryFromOrders,
   getPendingOrdersForBusiness,
-  getPrepSummaryForBusiness,
+  type PendingOrderRecord,
 } from "@/lib/dashboard-prep-summary";
+import { withDbTimeout } from "@/lib/db-query-timeout";
 import { calendarConfigFromBusiness } from "@/lib/appointment-calendar-config";
 import { isScheduleLikeBusinessType, parseBusinessType } from "@/lib/types";
 
@@ -22,14 +24,17 @@ export default async function DashboardHubLayout({
 
   const business = user.business;
   const scheduleLike = isScheduleLikeBusinessType(business.type);
-  const prepProducts =
-    business.type === "STORE"
-      ? await getPrepSummaryForBusiness(business.id)
-      : [];
-  const pendingOrders =
-    business.type === "STORE"
-      ? await getPendingOrdersForBusiness(business.id)
-      : [];
+  let pendingOrders: PendingOrderRecord[] = [];
+  if (business.type === "STORE") {
+    try {
+      pendingOrders = await withDbTimeout(
+        getPendingOrdersForBusiness(business.id)
+      );
+    } catch {
+      pendingOrders = [];
+    }
+  }
+  const prepProducts = buildPrepSummaryFromOrders(pendingOrders);
 
   return (
     <DashboardHubShell

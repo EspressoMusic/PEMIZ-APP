@@ -4,6 +4,8 @@ import { requireBusinessOwner } from "@/lib/dashboard-auth";
 import { salesStatsRangeStart, type SalesStatsPeriod } from "@/lib/sales-stats";
 
 const periodSchema = z.enum(["week", "month", "year", "all"]);
+const rangeSchema = z.enum(["today", "week", "month", "custom"]);
+const dateParamSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
 const STATUS_LABELS_HE: Record<string, string> = {
   PENDING: "ממתין",
@@ -19,19 +21,88 @@ function csvCell(value: string): string {
   return value;
 }
 
+function startOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function endOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+
+function startOfWeek(d: Date): Date {
+  const x = startOfDay(d);
+  x.setDate(x.getDate() - x.getDay());
+  return x;
+}
+
+function startOfMonth(d: Date): Date {
+  const x = startOfDay(d);
+  x.setDate(1);
+  return x;
+}
+
+/** Calendar-aligned range (today/week/month/custom) — distinct from the rolling-window `period` param. */
+function calendarRange(
+  range: "today" | "week" | "month" | "custom",
+  fromParam: string | null,
+  toParam: string | null
+): { since?: Date; until?: Date } {
+  const now = new Date();
+  if (range === "today") return { since: startOfDay(now), until: now };
+  if (range === "week") return { since: startOfWeek(now), until: now };
+  if (range === "month") return { since: startOfMonth(now), until: now };
+
+  const fromParsed = dateParamSchema.safeParse(fromParam ?? "");
+  const toParsed = dateParamSchema.safeParse(toParam ?? "");
+  if (!fromParsed.success || !toParsed.success) return {};
+  return {
+    since: startOfDay(new Date(`${fromParsed.data}T00:00:00`)),
+    until: endOfDay(new Date(`${toParsed.data}T00:00:00`)),
+  };
+}
+
 export async function GET(req: Request) {
   const ctx = await requireBusinessOwner();
   if (!ctx.ok) return ctx.response;
 
   const url = new URL(req.url);
-  const parsed = periodSchema.safeParse(url.searchParams.get("period") ?? "all");
-  const period = parsed.success ? parsed.data : "all";
-  const since = period === "all" ? undefined : salesStatsRangeStart(period as SalesStatsPeriod);
+
+  const rangeParsed = rangeSchema.safeParse(url.searchParams.get("range"));
+  let since: Date | undefined;
+  let until: Date | undefined;
+  let filenameSuffix: string;
+
+  if (rangeParsed.success) {
+    const range = calendarRange(
+      rangeParsed.data,
+      url.searchParams.get("from"),
+      url.searchParams.get("to")
+    );
+    since = range.since;
+    until = range.until;
+    filenameSuffix = rangeParsed.data;
+  } else {
+    const parsed = periodSchema.safeParse(url.searchParams.get("period") ?? "all");
+    const period = parsed.success ? parsed.data : "all";
+    since = period === "all" ? undefined : salesStatsRangeStart(period as SalesStatsPeriod);
+    filenameSuffix = period;
+  }
 
   const orders = await prisma.order.findMany({
     where: {
       businessId: ctx.user.business.id,
-      ...(since ? { createdAt: { gte: since } } : {}),
+      ...(since || until
+        ? {
+            createdAt: {
+              ...(since ? { gte: since } : {}),
+              ...(until ? { lte: until } : {}),
+            },
+          }
+        : {}),
     },
     include: { items: { include: { product: true } } },
     orderBy: { createdAt: "asc" },
@@ -118,7 +189,7 @@ export async function GET(req: Request) {
 
   // Leading BOM so Excel opens the Hebrew text as UTF-8 instead of mangling it.
   const csv = "\uFEFF" + rows.join("\r\n");
-  const filename = `sales-orders-${ctx.user.business.slug}-${period}.csv`;
+  const filename = `sales-orders-${ctx.user.business.slug}-${filenameSuffix}.csv`;
 
   return new Response(csv, {
     headers: {

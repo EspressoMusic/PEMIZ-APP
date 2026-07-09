@@ -2,7 +2,7 @@ import { z } from "zod";
 import { isValidPhone } from "@/lib/phone";
 import type { AppLocale } from "@/lib/app-locale";
 import { getAuthMessages } from "@/lib/auth-messages";
-import { STORE_THEME_IDS } from "@/lib/store-themes";
+import { STORE_THEME_IDS, STORE_DECORATION_IDS } from "@/lib/store-themes";
 
 function buildCustomerPhoneSchema(locale: AppLocale) {
   const msg = getAuthMessages(locale);
@@ -137,6 +137,7 @@ export const sellerPrivateChatReplySchema = z.object({
 
 export const storeThemePatchSchema = z.object({
   storeTheme: z.enum(STORE_THEME_IDS).optional(),
+  storeDecoration: z.enum(STORE_DECORATION_IDS).optional(),
   storeLocale: z.enum(["he", "en"]).optional(),
 });
 

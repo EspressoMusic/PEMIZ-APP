@@ -15,14 +15,19 @@ import {
   writeDashboardThemeSession,
 } from "@/lib/dashboard-appearance-session";
 import {
+  DEFAULT_STORE_DECORATION,
   DEFAULT_STORE_THEME,
+  parseStoreDecoration,
   parseStoreTheme,
+  type StoreDecorationId,
   type StoreThemeId,
 } from "@/lib/store-themes";
 
 type StoreThemeContextValue = {
   theme: StoreThemeId;
   setTheme: (theme: StoreThemeId) => void;
+  decoration: StoreDecorationId;
+  setDecoration: (decoration: StoreDecorationId) => void;
 };
 
 const StoreThemeContext = createContext<StoreThemeContextValue | null>(null);
@@ -30,12 +35,17 @@ const StoreThemeContext = createContext<StoreThemeContextValue | null>(null);
 export function StoreThemeProvider({
   children,
   initialTheme = DEFAULT_STORE_THEME,
+  initialDecoration = DEFAULT_STORE_DECORATION,
 }: {
   children: ReactNode;
   initialTheme?: string | null;
+  initialDecoration?: string | null;
 }) {
   const [theme, setThemeState] = useState<StoreThemeId>(() =>
     parseStoreTheme(initialTheme)
+  );
+  const [decoration, setDecorationState] = useState<StoreDecorationId>(() =>
+    parseStoreDecoration(initialDecoration)
   );
 
   const setTheme = useCallback((next: StoreThemeId) => {
@@ -43,6 +53,10 @@ export function StoreThemeProvider({
     setThemeState(parsed);
     applyDocumentStoreTheme(parsed);
     writeDashboardThemeSession(parsed);
+  }, []);
+
+  const setDecoration = useCallback((next: StoreDecorationId) => {
+    setDecorationState(parseStoreDecoration(next));
   }, []);
 
   useLayoutEffect(() => {
@@ -55,7 +69,14 @@ export function StoreThemeProvider({
     applyDocumentStoreTheme(parsed);
   }, [initialTheme]);
 
-  const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);
+  useLayoutEffect(() => {
+    setDecorationState(parseStoreDecoration(initialDecoration));
+  }, [initialDecoration]);
+
+  const value = useMemo(
+    () => ({ theme, setTheme, decoration, setDecoration }),
+    [theme, setTheme, decoration, setDecoration]
+  );
 
   return (
     <StoreThemeContext.Provider value={value}>{children}</StoreThemeContext.Provider>
@@ -68,6 +89,8 @@ export function useStoreTheme() {
     return {
       theme: DEFAULT_STORE_THEME,
       setTheme: () => {},
+      decoration: DEFAULT_STORE_DECORATION,
+      setDecoration: () => {},
     };
   }
   return ctx;

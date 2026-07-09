@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170" width="170" height="170">
+  <defs>
+    <g id="petals-peach">
+      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3"/>
+      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3" transform="rotate(288)"/>
+      <circle r="5" fill="#c97b56"/>
+    </g>
+    <g id="petals-rose">
+      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1"/>
+      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1" transform="rotate(288)"/>
+      <circle r="4.3" fill="#b96a63"/>
+    </g>
+    <g id="petals-daisy">
+      <circle cx="0" cy="-8" r="5.4" fill="#f4ead9"/>
+      <circle cx="0" cy="-8" r="5.4" fill="#f4ead9" transform="rotate(90)"/>
+      <circle cx="0" cy="-8" r="5.4" fill="#f4ead9" transform="rotate(180)"/>
+      <circle cx="0" cy="-8" r="5.4" fill="#f4ead9" transform="rotate(270)"/>
+      <circle r="4" fill="#e2b969"/>
+    </g>
+    <path id="leaf" d="M0,0 C8,-11 22,-11 28,0 C22,11 8,11 0,0 Z" fill="#8ea672"/>
+  </defs>
+
+  <use href="#petals-peach" transform="translate(28,34) rotate(-12)"/>
+  <use href="#leaf" transform="translate(46,30) rotate(-10)"/>
+  <use href="#leaf" transform="translate(14,46) scale(-1,1) rotate(15)"/>
+
+  <use href="#petals-daisy" transform="translate(122,20) rotate(20) scale(1.05)"/>
+  <use href="#leaf" transform="translate(140,32) rotate(35) scale(0.8)"/>
+
+  <use href="#petals-rose" transform="translate(80,88) rotate(8)"/>
+  <use href="#leaf" transform="translate(60,92) scale(-1,1) rotate(-10)"/>
+  <use href="#leaf" transform="translate(96,72) rotate(30) scale(0.9)"/>
+
+  <use href="#petals-peach" transform="translate(20,120) rotate(25) scale(0.85)"/>
+  <use href="#leaf" transform="translate(6,134) scale(-1,1) rotate(20) scale(0.8)"/>
+
+  <use href="#petals-daisy" transform="translate(140,132) rotate(-15) scale(0.9)"/>
+  <use href="#leaf" transform="translate(122,146) rotate(-30) scale(0.75)"/>
+
+  <use href="#petals-rose" transform="translate(150,90) rotate(-25) scale(0.7)"/>
+</svg>

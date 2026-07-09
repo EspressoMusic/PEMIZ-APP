@@ -6,6 +6,7 @@ import { AppLogo } from "@/components/app-logo";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { useSellerSpotlightTour } from "@/components/dashboard/seller-spotlight-tour";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 
 const STORAGE_PREFIX = "linky_seller_guide_done:";
@@ -14,18 +15,39 @@ function storageKey(businessId: string) {
   return `${STORAGE_PREFIX}${businessId}`;
 }
 
-function formatStepCounter(
-  template: string,
-  current: number,
-  total: number
-) {
-  return template
-    .replace("{current}", String(current))
-    .replace("{total}", String(total));
-}
-
 const GUIDE_PRIMARY_BTN =
   "bakery-cta-3d bakery-cta-3d--primary !max-w-none min-h-[44px] !rounded-full !shadow-none font-extrabold hover:!opacity-100";
+
+function GuideLanguageToggle() {
+  const { locale, labels, setLocale } = useAppLocale();
+
+  return (
+    <div className="absolute end-3 top-3 flex gap-1" dir="ltr">
+      <button
+        type="button"
+        onClick={() => setLocale("he")}
+        className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition ${
+          locale === "he"
+            ? "bg-bakery-primary text-bakery-on-primary"
+            : "bg-bakery-card/70 text-bakery-muted"
+        }`}
+      >
+        {labels.hebrew}
+      </button>
+      <button
+        type="button"
+        onClick={() => setLocale("en")}
+        className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition ${
+          locale === "en"
+            ? "bg-bakery-primary text-bakery-on-primary"
+            : "bg-bakery-card/70 text-bakery-muted"
+        }`}
+      >
+        {labels.english}
+      </button>
+    </div>
+  );
+}
 
 function WelcomeGuideModal({
   businessType,
@@ -37,6 +59,7 @@ function WelcomeGuideModal({
   onSkip: () => void;
 }) {
   const { labels } = useAppLocale();
+  const tour = useSellerSpotlightTour();
   const isAppointments = isScheduleLikeBusinessType(businessType);
   const [step, setStep] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -45,22 +68,39 @@ function WelcomeGuideModal({
     setMounted(true);
   }, []);
 
-  const tips = [
-    {
-      title: labels.sellerGuideWelcomeTipCustomersTitle,
-      body: labels.sellerGuideWelcomeTipCustomersBody,
-    },
-    {
-      title: labels.sellerGuideWelcomeStepStoreTitle,
-      body: isAppointments
-        ? labels.sellerGuideWelcomeStepStoreBodyAppointments
-        : labels.sellerGuideWelcomeStepStoreBody,
-    },
-    {
-      title: labels.sellerGuideWelcomeStepLinkTitle,
-      body: labels.sellerGuideWelcomeStepLinkBody,
-    },
-  ];
+  const tips = isAppointments
+    ? [
+        {
+          title: labels.sellerGuideWelcomeTipAddServiceTitle,
+          body: labels.sellerGuideWelcomeTipAddServiceBody,
+        },
+        {
+          title: labels.sellerGuideWelcomeTipBookedAppointmentsTitle,
+          body: labels.sellerGuideWelcomeTipBookedAppointmentsBody,
+        },
+        {
+          title: labels.sellerGuideWelcomeStepLinkTitle,
+          body: labels.sellerGuideWelcomeStepLinkBody,
+        },
+      ]
+    : [
+        {
+          title: labels.sellerGuideWelcomeTipAddProductTitle,
+          body: labels.sellerGuideWelcomeTipAddProductBody,
+        },
+        {
+          title: labels.sellerGuideWelcomeTipDealsTitle,
+          body: labels.sellerGuideWelcomeTipDealsBody,
+        },
+        {
+          title: labels.sellerGuideWelcomeTipOrdersTitle,
+          body: labels.sellerGuideWelcomeTipOrdersBody,
+        },
+        {
+          title: labels.sellerGuideWelcomeStepLinkTitle,
+          body: labels.sellerGuideWelcomeStepLinkBody,
+        },
+      ];
 
   const totalSlides = tips.length;
   const isLast = step === totalSlides - 1;
@@ -81,6 +121,7 @@ function WelcomeGuideModal({
       />
 
       <div className="relative z-10 mx-auto w-full max-w-md shrink-0 rounded-[24px] border border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-5 shadow-[var(--shadow-bakery-panel)]">
+        <GuideLanguageToggle />
         <div className="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] shadow-[0_4px_14px_rgba(13,148,136,0.15)]">
           <AppLogo
             size={80}
@@ -98,19 +139,12 @@ function WelcomeGuideModal({
                 </p>
                 <p className="mt-2 text-[15px] font-bold text-bakery-primary">
                   {isAppointments
-                    ? labels.sellerGuideIntroAppointments
-                    : labels.sellerGuideIntro}
+                    ? labels.sellerGuidePurposeAppointments
+                    : labels.sellerGuidePurpose}
                 </p>
               </>
             ) : null}
-            <p className={`text-[13px] font-bold text-bakery-muted ${step === 0 ? "mt-3" : "mt-0"}`}>
-              {formatStepCounter(
-                labels.sellerGuideStepCounter,
-                step + 1,
-                totalSlides
-              )}
-            </p>
-            <div className="mx-auto mt-4 flex h-14 w-14 items-center justify-center rounded-full bg-bakery-primary text-[26px] font-extrabold leading-none text-bakery-on-primary shadow-[var(--shadow-bakery-btn)]">
+            <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-bakery-primary text-[26px] font-extrabold leading-none text-bakery-on-primary shadow-[var(--shadow-bakery-btn)] ${step === 0 ? "mt-3" : "mt-0"}`}>
               {step + 1}
             </div>
             <h2
@@ -138,36 +172,47 @@ function WelcomeGuideModal({
           ))}
         </div>
 
-        <div className="mt-5 flex flex-col gap-2">
-          <div className="flex gap-2">
-            {step > 0 ? (
+        <div className="mt-5 flex flex-col items-center gap-2">
+          {step > 0 ? (
+            <Button
+              type="button"
+              variant="ghost"
+              className="min-h-[40px] font-extrabold"
+              onClick={() => setStep((s) => Math.max(0, s - 1))}
+            >
+              {labels.sellerGuideBack}
+            </Button>
+          ) : null}
+          {isLast ? (
+            <>
+              <Button
+                type="button"
+                className={`${GUIDE_PRIMARY_BTN} w-auto min-w-[220px]`}
+                onClick={() => {
+                  onClose();
+                  tour.start();
+                }}
+              >
+                {labels.sellerGuideShowMeButton}
+              </Button>
               <Button
                 type="button"
                 variant="ghost"
-                className="min-h-[44px] flex-1 font-extrabold"
-                onClick={() => setStep((s) => Math.max(0, s - 1))}
-              >
-                {labels.sellerGuideBack}
-              </Button>
-            ) : null}
-            {isLast ? (
-              <Button
-                type="button"
-                className={`${GUIDE_PRIMARY_BTN} ${step > 0 ? "flex-[2]" : "w-full"}`}
+                className="min-h-[40px] font-extrabold"
                 onClick={onClose}
               >
                 {labels.sellerGuideFinish}
               </Button>
-            ) : (
-              <Button
-                type="button"
-                className={`${GUIDE_PRIMARY_BTN} ${step > 0 ? "flex-[2]" : "w-full"}`}
-                onClick={() => setStep((s) => s + 1)}
-              >
-                {labels.sellerGuideNext}
-              </Button>
-            )}
-          </div>
+            </>
+          ) : (
+            <Button
+              type="button"
+              className={`${GUIDE_PRIMARY_BTN} w-auto min-w-[220px]`}
+              onClick={() => setStep((s) => s + 1)}
+            >
+              {labels.sellerGuideNext}
+            </Button>
+          )}
           <button
             type="button"
             onClick={onSkip}

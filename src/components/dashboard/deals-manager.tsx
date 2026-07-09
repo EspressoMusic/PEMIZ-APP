@@ -1227,6 +1227,7 @@ export function DashboardDealsEntry({
         title={labels.deals}
         expanded={open}
         active={open}
+        tourId="tour-add-deal"
       />
       {open ? (
         <DealsManager

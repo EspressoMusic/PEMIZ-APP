@@ -69,10 +69,27 @@ export function groupPrepLinesByCustomer(
 
 const PREP_STATUSES = ["PENDING"] as const;
 
-export async function getPrepSummaryForBusiness(
+export type PendingOrderRecord = {
+  id: string;
+  orderNumber: number;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+  notes: string | null;
+  status: string;
+  createdAt: string | Date;
+  items: {
+    productId: string;
+    quantity: number;
+    priceAtOrder: number;
+    product: { name: string; imageUrl: string | null };
+  }[];
+};
+
+export async function getPendingOrdersForBusiness(
   businessId: string
-): Promise<PrepProductSummary[]> {
-  const orders = await prisma.order.findMany({
+): Promise<PendingOrderRecord[]> {
+  return prisma.order.findMany({
     where: {
       businessId,
       status: { in: [...PREP_STATUSES] },
@@ -82,7 +99,13 @@ export async function getPrepSummaryForBusiness(
     },
     orderBy: { createdAt: "desc" },
   });
+}
 
+/** Pure — derives the prep summary from orders already fetched by getPendingOrdersForBusiness,
+ * so callers that need both views only hit the DB once. */
+export function buildPrepSummaryFromOrders(
+  orders: PendingOrderRecord[]
+): PrepProductSummary[] {
   const byProduct = new Map<string, PrepProductSummary>();
 
   for (const order of orders) {
@@ -108,7 +131,10 @@ export async function getPrepSummaryForBusiness(
         notes: order.notes,
         quantity: item.quantity,
         status: order.status,
-        createdAt: order.createdAt.toISOString(),
+        createdAt:
+          typeof order.createdAt === "string"
+            ? order.createdAt
+            : order.createdAt.toISOString(),
       });
     }
   }
@@ -118,33 +144,11 @@ export async function getPrepSummaryForBusiness(
   );
 }
 
-export type PendingOrderRecord = {
-  id: string;
-  orderNumber: number;
-  customerName: string;
-  customerPhone: string;
-  status: string;
-  createdAt: string | Date;
-  items: {
-    quantity: number;
-    priceAtOrder: number;
-    product: { name: string; imageUrl: string | null };
-  }[];
-};
-
-export async function getPendingOrdersForBusiness(
+export async function getPrepSummaryForBusiness(
   businessId: string
-): Promise<PendingOrderRecord[]> {
-  return prisma.order.findMany({
-    where: {
-      businessId,
-      status: { in: [...PREP_STATUSES] },
-    },
-    include: {
-      items: { include: { product: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+): Promise<PrepProductSummary[]> {
+  const orders = await getPendingOrdersForBusiness(businessId);
+  return buildPrepSummaryFromOrders(orders);
 }
 
 export function mapPendingOrdersFromRecords(

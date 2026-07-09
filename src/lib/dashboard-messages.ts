@@ -136,6 +136,7 @@ export type DashboardLabels = {
   storePanelReviews: string;
   storePanelOrderLimits: string;
   storePanelSettings: string;
+  storePanelCoupons: string;
   storePanelsSaveFailed: string;
   extras: string;
   customers: string;
@@ -162,6 +163,7 @@ export type DashboardLabels = {
   styleColorLanguage: string;
   storeLanguageForCustomers: string;
   storeMode: string;
+  storeDecorationTitle: string;
   hebrew: string;
   english: string;
   back: string;
@@ -264,6 +266,15 @@ export type DashboardLabels = {
   homeCalendarTitle: string;
   homeCalendarQuickBook: string;
   homeCalendarHistoryHint: string;
+  ordersCalendarTitle: string;
+  ordersCalendarMonthView: string;
+  ordersCalendarWeekView: string;
+  ordersCalendarDayView: string;
+  ordersCalendarNoOrdersDay: string;
+  ordersCalendarPrevDay: string;
+  ordersCalendarNextDay: string;
+  ordersCalendarPrevWeek: string;
+  ordersCalendarNextWeek: string;
   sellerWalkInCustomer: string;
   sellerSelfBooking: string;
   appointmentSlotTime: string;
@@ -396,6 +407,7 @@ export type DashboardLabels = {
   sellerGuideNext: string;
   sellerGuideBack: string;
   sellerGuideFinish: string;
+  sellerGuideShowMeButton: string;
   sellerGuideAddProduct: string;
   sellerGuideAddService: string;
   sellerGuideAddCalendar: string;
@@ -560,6 +572,16 @@ export type DashboardLabels = {
   periodYear: string;
   downloadSalesReport: string;
   downloadSalesReportHint: string;
+  exportOrdersButton: string;
+  exportOrdersRangeTitle: string;
+  exportRangeToday: string;
+  exportRangeWeek: string;
+  exportRangeMonth: string;
+  exportRangeCustom: string;
+  exportRangeFrom: string;
+  exportRangeTo: string;
+  exportRangeDownload: string;
+  exportRangeMissingDates: string;
   periodSummaryWeek: string;
   periodSummaryMonth: string;
   periodSummaryYear: string;
@@ -661,11 +683,12 @@ const HE: DashboardLabels = {
   storePanelReviews: "ביקורות לקוחות",
   storePanelOrderLimits: "הגבלות הזמנה",
   storePanelSettings: "פאנל הגדרות",
+  storePanelCoupons: "קוד קופון בהזמנה",
   storePanelsSaveFailed: "שמירת ההגדרות נכשלה",
   extras: "פרטים נוספים",
   customers: "לקוחות",
   customerMessage: "הודעה ללקוחות",
-  customerInquiries: "פניות לקוחות",
+  customerInquiries: "פניות",
   customerInquiriesChat: "צ'אט",
   customerInquiriesInbox: "פניות",
   sellerChatTitle: "צ'אט עם לקוחות",
@@ -687,6 +710,7 @@ const HE: DashboardLabels = {
   styleColorLanguage: "סגנון ושפה לחנות",
   storeLanguageForCustomers: "שפת החנות ללקוחות",
   storeMode: "מצב תצוגה",
+  storeDecorationTitle: "פרחים סביב התפריט",
   hebrew: "עברית",
   english: "English",
   back: "חזרה",
@@ -790,6 +814,15 @@ const HE: DashboardLabels = {
   homeCalendarQuickBook: "שבץ תור",
   homeCalendarHistoryHint:
     "לעבר רחוק יותר — עברו לחודשים קודמים ובחרו יום ביומן.",
+  ordersCalendarTitle: "לוח שנה",
+  ordersCalendarMonthView: "חודש",
+  ordersCalendarWeekView: "שבוע",
+  ordersCalendarDayView: "יום",
+  ordersCalendarNoOrdersDay: "אין הזמנות ביום זה",
+  ordersCalendarPrevDay: "יום קודם",
+  ordersCalendarNextDay: "יום הבא",
+  ordersCalendarPrevWeek: "שבוע קודם",
+  ordersCalendarNextWeek: "שבוע הבא",
   sellerWalkInCustomer: "לקוח",
   sellerSelfBooking: "שיבוץ מוכר",
   appointmentSlotTime: "שעת הפגישה",
@@ -833,7 +866,7 @@ const HE: DashboardLabels = {
   inquiriesPending: "פניות ממתינות לתשובה",
   inquiriesAllAnswered: "כל הפניות נענו",
   noInquiriesYet: "אין פניות מלקוחות עדיין.",
-  reviewsTitle: "ביקורות לקוחות",
+  reviewsTitle: "ביקורות",
   noReviewsYet: "אין ביקורות מלקוחות עדיין.",
   deleteReview: "מחיקת ביקורת",
   replyRequired: "יש לכתוב תשובה",
@@ -938,6 +971,7 @@ const HE: DashboardLabels = {
   sellerGuideNext: "הבא",
   sellerGuideBack: "חזרה",
   sellerGuideFinish: "יופי, הבנתי!",
+  sellerGuideShowMeButton: "הראה לי בפועל",
   sellerGuideAddProduct: "הוסף מוצר ראשון",
   sellerGuideAddService: "הוסף שירות ראשון",
   sellerGuideAddCalendar: "הגדר יומן ומשבצות",
@@ -1119,6 +1153,16 @@ const HE: DashboardLabels = {
   periodYear: "שנתי",
   downloadSalesReport: "הורדת דוח מכירות והזמנות",
   downloadSalesReportHint: "קובץ CSV עם כל ההזמנות והתאריכים בתקופה שנבחרה — לשימוש מול רואה החשבון או דיווח למס הכנסה",
+  exportOrdersButton: "ייצוא הזמנות",
+  exportOrdersRangeTitle: "איזה טווח תאריכים לייצא?",
+  exportRangeToday: "היום",
+  exportRangeWeek: "השבוע",
+  exportRangeMonth: "החודש",
+  exportRangeCustom: "בהתאמה אישית",
+  exportRangeFrom: "מתאריך",
+  exportRangeTo: "עד תאריך",
+  exportRangeDownload: "הורד קובץ",
+  exportRangeMissingDates: "יש לבחור תאריך התחלה וסיום",
   sendCustomerMessage: "שלח באפליקציה",
   openCustomerMessageComposer: "שלח הודעה",
   sendCustomerWhatsApp: "שלח בוואטסאפ",
@@ -1334,6 +1378,7 @@ const EN: DashboardLabels = {
   storePanelReviews: "Customer reviews",
   storePanelOrderLimits: "Order limits",
   storePanelSettings: "Settings panel",
+  storePanelCoupons: "Coupon code at checkout",
   storePanelsSaveFailed: "Could not save panel settings",
   extras: "More details",
   customers: "Customers",
@@ -1360,6 +1405,7 @@ const EN: DashboardLabels = {
   styleColorLanguage: "Style & language",
   storeLanguageForCustomers: "Store language for customers",
   storeMode: "Display mode",
+  storeDecorationTitle: "Flowers around the menu",
   hebrew: "Hebrew",
   english: "English",
   back: "Back",
@@ -1463,6 +1509,15 @@ const EN: DashboardLabels = {
   homeCalendarQuickBook: "Book slot",
   homeCalendarHistoryHint:
     "For older dates — go to previous months and tap a day on the calendar.",
+  ordersCalendarTitle: "Calendar",
+  ordersCalendarMonthView: "Month",
+  ordersCalendarWeekView: "Week",
+  ordersCalendarDayView: "Day",
+  ordersCalendarNoOrdersDay: "No orders on this day",
+  ordersCalendarPrevDay: "Previous day",
+  ordersCalendarNextDay: "Next day",
+  ordersCalendarPrevWeek: "Previous week",
+  ordersCalendarNextWeek: "Next week",
   sellerWalkInCustomer: "Customer",
   sellerSelfBooking: "Seller booking",
   appointmentSlotTime: "Appointment time",
@@ -1612,6 +1667,7 @@ const EN: DashboardLabels = {
   sellerGuideNext: "Next",
   sellerGuideBack: "Back",
   sellerGuideFinish: "Got it!",
+  sellerGuideShowMeButton: "Show me for real",
   sellerGuideAddProduct: "Add first product",
   sellerGuideAddService: "Add first service",
   sellerGuideAddCalendar: "Set up calendar & slots",
@@ -1793,6 +1849,16 @@ const EN: DashboardLabels = {
   periodYear: "Yearly",
   downloadSalesReport: "Download sales & orders report",
   downloadSalesReportHint: "CSV file with every order and date in the selected period — for your accountant or tax filing",
+  exportOrdersButton: "Export orders",
+  exportOrdersRangeTitle: "Which date range should we export?",
+  exportRangeToday: "Today",
+  exportRangeWeek: "This week",
+  exportRangeMonth: "This month",
+  exportRangeCustom: "Custom range",
+  exportRangeFrom: "From date",
+  exportRangeTo: "To date",
+  exportRangeDownload: "Download file",
+  exportRangeMissingDates: "Pick a start and end date",
   sendCustomerMessage: "Send in app",
   openCustomerMessageComposer: "Send message",
   sendCustomerWhatsApp: "Send on WhatsApp",

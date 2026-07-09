@@ -116,6 +116,7 @@ export function DashboardActionRowButton({
   expanded,
   disabled = false,
   danger = false,
+  tourId,
 }: {
   onClick?: () => void;
   icon: LucideIcon;
@@ -126,6 +127,7 @@ export function DashboardActionRowButton({
   expanded?: boolean;
   disabled?: boolean;
   danger?: boolean;
+  tourId?: string;
 }) {
   const content = (
     <>
@@ -154,6 +156,7 @@ export function DashboardActionRowButton({
         type="button"
         onClick={onClick}
         aria-expanded={expanded}
+        data-tour-id={tourId}
         className={`${DASHBOARD_ACTION_ROW_CLASS}${
           active ? " bakery-float-tile--active" : ""
         }`}

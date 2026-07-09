@@ -35,10 +35,15 @@ import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
 import { CustomerCookieConsent } from "./customer-cookie-consent";
 import { OrderCheckoutModal } from "./order-checkout-modal";
 import { CustomerCartCheckoutBar } from "./customer-cart-checkout-bar";
+import { playProductAddedSound, playOrderCompletedSound } from "@/lib/ui-sounds";
 import { cn } from "@/lib/utils";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import { getEffectivePrice } from "@/lib/product-price";
-import { customerThemeClass, parseStoreTheme } from "@/lib/store-themes";
+import {
+  customerThemeClass,
+  parseStoreDecoration,
+  parseStoreTheme,
+} from "@/lib/store-themes";
 import type { PlatformLegalDocPayload } from "@/lib/legal/platform-legal";
 import {
   canFulfillQuantity,
@@ -334,6 +339,7 @@ export function CustomerStoreApp({
     faqItems: FaqItem[];
     storeUrl: string;
     storeTheme?: string;
+    storeDecoration?: string;
     storeLocale?: string;
     storePolicy?: string | null;
     storeTerms?: string | null;
@@ -366,6 +372,7 @@ export function CustomerStoreApp({
     business.sellerContactPhone
   );
   const ownerTheme = parseStoreTheme(business.storeTheme);
+  const storeDecoration = parseStoreDecoration(business.storeDecoration);
   const ownerLocale: CustomerLocale =
     business.storeLocale === "en" ? "en" : "he";
   const effectiveOrderScheduleEnabled =
@@ -1165,6 +1172,7 @@ export function CustomerStoreApp({
     setCartDeals([]);
     setOrderCheckoutOpen(false);
     setOrderSuccessOpen(true);
+    playOrderCompletedSound();
     const nextHistory = appendCustomerOrderHistory(business.slug, orderSnapshot);
     setLocalOrderHistory(nextHistory);
     if (customerGoogleEmail) void loadServerOrderHistory();
@@ -1616,11 +1624,14 @@ export function CustomerStoreApp({
   const cartItemCount = activeOrderCount;
 
   const incrementProductInCart = useCallback((productId: string, maxQty: number) => {
+    let incremented = false;
     setCart((c) => {
       const current = c[productId] ?? 0;
       if (current >= maxQty) return c;
+      incremented = true;
       return { ...c, [productId]: current + 1 };
     });
+    if (incremented) playProductAddedSound();
   }, []);
 
   const productCartHandlers = useMemo(() => {
@@ -1865,7 +1876,11 @@ export function CustomerStoreApp({
             </CustomerAppointmentsHomeShell>
           )
         ) : (
-          <div className="space-y-4 p-1 pb-2">
+          <div
+            className={`space-y-4 p-1 pb-2 ${
+              storeDecoration === "flowers" ? "customer-menu-flowers" : ""
+            }`}
+          >
             {renderProductGrid()}
           </div>
         );
@@ -2216,7 +2231,7 @@ export function CustomerStoreApp({
         }
         initialName={customerName}
         initialPhone={orderPhone}
-        showCoupon={cartLines.length > 0}
+        showCoupon={panels.coupons && cartLines.length > 0}
         submitting={orderSubmitting}
         error={orderError}
         onSubmit={(name, phone, couponCode) => {

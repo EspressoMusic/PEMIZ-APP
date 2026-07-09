@@ -212,6 +212,7 @@ export function DashboardCustomerLinkCard({
       <div
         role="button"
         tabIndex={0}
+        data-tour-id="tour-share-link"
         onClick={() => setOpen(true)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {

@@ -8,6 +8,7 @@ export function DashboardShell({
   basePath = "/dashboard",
   storeLocale = "he",
   storeTheme = "turquoise",
+  storeDecoration = "none",
   orderScheduleEnabled = false,
   orderSchedule = null,
   initialActiveServiceCount = 0,
@@ -21,6 +22,7 @@ export function DashboardShell({
   basePath?: string;
   storeLocale?: string | null;
   storeTheme?: string | null;
+  storeDecoration?: string | null;
   orderScheduleEnabled?: boolean;
   orderSchedule?: string | null;
   initialActiveServiceCount?: number;
@@ -35,6 +37,7 @@ export function DashboardShell({
       basePath={basePath}
       storeLocale={storeLocale}
       storeTheme={storeTheme}
+      storeDecoration={storeDecoration}
       orderScheduleEnabled={orderScheduleEnabled}
       orderSchedule={orderSchedule}
       initialActiveServiceCount={initialActiveServiceCount}

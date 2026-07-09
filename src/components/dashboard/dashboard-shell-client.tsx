@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { AppointmentStoreWelcomeSetup } from "@/components/dashboard/appointment-store-welcome-setup";
 import { SellerWelcomeGuide } from "@/components/dashboard/seller-welcome-guide";
+import { SellerSpotlightTourProvider } from "@/components/dashboard/seller-spotlight-tour";
 import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
 import { DashboardPlatformMessageBanner } from "@/components/dashboard/dashboard-platform-message-banner";
@@ -63,6 +64,7 @@ export function DashboardShellClient({
   basePath = "/dashboard",
   storeLocale = "he",
   storeTheme = "turquoise",
+  storeDecoration = "none",
   orderScheduleEnabled = false,
   orderSchedule = null,
   initialActiveServiceCount = 0,
@@ -76,6 +78,7 @@ export function DashboardShellClient({
   basePath?: string;
   storeLocale?: string | null;
   storeTheme?: string | null;
+  storeDecoration?: string | null;
   orderScheduleEnabled?: boolean;
   orderSchedule?: string | null;
   initialActiveServiceCount?: number;
@@ -140,17 +143,27 @@ export function DashboardShellClient({
 
   return (
     <AppLocaleProvider initialLocale={storeLocale}>
-      <StoreThemeProvider initialTheme={storeTheme}>
+      <StoreThemeProvider initialTheme={storeTheme} initialDecoration={storeDecoration}>
         <DashboardUiPreferencesProvider>
-          {inSellerApp && tourEnabled ? (
-            <SellerWelcomeGuide
+          {inSellerApp ? (
+            <SellerSpotlightTourProvider
               businessId={businessId}
               businessType={businessType}
               basePath={basePath}
-              appointmentScheduleConfigured={appointmentScheduleConfigured}
             >
-              {shellBody}
-            </SellerWelcomeGuide>
+              {tourEnabled ? (
+                <SellerWelcomeGuide
+                  businessId={businessId}
+                  businessType={businessType}
+                  basePath={basePath}
+                  appointmentScheduleConfigured={appointmentScheduleConfigured}
+                >
+                  {shellBody}
+                </SellerWelcomeGuide>
+              ) : (
+                shellBody
+              )}
+            </SellerSpotlightTourProvider>
           ) : (
             shellBody
           )}

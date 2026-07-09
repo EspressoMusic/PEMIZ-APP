@@ -17,6 +17,7 @@ const schema = z.object({
   orderLimits: z.boolean().optional(),
   settings: z.boolean().optional(),
   reviews: z.boolean().optional(),
+  coupons: z.boolean().optional(),
 });
 
 export async function GET() {

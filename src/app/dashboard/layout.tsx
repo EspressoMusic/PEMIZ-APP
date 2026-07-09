@@ -80,6 +80,7 @@ export default async function DashboardLayout({
             businessType={user.business.type}
             storeLocale={user.business.storeLocale}
             storeTheme={user.business.storeTheme}
+            storeDecoration={user.business.storeDecoration}
             orderScheduleEnabled={user.business.orderScheduleEnabled ?? false}
             orderSchedule={user.business.orderSchedule ?? null}
             initialActiveServiceCount={initialActiveServiceCount}

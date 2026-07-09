@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ClipboardList, History, Search, X } from "lucide-react";
+import { ClipboardList, Download, History, Search, X } from "lucide-react";
 import {
+  Alert,
   Button,
   Input,
   Panel,
@@ -156,7 +157,7 @@ function enrichOrdersWithCustomerJoinedAt(
   }));
 }
 
-function mapOrdersFromApi(
+export function mapOrdersFromApi(
   locale: AppLocale,
   raw: {
     id: string;
@@ -267,6 +268,298 @@ function useOrdersSheetSearch(open: boolean) {
     searchDate,
     hasSearchQuery,
   };
+}
+
+type ExportRange = "today" | "week" | "month" | "custom";
+
+function exportCsvCell(value: string): string {
+  return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+function exportStartOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function exportEndOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+
+function exportStartOfWeek(d: Date): Date {
+  const x = exportStartOfDay(d);
+  x.setDate(x.getDate() - x.getDay());
+  return x;
+}
+
+function exportStartOfMonth(d: Date): Date {
+  const x = exportStartOfDay(d);
+  x.setDate(1);
+  return x;
+}
+
+function ordersInExportRange(
+  orders: DashboardOrderView[],
+  range: ExportRange,
+  fromDate: string,
+  toDate: string
+): DashboardOrderView[] {
+  const now = new Date();
+  let since: Date;
+  let until: Date;
+  if (range === "today") {
+    since = exportStartOfDay(now);
+    until = now;
+  } else if (range === "week") {
+    since = exportStartOfWeek(now);
+    until = now;
+  } else if (range === "month") {
+    since = exportStartOfMonth(now);
+    until = now;
+  } else {
+    if (!fromDate || !toDate) return [];
+    since = exportStartOfDay(new Date(`${fromDate}T00:00:00`));
+    until = exportEndOfDay(new Date(`${toDate}T00:00:00`));
+  }
+  return orders.filter((o) => {
+    if (!o.createdAt) return false;
+    const d = new Date(o.createdAt);
+    return d >= since && d <= until;
+  });
+}
+
+/** Mirrors the columns from /api/dashboard/orders/export for the preview/demo dashboard (no email/coupon data client-side). */
+function buildPreviewOrdersCsv(orders: DashboardOrderView[]): string {
+  const header = [
+    "מספר הזמנה",
+    "תאריך",
+    "שעה",
+    "שם לקוח",
+    "טלפון",
+    "מוצר",
+    "כמות",
+    "מחיר ליחידה",
+    'סה"כ שורה',
+    'סה"כ הזמנה',
+    "סטטוס",
+  ];
+  const rows = [header.map(exportCsvCell).join(",")];
+  for (const order of orders) {
+    const date = order.createdAt ? new Date(order.createdAt) : new Date();
+    const dateStr = date.toLocaleDateString("he-IL");
+    const timeStr = date.toLocaleTimeString("he-IL", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const orderTotal = order.items.reduce((s, it) => s + it.lineTotal, 0);
+    const baseCells = [
+      String(order.orderNumber ?? ""),
+      dateStr,
+      timeStr,
+      order.customerName,
+      order.customerPhone,
+    ];
+    if (order.items.length === 0) {
+      rows.push(
+        [...baseCells, "", "", "", orderTotal.toFixed(2), order.statusLabel]
+          .map(exportCsvCell)
+          .join(",")
+      );
+      continue;
+    }
+    for (const item of order.items) {
+      rows.push(
+        [
+          ...baseCells,
+          item.name,
+          String(item.quantity),
+          (item.lineTotal / item.quantity).toFixed(2),
+          item.lineTotal.toFixed(2),
+          orderTotal.toFixed(2),
+          order.statusLabel,
+        ]
+          .map(exportCsvCell)
+          .join(",")
+      );
+    }
+  }
+  return "﻿" + rows.join("\r\n");
+}
+
+function downloadCsvBlob(csv: string, filename: string) {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function DashboardOrdersExportSheet({
+  open,
+  onClose,
+  previewOnly = false,
+  previewOrders = [],
+}: {
+  open: boolean;
+  onClose: () => void;
+  previewOnly?: boolean;
+  previewOrders?: DashboardOrderView[];
+}) {
+  const { labels } = useAppLocale();
+  const [range, setRange] = useState<ExportRange>("today");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!open) {
+      setRange("today");
+      setFromDate("");
+      setToDate("");
+      setError("");
+    }
+  }, [open]);
+
+  const rangeOptions: { id: ExportRange; label: string }[] = [
+    { id: "today", label: labels.exportRangeToday },
+    { id: "week", label: labels.exportRangeWeek },
+    { id: "month", label: labels.exportRangeMonth },
+    { id: "custom", label: labels.exportRangeCustom },
+  ];
+
+  function handleDownload() {
+    if (range === "custom" && (!fromDate || !toDate)) {
+      setError(labels.exportRangeMissingDates);
+      return;
+    }
+    setError("");
+
+    if (previewOnly) {
+      const filtered = ordersInExportRange(previewOrders, range, fromDate, toDate);
+      downloadCsvBlob(buildPreviewOrdersCsv(filtered), `orders-${range}.csv`);
+      onClose();
+      return;
+    }
+
+    const params = new URLSearchParams({ range });
+    if (range === "custom") {
+      params.set("from", fromDate);
+      params.set("to", toDate);
+    }
+    window.location.href = `/api/dashboard/orders/export?${params.toString()}`;
+    onClose();
+  }
+
+  return (
+    <DashboardActionSheet
+      open={open}
+      onClose={onClose}
+      title={labels.exportOrdersButton}
+      ariaLabel={labels.exportOrdersButton}
+      placement="center"
+      showBackButton
+      compact
+      fitContent
+    >
+      <div className="space-y-3 pb-1 pt-1 text-center">
+        <p className="text-[13px] font-bold text-bakery-muted">
+          {labels.exportOrdersRangeTitle}
+        </p>
+
+        <div className="grid grid-cols-2 gap-2">
+          {rangeOptions.map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => setRange(opt.id)}
+              className={`rounded-[14px] px-3 py-2.5 text-[14px] font-extrabold transition ${
+                range === opt.id
+                  ? "bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
+                  : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {range === "custom" ? (
+          <div className="grid grid-cols-2 gap-2 text-start">
+            <div>
+              <label className="mb-1 block text-[12px] font-bold text-bakery-muted">
+                {labels.exportRangeFrom}
+              </label>
+              <Input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="rounded-[12px]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-[12px] font-bold text-bakery-muted">
+                {labels.exportRangeTo}
+              </label>
+              <Input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="rounded-[12px]"
+              />
+            </div>
+          </div>
+        ) : null}
+
+        {error ? <Alert variant="error">{error}</Alert> : null}
+
+        <Button
+          variant="primary"
+          className="w-full min-h-[46px] font-extrabold"
+          onClick={handleDownload}
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <Download className="h-4 w-4" />
+            {labels.exportRangeDownload}
+          </span>
+        </Button>
+      </div>
+    </DashboardActionSheet>
+  );
+}
+
+function DashboardOrdersExportButton({
+  previewOnly,
+  previewOrders,
+}: {
+  previewOnly?: boolean;
+  previewOrders?: DashboardOrderView[];
+}) {
+  const { labels } = useAppLocale();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-bakery-ink transition hover:bg-bakery-cream-light/80 active:opacity-80"
+        aria-label={labels.exportOrdersButton}
+        title={labels.exportOrdersButton}
+      >
+        <Download className="h-5 w-5" strokeWidth={2.5} />
+      </button>
+      <DashboardOrdersExportSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        previewOnly={previewOnly}
+        previewOrders={previewOrders}
+      />
+    </>
+  );
 }
 
 function OrdersPreviewBanner() {
@@ -415,6 +708,7 @@ function OrdersActiveSheet({
   onStatusChange,
   onCustomerClick,
   previewOnly,
+  allOrdersForExport,
 }: {
   open: boolean;
   onClose: () => void;
@@ -422,6 +716,7 @@ function OrdersActiveSheet({
   onStatusChange: (orderId: string, status: string) => void;
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
   previewOnly?: boolean;
+  allOrdersForExport?: DashboardOrderView[];
 }) {
   const { labels } = useAppLocale();
   const { headerEndAction, searchField, searchQuery, searchDate, hasSearchQuery } =
@@ -440,7 +735,15 @@ function OrdersActiveSheet({
       placement="center"
       showBackButton
       warmPanel
-      headerEndAction={headerEndAction}
+      headerEndAction={
+        <div className="flex items-center gap-1">
+          <DashboardOrdersExportButton
+            previewOnly={previewOnly}
+            previewOrders={allOrdersForExport ?? activeOrders}
+          />
+          {headerEndAction}
+        </div>
+      }
     >
       {previewOnly ? <OrdersPreviewBanner /> : null}
       <div className={ordersModalListClassName}>
@@ -464,11 +767,15 @@ function OrdersHistorySheet({
   onClose,
   historyOrders,
   onCustomerClick,
+  previewOnly,
+  allOrdersForExport,
 }: {
   open: boolean;
   onClose: () => void;
   historyOrders: DashboardOrderView[];
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
+  previewOnly?: boolean;
+  allOrdersForExport?: DashboardOrderView[];
 }) {
   const { labels } = useAppLocale();
   const { headerEndAction, searchField, searchQuery, searchDate, hasSearchQuery } =
@@ -487,7 +794,15 @@ function OrdersHistorySheet({
       placement="center"
       showBackButton
       warmPanel
-      headerEndAction={headerEndAction}
+      headerEndAction={
+        <div className="flex items-center gap-1">
+          <DashboardOrdersExportButton
+            previewOnly={previewOnly}
+            previewOrders={allOrdersForExport ?? historyOrders}
+          />
+          {headerEndAction}
+        </div>
+      }
     >
       <div className={ordersModalListClassName}>
         {searchField}
@@ -519,6 +834,7 @@ export function DashboardOrdersEntry({
   const {
     labels,
     activeOrders,
+    historyOrders,
     setStatus,
     openCustomer,
     customerModal,
@@ -544,6 +860,7 @@ export function DashboardOrdersEntry({
         onStatusChange={setStatus}
         onCustomerClick={openCustomer}
         previewOnly={isPreview}
+        allOrdersForExport={[...activeOrders, ...historyOrders]}
       />
       {customerModal}
     </>
@@ -649,6 +966,7 @@ export function OrdersManager({
         onStatusChange={setStatus}
         onCustomerClick={openCustomer}
         previewOnly={isPreview}
+        allOrdersForExport={[...activeOrders, ...historyOrders]}
       />
 
       <OrdersHistorySheet
@@ -656,6 +974,8 @@ export function OrdersManager({
         onClose={() => setHistoryOrdersOpen(false)}
         historyOrders={historyOrders}
         onCustomerClick={openCustomer}
+        previewOnly={isPreview}
+        allOrdersForExport={[...activeOrders, ...historyOrders]}
       />
 
       {customerModal}

@@ -18,6 +18,7 @@ export async function GET() {
   const b = ctx.user.business;
   return jsonOk({
     storeTheme: b.storeTheme,
+    storeDecoration: b.storeDecoration,
     storeLocale: b.storeLocale === "en" ? "en" : "he",
   });
 }
@@ -29,7 +30,11 @@ export async function PATCH(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = storeThemePatchSchema.safeParse(body);
   if (!parsed.success) return jsonError(zodFirstError(parsed));
-  if (!parsed.data.storeTheme && !parsed.data.storeLocale) {
+  if (
+    !parsed.data.storeTheme &&
+    !parsed.data.storeDecoration &&
+    !parsed.data.storeLocale
+  ) {
     return jsonError("אין נתונים לעדכון");
   }
 
@@ -39,11 +44,14 @@ export async function PATCH(req: Request) {
       ...(parsed.data.storeTheme != null
         ? { storeTheme: parsed.data.storeTheme }
         : {}),
+      ...(parsed.data.storeDecoration != null
+        ? { storeDecoration: parsed.data.storeDecoration }
+        : {}),
       ...(parsed.data.storeLocale != null
         ? { storeLocale: parsed.data.storeLocale }
         : {}),
     },
-    select: { storeTheme: true, storeLocale: true },
+    select: { storeTheme: true, storeDecoration: true, storeLocale: true },
   });
 
   const cookieStore = await cookies();
@@ -64,6 +72,7 @@ export async function PATCH(req: Request) {
 
   return jsonOk({
     storeTheme: updated.storeTheme,
+    storeDecoration: updated.storeDecoration,
     storeLocale: updated.storeLocale === "en" ? "en" : "he",
   });
 }

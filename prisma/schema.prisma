@@ -77,6 +77,7 @@ model Business {
   description     String?
   type            String
   storeTheme             String   @default("turquoise")
+  storeDecoration        String   @default("none")
   storeLocale            String   @default("he")
   storePolicy            String?
   storeTerms             String?

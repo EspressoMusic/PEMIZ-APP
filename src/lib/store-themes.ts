@@ -4,6 +4,46 @@ export type StoreThemeId = (typeof STORE_THEME_IDS)[number];
 
 export const DEFAULT_STORE_THEME: StoreThemeId = "turquoise";
 
+/** Optional decorative overlay, layered on top of any store theme (e.g. floral border). */
+export const STORE_DECORATION_IDS = ["none", "flowers"] as const;
+
+export type StoreDecorationId = (typeof STORE_DECORATION_IDS)[number];
+
+export const DEFAULT_STORE_DECORATION: StoreDecorationId = "none";
+
+export type StoreDecorationMeta = {
+  id: StoreDecorationId;
+  label: string;
+  labelEn: string;
+  descriptionHe: string;
+  descriptionEn: string;
+};
+
+export const STORE_DECORATIONS: StoreDecorationMeta[] = [
+  {
+    id: "none",
+    label: "ללא",
+    labelEn: "None",
+    descriptionHe: "בלי עיטור נוסף",
+    descriptionEn: "No extra decoration",
+  },
+  {
+    id: "flowers",
+    label: "פרחים",
+    labelEn: "Flowers",
+    descriptionHe: "מסגרת פרחים סביב התפריט",
+    descriptionEn: "Floral border around the menu",
+  },
+];
+
+export function parseStoreDecoration(value?: string | null): StoreDecorationId {
+  return value === "flowers" ? "flowers" : DEFAULT_STORE_DECORATION;
+}
+
+export function customerDecorationClass(decoration: StoreDecorationId): string {
+  return `customer-decoration-${decoration}`;
+}
+
 /** Legacy colorful themes — mapped to relaxed brown on read */
 const LEGACY_THEME_IDS = [
   "rose",

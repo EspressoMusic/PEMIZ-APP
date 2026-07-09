@@ -134,6 +134,12 @@ export function DashboardStorePanelsSettings({
         onChange={(orderLimits) => void patch({ orderLimits })}
       />
       <PanelToggleRow
+        label={labels.storePanelCoupons}
+        enabled={panels.coupons}
+        disabled={saving}
+        onChange={(coupons) => void patch({ coupons })}
+      />
+      <PanelToggleRow
         label={labels.storePanelSettings}
         enabled={panels.settings}
         disabled={saving}

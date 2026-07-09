@@ -1212,6 +1212,7 @@ export function ProductsManager({
         <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <button
             type="button"
+            data-tour-id="tour-add-product"
             onClick={() => {
               setProductsListOpen(false);
               setAddFormOpen(true);

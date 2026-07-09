@@ -156,6 +156,7 @@ export default async function PublicBusinessPage({
         })),
         storeUrl: publicBusinessUrl(business.slug),
         storeTheme: business.storeTheme,
+        storeDecoration: business.storeDecoration,
         storeLocale: business.storeLocale,
         storePolicy: business.storePolicy,
         storeTerms: business.storeTerms,
