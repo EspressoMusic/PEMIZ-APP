@@ -13,6 +13,7 @@ import { getCustomerLabels, type CustomerLabels } from "./customer-labels";
 import type { StoreThemeId } from "@/lib/store-themes";
 import {
   formatCustomerOrderDate,
+  formatCustomerOrderNumbers,
   type OrderPreviewLine,
 } from "@/lib/customer-order-history";
 import { formatAppointmentDateTime } from "@/lib/customer-appointment-history";
@@ -564,13 +565,19 @@ export function OrderHistorySummaryRow({
   placedAt,
   total,
   locale,
+  orderNumber,
+  orderNumbers,
   onClick,
 }: {
   placedAt: string;
   total: number;
   locale: CustomerLocale;
+  orderNumber?: number;
+  orderNumbers?: number[];
   onClick: () => void;
 }) {
+  const labels = getCustomerLabels(locale);
+  const orderNumberText = formatCustomerOrderNumbers(orderNumber, orderNumbers);
   return (
     <button
       type="button"
@@ -585,6 +592,11 @@ export function OrderHistorySummaryRow({
           {formatCustomerMoney(total, locale)}
         </span>
       </div>
+      {orderNumberText ? (
+        <p className="mt-1 text-[12px] font-bold text-bakery-muted">
+          {labels.orderNumber} {orderNumberText}
+        </p>
+      ) : null}
     </button>
   );
 }

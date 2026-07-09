@@ -4,5 +4,6 @@ export const APP_LOGO_SRC = "/icons/linky-app-logo.png";
 /** Loading splash — character logo (transparent / light fill) */
 export const APP_LOADING_LOGO_SRC = "/icons/linky-loading-logo.png";
 
-/** Matches default turquoise scaffold behind the loading logo */
-export const APP_SPLASH_BG = "#a5d4cc";
+/** Matches manifest.webmanifest background_color, so the native install
+ * splash and this in-app splash don't flash between two shades of teal. */
+export const APP_SPLASH_BG = "#94BCB8";

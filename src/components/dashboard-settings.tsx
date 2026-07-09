@@ -1,18 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Bell, Calendar, LogOut, CircleAlert, Smartphone, Star } from "lucide-react";
+import { Bell, LogOut, CircleAlert, Smartphone, Star } from "lucide-react";
 import { PageTitle } from "@/components/ui";
 import {
   DashboardActionRow,
   DashboardActionRowButton,
 } from "@/components/dashboard/dashboard-action-row";
-import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardDeleteStoreSection } from "@/components/dashboard/dashboard-delete-store-section";
 import { DashboardSellerDetailsCard } from "@/components/dashboard/dashboard-seller-details-card";
 import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
 import { DashboardStorePanelsSettingsGroup } from "@/components/dashboard/dashboard-store-panels-settings";
-import { DashboardOrdersCalendarCard } from "@/components/dashboard/dashboard-orders-calendar";
 import { DashboardSubscriptionSection } from "@/components/dashboard/dashboard-subscription-section";
 import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
 import {
@@ -51,7 +48,6 @@ export function DashboardSettingsView({
 }: Props) {
   const { labels } = useAppLocale();
   const nativeApp = useNativeApp();
-  const [calendarOpen, setCalendarOpen] = useState(false);
   const showStoreQuickLinks =
     showQuickActionRows &&
     (businessType === "STORE" ||
@@ -88,14 +84,6 @@ export function DashboardSettingsView({
               icon={Star}
               title={labels.reviewsTitle}
             />
-
-            {businessType === "STORE" ? (
-              <DashboardActionRowButton
-                onClick={() => setCalendarOpen(true)}
-                icon={Calendar}
-                title={labels.ordersCalendarTitle}
-              />
-            ) : null}
 
             {!isActive ? (
               <li>
@@ -149,25 +137,6 @@ export function DashboardSettingsView({
             />
           </ul>
         </div>
-
-      {businessType === "STORE" ? (
-        <DashboardActionSheet
-          open={calendarOpen}
-          onClose={() => setCalendarOpen(false)}
-          ariaLabel={labels.ordersCalendarTitle}
-          placement="center"
-          showBackButton
-          compact
-          fitContent
-          panelClassName="dashboard-orders-calendar-sheet"
-        >
-          <DashboardOrdersCalendarCard
-            embedded
-            previewOnly={previewOnly}
-            previewOrders={previewCustomerOrders}
-          />
-        </DashboardActionSheet>
-      ) : null}
     </div>
   );
 }

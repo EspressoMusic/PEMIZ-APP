@@ -397,6 +397,24 @@ button.bg-bakery-error:hover {
   color: var(--bakery-muted);
 }
 
+/* Programmer-panel sheets (stats, limits, incidents…) — portaled outside
+   .master-surface, so they're targeted directly instead of by descendant.
+   Turquoise fill matches the rest of the master panel instead of the
+   seller dashboard's warm theme; the stronger backdrop keeps the settings
+   list behind it from staying readable through the overlay. */
+.dashboard-card.bakery-action-sheet-panel.master-action-sheet-panel {
+  background: #d4ece7 !important;
+  background-image: none !important;
+  border: 1.5px solid rgba(15, 118, 110, 0.35) !important;
+  box-shadow: 0 12px 36px rgba(15, 118, 110, 0.12) !important;
+}
+
+.master-action-sheet-backdrop {
+  background: rgba(15, 118, 110, 0.62) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
 .text-bakery-sale,
 .text-bakery-error {
   -webkit-font-smoothing: antialiased;
@@ -1636,6 +1654,11 @@ html[data-store-theme="dark"] .master-surface .master-panel-inner {
   color: var(--bakery-ink);
 }
 
+html[data-store-theme="dark"] .dashboard-card.bakery-action-sheet-panel.master-action-sheet-panel {
+  background: #3d3c37 !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
 /* Customer/business initial-avatar squares — matte orange fill in dark mode */
 html[data-store-theme="dark"] .border-bakery-border\/35.bg-bakery-on-primary {
   border-color: transparent;
@@ -2652,21 +2675,13 @@ html:not([data-store-theme="dark"])
   box-shadow: 0 12px 36px var(--dashboard-shadow);
 }
 
-/* Orders calendar sheet — bold theme-tinted wash, like the customer order-success modal. */
+/* Orders calendar sheet — flat theme-tinted wash, like the customer order-success modal. */
 .dashboard-card.bakery-action-sheet-panel.dashboard-orders-calendar-sheet {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--bakery-primary) 14%, white) 0%,
-    color-mix(in srgb, var(--bakery-primary) 32%, white) 100%
-  ) !important;
+  background: color-mix(in srgb, var(--bakery-primary) 22%, white) !important;
 }
 
 html[data-store-theme="dark"] .dashboard-card.bakery-action-sheet-panel.dashboard-orders-calendar-sheet {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--bakery-primary) 22%, var(--dashboard-panel-bg)) 0%,
-    color-mix(in srgb, var(--bakery-primary) 36%, var(--dashboard-panel-bg)) 100%
-  ) !important;
+  background: color-mix(in srgb, var(--bakery-primary) 28%, var(--dashboard-panel-bg)) !important;
 }
 
 html:not([data-store-theme="dark"]) .dashboard-store-style-sheet .bakery-float-tile {

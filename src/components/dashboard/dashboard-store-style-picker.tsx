@@ -122,6 +122,7 @@ export function DashboardStoreStylePicker({
       <DashboardActionSheet
         open={open}
         onClose={() => setOpen(false)}
+        title={labels.styleColorLanguage}
         ariaLabel={labels.styleColorLanguage}
         placement="center"
         showBackButton

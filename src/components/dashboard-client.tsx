@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ClipboardList, Download, History, Search, X } from "lucide-react";
+import { Calendar, ClipboardList, Download, History, Search, X } from "lucide-react";
 import {
   Alert,
   Button,
@@ -25,6 +25,7 @@ import {
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
+import { DashboardOrdersCalendarCard } from "@/components/dashboard/dashboard-orders-calendar";
 import { getDashboardLabels, type AppLocale } from "@/lib/app-locale";
 import { DASHBOARD_PAGE_ROOT } from "@/components/dashboard/dashboard-panel-frame";
 import { splitSellerAppointments } from "@/lib/seller-appointment-history";
@@ -562,6 +563,47 @@ function DashboardOrdersExportButton({
   );
 }
 
+function DashboardOrdersCalendarButton({
+  previewOnly,
+  previewOrders,
+}: {
+  previewOnly?: boolean;
+  previewOrders?: DashboardOrderView[];
+}) {
+  const { labels } = useAppLocale();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-bakery-ink transition hover:bg-bakery-cream-light/80 active:opacity-80"
+        aria-label={labels.ordersCalendarTitle}
+        title={labels.ordersCalendarTitle}
+      >
+        <Calendar className="h-5 w-5" strokeWidth={2.5} />
+      </button>
+      <DashboardActionSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        ariaLabel={labels.ordersCalendarTitle}
+        placement="center"
+        showBackButton
+        compact
+        fitContent
+        panelClassName="dashboard-orders-calendar-sheet"
+      >
+        <DashboardOrdersCalendarCard
+          embedded
+          previewOnly={previewOnly}
+          previewOrders={previewOrders}
+        />
+      </DashboardActionSheet>
+    </>
+  );
+}
+
 function OrdersPreviewBanner() {
   return (
     <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
@@ -737,6 +779,10 @@ function OrdersActiveSheet({
       warmPanel
       headerEndAction={
         <div className="flex items-center gap-1">
+          <DashboardOrdersCalendarButton
+            previewOnly={previewOnly}
+            previewOrders={allOrdersForExport ?? activeOrders}
+          />
           <DashboardOrdersExportButton
             previewOnly={previewOnly}
             previewOrders={allOrdersForExport ?? activeOrders}
@@ -796,6 +842,10 @@ function OrdersHistorySheet({
       warmPanel
       headerEndAction={
         <div className="flex items-center gap-1">
+          <DashboardOrdersCalendarButton
+            previewOnly={previewOnly}
+            previewOrders={allOrdersForExport ?? historyOrders}
+          />
           <DashboardOrdersExportButton
             previewOnly={previewOnly}
             previewOrders={allOrdersForExport ?? historyOrders}

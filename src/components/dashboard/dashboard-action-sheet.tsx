@@ -22,6 +22,7 @@ export function DashboardActionSheet({
   /** Fit all children without an inner scroll area (tight modals). */
   fitContent = false,
   panelClassName,
+  backdropClassName,
   backButtonOutside = false,
   /** Centered line at top of compact header (e.g. order date). */
   headerNote,
@@ -49,6 +50,8 @@ export function DashboardActionSheet({
   warmPanel?: boolean;
   fitContent?: boolean;
   panelClassName?: string;
+  /** Extra class(es) for the backdrop (e.g. a stronger tint/blur for a specific panel). */
+  backdropClassName?: string;
   /** עם compact — מציב את «חזרה» מעל המלבן ולא בתוך הכותרת */
   backButtonOutside?: boolean;
   headerNote?: string;
@@ -144,7 +147,7 @@ export function DashboardActionSheet({
         type="button"
         className={`dashboard-action-sheet-backdrop absolute inset-0 ${
           backdropPassesThrough ? "pointer-events-none" : ""
-        }`}
+        }${backdropClassName ? ` ${backdropClassName}` : ""}`}
         onClick={backdropPassesThrough ? undefined : onClose}
         aria-label={closeLabel}
         tabIndex={backdropPassesThrough ? -1 : undefined}

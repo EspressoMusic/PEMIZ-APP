@@ -1785,6 +1785,8 @@ export function CustomerStoreApp({
                       placedAt={order.placedAt}
                       total={order.total}
                       locale={locale}
+                      orderNumber={order.orderNumber}
+                      orderNumbers={order.orderNumbers}
                       onClick={() => setHistoryDetailOrder(order)}
                     />
                   </li>
