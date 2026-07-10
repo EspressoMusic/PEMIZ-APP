@@ -671,12 +671,29 @@ function useOrdersManager({
     previewOrders: orders,
   });
 
+  async function confirmOrder(orderId: string) {
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === orderId
+          ? { ...o, status: "CONFIRMED", statusLabel: orderStatusLabel("CONFIRMED", locale) }
+          : o
+      )
+    );
+    if (previewOnly) return;
+    await fetch("/api/dashboard/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, status: "CONFIRMED" }),
+    });
+  }
+
   return {
     labels,
     activeOrders,
     historyOrders,
     openCustomer,
     customerModal,
+    confirmOrder,
     previewOnly,
   };
 }
@@ -684,12 +701,14 @@ function useOrdersManager({
 function OrdersPanels({
   orders,
   onCustomerClick,
+  onConfirmOrder,
   customerModal,
 }: {
   orders: DashboardOrderView[];
   onCustomerClick?: ReturnType<
     typeof useDashboardCustomerProfile
   >["openCustomer"];
+  onConfirmOrder?: (orderId: string) => void;
   customerModal?: React.ReactNode;
 }) {
   const { labels } = useAppLocale();
@@ -702,6 +721,7 @@ function OrdersPanels({
         title={labels.activeOrders}
         orders={activeOrders}
         onCustomerClick={onCustomerClick}
+        onConfirmOrder={onConfirmOrder}
         customerModal={customerModal}
         emptyMessage={labels.noActiveOrders}
       />
@@ -720,6 +740,7 @@ function OrdersActiveSheet({
   onClose,
   activeOrders,
   onCustomerClick,
+  onConfirmOrder,
   previewOnly,
   allOrdersForExport,
 }: {
@@ -727,6 +748,7 @@ function OrdersActiveSheet({
   onClose: () => void;
   activeOrders: DashboardOrderView[];
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
+  onConfirmOrder?: (orderId: string) => void;
   previewOnly?: boolean;
   allOrdersForExport?: DashboardOrderView[];
 }) {
@@ -767,6 +789,7 @@ function OrdersActiveSheet({
         <DashboardOrdersList
           orders={filteredOrders}
           onCustomerClick={onCustomerClick}
+          onConfirmOrder={onConfirmOrder}
           emptyMessage={
             hasSearchQuery ? labels.noOrderSearchResults : labels.noActiveOrders
           }
@@ -856,6 +879,7 @@ export function DashboardOrdersEntry({
     historyOrders,
     openCustomer,
     customerModal,
+    confirmOrder,
     previewOnly: isPreview,
   } = useOrdersManager({ previewOnly, previewOrders });
 
@@ -876,6 +900,7 @@ export function DashboardOrdersEntry({
         onClose={() => setOpen(false)}
         activeOrders={activeOrders}
         onCustomerClick={openCustomer}
+        onConfirmOrder={confirmOrder}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
       />
@@ -905,6 +930,7 @@ export function OrdersManager({
     historyOrders,
     openCustomer,
     customerModal,
+    confirmOrder,
     previewOnly: isPreview,
   } = useOrdersManager({ previewOnly, previewOrders });
 
@@ -912,6 +938,7 @@ export function OrdersManager({
     <OrdersPanels
       orders={[...activeOrders, ...historyOrders]}
       onCustomerClick={openCustomer}
+      onConfirmOrder={confirmOrder}
       customerModal={customerModal}
     />
   );
@@ -979,6 +1006,7 @@ export function OrdersManager({
         onClose={() => setActiveOrdersOpen(false)}
         activeOrders={activeOrders}
         onCustomerClick={openCustomer}
+        onConfirmOrder={confirmOrder}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
       />

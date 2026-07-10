@@ -68,11 +68,13 @@ export function DashboardOrderDetails({
   total,
   showPrices,
   onClose,
+  onConfirm,
 }: {
   order: DashboardOrderView;
   total: number;
   showPrices: boolean;
   onClose: () => void;
+  onConfirm?: () => void;
 }) {
   const { labels, formatMoney } = useAppLocale();
 
@@ -145,7 +147,10 @@ export function DashboardOrderDetails({
         <Button
           variant="primary"
           className="min-h-[38px] w-full rounded-full px-3 py-2 text-[16px] font-extrabold"
-          onClick={onClose}
+          onClick={() => {
+            onConfirm?.();
+            onClose();
+          }}
         >
           {labels.ok}
         </Button>
@@ -159,12 +164,14 @@ export function DashboardOrderCard({
   open,
   onOpenChange,
   onCustomerClick,
+  onConfirmOrder,
   showPrices = false,
 }: {
   order: DashboardOrderView;
   open: boolean;
   onOpenChange: (next: boolean) => void;
   onCustomerClick?: (input: CustomerProfileInput) => void;
+  onConfirmOrder?: (orderId: string) => void;
   showPrices?: boolean;
 }) {
   const { labels, formatDateTime } = useAppLocale();
@@ -229,6 +236,9 @@ export function DashboardOrderCard({
           total={total}
           showPrices={showPrices}
           onClose={() => onOpenChange(false)}
+          onConfirm={
+            onConfirmOrder ? () => onConfirmOrder(order.id) : undefined
+          }
         />
       </DashboardActionSheet>
     </div>
@@ -239,12 +249,14 @@ export function DashboardOrdersSection({
   title,
   orders,
   onCustomerClick,
+  onConfirmOrder,
   customerModal,
   emptyMessage,
 }: {
   title: string;
   orders: DashboardOrderView[];
   onCustomerClick?: (input: CustomerProfileInput) => void;
+  onConfirmOrder?: (orderId: string) => void;
   customerModal?: ReactNode;
   emptyMessage?: string;
 }) {
@@ -257,6 +269,7 @@ export function DashboardOrdersSection({
       <DashboardOrdersList
         orders={orders}
         onCustomerClick={onCustomerClick}
+        onConfirmOrder={onConfirmOrder}
         customerModal={customerModal}
         emptyMessage={emptyMessage ?? labels.noOrders}
         emptyCompact
@@ -268,6 +281,7 @@ export function DashboardOrdersSection({
 export function DashboardOrdersList({
   orders,
   onCustomerClick,
+  onConfirmOrder,
   emptyMessage,
   emptyCompact = false,
   showPrices = false,
@@ -275,6 +289,7 @@ export function DashboardOrdersList({
 }: {
   orders: DashboardOrderView[];
   onCustomerClick?: (input: CustomerProfileInput) => void;
+  onConfirmOrder?: (orderId: string) => void;
   emptyMessage?: string;
   emptyCompact?: boolean;
   showPrices?: boolean;
@@ -306,6 +321,7 @@ export function DashboardOrdersList({
               open={openOrderId === o.id}
               onOpenChange={(next) => setOpenOrderId(next ? o.id : null)}
               onCustomerClick={onCustomerClick}
+              onConfirmOrder={onConfirmOrder}
               showPrices={showPrices}
             />
           </li>

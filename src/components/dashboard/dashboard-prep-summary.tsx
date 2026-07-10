@@ -267,6 +267,19 @@ export function DashboardPrepSummary({
     void refresh();
   }, [loadFromApi, refresh]);
 
+  const confirmOrder = useCallback(
+    (orderId: string) => {
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      if (previewOnly) return;
+      void fetch("/api/dashboard/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, status: "CONFIRMED" }),
+      });
+    },
+    [previewOnly]
+  );
+
   const grandTotal = products.reduce((s, p) => s + p.totalQuantity, 0);
 
   return (
@@ -298,6 +311,7 @@ export function DashboardPrepSummary({
             <DashboardOrdersList
               orders={orders}
               onCustomerClick={openCustomer}
+              onConfirmOrder={confirmOrder}
               showPrices
             />
           </div>
