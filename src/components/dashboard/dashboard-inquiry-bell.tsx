@@ -118,6 +118,9 @@ export function DashboardInquiryBell({
   });
 
   const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
+  const [seenNotificationIds, setSeenNotificationIds] = useState<Set<string>>(
+    () => new Set()
+  );
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<DashboardNotification | null>(null);
 
@@ -158,18 +161,32 @@ export function DashboardInquiryBell({
           : businessType === "APPOINTMENTS"
             ? buildDevAppointmentsDashboardNotifications(notificationLabels)
             : buildDevDashboardNotifications(notificationLabels);
-      setNotifications(withoutDismissedNotifications(items, dismissed));
-      return;
+      const filtered = withoutDismissedNotifications(items, dismissed);
+      setNotifications(filtered);
+      return filtered;
     }
     const res = await fetch("/api/dashboard/notifications");
     const data = await res.json();
-    if (!res.ok) return;
+    if (!res.ok) return [];
     const items: DashboardNotification[] = data.notifications ?? [];
-    const filtered = isScheduleLike
+    const scoped = isScheduleLike
       ? items.filter((item) => !isStoreOnlyNotificationKind(item.kind))
       : items;
-    setNotifications(withoutDismissedNotifications(filtered, dismissed));
+    const filtered = withoutDismissedNotifications(scoped, dismissed);
+    setNotifications(filtered);
+    return filtered;
   }, [previewOnly, isScheduleLike, businessType, locale]);
+
+  const markNotificationsSeen = useCallback(
+    (items: DashboardNotification[]) => {
+      setSeenNotificationIds((prev) => {
+        const next = new Set(prev);
+        for (const item of items) next.add(item.id);
+        return next;
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     void load();
@@ -177,7 +194,9 @@ export function DashboardInquiryBell({
 
   useVisibilityInterval(() => void load(), 20_000, 45_000);
 
-  const hasAlerts = notifications.length > 0;
+  const hasAlerts = notifications.some(
+    (item) => !seenNotificationIds.has(item.id)
+  );
 
   function openPanel() {
     setOpen(true);
@@ -186,7 +205,7 @@ export function DashboardInquiryBell({
     setReplyError("");
     setChatDraft("");
     setChatError("");
-    void load();
+    void load().then(markNotificationsSeen);
   }
 
   function closePanel() {
@@ -218,7 +237,7 @@ export function DashboardInquiryBell({
     setChatMessages([]);
     setChatDraft("");
     setChatError("");
-    void load();
+    void load().then(markNotificationsSeen);
   }
 
   async function dismissInquiry(inquiryId: string) {
@@ -635,7 +654,7 @@ export function DashboardInquiryBell({
                 {labels.notificationTitle}
               </h2>
               <p className="text-[13px] font-semibold text-bakery-muted">
-                {hasAlerts
+                {notifications.length > 0
                   ? String(notifications.length)
                   : labels.notificationEmpty}
               </p>
