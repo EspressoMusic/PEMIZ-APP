@@ -1,4 +1,4 @@
-import { DashboardAppointmentsSettingsHub } from "@/components/dashboard/dashboard-appointments-settings-hub";
+import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
 import { DevRentalSellerShell } from "@/components/dashboard/dev-rental-seller-shell";
 import {
   DEV_RENTAL_BUSINESS,
@@ -9,8 +9,10 @@ import {
 export default function DevSellerAppointmentsSettingsPage() {
   return (
     <DevRentalSellerShell>
-      <DashboardAppointmentsSettingsHub
+      <DashboardActionsHub
+        businessType="RENTAL"
         basePath={DEV_RENTAL_SELLER_BASE}
+        initialOpenPanel="store"
         previewOnly
         previewAppointments={getDevPreviewRentalSeller()}
         previewBookingByDay={DEV_RENTAL_BUSINESS.appointmentBookingByDay}

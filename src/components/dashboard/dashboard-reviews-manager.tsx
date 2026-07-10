@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown, Star, Trash2 } from "lucide-react";
-import { Alert, Textarea, PageTitle } from "@/components/ui";
+import { Alert, Textarea } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
 
@@ -269,8 +269,6 @@ export function DashboardReviewsManager({
 
   return (
     <div className="space-y-3 pb-2 text-center">
-      <PageTitle>{labels.reviewsTitle}</PageTitle>
-
       {error && <Alert variant="error">{error}</Alert>}
 
       <div className="dashboard-card bakery-float-panel rounded-[32px] p-3 text-start">

@@ -1,6 +1,5 @@
 "use client";
 
-import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
 import { Gift, ChevronLeft } from "lucide-react";
 import { DashboardOrdersEntry } from "@/components/dashboard-client";
 import { DashboardProductsEntry } from "@/components/dashboard/products-manager";
@@ -96,19 +95,5 @@ export function DashboardStoreSettingsHubPanel({
       </div>
       <DashboardStoreSettingsHubBody basePath={basePath} />
     </>
-  );
-}
-
-export function DashboardStoreSettingsHub({
-  basePath = "/dashboard",
-}: {
-  basePath?: string;
-}) {
-  return (
-    <DashboardFullscreenHubShell
-      backLink={<DashboardActionsBackLink basePath={basePath} />}
-    >
-      <DashboardStoreSettingsHubGrid basePath={basePath} />
-    </DashboardFullscreenHubShell>
   );
 }

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <path
+      id="sparkle-big"
+      d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"
+    />
+  </defs>
+  <g fill="#ffffff">
+    <use href="#sparkle-big" transform="translate(30,36) scale(0.62)" />
+    <use href="#sparkle-big" transform="translate(120,18) scale(0.5) rotate(18)" />
+    <use href="#sparkle-big" transform="translate(176,90) scale(0.68) rotate(-10)" />
+    <use href="#sparkle-big" transform="translate(60,120) scale(0.46) rotate(12)" />
+    <use href="#sparkle-big" transform="translate(150,158) scale(0.6) rotate(-16)" />
+    <use href="#sparkle-big" transform="translate(20,176) scale(0.4)" />
+  </g>
+</svg>

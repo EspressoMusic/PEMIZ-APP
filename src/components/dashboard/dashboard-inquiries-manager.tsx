@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { Alert, Textarea, PageTitle } from "@/components/ui";
+import { Alert, Textarea } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   customerProfileInitial,
@@ -281,7 +281,6 @@ export function DashboardInquiriesManager({
 
   return (
     <div className="space-y-3 pb-2 text-center">
-      <PageTitle>{labels.customerInquiries}</PageTitle>
       <p className="text-[13px] font-semibold text-bakery-muted">
         {pendingCount > 0
           ? `${pendingCount} ${labels.inquiriesPending}`

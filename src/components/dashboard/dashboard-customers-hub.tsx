@@ -1,7 +1,5 @@
 "use client";
 
-import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
-import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 import { HelpCircle, Inbox } from "lucide-react";
 import { DashboardBroadcastEntry } from "@/components/dashboard/dashboard-store-broadcast";
 import {
@@ -42,19 +40,5 @@ export function DashboardCustomersHubGrid({
     <div className="dashboard-card dashboard-hub-panel bakery-float-panel shrink-0 rounded-[32px] p-3">
       {list}
     </div>
-  );
-}
-
-export function DashboardCustomersHub({
-  basePath = "/dashboard",
-}: {
-  basePath?: string;
-}) {
-  return (
-    <DashboardFullscreenHubShell
-      backLink={<DashboardActionsBackLink basePath={basePath} />}
-    >
-      <DashboardCustomersHubGrid basePath={basePath} embedded />
-    </DashboardFullscreenHubShell>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Textarea, Alert, PageTitle } from "@/components/ui";
+import { Button, Textarea, Alert } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
 export function DashboardStoreExtras({
@@ -61,7 +61,6 @@ export function DashboardStoreExtras({
 
   return (
     <div className="space-y-5 pb-2">
-      <PageTitle>{labels.extras}</PageTitle>
       {error && <Alert variant="error">{error}</Alert>}
       {message && (
         <p className="text-center text-[14px] font-semibold text-bakery-success">

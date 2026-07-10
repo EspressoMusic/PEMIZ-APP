@@ -163,7 +163,7 @@ html[data-locale="he"] body {
   background: var(--bakery-scaffold);
 }
 
-/* Customer store — safe-area / frame backdrop follows display theme */
+/* Customer store ג€” safe-area / frame backdrop follows display theme */
 .bakery-frame-bg:has(.customer-store-root.customer-theme-calm),
 html[data-customer-chrome-theme="calm"] .bakery-frame-bg {
   background: #faf6f0;
@@ -185,7 +185,7 @@ html[data-customer-chrome-theme="turquoise"] .bakery-frame-bg {
   background-color: var(--cs-page-bg, var(--customer-bg, #ffffff));
 }
 
-/* Optional floral decoration — a seller toggle layered on top of any store theme.
+/* Optional floral decoration ג€” a seller toggle layered on top of any store theme.
    A patterned background of varied flower shapes sits fully behind the grid; the
    opaque product cards simply sit on top of it, showing through the gaps/margins. */
 .customer-menu-flowers {
@@ -208,6 +208,75 @@ html[data-customer-chrome-theme="turquoise"] .bakery-frame-bg {
 .customer-menu-flowers > * {
   position: relative;
   z-index: 1;
+}
+
+/* Optional doodle decoration ג€” WhatsApp-style hand-drawn icons tiled behind the menu. */
+.customer-menu-doodles {
+  position: relative;
+  padding-inline: clamp(20px, 6vw, 34px);
+}
+
+.customer-menu-doodles::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  background-image: url("/decorations/doodle-pattern.svg");
+  background-repeat: repeat;
+  background-size: 190px 190px;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.customer-menu-doodles > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Optional night-sky decoration ג€” dark gradient with a twinkling starfield behind the menu. */
+.customer-menu-stars {
+  position: relative;
+  padding-inline: clamp(20px, 6vw, 34px);
+}
+
+.customer-menu-stars::before,
+.customer-menu-stars::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.customer-menu-stars::before {
+  background-image: url("/decorations/stars-pattern.svg"),
+    linear-gradient(180deg, #0b1130 0%, #171d4d 45%, #2a2f6e 100%);
+  background-repeat: repeat, no-repeat;
+  background-size: 170px 170px, cover;
+}
+
+.customer-menu-stars::after {
+  background-image: url("/decorations/stars-sparkle.svg");
+  background-repeat: repeat;
+  background-size: 170px 170px;
+  animation: customer-menu-stars-twinkle 2.6s ease-in-out infinite;
+}
+
+.customer-menu-stars > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes customer-menu-stars-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
 }
 
 html[data-customer-chrome-theme="calm"] body,
@@ -239,9 +308,9 @@ html[data-customer-chrome-theme="turquoise"] body {
   filter: brightness(1.08);
 }
 
-/* Logo stays fixed — no float animation on landing */
+/* Logo stays fixed ג€” no float animation on landing */
 
-/* Matte red / warn — flat fills, no glossy button shadow */
+/* Matte red / warn ג€” flat fills, no glossy button shadow */
 button.master-btn-matte-warn,
 button.master-btn-matte-danger,
 button.bg-bakery-error {
@@ -274,7 +343,7 @@ button.bg-bakery-error:hover {
   background-color: var(--bakery-error-hover) !important;
 }
 
-/* פאנל מתכנת — טורקיז כברירת מחדל, כמו פאנל המוכר */
+/* ׳₪׳׳ ׳ ׳׳×׳›׳ ׳× ג€” ׳˜׳•׳¨׳§׳™׳– ׳›׳‘׳¨׳™׳¨׳× ׳׳—׳“׳, ׳›׳׳• ׳₪׳׳ ׳ ׳”׳׳•׳›׳¨ */
 .master-surface {
   --master-panel-bg: #d4ece7;
   --master-tile-bg: #eef8f6;
@@ -397,7 +466,7 @@ button.bg-bakery-error:hover {
   color: var(--bakery-muted);
 }
 
-/* Programmer-panel sheets (stats, limits, incidents…) — portaled outside
+/* Programmer-panel sheets (stats, limits, incidentsג€¦) ג€” portaled outside
    .master-surface, so they're targeted directly instead of by descendant.
    Turquoise fill matches the rest of the master panel instead of the
    seller dashboard's warm theme; the stronger backdrop keeps the settings
@@ -468,7 +537,7 @@ html.linky-native-app .app-safe-top {
 /* Customer storefront display themes */
 html[data-store-theme="turquoise"],
 .customer-store-root.customer-theme-turquoise {
-  /* Self-contained — never inherits --bakery-* from a stale html[data-store-theme]
+  /* Self-contained ג€” never inherits --bakery-* from a stale html[data-store-theme]
      left over from the seller's own dashboard appearance preference. */
   --bakery-scaffold: #a5d4cc;
   --bakery-classic-cream: #f8fffe;
@@ -512,7 +581,7 @@ html[data-store-theme="turquoise"],
   --cs-nav-bg: #ffffff;
   --cs-nav-active: #ccfbf1;
   --cs-sheet-bg: #ffffff;
-  /* Dashboard tile palette — scoped to store theme, not seller html theme */
+  /* Dashboard tile palette ג€” scoped to store theme, not seller html theme */
   --dashboard-panel-bg: #f8fffe;
   --dashboard-tile-bg: #d4ece7;
   --dashboard-tile-hover-bg: #c5e5de;
@@ -522,7 +591,7 @@ html[data-store-theme="turquoise"],
   --dashboard-shadow: rgba(15, 118, 110, 0.08);
 }
 
-/* Customer settings rows — calm default (matches seller action row) */
+/* Customer settings rows ג€” calm default (matches seller action row) */
 .customer-settings-menu-shell {
   border: 1.5px solid var(--dashboard-soft-border, rgba(78, 52, 46, 0.12));
   background: var(--dashboard-tile-bg, #f2ebe0);
@@ -555,7 +624,7 @@ html[data-store-theme="turquoise"],
   background: #e6d5b8;
 }
 
-/* Customer settings + FAQ — turquoise (same tiles as seller dashboard) */
+/* Customer settings + FAQ ג€” turquoise (same tiles as seller dashboard) */
 .customer-store-root.customer-theme-turquoise .customer-settings-menu-shell {
   background: #d4ece7;
   border: 2px solid #0f766e;
@@ -587,7 +656,7 @@ html[data-store-theme="turquoise"],
   box-shadow: none;
 }
 
-/* Customer settings + FAQ — calm / brown-cream (same tiles as seller dashboard) */
+/* Customer settings + FAQ ג€” calm / brown-cream (same tiles as seller dashboard) */
 .customer-store-root.customer-theme-calm .customer-settings-menu-shell {
   background: var(--dashboard-tile-bg, #f2ebe0);
   border: 3px solid rgba(58, 47, 38, 0.2);
@@ -752,7 +821,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --cs-nav-bg: #f1e3d3;
   --cs-nav-active: #dbc9b5;
   --cs-sheet-bg: #f4ebe0;
-  /* Dashboard tile palette — scoped to store theme, not seller html theme */
+  /* Dashboard tile palette ג€” scoped to store theme, not seller html theme */
   --dashboard-panel-bg: #e6d5b8;
   --dashboard-tile-bg: #e6d4b8;
   --dashboard-tile-hover-bg: #f6f0e6;
@@ -763,7 +832,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --shadow-bakery-btn: 0 4px 12px rgba(93, 64, 55, 0.28);
 }
 
-/* Fast, light entrance animations for modals/sheets — quick, not sluggish */
+/* Fast, light entrance animations for modals/sheets ג€” quick, not sluggish */
 @keyframes modal-fade-in {
   from {
     opacity: 0;
@@ -817,7 +886,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   }
 }
 
-/* Center modals (portal on body) — solid panel, not transparent */
+/* Center modals (portal on body) ג€” solid panel, not transparent */
 .customer-center-modal-backdrop {
   animation: modal-fade-in 0.1s ease-out both;
 }
@@ -1187,7 +1256,7 @@ html[data-store-theme]:not([data-store-theme="calm"]):not([data-store-theme="tur
   --bakery-panel-bottom: var(--bakery-cream-mid);
 }
 
-/* Dark mode — surfaces & controls (tiles stay cream in calm/light only) */
+/* Dark mode ג€” surfaces & controls (tiles stay cream in calm/light only) */
 html[data-store-theme="dark"] .bakery-float-tile,
 .customer-store-root.customer-theme-dark .bakery-float-tile {
   background: linear-gradient(165deg, #403f3a 0%, #353430 48%, #2c2b28 100%);
@@ -1275,7 +1344,7 @@ html[data-store-theme="dark"] .dashboard-bottom-nav__link--active,
   color: var(--bakery-ink);
 }
 
-/* Sent message / seller notice — dark bubble, light readable text */
+/* Sent message / seller notice ג€” dark bubble, light readable text */
 .bakery-sent-message-preview {
   background: var(--bakery-primary) !important;
   color: var(--bakery-on-primary);
@@ -1300,7 +1369,7 @@ html[data-store-theme="dark"] .bakery-sent-message-preview .bakery-sent-message-
   color: var(--bakery-muted);
 }
 
-/* Seller dashboard — dark theme surfaces */
+/* Seller dashboard ג€” dark theme surfaces */
 html[data-store-theme="dark"] :is(.dashboard-surface, .auth-surface){
   --dashboard-frame-border: rgba(255, 255, 255, 0.1);
   --dashboard-frame-border-width: 1.5px;
@@ -1659,7 +1728,7 @@ html[data-store-theme="dark"] .dashboard-card.bakery-action-sheet-panel.master-a
   border-color: rgba(255, 255, 255, 0.16) !important;
 }
 
-/* Customer/business initial-avatar squares — matte orange fill in dark mode */
+/* Customer/business initial-avatar squares ג€” matte orange fill in dark mode */
 html[data-store-theme="dark"] .border-bakery-border\/35.bg-bakery-on-primary {
   border-color: transparent;
   background: var(--bakery-primary);
@@ -1911,7 +1980,7 @@ html[data-store-theme="dark"] .border-bakery-border\/35.bg-bakery-on-primary {
   }
 }
 
-/* 3D floating tiles — dashboard actions & home cards */
+/* 3D floating tiles ג€” dashboard actions & home cards */
 .bakery-float-tile {
   background: linear-gradient(165deg, #ebe0cc 0%, #e6d7bd 45%, #dcc9a8 100%);
   border: 1px solid rgba(255, 255, 255, 0.45);
@@ -1958,7 +2027,7 @@ html[data-store-theme="dark"] .border-bakery-border\/35.bg-bakery-on-primary {
     0 12px 28px rgba(58, 47, 38, 0.1);
 }
 
-/* Modals: warm tan panel — same fill across all dashboard sheets */
+/* Modals: warm tan panel ג€” same fill across all dashboard sheets */
 .bakery-action-sheet-panel {
   background: var(--dashboard-panel-bg, #e6d5b8);
   background-image: none;
@@ -1967,7 +2036,7 @@ html[data-store-theme="dark"] .border-bakery-border\/35.bg-bakery-on-primary {
   box-shadow: 0 12px 36px var(--dashboard-shadow, rgba(78, 52, 46, 0.12));
 }
 
-/* Seller dashboard — warm login-screen aesthetic (calm theme only) */
+/* Seller dashboard ג€” warm login-screen aesthetic (calm theme only) */
 html[data-store-theme="calm"] :is(.dashboard-surface, .auth-surface) {
   --bakery-scaffold: #f9f4eb;
   --bakery-cream-light: #faf6f0;
@@ -2034,7 +2103,7 @@ html:not([data-store-theme="dark"])
   box-shadow: 0 8px 28px var(--dashboard-shadow);
 }
 
-/* מסגרת בהירה לחלונות לקוחות / חנות (המלבנים הפנימיים נשארים #e6d5b8) */
+/* ׳׳¡׳’׳¨׳× ׳‘׳”׳™׳¨׳” ׳׳—׳׳•׳ ׳•׳× ׳׳§׳•׳—׳•׳× / ׳—׳ ׳•׳× (׳”׳׳׳‘׳ ׳™׳ ׳”׳₪׳ ׳™׳׳™׳™׳ ׳ ׳©׳׳¨׳™׳ #e6d5b8) */
 html:not([data-store-theme="dark"])
   :is(.dashboard-surface, .auth-surface)
   .dashboard-hub-panel,
@@ -2098,7 +2167,7 @@ html:not([data-store-theme="dark"])
   box-shadow: inset 0 1px 3px var(--dashboard-shadow);
 }
 
-/* Appointment store welcome setup — visible cream field boxes (not underline-only) */
+/* Appointment store welcome setup ג€” visible cream field boxes (not underline-only) */
 html:not([data-store-theme="dark"])
   .appointment-store-welcome-setup
   .bakery-field {
@@ -2132,7 +2201,7 @@ html:not([data-store-theme="dark"])
   border: none;
 }
 
-/* Login / signup — visible fill boxes (not pill-borderless like dashboard) */
+/* Login / signup ג€” visible fill boxes (not pill-borderless like dashboard) */
 .auth-surface {
   --auth-field-bg: var(--dashboard-field-bg, var(--bakery-input, #f9f3e5));
   --auth-field-border: var(--bakery-border, rgba(93, 64, 55, 0.22));
@@ -2273,7 +2342,7 @@ html:not([data-store-theme="dark"])
   box-shadow: 0 12px 36px var(--dashboard-shadow);
 }
 
-/* מודלים ב-portal (מחוץ לעץ .dashboard-surface של הדשבורד) */
+/* ׳׳•׳“׳׳™׳ ׳‘-portal (׳׳—׳•׳¥ ׳׳¢׳¥ .dashboard-surface ׳©׳ ׳”׳“׳©׳‘׳•׳¨׳“) */
 html:not([data-store-theme="dark"]) .dashboard-modal-card {
   background: var(--dashboard-panel-bg);
   border: var(--dashboard-frame-border-width) solid var(--dashboard-frame-border);
@@ -2281,7 +2350,7 @@ html:not([data-store-theme="dark"]) .dashboard-modal-card {
   box-shadow: 0 12px 36px var(--dashboard-shadow);
 }
 
-/* ריבועי פעולות — גם במודלים (portal מחוץ ל-.dashboard-surface) */
+/* ׳¨׳™׳‘׳•׳¢׳™ ׳₪׳¢׳•׳׳•׳× ג€” ׳’׳ ׳‘׳׳•׳“׳׳™׳ (portal ׳׳—׳•׳¥ ׳-.dashboard-surface) */
 html:not([data-store-theme="dark"])
   :is(.dashboard-share-tile, .dashboard-action-square) {
   background: var(--dashboard-tile-bg);
@@ -2318,7 +2387,7 @@ html:not([data-store-theme="dark"]) .dashboard-action-square.bakery-float-tile--
   box-shadow: 0 4px 12px var(--dashboard-shadow);
 }
 
-/* מלבני לקוחות + חנות מוצרים + חנות פגישות — בז' עם ריבוע אייקון בהיר */
+/* ׳׳׳‘׳ ׳™ ׳׳§׳•׳—׳•׳× + ׳—׳ ׳•׳× ׳׳•׳¦׳¨׳™׳ + ׳—׳ ׳•׳× ׳₪׳’׳™׳©׳•׳× ג€” ׳‘׳–' ׳¢׳ ׳¨׳™׳‘׳•׳¢ ׳׳™׳™׳§׳•׳ ׳‘׳”׳™׳¨ */
 html:not([data-store-theme="dark"])
   :is(
     .dashboard-customers-hub-rows,
@@ -2376,7 +2445,7 @@ html:not([data-store-theme="dark"])
   box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
 }
 
-/* הגדרות — «חשבון וחנות» + סגנון ושפה במסגרת אחת */
+/* ׳”׳’׳“׳¨׳•׳× ג€” ֲ«׳—׳©׳‘׳•׳ ׳•׳—׳ ׳•׳×ֲ» + ׳¡׳’׳ ׳•׳ ׳•׳©׳₪׳” ׳‘׳׳¡׳’׳¨׳× ׳׳—׳× */
 html:not([data-store-theme="dark"]) .dashboard-account-settings-panel {
   overflow: hidden;
   border-radius: 22px;
@@ -2409,7 +2478,7 @@ html:not([data-store-theme="dark"])
   border-top: 1.5px solid rgba(78, 52, 46, 0.12);
 }
 
-/* מלבני הגדרות / חנות / לקוחות — מסגרת כהה עבה ועדינה */
+/* ׳׳׳‘׳ ׳™ ׳”׳’׳“׳¨׳•׳× / ׳—׳ ׳•׳× / ׳׳§׳•׳—׳•׳× ג€” ׳׳¡׳’׳¨׳× ׳›׳”׳” ׳¢׳‘׳” ׳•׳¢׳“׳™׳ ׳” */
 html:not([data-store-theme="dark"]) .dashboard-action-row {
   border-width: 3px;
   border-color: rgba(58, 47, 38, 0.2);
@@ -2466,7 +2535,7 @@ html:not([data-store-theme="dark"])
   border-color: rgba(78, 52, 46, 0.16);
 }
 
-/* מלבני מודל — סגנון הגדרות (למשל צ'אט / פניות) */
+/* ׳׳׳‘׳ ׳™ ׳׳•׳“׳ ג€” ׳¡׳’׳ ׳•׳ ׳”׳’׳“׳¨׳•׳× (׳׳׳©׳ ׳¦'׳׳˜ / ׳₪׳ ׳™׳•׳×) */
 html:not([data-store-theme="dark"])
   .dashboard-settings-style-rows
   > li
@@ -2601,7 +2670,7 @@ html[data-store-theme="dark"] .dashboard-deal-form-sheet .bakery-field {
   border-color: rgba(255, 255, 255, 0.14);
 }
 
-/* כפתורי שליחה בטפסי דשבורד — תמיד חום כהה */
+/* ׳›׳₪׳×׳•׳¨׳™ ׳©׳׳™׳—׳” ׳‘׳˜׳₪׳¡׳™ ׳“׳©׳‘׳•׳¨׳“ ג€” ׳×׳׳™׳“ ׳—׳•׳ ׳›׳”׳” */
 .dashboard-form-submit-btn {
   display: inline-flex;
   align-items: center;
@@ -2675,7 +2744,7 @@ html:not([data-store-theme="dark"])
   box-shadow: 0 12px 36px var(--dashboard-shadow);
 }
 
-/* Orders calendar sheet — flat theme-tinted wash, like the customer order-success modal. */
+/* Orders calendar sheet ג€” flat theme-tinted wash, like the customer order-success modal. */
 .dashboard-card.bakery-action-sheet-panel.dashboard-orders-calendar-sheet {
   background: color-mix(in srgb, var(--bakery-primary) 22%, white) !important;
 }
@@ -2997,7 +3066,7 @@ html:not([data-store-theme="dark"]) .dashboard-notification-bar__body {
   padding-inline-start: 0.125rem;
 }
 
-/* כפתורים תמיד כהים יותר מהרקע שמאחוריהם (לא כמו bg-bakery-square על אותו גוון) */
+/* ׳›׳₪׳×׳•׳¨׳™׳ ׳×׳׳™׳“ ׳›׳”׳™׳ ׳™׳•׳×׳¨ ׳׳”׳¨׳§׳¢ ׳©׳׳׳—׳•׳¨׳™׳”׳ (׳׳ ׳›׳׳• bg-bakery-square ׳¢׳ ׳׳•׳×׳• ׳’׳•׳•׳) */
 html:not([data-store-theme="dark"])
   :is(.dashboard-surface, .auth-surface)
   :is(a, button).dashboard-elevated-btn,
@@ -3069,7 +3138,7 @@ html:not([data-store-theme="dark"])
   display: none;
 }
 
-/* כפתורים ושורות — מעבר קליל בלחיצה (כמו בהגדרות) */
+/* ׳›׳₪׳×׳•׳¨׳™׳ ׳•׳©׳•׳¨׳•׳× ג€” ׳׳¢׳‘׳¨ ׳§׳׳™׳ ׳‘׳׳—׳™׳¦׳” (׳›׳׳• ׳‘׳”׳’׳“׳¨׳•׳×) */
 .dashboard-pressable,
 .dashboard-action-row,
 .dashboard-action-square,
@@ -3206,7 +3275,7 @@ html[data-store-theme="dark"]
   padding: 0.75rem 1rem 0.875rem;
 }
 
-/* סיכום הכנות — ריבועי מוצר */
+/* ׳¡׳™׳›׳•׳ ׳”׳›׳ ׳•׳× ג€” ׳¨׳™׳‘׳•׳¢׳™ ׳׳•׳¦׳¨ */
 html:not([data-store-theme="dark"])
   :is(.dashboard-surface, .auth-surface)
   .dashboard-prep-product-tile {
@@ -3502,7 +3571,7 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   animation-fill-mode: forwards;
 }
 
-/* Seller broadcast alert — always light card, dark CTA (any store theme) */
+/* Seller broadcast alert ג€” always light card, dark CTA (any store theme) */
 .customer-seller-notice-panel {
   background: var(--dashboard-panel-bg);
   border-color: rgba(201, 184, 154, 0.55);
@@ -3556,7 +3625,7 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   background: #faf4e6;
 }
 
-/* Turquoise theme — match the settings-row tiles instead of the brown/cream defaults. */
+/* Turquoise theme ג€” match the settings-row tiles instead of the brown/cream defaults. */
 .customer-store-root.customer-theme-turquoise .customer-seller-notice-banner-strip,
 .customer-store-root.customer-theme-turquoise .customer-seller-notice-banner-strip.customer-seller-notice-panel,
 .customer-store-root.customer-theme-turquoise .customer-seller-notice-banner-strip--framed,
@@ -3635,7 +3704,7 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
   }
 }
 
-/* Customer chat — WhatsApp-like layout, bakery brown/cream palette */
+/* Customer chat ג€” WhatsApp-like layout, bakery brown/cream palette */
 .customer-center-modal__panel--chat {
   max-height: min(88dvh, 720px);
 }
@@ -4130,7 +4199,7 @@ html[data-store-theme="light"] .dashboard-inquiry-cta:hover:not(:disabled) {
   background: #333333;
 }
 
-/* Light mode — subtle gray accents instead of brown */
+/* Light mode ג€” subtle gray accents instead of brown */
 html[data-store-theme="light"] .dashboard-action-row {
   border-color: rgba(0, 0, 0, 0.12);
 }
@@ -4410,7 +4479,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
   }
 }
 
-/* דף הבית — כפתורים גדולים, תמיד אחד מתחת לשני */
+/* ׳“׳£ ׳”׳‘׳™׳× ג€” ׳›׳₪׳×׳•׳¨׳™׳ ׳’׳“׳•׳׳™׳, ׳×׳׳™׳“ ׳׳—׳“ ׳׳×׳—׳× ׳׳©׳ ׳™ */
 .bakery-cta-3d--home {
   min-height: 60px;
   width: 100%;
@@ -4471,7 +4540,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
     0 4px 10px rgba(58, 47, 38, 0.18);
 }
 
-/* Peymiz marketing — site-wide cookie consent (purple) */
+/* Peymiz marketing ג€” site-wide cookie consent (purple) */
 .site-cookie-consent {
   border: 1px solid rgba(138, 79, 255, 0.38);
   background: linear-gradient(165deg, #1a1035 0%, #241548 52%, #1a1035 100%);
@@ -4533,7 +4602,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
   border-color: rgba(201, 164, 255, 0.65);
 }
 
-/* Appointments store — modern calendar (customer + seller) */
+/* Appointments store ג€” modern calendar (customer + seller) */
 .appointment-calendar-modern {
   background: transparent;
 }
@@ -4557,7 +4626,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
   overflow: hidden;
 }
 
-/* Customer booking home — match header strip / page fill above the calendar */
+/* Customer booking home ג€” match header strip / page fill above the calendar */
 .customer-appointments-home .appointment-calendar-modern-surface {
   --appointment-cal-board: var(--customer-appointments-home-bg, #e6d5b8);
 }
@@ -4719,7 +4788,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
   background: var(--dashboard-tile-bg);
 }
 
-/* Appointment day / time slot picker — matches modern calendar */
+/* Appointment day / time slot picker ג€” matches modern calendar */
 .appointment-day-modal {
   --appointment-day-modal-board: #d9ccb8;
   --appointment-day-modal-header: #e6d5b8;
@@ -4867,7 +4936,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
   background-color: #353430;
 }
 
-/* Dashboard stats line chart — SaaS-style sales overview, bakery cream palette */
+/* Dashboard stats line chart ג€” SaaS-style sales overview, bakery cream palette */
 .dashboard-line-chart {
   --chart-accent: #2563eb;
   --chart-card-bg: #fffaf5;
@@ -5138,7 +5207,7 @@ html[data-store-theme="dark"] .dashboard-line-chart__period {
   border-color: color-mix(in srgb, var(--chart-accent) 20%, transparent);
 }
 
-/* Turquoise — matte panels with dark teal borders (default) */
+/* Turquoise ג€” matte panels with dark teal borders (default) */
 html[data-store-theme="turquoise"] .bakery-float-tile,
 .customer-store-root.customer-theme-turquoise .bakery-float-tile {
   background: #d4ece7;
@@ -5254,7 +5323,7 @@ html[data-store-theme="turquoise"] :is(.dashboard-surface, .auth-surface) {
   --shadow-bakery-btn: none;
 }
 
-/* כפתורי פעולות — טורקיז עדין + מסגרת כהה */
+/* ׳›׳₪׳×׳•׳¨׳™ ׳₪׳¢׳•׳׳•׳× ג€” ׳˜׳•׳¨׳§׳™׳– ׳¢׳“׳™׳ + ׳׳¡׳’׳¨׳× ׳›׳”׳” */
 html[data-store-theme="turquoise"]
   :is(.dashboard-action-square, .dashboard-action-row.dashboard-action-square),
 html[data-store-theme="turquoise"] .dashboard-action-row {
@@ -5304,7 +5373,7 @@ html[data-store-theme="turquoise"] .dashboard-action-row > svg {
   color: var(--bakery-ink);
 }
 
-/* שורות hub במודלים — דורס מסגרות אפור/חום (specificity גבוהה יותר) */
+/* ׳©׳•׳¨׳•׳× hub ׳‘׳׳•׳“׳׳™׳ ג€” ׳“׳•׳¨׳¡ ׳׳¡׳’׳¨׳•׳× ׳׳₪׳•׳¨/׳—׳•׳ (specificity ׳’׳‘׳•׳”׳” ׳™׳•׳×׳¨) */
 html[data-store-theme="turquoise"]
   :is(
     .dashboard-customers-hub-rows,
@@ -5487,7 +5556,7 @@ html[data-store-theme="turquoise"] .dashboard-prep-product-tile,
   border-color: rgba(13, 148, 136, 0.24);
 }
 
-/* Turquoise — no brown/beige dashboard chrome */
+/* Turquoise ג€” no brown/beige dashboard chrome */
 html[data-store-theme="turquoise"] .dashboard-notification-bar {
   border: 2px solid #0f766e;
   box-shadow: none;
@@ -5576,6 +5645,14 @@ html[data-store-theme="turquoise"] .dashboard-deal-list-card {
   box-shadow: none;
 }
 
+/* Inside the teal order-schedule sheet, tile fills must stay lighter than the
+   panel itself (#d4ece7) or they disappear into the background. */
+html[data-store-theme="turquoise"]
+  .dashboard-order-schedule-sheet
+  :is(.dashboard-product-list-card, .dashboard-deal-list-card) {
+  background-color: var(--dashboard-panel-bg);
+}
+
 html[data-store-theme="turquoise"] .dashboard-deal-form-sheet .dashboard-form-option-row {
   background: #d4ece7;
   border-color: #0f766e;
@@ -5631,7 +5708,7 @@ html[data-store-theme="turquoise"] .auth-surface {
   --dashboard-shadow: rgba(15, 118, 110, 0.08);
 }
 
-/* Modern — bright, clear futuristic surfaces */
+/* Modern ג€” bright, clear futuristic surfaces */
 html[data-store-theme="modern"] .bakery-float-tile,
 .customer-store-root.customer-theme-modern .bakery-float-tile {
   background: linear-gradient(165deg, #ffffff 0%, #f0f9ff 52%, #e0f2fe 100%);
@@ -5790,7 +5867,7 @@ html[data-store-theme="modern"] .dashboard-prep-product-tile,
   border-color: rgba(14, 165, 233, 0.24);
 }
 
-/* משוב לחיצה — דורס Tailwind ונשאר גלוי גם כשמודל נפתח */
+/* ׳׳©׳•׳‘ ׳׳—׳™׳¦׳” ג€” ׳“׳•׳¨׳¡ Tailwind ׳•׳ ׳©׳׳¨ ׳’׳׳•׳™ ׳’׳ ׳›׳©׳׳•׳“׳ ׳ ׳₪׳×׳— */
 .dashboard-pressable.dashboard-press--active,
 .dashboard-press--active.dashboard-pressable {
   transform: scale(0.96) translateY(1px) !important;
@@ -5823,4 +5900,3 @@ html[data-store-theme="modern"] .dashboard-prep-product-tile,
     filter: none !important;
   }
 }
-

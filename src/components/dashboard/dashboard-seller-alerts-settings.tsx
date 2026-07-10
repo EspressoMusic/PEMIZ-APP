@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, PageTitle, Toggle } from "@/components/ui";
+import { Alert, Toggle } from "@/components/ui";
 import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
@@ -105,8 +105,6 @@ export function DashboardSellerAlertsSettings({
 
   return (
     <div className="space-y-4">
-      <PageTitle>{labels.alerts}</PageTitle>
-
       <div className="dashboard-card bakery-float-panel rounded-[32px] p-3">
         <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-3">
           <AlertToggleRow

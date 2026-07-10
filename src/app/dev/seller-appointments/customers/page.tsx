@@ -1,11 +1,15 @@
-import { DashboardCustomersHub } from "@/components/dashboard/dashboard-customers-hub";
+import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
 import { DevAppointmentsSellerShell } from "@/components/dashboard/dev-appointments-seller-shell";
 import { DEV_APPOINTMENTS_SELLER_BASE } from "@/lib/dev-preview-data";
 
 export default function DevSellerAppointmentsCustomersPage() {
   return (
     <DevAppointmentsSellerShell>
-      <DashboardCustomersHub basePath={DEV_APPOINTMENTS_SELLER_BASE} />
+      <DashboardActionsHub
+        businessType="APPOINTMENTS"
+        basePath={DEV_APPOINTMENTS_SELLER_BASE}
+        initialOpenPanel="customers"
+      />
     </DevAppointmentsSellerShell>
   );
 }

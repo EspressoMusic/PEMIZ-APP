@@ -7,7 +7,6 @@ import {
   Button,
   Input,
   Panel,
-  PageTitle,
 } from "@/components/ui";
 import {
   DashboardOrdersList,
@@ -1096,7 +1095,6 @@ export function SlotsManager({
 
   return (
     <div className="space-y-5">
-      <PageTitle>{labels.limits}</PageTitle>
       <Panel>
         <form onSubmit={add} className="grid gap-3 sm:grid-cols-2">
           <Input

@@ -367,9 +367,10 @@ export type DashboardLabels = {
   faqStoreInfo: string;
   faqStoreInfoTitle: string;
   storeHoursLabel: string;
-  storeHoursPlaceholder: string;
+  storeHoursToggleHint: string;
   storeAddressLabel: string;
   storeAddressPlaceholder: string;
+  navigateToAddress: string;
   saveStoreInfo: string;
   faqHiddenFromCustomers: string;
   faqPublishedTitle: string;
@@ -710,7 +711,7 @@ const HE: DashboardLabels = {
   styleColorLanguage: "סגנון ושפה",
   storeLanguageForCustomers: "שפת החנות ללקוחות",
   storeMode: "מצב תצוגה",
-  storeDecorationTitle: "פרחים סביב התפריט",
+  storeDecorationTitle: "עיטור לתפריט",
   hebrew: "עברית",
   english: "English",
   back: "חזרה",
@@ -918,9 +919,10 @@ const HE: DashboardLabels = {
   faqStoreInfo: "שעות פתיחה ומיקום",
   faqStoreInfoTitle: "שעות פתיחה ומיקום",
   storeHoursLabel: "שעות פתיחה",
-  storeHoursPlaceholder: "לדוגמה: א׳–ה׳ 09:00–18:00, ו׳ 09:00–14:00",
+  storeHoursToggleHint: "לחיצה — יום פתוח/סגור",
   storeAddressLabel: "כתובת / מיקום",
   storeAddressPlaceholder: "לדוגמה: הרצל 12, תל אביב",
+  navigateToAddress: "ניווט לכתובת",
   saveStoreInfo: "שמור פרטים",
   faqHiddenFromCustomers: "מוסתר מלקוחות",
   faqPublishedTitle: "השאלה פורסמה בהצלחה!",
@@ -1405,7 +1407,7 @@ const EN: DashboardLabels = {
   styleColorLanguage: "Style & language",
   storeLanguageForCustomers: "Store language for customers",
   storeMode: "Display mode",
-  storeDecorationTitle: "Flowers around the menu",
+  storeDecorationTitle: "Menu decoration",
   hebrew: "Hebrew",
   english: "English",
   back: "Back",
@@ -1614,9 +1616,10 @@ const EN: DashboardLabels = {
   faqStoreInfo: "Hours & location",
   faqStoreInfoTitle: "Hours & location",
   storeHoursLabel: "Opening hours",
-  storeHoursPlaceholder: "e.g. Mon–Thu 9:00 AM–6:00 PM, Fri 9:00 AM–2:00 PM",
+  storeHoursToggleHint: "Tap — day open/closed",
   storeAddressLabel: "Address / location",
   storeAddressPlaceholder: "e.g. 12 Main St, Tel Aviv",
+  navigateToAddress: "Navigate to address",
   saveStoreInfo: "Save details",
   faqHiddenFromCustomers: "Hidden from customers",
   faqPublishedTitle: "Question published!",

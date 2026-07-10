@@ -1,7 +1,6 @@
 "use client";
 
 import { Bell, LogOut, CircleAlert, Smartphone, Star } from "lucide-react";
-import { PageTitle } from "@/components/ui";
 import {
   DashboardActionRow,
   DashboardActionRowButton,
@@ -56,8 +55,6 @@ export function DashboardSettingsView({
 
   return (
     <div className="space-y-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-      {!showQuickActionRows ? <PageTitle>{labels.settings}</PageTitle> : null}
-
       <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <ul className="space-y-2 text-start">
             {businessType === "STORE" ||

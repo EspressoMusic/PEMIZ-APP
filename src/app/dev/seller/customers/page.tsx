@@ -1,6 +1,6 @@
 import { DEV_STORE_BUSINESS } from "@/lib/dev-preview-data";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { DashboardCustomersHub } from "@/components/dashboard/dashboard-customers-hub";
+import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
 
 export default function DevSellerCustomersPage() {
   return (
@@ -10,7 +10,11 @@ export default function DevSellerCustomersPage() {
       storeLocale={DEV_STORE_BUSINESS.storeLocale}
       storeTheme={DEV_STORE_BUSINESS.storeTheme}
     >
-      <DashboardCustomersHub basePath="/dev/seller" />
+      <DashboardActionsHub
+        businessType="STORE"
+        basePath="/dev/seller"
+        initialOpenPanel="customers"
+      />
     </DashboardShell>
   );
 }

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { DashboardStoreSettingsHub } from "@/components/dashboard/dashboard-store-settings-hub";
-import { DashboardAppointmentsSettingsHub } from "@/components/dashboard/dashboard-appointments-settings-hub";
+import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
 import { DashboardSettingsView } from "@/components/dashboard-settings";
+import { calendarConfigFromBusiness } from "@/lib/appointment-calendar-config";
 
 export default async function SettingsPage() {
   const user = await getCurrentUser();
@@ -12,7 +12,18 @@ export default async function SettingsPage() {
   if (!b) redirect("/login");
 
   if (b.type === "APPOINTMENTS") {
-    return <DashboardAppointmentsSettingsHub />;
+    return (
+      <DashboardActionsHub
+        businessType={b.type}
+        initialOpenPanel="store"
+        initialStoreTerms={b.storeTerms ?? null}
+        initialCalendarConfig={calendarConfigFromBusiness(b)}
+        initialWorkingDays={{
+          initialEnabled: b.orderScheduleEnabled ?? false,
+          initialScheduleJson: b.orderSchedule ?? null,
+        }}
+      />
+    );
   }
 
   if (b.type !== "STORE") {
@@ -27,5 +38,5 @@ export default async function SettingsPage() {
     );
   }
 
-  return <DashboardStoreSettingsHub />;
+  return <DashboardActionsHub businessType={b.type} initialOpenPanel="store" />;
 }

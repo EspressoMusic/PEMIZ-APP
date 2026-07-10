@@ -78,25 +78,3 @@ export function DashboardSellerPageStack({
     </div>
   );
 }
-
-/** עמוד hub (לקוחות / חנות) — פאנל מלא בגובה כמו מודל מעמוד פעולות */
-export function DashboardFullscreenHubShell({
-  backLink,
-  children,
-}: {
-  backLink: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className={`${DASHBOARD_PAGE_ROOT} -mt-2 flex min-h-0 flex-1 flex-col sm:mt-0`}
-    >
-      <div className="dashboard-card bakery-action-sheet-panel bakery-action-sheet-panel--warm bakery-action-sheet-panel--fullscreen flex min-h-0 flex-1 flex-col overflow-hidden sm:rounded-[32px]">
-        <div className="shrink-0 px-3 pb-1 pt-[max(0.75rem,var(--app-safe-top))] text-start">{backLink}</div>
-        <div className="dashboard-action-sheet-body flex min-h-0 flex-1 flex-col overflow-y-auto p-3 pt-1">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}

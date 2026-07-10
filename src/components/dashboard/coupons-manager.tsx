@@ -64,7 +64,7 @@ function EditorModal({
         onClick={onClose}
         aria-label={closeLabel}
       />
-      <div className="relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto rounded-[24px] border border-bakery-border/30 bg-bakery-square p-5 shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
+      <div className="dashboard-modal-card relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto p-5">
         <div className="relative px-10 pt-1">
           <h2 className="text-center text-[18px] font-extrabold text-bakery-ink">
             {title}

@@ -26,6 +26,16 @@ export const ORDER_DAY_LABELS = [
   "ש׳",
 ] as const;
 
+export const ORDER_DAY_LABELS_EN = [
+  "Sun",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+] as const;
+
 export const ORDER_DAY_FULL_HE = [
   "יום ראשון",
   "יום שני",
@@ -70,7 +80,7 @@ function normalizeDayList(value: unknown): number[] {
   );
 }
 
-function normalizeDaySlots(value: unknown, fallback: OrderDaySlot[]): OrderDaySlot[] {
+export function normalizeDaySlots(value: unknown, fallback: OrderDaySlot[]): OrderDaySlot[] {
   if (!Array.isArray(value)) return fallback;
   const byDay = new Map<number, OrderDaySlot>();
   for (const item of value) {
@@ -277,6 +287,44 @@ export function formatOrderScheduleSummary(
       ? ` · סגור: ${closed.map((d) => ORDER_DAY_LABELS[d.day]).join(", ")}`
       : "";
   return `${parts.join(" · ")}${closedLabel}`;
+}
+
+/** Parses a store-hours JSON string (independent of order-acceptance scheduling). Returns null for empty or legacy freeform text so callers can fall back to showing it as-is. */
+export function parseStoreHoursDaySlots(
+  json: string | null | undefined
+): OrderDaySlot[] | null {
+  if (!json) return null;
+  try {
+    const raw = JSON.parse(json) as { daySlots?: unknown };
+    if (!raw || !Array.isArray(raw.daySlots)) return null;
+    return normalizeDaySlots(raw.daySlots, defaultDaySlots());
+  } catch {
+    return null;
+  }
+}
+
+export function formatStoreHoursDaySlots(
+  daySlots: OrderDaySlot[],
+  locale: "he" | "en"
+): string {
+  const open = daySlots.filter((d) => d.open);
+  if (open.length === 0) {
+    return locale === "he" ? "לא הוגדרו שעות פתיחה" : "No opening hours set";
+  }
+  if (open.length === 7) {
+    const sameHours = open.every(
+      (d) => d.startTime === open[0].startTime && d.endTime === open[0].endTime
+    );
+    if (sameHours) {
+      return locale === "he"
+        ? `כל ימות השבוע · ${open[0].startTime}–${open[0].endTime}`
+        : `Every day · ${open[0].startTime}–${open[0].endTime}`;
+    }
+  }
+  const dayLabels = locale === "he" ? ORDER_DAY_LABELS : ORDER_DAY_LABELS_EN;
+  return open
+    .map((d) => `${dayLabels[d.day]} ${d.startTime}–${d.endTime}`)
+    .join(" · ");
 }
 
 export const ORDER_SCHEDULE_CLOSED_MESSAGE =

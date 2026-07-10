@@ -1879,8 +1879,8 @@ export function CustomerStoreApp({
           )
         ) : (
           <div
-            className={`space-y-4 p-1 pb-2 ${
-              storeDecoration === "flowers" ? "customer-menu-flowers" : ""
+            className={`min-h-full space-y-4 p-1 pb-2 ${
+              storeDecoration !== "none" ? `customer-menu-${storeDecoration}` : ""
             }`}
           >
             {renderProductGrid()}

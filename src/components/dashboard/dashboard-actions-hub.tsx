@@ -22,6 +22,8 @@ export function DashboardActionsHub({
   initialStoreTerms = null,
   initialCalendarConfig,
   initialWorkingDays,
+  /** Open a panel immediately — e.g. landing on /dashboard/customers directly, so the actions grid still shows behind it. */
+  initialOpenPanel,
 }: {
   businessType: string;
   basePath?: string;
@@ -34,10 +36,13 @@ export function DashboardActionsHub({
     initialEnabled: boolean;
     initialScheduleJson: string | null;
   };
+  initialOpenPanel?: "customers" | "store";
 }) {
   const { labels } = useAppLocale();
-  const [customersOpen, setCustomersOpen] = useState(false);
-  const [storeOpen, setStoreOpen] = useState(false);
+  const [customersOpen, setCustomersOpen] = useState(
+    initialOpenPanel === "customers"
+  );
+  const [storeOpen, setStoreOpen] = useState(initialOpenPanel === "store");
   const showStoreHub = businessType === "STORE";
   const showAppointmentsHub = isScheduleLikeBusinessType(businessType);
 

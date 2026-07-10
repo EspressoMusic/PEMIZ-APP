@@ -5,7 +5,7 @@ export type StoreThemeId = (typeof STORE_THEME_IDS)[number];
 export const DEFAULT_STORE_THEME: StoreThemeId = "turquoise";
 
 /** Optional decorative overlay, layered on top of any store theme (e.g. floral border). */
-export const STORE_DECORATION_IDS = ["none", "flowers"] as const;
+export const STORE_DECORATION_IDS = ["none", "flowers", "doodles", "stars"] as const;
 
 export type StoreDecorationId = (typeof STORE_DECORATION_IDS)[number];
 
@@ -34,10 +34,45 @@ export const STORE_DECORATIONS: StoreDecorationMeta[] = [
     descriptionHe: "מסגרת פרחים סביב התפריט",
     descriptionEn: "Floral border around the menu",
   },
+  {
+    id: "doodles",
+    label: "דודלים",
+    labelEn: "Doodles",
+    descriptionHe: "איורים קטנים ברקע התפריט, בסגנון וואטסאפ",
+    descriptionEn: "Small doodle icons behind the menu, WhatsApp style",
+  },
+  {
+    id: "stars",
+    label: "כוכבים",
+    labelEn: "Stars",
+    descriptionHe: "שמיים כהים עם כוכבים נוצצים",
+    descriptionEn: "Dark night sky with sparkling stars",
+  },
 ];
 
 export function parseStoreDecoration(value?: string | null): StoreDecorationId {
-  return value === "flowers" ? "flowers" : DEFAULT_STORE_DECORATION;
+  return value != null &&
+    (STORE_DECORATION_IDS as readonly string[]).includes(value)
+    ? (value as StoreDecorationId)
+    : DEFAULT_STORE_DECORATION;
+}
+
+export function storeDecorationLabel(
+  decoration: StoreDecorationId,
+  locale: "he" | "en" = "he"
+): string {
+  const meta = STORE_DECORATIONS.find((d) => d.id === decoration);
+  if (!meta) return decoration;
+  return locale === "he" ? meta.label : meta.labelEn;
+}
+
+export function storeDecorationDescription(
+  decoration: StoreDecorationId,
+  locale: "he" | "en" = "he"
+): string {
+  const meta = STORE_DECORATIONS.find((d) => d.id === decoration);
+  if (!meta) return "";
+  return locale === "he" ? meta.descriptionHe : meta.descriptionEn;
 }
 
 export function customerDecorationClass(decoration: StoreDecorationId): string {

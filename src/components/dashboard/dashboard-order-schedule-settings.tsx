@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type MutableRefObject } from "react";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardHelpText } from "@/components/dashboard/dashboard-ui-preferences";
+import { DayScheduleEditor } from "@/components/dashboard/day-schedule-editor";
 import { Button, Alert } from "@/components/ui";
 import {
   defaultDaySlots,
@@ -196,55 +197,16 @@ export function DashboardOrderScheduleSettings({
 
   const dayEditor = (
     <div className="flex flex-col gap-2.5">
-      <ul className="space-y-1">
-        {daySlots.map((slot) => (
-          <li
-            key={slot.day}
-            className={`flex items-center gap-2 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/80 px-2 py-1.5 transition${
-              welcomeSetup ? " appointment-welcome-day-row" : ""
-            } ${slot.open ? "" : "opacity-40"}`}
-          >
-            <button
-              type="button"
-              onClick={() => toggleDayOpen(slot.day)}
-              className={`min-w-0 flex-1 truncate text-start text-[13px] font-extrabold leading-tight transition ${
-                slot.open ? "text-bakery-ink" : "text-bakery-muted line-through"
-              }`}
-              title={dayToggleHint}
-            >
-              {dayNames[slot.day]}
-            </button>
-            <div
-              className="flex shrink-0 items-center justify-end gap-1"
-              dir="ltr"
-            >
-              <input
-                type="time"
-                value={slot.startTime}
-                disabled={!slot.open}
-                onChange={(e) =>
-                  updateDayTime(slot.day, "startTime", e.target.value)
-                }
-                aria-label={`${dayNames[slot.day]} ${labels.fromHour}`}
-                className="bakery-field w-[5.75rem] shrink-0 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1.5 py-1 text-[12px] tabular-nums text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
-              />
-              <span className="shrink-0 text-[11px] font-bold text-bakery-muted">
-                –
-              </span>
-              <input
-                type="time"
-                value={slot.endTime}
-                disabled={!slot.open}
-                onChange={(e) =>
-                  updateDayTime(slot.day, "endTime", e.target.value)
-                }
-                aria-label={`${dayNames[slot.day]} ${labels.toHour}`}
-                className="bakery-field w-[5.75rem] shrink-0 rounded-[8px] border border-bakery-border/32 bg-bakery-input px-1.5 py-1 text-[12px] tabular-nums text-bakery-ink disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
+      <DayScheduleEditor
+        daySlots={daySlots}
+        dayNames={dayNames}
+        onToggleDay={toggleDayOpen}
+        onChangeTime={updateDayTime}
+        dayToggleHint={dayToggleHint}
+        fromHourLabel={labels.fromHour}
+        toHourLabel={labels.toHour}
+        welcomeSetup={welcomeSetup}
+      />
 
       {error ? <Alert variant="error">{error}</Alert> : null}
       {message ? (

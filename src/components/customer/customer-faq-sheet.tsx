@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, Clock, MapPin, X } from "lucide-react";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
+import { formatStoreHoursDaySlots, parseStoreHoursDaySlots } from "@/lib/order-schedule";
 
 export type FaqEntry = {
   id: string;
@@ -69,7 +70,10 @@ export function CustomerFaqSheet({
   const hasTerms = termsBody.length > 0;
   const hasFaq = items.length > 0;
   const hasAny = hasTerms || hasFaq;
-  const hoursBody = openingHours?.trim() ?? "";
+  const hoursDaySlots = parseStoreHoursDaySlots(openingHours);
+  const hoursBody = hoursDaySlots
+    ? formatStoreHoursDaySlots(hoursDaySlots, locale)
+    : (openingHours?.trim() ?? "");
   const addressBody = address?.trim() ?? "";
   const hasHours = hoursBody.length > 0;
   const hasAddress = addressBody.length > 0;

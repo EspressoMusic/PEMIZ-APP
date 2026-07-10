@@ -1,6 +1,5 @@
 "use client";
 
-import { PageTitle } from "@/components/ui";
 import { PwaInstallPanel } from "@/components/pwa/pwa-install-panel";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
@@ -15,7 +14,6 @@ export function DashboardInstallAppPage({
   return (
     <div className="space-y-4">
       <DashboardSettingsBackLink basePath={basePath} />
-      <PageTitle>{labels.installApp}</PageTitle>
       <PwaInstallPanel
         copy={{
           title: labels.installAppTitle,

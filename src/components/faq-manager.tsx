@@ -14,6 +14,7 @@ import {
   Clock,
   FileText,
   HelpCircle,
+  Navigation,
   Pencil,
   Plus,
   Trash2,
@@ -21,6 +22,15 @@ import {
 } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
+import { DayScheduleEditor } from "@/components/dashboard/day-schedule-editor";
+import {
+  defaultDaySlots,
+  formatStoreHoursDaySlots,
+  getOrderDayFullNames,
+  orderScheduleToJson,
+  parseStoreHoursDaySlots,
+  type OrderDaySlot,
+} from "@/lib/order-schedule";
 
 type FaqRow = {
   id: string;
@@ -66,7 +76,7 @@ function EditorModal({
         onClick={onClose}
         aria-label={closeLabel}
       />
-      <div className="relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto rounded-[24px] border border-bakery-border/30 bg-bakery-square p-5 shadow-[0_12px_40px_rgba(58,47,38,0.2)]">
+      <div className="dashboard-modal-card relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto p-5">
         <div
           className={
             title
@@ -200,7 +210,8 @@ export function FaqManager({
   initialOpeningHours?: string;
   initialAddress?: string;
 }) {
-  const { labels } = useAppLocale();
+  const { labels, locale } = useAppLocale();
+  const dayNames = getOrderDayFullNames(locale);
   const [items, setItems] = useState<FaqRow[]>(() =>
     previewOnly && initialItems ? toPreviewRows(initialItems) : []
   );
@@ -226,7 +237,10 @@ export function FaqManager({
   const addLockRef = useRef(false);
 
   const [policyDraft, setPolicyDraft] = useState(initialPolicy);
-  const [hoursDraft, setHoursDraft] = useState(initialOpeningHours);
+  const [hourSlots, setHourSlots] = useState<OrderDaySlot[]>(
+    () => parseStoreHoursDaySlots(initialOpeningHours) ?? defaultDaySlots()
+  );
+  const [hoursEditorOpen, setHoursEditorOpen] = useState(false);
   const [addressDraft, setAddressDraft] = useState(initialAddress);
 
   async function load() {
@@ -276,16 +290,33 @@ export function FaqManager({
   }
 
   function openInfoModal() {
-    setHoursDraft(storeOpeningHours);
+    setHourSlots(parseStoreHoursDaySlots(storeOpeningHours) ?? defaultDaySlots());
+    setHoursEditorOpen(false);
     setAddressDraft(storeAddress);
     setInfoModalOpen(true);
+  }
+
+  function toggleHourDay(day: number) {
+    setHourSlots((prev) =>
+      prev.map((s) => (s.day === day ? { ...s, open: !s.open } : s))
+    );
+  }
+
+  function updateHourTime(
+    day: number,
+    field: "startTime" | "endTime",
+    value: string
+  ) {
+    setHourSlots((prev) =>
+      prev.map((s) => (s.day === day ? { ...s, [field]: value } : s))
+    );
   }
 
   async function saveInfo() {
     setError("");
     setInfoMessage("");
     setSavingInfo(true);
-    const hours = hoursDraft.trim();
+    const hours = hourSlots.some((s) => s.open) ? orderScheduleToJson(hourSlots) : "";
     const address = addressDraft.trim();
 
     if (previewOnly) {
@@ -573,18 +604,58 @@ export function FaqManager({
           </>
         }
       >
-        <Input
-          label={labels.storeHoursLabel}
-          value={hoursDraft}
-          onChange={(e) => setHoursDraft(e.target.value)}
-          placeholder={labels.storeHoursPlaceholder}
-        />
-        <Input
-          label={labels.storeAddressLabel}
-          value={addressDraft}
-          onChange={(e) => setAddressDraft(e.target.value)}
-          placeholder={labels.storeAddressPlaceholder}
-        />
+        <div className="space-y-1.5 text-start">
+          <span className="block text-[13px] font-bold text-bakery-ink">
+            {labels.storeHoursLabel}
+          </span>
+          <button
+            type="button"
+            onClick={() => setHoursEditorOpen((v) => !v)}
+            aria-expanded={hoursEditorOpen}
+            className="flex w-full items-center justify-between gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-3 py-2.5 text-start transition"
+          >
+            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-bakery-ink">
+              {formatStoreHoursDaySlots(hourSlots, locale)}
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-bakery-muted transition-transform duration-200 ${
+                hoursEditorOpen ? "rotate-180" : ""
+              }`}
+              strokeWidth={2.5}
+              aria-hidden
+            />
+          </button>
+          {hoursEditorOpen ? (
+            <DayScheduleEditor
+              daySlots={hourSlots}
+              dayNames={dayNames}
+              onToggleDay={toggleHourDay}
+              onChangeTime={updateHourTime}
+              dayToggleHint={labels.storeHoursToggleHint}
+              fromHourLabel={labels.fromHour}
+              toHourLabel={labels.toHour}
+            />
+          ) : null}
+        </div>
+        <div className="space-y-1.5 text-start">
+          <Input
+            label={labels.storeAddressLabel}
+            value={addressDraft}
+            onChange={(e) => setAddressDraft(e.target.value)}
+            placeholder={labels.storeAddressPlaceholder}
+          />
+          {addressDraft.trim() ? (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDraft.trim())}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-bakery-border/35 bg-bakery-input/80 px-3 text-[12px] font-extrabold text-bakery-ink transition active:scale-[0.98]"
+            >
+              <Navigation className="h-3.5 w-3.5" strokeWidth={2.25} />
+              {labels.navigateToAddress}
+            </a>
+          ) : null}
+        </div>
       </EditorModal>
 
       <EditorModal

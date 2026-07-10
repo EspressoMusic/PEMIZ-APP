@@ -178,59 +178,31 @@ export function DashboardActionSheet({
           }`}
         >
           {(compact || fullViewport) && showBackButton && !backOutside ? (
-            title ? (
-              <div className="relative shrink-0 px-3 pb-1 pt-3">
-                <div className="absolute start-2 top-2.5 z-10">{backControl}</div>
-                {headerEndAction ? (
-                  <div className="absolute end-2 top-2.5 z-10">{headerEndAction}</div>
-                ) : null}
-                <h2
-                  className={`px-10 text-center font-extrabold leading-tight text-bakery-ink ${
-                    compact ? "text-[17px]" : "text-[18px]"
-                  }`}
-                >
-                  {title}
-                </h2>
-              </div>
-            ) : (
-              <div className="shrink-0 px-3 pb-1 pt-3">
-                {headerNote ? (
-                  <div className="relative">
-                    <div className="absolute start-0 top-0">{backControl}</div>
-                    <p className="text-center text-[12px] font-semibold text-bakery-muted">
-                      {headerNote}
-                    </p>
-                  </div>
-                ) : (
+            <div className="shrink-0 px-3 pb-1 pt-3">
+              {headerNote ? (
+                <div className="relative">
+                  <div className="absolute start-2 top-2.5 z-10">{backControl}</div>
+                  {headerEndAction ? (
+                    <div className="absolute end-2 top-2.5 z-10">{headerEndAction}</div>
+                  ) : null}
+                  <p className="px-10 text-center text-[12px] font-semibold text-bakery-muted">
+                    {headerNote}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
                   <div className="text-start">{backControl}</div>
-                )}
-              </div>
-            )
-          ) : title ? (
-            <h2
-              className={`shrink-0 text-center font-extrabold text-bakery-ink ${
-                compact
-                  ? "px-3 pb-1 pt-3 text-[17px]"
-                  : "px-4 pt-4 text-[18px]"
-              }`}
-            >
-              {title}
-            </h2>
+                  {headerEndAction ? <div>{headerEndAction}</div> : null}
+                </div>
+              )}
+            </div>
           ) : null}
           <div
             className={`dashboard-action-sheet-body ${
               fitContent
                 ? "shrink-0 overflow-visible"
                 : "flex min-h-0 flex-1 flex-col overflow-y-auto"
-            } ${
-              title
-                ? compact || fitContent
-                  ? "px-3 pb-3 pt-1"
-                  : "px-4 pb-4 pt-2"
-                : compact || fitContent
-                  ? "p-2.5"
-                  : "p-3"
-            }`}
+            } ${compact || fitContent ? "p-2.5" : "p-3"}`}
           >
             {children}
           </div>

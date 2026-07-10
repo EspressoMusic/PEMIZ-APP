@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Download } from "lucide-react";
-import { Alert, PageTitle } from "@/components/ui";
+import { Alert } from "@/components/ui";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { DashboardLineChart } from "@/components/dashboard/dashboard-line-chart";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -240,8 +240,6 @@ export function DashboardSalesStats({
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
           {labels.backToActions}
         </Link>
-
-        <PageTitle>{labels.salesAndProfit}</PageTitle>
 
         <div className="flex flex-wrap justify-center gap-2">
           {PERIODS.map((p) => (

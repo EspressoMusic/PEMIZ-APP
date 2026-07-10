@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Flower2, Leaf, Palette, Sparkles } from "lucide-react";
+import { BookOpen, Flower2, MoonStar, Palette, PenTool } from "lucide-react";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useStoreTheme } from "@/components/dashboard/store-theme-provider";
@@ -10,7 +10,10 @@ import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sh
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import {
   STORE_THEMES,
+  parseStoreDecoration,
   parseStoreTheme,
+  storeDecorationDescription,
+  storeDecorationLabel,
   storeThemeLabel,
   type StoreDecorationId,
   type StoreThemeId,
@@ -67,7 +70,7 @@ export function DashboardStoreStylePicker({
       }
       if (data.storeTheme != null) setAppTheme(parseStoreTheme(data.storeTheme));
       if (data.storeDecoration != null) {
-        setAppDecoration(data.storeDecoration === "flowers" ? "flowers" : "none");
+        setAppDecoration(parseStoreDecoration(data.storeDecoration));
       }
       if (data.storeLocale != null) {
         setAppLocale(data.storeLocale === "en" ? "en" : "he");
@@ -193,43 +196,41 @@ export function DashboardStoreStylePicker({
             })}
           </div>
 
+          <p className="text-center text-[14px] font-bold text-bakery-ink">
+            {labels.storeDecorationTitle}
+          </p>
           <div className="flex justify-center gap-3">
-            <button
-              type="button"
-              disabled={saving}
-              aria-label={labels.storeDecorationTitle}
-              aria-pressed={decoration === "flowers"}
-              onClick={() =>
-                saveAppearance({
-                  storeDecoration: decoration === "flowers" ? "none" : "flowers",
-                })
-              }
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border transition ${
-                decoration === "flowers"
-                  ? "border-bakery-primary bg-bakery-primary/15 ring-2 ring-bakery-primary/30"
-                  : "border-bakery-border/35 bg-bakery-input/80"
-              }`}
-            >
-              <Flower2 className="h-6 w-6 text-bakery-primary" strokeWidth={1.75} />
-            </button>
-            <button
-              type="button"
-              disabled
-              aria-hidden="true"
-              tabIndex={-1}
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border border-dashed border-bakery-border/30 opacity-40"
-            >
-              <Sparkles className="h-6 w-6 text-bakery-muted" strokeWidth={1.75} />
-            </button>
-            <button
-              type="button"
-              disabled
-              aria-hidden="true"
-              tabIndex={-1}
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border border-dashed border-bakery-border/30 opacity-40"
-            >
-              <Leaf className="h-6 w-6 text-bakery-muted" strokeWidth={1.75} />
-            </button>
+            {(
+              [
+                { id: "flowers" as const, Icon: Flower2 },
+                { id: "doodles" as const, Icon: PenTool },
+                { id: "stars" as const, Icon: MoonStar },
+              ] satisfies { id: StoreDecorationId; Icon: typeof Flower2 }[]
+            ).map(({ id, Icon }) => {
+                const active = decoration === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    disabled={saving}
+                    aria-label={storeDecorationDescription(id, locale)}
+                    aria-pressed={active}
+                    title={storeDecorationLabel(id, locale)}
+                    onClick={() =>
+                      saveAppearance({
+                        storeDecoration: active ? "none" : id,
+                      })
+                    }
+                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border transition ${
+                      active
+                        ? "border-bakery-primary bg-bakery-primary/15 ring-2 ring-bakery-primary/30"
+                        : "border-bakery-border/35 bg-bakery-input/80"
+                    }`}
+                  >
+                    <Icon className="h-6 w-6 text-bakery-primary" strokeWidth={1.75} />
+                  </button>
+                );
+              })}
           </div>
 
           {SELLER_WELCOME_GUIDE_ENABLED ? (

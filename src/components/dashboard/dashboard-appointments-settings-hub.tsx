@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { DashboardFullscreenHubShell } from "@/components/dashboard/dashboard-panel-frame";
 import { ClipboardList, CalendarClock, ChevronLeft } from "lucide-react";
 import { DashboardProductsEntry } from "@/components/dashboard/products-manager";
 import {
@@ -283,39 +282,5 @@ export function DashboardAppointmentsSettingsHubPanel({
         initialWorkingDays={initialWorkingDays}
       />
     </>
-  );
-}
-
-export function DashboardAppointmentsSettingsHub({
-  basePath = "/dashboard",
-  previewOnly = false,
-  previewAppointments = [] as DashboardAppointmentView[],
-  previewBookingByDay = false,
-  initialCalendarConfig,
-  initialWorkingDays,
-}: {
-  basePath?: string;
-  previewOnly?: boolean;
-  previewAppointments?: DashboardAppointmentView[];
-  previewBookingByDay?: boolean;
-  initialCalendarConfig?: AppointmentCalendarConfig;
-  initialWorkingDays?: {
-    initialEnabled: boolean;
-    initialScheduleJson: string | null;
-  };
-}) {
-  return (
-    <DashboardFullscreenHubShell
-      backLink={<DashboardActionsBackLink basePath={basePath} />}
-    >
-      <DashboardAppointmentsSettingsHubGrid
-        basePath={basePath}
-        previewOnly={previewOnly}
-        previewAppointments={previewAppointments}
-        previewBookingByDay={previewBookingByDay}
-        initialCalendarConfig={initialCalendarConfig}
-        initialWorkingDays={initialWorkingDays}
-      />
-    </DashboardFullscreenHubShell>
   );
 }
