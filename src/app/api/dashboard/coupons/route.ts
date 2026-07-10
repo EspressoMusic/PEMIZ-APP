@@ -10,7 +10,10 @@ const schema = z.object({
     .trim()
     .min(2)
     .max(30)
-    .regex(/^[a-zA-Z0-9_-]+$/, "קוד יכול להכיל אותיות, מספרים, מקף וקו תחתון בלבד"),
+    .regex(
+      new RegExp("^[a-zA-Z0-9\\u0590-\\u05FF_-]+$"),
+      "קוד יכול להכיל אותיות (עברית/אנגלית), מספרים, מקף וקו תחתון בלבד"
+    ),
   discountType: z.enum(["PERCENTAGE", "FIXED"]),
   discountValue: z.number().positive(),
   minOrderAmount: z.number().positive().optional(),
