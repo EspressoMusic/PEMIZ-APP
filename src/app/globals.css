@@ -2633,7 +2633,7 @@ html:not([data-store-theme="dark"])
 html:not([data-store-theme="dark"])
   .dashboard-deal-form-sheet
   > .dashboard-action-sheet-body {
-  padding-top: 0;
+  padding-top: 1.25rem;
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
@@ -3339,6 +3339,11 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
 
 .dashboard-shell-main {
   padding-bottom: calc(88px + max(10px, env(safe-area-inset-bottom)));
+}
+
+/* Extra clearance for the floating PWA install banner, which otherwise overlaps the last card in the home view. */
+.dashboard-shell-main.dashboard-shell-main--pwa-banner {
+  padding-bottom: calc(88px + 74px + max(10px, env(safe-area-inset-bottom)));
 }
 
 .dashboard-home-store-link--compact {
@@ -5695,6 +5700,11 @@ html[data-store-theme="turquoise"]
 html[data-store-theme="turquoise"] .dashboard-customer-profile-modal {
   background: #d4ece7;
   border: 2px solid #0f766e;
+}
+
+html[data-store-theme="turquoise"] :is(.dashboard-surface, .auth-surface) .dashboard-modal-card,
+html[data-store-theme="turquoise"] .dashboard-modal-card {
+  background: #d4ece7;
 }
 
 html[data-store-theme="turquoise"] .dashboard-customer-profile-modal .dashboard-customer-detail-bar {

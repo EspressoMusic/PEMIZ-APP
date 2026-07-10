@@ -9,7 +9,10 @@ import { SellerSpotlightTourProvider } from "@/components/dashboard/seller-spotl
 import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
 import { DashboardPlatformMessageBanner } from "@/components/dashboard/dashboard-platform-message-banner";
-import { PwaInstallBanner } from "@/components/pwa/pwa-install-banner";
+import {
+  PwaInstallBanner,
+  usePwaInstallBannerVisible,
+} from "@/components/pwa/pwa-install-banner";
 import {
   AppLocaleProvider,
   useAppLocale,
@@ -23,11 +26,16 @@ import {
   DASHBOARD_SCROLL_MAIN,
 } from "@/components/dashboard/dashboard-panel-frame";
 
-function DashboardPwaInstallBanner() {
+function DashboardPwaInstallBanner({
+  state,
+}: {
+  state: ReturnType<typeof usePwaInstallBannerVisible>;
+}) {
   const { labels } = useAppLocale();
   return (
     <PwaInstallBanner
       surface="dashboard"
+      state={state}
       copy={{
         title: labels.installAppBannerTitle,
         hint: labels.installAppBannerHint,
@@ -93,6 +101,8 @@ export function DashboardShellClient({
   const isActionsHubRoute = isDashboardActionsHubRoute(pathname, basePath);
   const lockMainScroll =
     Boolean(hub) || isHomeRoute || isActionsHubRoute;
+  const pwaBanner = usePwaInstallBannerVisible("dashboard");
+  const showPwaBannerSpacing = inSellerApp && pwaBanner.visible;
   const tourEnabled = SELLER_WELCOME_GUIDE_ENABLED;
   const appointmentScheduleConfigured = isAppointmentStoreScheduleConfigured({
     businessType,
@@ -112,7 +122,9 @@ export function DashboardShellClient({
   const shellBody = (
     <div className="dashboard-surface flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
       <div
-        className="dashboard-shell-main min-h-0 min-w-0 flex-1 overflow-hidden pb-[calc(92px+max(10px,env(safe-area-inset-bottom)))]"
+        className={`dashboard-shell-main min-h-0 min-w-0 flex-1 overflow-hidden${
+          showPwaBannerSpacing ? " dashboard-shell-main--pwa-banner" : ""
+        }`}
       >
         <div
           className={`${DASHBOARD_MOBILE_STACK} ${DASHBOARD_PAGE_ROOT} min-h-0 flex-1`}
@@ -137,7 +149,7 @@ export function DashboardShellClient({
         </div>
       </div>
       <DashboardNav businessType={businessType} basePath={basePath} />
-      {inSellerApp ? <DashboardPwaInstallBanner /> : null}
+      {inSellerApp ? <DashboardPwaInstallBanner state={pwaBanner} /> : null}
     </div>
   );
 

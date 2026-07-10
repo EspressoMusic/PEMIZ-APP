@@ -57,19 +57,6 @@ function ProductThumb({
   );
 }
 
-function orderStatusLabel(
-  status: string,
-  labels: DashboardLabels
-): string {
-  const map: Record<string, string> = {
-    PENDING: labels.pending,
-    CONFIRMED: labels.confirmed,
-    COMPLETED: labels.completed,
-    CANCELLED: labels.cancelled,
-  };
-  return map[status] ?? status;
-}
-
 function PrepDetailModal({
   product,
   onClose,
@@ -280,29 +267,6 @@ export function DashboardPrepSummary({
     void refresh();
   }, [loadFromApi, refresh]);
 
-  async function setOrderStatus(orderId: string, status: string) {
-    if (previewOnly) {
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === orderId
-            ? {
-                ...o,
-                status,
-                statusLabel: orderStatusLabel(status, labels),
-              }
-            : o
-        )
-      );
-      return;
-    }
-    await fetch("/api/dashboard/orders", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId, status }),
-    });
-    await refresh();
-  }
-
   const grandTotal = products.reduce((s, p) => s + p.totalQuantity, 0);
 
   return (
@@ -333,7 +297,6 @@ export function DashboardPrepSummary({
           >
             <DashboardOrdersList
               orders={orders}
-              onStatusChange={setOrderStatus}
               onCustomerClick={openCustomer}
               showPrices
             />

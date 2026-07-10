@@ -214,11 +214,13 @@ export function CouponsManager({
 
   function openAdd() {
     resetForm();
+    setListOpen(false);
     setAddOpen(true);
   }
 
   function openEdit(coupon: Coupon) {
     setError("");
+    setListOpen(false);
     setDiscountType(coupon.discountType);
     setDiscountValue(String(coupon.discountValue));
     setMinOrderAmount(coupon.minOrderAmount != null ? String(coupon.minOrderAmount) : "");
@@ -276,6 +278,7 @@ export function CouponsManager({
           ...prev,
         ]);
         setAddOpen(false);
+        if (standaloneList) setListOpen(true);
         setSuccessCode(payload.code.toUpperCase());
         setSuccessOpen(true);
         return;
@@ -292,6 +295,7 @@ export function CouponsManager({
         return;
       }
       setAddOpen(false);
+      if (standaloneList) setListOpen(true);
       setSuccessCode(data.coupon.code);
       setSuccessOpen(true);
       await load();
@@ -325,6 +329,7 @@ export function CouponsManager({
           prev.map((c) => (c.id === editingId ? { ...c, ...payload } : c))
         );
         setEditingId(null);
+        if (standaloneList) setListOpen(true);
         return;
       }
 
@@ -339,6 +344,7 @@ export function CouponsManager({
         return;
       }
       setEditingId(null);
+      if (standaloneList) setListOpen(true);
       await load();
     } finally {
       setSaving(false);
@@ -402,35 +408,6 @@ export function CouponsManager({
             <Toggle
               enabled={perCustomerUnlimited}
               onChange={setPerCustomerUnlimited}
-              ariaLabel={labels.couponUnlimited}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-1 text-start">
-        <span className="block text-[13px] font-bold text-bakery-ink">
-          {labels.couponMaxRedemptionsTotal}
-        </span>
-        <div className="flex items-stretch gap-2">
-          <div className="min-w-0 flex-1">
-            <Input
-              type="number"
-              min={1}
-              dir="ltr"
-              className="py-2 text-[15px]"
-              value={totalCount}
-              disabled={totalUnlimited}
-              onChange={(e) => setTotalCount(Math.max(1, Number(e.target.value) || 1))}
-            />
-          </div>
-          <div className="flex shrink-0 items-center gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-2.5 py-2">
-            <span className="text-[12px] font-bold leading-tight text-bakery-ink">
-              {labels.couponUnlimited}
-            </span>
-            <Toggle
-              enabled={totalUnlimited}
-              onChange={setTotalUnlimited}
               ariaLabel={labels.couponUnlimited}
             />
           </div>
@@ -526,7 +503,11 @@ export function CouponsManager({
         open={addOpen}
         title={labels.addCoupon}
         closeLabel={labels.close}
-        onClose={() => (saving ? null : setAddOpen(false))}
+        onClose={() => {
+          if (saving) return;
+          setAddOpen(false);
+          if (standaloneList) setListOpen(true);
+        }}
         footer={
           <Button
             type="submit"
@@ -589,16 +570,6 @@ export function CouponsManager({
             onChange={(e) => setDiscountValue(e.target.value)}
             required
           />
-          <Input
-            label={labels.couponMinOrderAmount}
-            labelClassName="text-[13px]"
-            className="py-2 text-[15px]"
-            type="number"
-            step="0.01"
-            dir="ltr"
-            value={minOrderAmount}
-            onChange={(e) => setMinOrderAmount(e.target.value)}
-          />
           {redemptionFields}
         </form>
       </EditorModal>
@@ -611,6 +582,7 @@ export function CouponsManager({
           onClose={() => {
             setEditingId(null);
             setError("");
+            if (standaloneList) setListOpen(true);
           }}
           footer={
             <>
@@ -645,16 +617,6 @@ export function CouponsManager({
               value={discountValue}
               onChange={(e) => setDiscountValue(e.target.value)}
               required
-            />
-            <Input
-              label={labels.couponMinOrderAmount}
-              labelClassName="text-[13px]"
-              className="py-2 text-[15px]"
-              type="number"
-              step="0.01"
-              dir="ltr"
-              value={minOrderAmount}
-              onChange={(e) => setMinOrderAmount(e.target.value)}
             />
             {redemptionFields}
           </form>

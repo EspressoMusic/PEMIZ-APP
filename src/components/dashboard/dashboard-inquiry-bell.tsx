@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 import { Bell, Send, X } from "lucide-react";
 import { Alert, Textarea } from "@/components/ui";
+import { DashboardOrderDetails } from "@/components/dashboard/dashboard-order-card";
 import {
   DEV_PREVIEW_ORDERS,
   DEV_PREVIEW_SELLER_CHAT,
@@ -516,20 +517,28 @@ export function DashboardInquiryBell({
           )}
 
           {active.kind === "new_order" && (
-            <div className="space-y-3 text-center">
-              <p className="rounded-[12px] border border-bakery-border/30 bg-bakery-cream-light p-3 text-[14px] font-semibold text-bakery-ink">
-                {active.message}
-              </p>
-              <p className="text-[11px] text-bakery-muted">
+            <div className="space-y-3">
+              <p className="text-center text-[11px] text-bakery-muted">
                 {formatDateTime(active.createdAt)}
               </p>
-              <Link
-                href={`${basePath}/settings/orders`}
-                onClick={closePanel}
-                className="dashboard-inquiry-cta inline-flex min-w-[10rem] no-underline"
-              >
-                {labels.notificationOpenOrders}
-              </Link>
+              <DashboardOrderDetails
+                order={{
+                  id: active.orderId ?? active.id,
+                  orderNumber: active.orderNumber,
+                  customerName: active.customerName ?? labels.anonymousCustomer,
+                  customerPhone: active.customerPhone ?? "",
+                  status: "PENDING",
+                  statusLabel: "",
+                  createdAt: active.createdAt,
+                  items: active.orderItems ?? [],
+                }}
+                total={(active.orderItems ?? []).reduce(
+                  (sum, it) => sum + it.lineTotal,
+                  0
+                )}
+                showPrices
+                onClose={closePanel}
+              />
             </div>
           )}
 

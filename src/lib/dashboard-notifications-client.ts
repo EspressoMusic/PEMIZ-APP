@@ -22,6 +22,13 @@ export type DashboardNotificationKind =
   | "new_appointment"
   | "low_stock";
 
+export type DashboardNotificationOrderItem = {
+  name: string;
+  quantity: number;
+  lineTotal: number;
+  imageUrl: string | null;
+};
+
 export type DashboardNotification = {
   id: string;
   kind: DashboardNotificationKind;
@@ -33,6 +40,8 @@ export type DashboardNotification = {
   customerPhone?: string | null;
   message?: string;
   orderId?: string;
+  orderNumber?: number;
+  orderItems?: DashboardNotificationOrderItem[];
   appointmentId?: string;
   productId?: string;
   productName?: string;
@@ -108,6 +117,8 @@ export function buildDevDashboardNotifications(
       subtitle: order.customerName || labels.anonymousCustomer,
       createdAt: order.createdAt,
       orderId: order.id,
+      orderNumber: order.orderNumber,
+      orderItems: order.items,
       customerName: order.customerName,
       customerPhone: order.customerPhone,
       message: `₪${total.toFixed(0)}`,

@@ -63,19 +63,15 @@ function OrderProductThumb({
   );
 }
 
-function DashboardOrderDetails({
+export function DashboardOrderDetails({
   order,
   total,
   showPrices,
-  showActions,
-  onStatusChange,
   onClose,
 }: {
   order: DashboardOrderView;
   total: number;
   showPrices: boolean;
-  showActions: boolean;
-  onStatusChange?: (orderId: string, status: string) => void;
   onClose: () => void;
 }) {
   const { labels, formatMoney } = useAppLocale();
@@ -145,30 +141,15 @@ function DashboardOrderDetails({
         </div>
       )}
 
-      {showActions && (
-        <div className="grid grid-cols-2 gap-2 border-t border-bakery-border/25 pt-2.5">
-          <Button
-            variant="primary"
-            className="min-h-[38px] w-full rounded-full px-3 py-2 text-[16px] font-extrabold"
-            onClick={() => {
-              onStatusChange?.(order.id, "CONFIRMED");
-              onClose();
-            }}
-          >
-            {labels.confirmOrder}
-          </Button>
-          <button
-            type="button"
-            className="inline-flex min-h-[38px] w-full items-center justify-center rounded-full border border-bakery-error bg-transparent px-3 py-2 text-[16px] font-extrabold text-bakery-error transition hover:bg-bakery-error/5 active:scale-[0.99]"
-            onClick={() => {
-              onStatusChange?.(order.id, "CANCELLED");
-              onClose();
-            }}
-          >
-            {labels.cancelOrder}
-          </button>
-        </div>
-      )}
+      <div className="border-t border-bakery-border/25 pt-2.5">
+        <Button
+          variant="primary"
+          className="min-h-[38px] w-full rounded-full px-3 py-2 text-[16px] font-extrabold"
+          onClick={onClose}
+        >
+          {labels.ok}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -177,14 +158,12 @@ export function DashboardOrderCard({
   order,
   open,
   onOpenChange,
-  onStatusChange,
   onCustomerClick,
   showPrices = false,
 }: {
   order: DashboardOrderView;
   open: boolean;
   onOpenChange: (next: boolean) => void;
-  onStatusChange?: (orderId: string, status: string) => void;
   onCustomerClick?: (input: CustomerProfileInput) => void;
   showPrices?: boolean;
 }) {
@@ -193,7 +172,6 @@ export function DashboardOrderCard({
   const createdShort = order.createdAt
     ? formatDateTime(order.createdAt)
     : null;
-  const showActions = onStatusChange && order.status === "PENDING";
 
   return (
     <div className="w-full">
@@ -250,8 +228,6 @@ export function DashboardOrderCard({
           order={order}
           total={total}
           showPrices={showPrices}
-          showActions={Boolean(showActions)}
-          onStatusChange={onStatusChange}
           onClose={() => onOpenChange(false)}
         />
       </DashboardActionSheet>
@@ -262,14 +238,12 @@ export function DashboardOrderCard({
 export function DashboardOrdersSection({
   title,
   orders,
-  onStatusChange,
   onCustomerClick,
   customerModal,
   emptyMessage,
 }: {
   title: string;
   orders: DashboardOrderView[];
-  onStatusChange?: (orderId: string, status: string) => void;
   onCustomerClick?: (input: CustomerProfileInput) => void;
   customerModal?: ReactNode;
   emptyMessage?: string;
@@ -282,7 +256,6 @@ export function DashboardOrdersSection({
       </h2>
       <DashboardOrdersList
         orders={orders}
-        onStatusChange={onStatusChange}
         onCustomerClick={onCustomerClick}
         customerModal={customerModal}
         emptyMessage={emptyMessage ?? labels.noOrders}
@@ -294,7 +267,6 @@ export function DashboardOrdersSection({
 
 export function DashboardOrdersList({
   orders,
-  onStatusChange,
   onCustomerClick,
   emptyMessage,
   emptyCompact = false,
@@ -302,7 +274,6 @@ export function DashboardOrdersList({
   customerModal,
 }: {
   orders: DashboardOrderView[];
-  onStatusChange?: (orderId: string, status: string) => void;
   onCustomerClick?: (input: CustomerProfileInput) => void;
   emptyMessage?: string;
   emptyCompact?: boolean;
@@ -334,7 +305,6 @@ export function DashboardOrdersList({
               order={o}
               open={openOrderId === o.id}
               onOpenChange={(next) => setOpenOrderId(next ? o.id : null)}
-              onStatusChange={onStatusChange}
               onCustomerClick={onCustomerClick}
               showPrices={showPrices}
             />

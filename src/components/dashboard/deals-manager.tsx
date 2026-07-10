@@ -3,7 +3,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
 import { CelebrationModal } from "@/components/celebration-modal";
-import { ProductImageField } from "@/components/product-image-field";
 import { Button, Input, Badge, Alert, Toggle } from "@/components/ui";
 import { Gift, Info, Package, Plus, Tags, X, Pencil, ChevronDown } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -426,7 +425,6 @@ export function DealsManager({
     [labels, locale]
   );
   const [dealImageUrl, setDealImageUrl] = useState<string | null>(null);
-  const [imageUploading, setImageUploading] = useState(false);
   const [confirmDraft, setConfirmDraft] = useState<{
     name: string;
     imageUrl: string | null;
@@ -475,7 +473,6 @@ export function DealsManager({
     setDealSelectedLines([]);
     setQuantityEditorId(null);
     setDealImageUrl(null);
-    setImageUploading(false);
     setConfirmDraft(null);
     setDealRedemptionUnlimited(false);
     setDealRedemptionCount(1);
@@ -777,19 +774,6 @@ export function DealsManager({
 
               <div className="space-y-1 text-start">
                 <span className="block text-[13px] font-bold text-bakery-ink">
-                  {labels.dealImage}
-                </span>
-                <ProductImageField
-                  preview={dealImageUrl}
-                  onChange={setDealImageUrl}
-                  onError={setDealError}
-                  onUploadingChange={setImageUploading}
-                  compact
-                />
-              </div>
-
-              <div className="space-y-1 text-start">
-                <span className="block text-[13px] font-bold text-bakery-ink">
                   {labels.products}
                 </span>
                 {activeProducts.length === 0 ? (
@@ -1017,8 +1001,6 @@ export function DealsManager({
                 </div>
                 {dealValidityMode === "custom" && (
                   <Input
-                    label={labels.dealDate}
-                    labelClassName="text-[13px]"
                     className="py-2 text-[15px]"
                     type="date"
                     required
@@ -1034,9 +1016,7 @@ export function DealsManager({
                 variant="primary"
                 className="mt-0.5 w-full min-h-[40px] rounded-full font-extrabold"
                 disabled={
-                  dealSelectedLines.length < 1 ||
-                  imageUploading ||
-                  activeProducts.length === 0
+                  dealSelectedLines.length < 1 || activeProducts.length === 0
                 }
               >
                 {labels.continueToConfirm}

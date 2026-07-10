@@ -300,7 +300,6 @@ export function DashboardSalesStats({
                     : stats.totalRevenue < stats.priorRevenue
                       ? "down"
                       : "neutral",
-              periodLabel: periodMeta.label,
             }}
           />
         </div>

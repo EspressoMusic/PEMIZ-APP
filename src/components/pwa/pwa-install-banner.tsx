@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui";
 import { usePwa } from "@/components/pwa/pwa-context";
@@ -18,14 +18,11 @@ type BannerCopy = {
   dismiss: string;
 };
 
-export function PwaInstallBanner({
-  surface,
-  copy,
-}: {
-  surface: "dashboard" | "customer" | "landing";
-  copy: BannerCopy;
-}) {
-  const { canInstall, install } = usePwa();
+export type PwaInstallBannerSurface = "dashboard" | "customer" | "landing";
+
+/** Whether the fixed install banner is currently floating on screen — layouts that reserve bottom space (e.g. the dashboard nav) need this to avoid the banner overlapping content. */
+export function usePwaInstallBannerVisible(surface: PwaInstallBannerSurface) {
+  const { canInstall } = usePwa();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -33,12 +30,29 @@ export function PwaInstallBanner({
     if (canInstall) setVisible(true);
   }, [canInstall, surface]);
 
-  if (!visible) return null;
-
-  function close() {
+  const dismiss = useCallback(() => {
     dismissPwaBanner(surface);
     setVisible(false);
-  }
+  }, [surface]);
+
+  return { visible, dismiss };
+}
+
+export function PwaInstallBanner({
+  surface,
+  copy,
+  state,
+}: {
+  surface: PwaInstallBannerSurface;
+  copy: BannerCopy;
+  /** Pass a hook instance the caller already owns (e.g. to also reserve layout space) instead of managing visibility internally. */
+  state?: ReturnType<typeof usePwaInstallBannerVisible>;
+}) {
+  const { install } = usePwa();
+  const ownState = usePwaInstallBannerVisible(surface);
+  const { visible, dismiss: close } = state ?? ownState;
+
+  if (!visible) return null;
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[calc(76px+env(safe-area-inset-bottom))] z-40 flex justify-center px-3 sm:bottom-4">

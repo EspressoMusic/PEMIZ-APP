@@ -42,7 +42,7 @@ export async function fetchDashboardNotifications(
         ? Promise.resolve([])
         : prisma.order.findMany({
             where: { businessId, status: "PENDING" },
-            include: { items: true },
+            include: { items: { include: { product: true } } },
             orderBy: { createdAt: "desc" },
             take: 20,
           }),
@@ -104,10 +104,13 @@ export async function fetchDashboardNotifications(
   }
 
   for (const order of orders) {
-    const total = order.items.reduce(
-      (sum, line) => sum + line.priceAtOrder * line.quantity,
-      0
-    );
+    const orderItems = order.items.map((line) => ({
+      name: line.product.name,
+      quantity: line.quantity,
+      lineTotal: line.priceAtOrder * line.quantity,
+      imageUrl: line.product.imageUrl,
+    }));
+    const total = orderItems.reduce((sum, line) => sum + line.lineTotal, 0);
     items.push({
       id: `order:${order.id}`,
       kind: "new_order",
@@ -115,6 +118,8 @@ export async function fetchDashboardNotifications(
       subtitle: order.customerName,
       createdAt: order.createdAt.toISOString(),
       orderId: order.id,
+      orderNumber: order.orderNumber,
+      orderItems,
       customerName: order.customerName,
       customerPhone: order.customerPhone,
       message: `₪${total.toFixed(0)}`,

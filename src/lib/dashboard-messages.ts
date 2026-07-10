@@ -111,7 +111,6 @@ export type DashboardLabels = {
   notificationTypeAppointment: string;
   notificationTypeLowStock: string;
   notificationBackToList: string;
-  notificationOpenOrders: string;
   notificationOpenAppointments: string;
   notificationOpenProducts: string;
   notificationStockOut: string;
@@ -168,6 +167,7 @@ export type DashboardLabels = {
   english: string;
   back: string;
   close: string;
+  ok: string;
   save: string;
   cancel: string;
   confirm: string;
@@ -189,9 +189,7 @@ export type DashboardLabels = {
   noOrdersYet: string;
   total: string;
   prepSummaryButton: string;
-  confirmOrder: string;
   completeOrder: string;
-  cancelOrder: string;
   pending: string;
   confirmed: string;
   completed: string;
@@ -485,6 +483,8 @@ export type DashboardLabels = {
   productDeleteHasOrders: string;
   productName: string;
   serviceName: string;
+  productEditTitle: string;
+  serviceEditTitle: string;
   productPrice: string;
   productDescription: string;
   productDiscount: string;
@@ -716,6 +716,7 @@ const HE: DashboardLabels = {
   english: "English",
   back: "חזרה",
   close: "סגור",
+  ok: "אוקיי",
   save: "שמור",
   cancel: "ביטול",
   confirm: "אישור",
@@ -737,9 +738,7 @@ const HE: DashboardLabels = {
   noOrdersYet: "אין הזמנות עדיין.",
   total: "סה״כ",
   prepSummaryButton: "סיכום",
-  confirmOrder: "אשר",
   completeOrder: "סמן כהושלם",
-  cancelOrder: "בטל",
   pending: "ממתין",
   confirmed: "אושר",
   completed: "הושלם",
@@ -1067,6 +1066,8 @@ const HE: DashboardLabels = {
     "לא ניתן למחוק מוצר שמופיע בהזמנות. השתמש ב«הסתר» כדי שלא יוצג ללקוחות.",
   productName: "שם",
   serviceName: "שם שירות",
+  productEditTitle: "עריכת מוצר",
+  serviceEditTitle: "עריכת שירות",
   productPrice: "מחיר",
   productDescription: "תיאור",
   productDiscount: "הנחה",
@@ -1297,7 +1298,6 @@ const HE: DashboardLabels = {
   notificationTypeAppointment: "תור חדש",
   notificationTypeLowStock: "מלאי נמוך",
   notificationBackToList: "חזרה להתראות",
-  notificationOpenOrders: "צפה בהזמנות",
   notificationOpenAppointments: "צפה בתורים",
   notificationOpenProducts: "לניהול מוצרים",
   notificationStockOut: "אזל מהמלאי",
@@ -1412,6 +1412,7 @@ const EN: DashboardLabels = {
   english: "English",
   back: "Back",
   close: "Close",
+  ok: "OK",
   save: "Save",
   cancel: "Cancel",
   confirm: "Confirm",
@@ -1433,9 +1434,7 @@ const EN: DashboardLabels = {
   noOrdersYet: "No orders yet.",
   total: "Total",
   prepSummaryButton: "Summary",
-  confirmOrder: "Confirm",
   completeOrder: "Mark completed",
-  cancelOrder: "Cancel",
   pending: "Pending",
   confirmed: "Confirmed",
   completed: "Completed",
@@ -1764,6 +1763,8 @@ const EN: DashboardLabels = {
     "This product appears in orders and cannot be deleted. Use Hide instead.",
   productName: "Name",
   serviceName: "Service name",
+  productEditTitle: "Edit product",
+  serviceEditTitle: "Edit service",
   productPrice: "Price",
   productDescription: "Description",
   productDiscount: "Discount",
@@ -1993,7 +1994,6 @@ const EN: DashboardLabels = {
   notificationTypeAppointment: "New appointment",
   notificationTypeLowStock: "Low stock",
   notificationBackToList: "Back to notifications",
-  notificationOpenOrders: "View orders",
   notificationOpenAppointments: "View appointments",
   notificationOpenProducts: "Manage products",
   notificationStockOut: "Out of stock",

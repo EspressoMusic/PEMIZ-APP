@@ -202,7 +202,9 @@ export function DashboardActionSheet({
               fitContent
                 ? "shrink-0 overflow-visible"
                 : "flex min-h-0 flex-1 flex-col overflow-y-auto"
-            } ${compact || fitContent ? "p-2.5" : "p-3"}`}
+            } ${compact || fitContent ? "p-2.5" : "p-3"}${
+              backOutside ? " pt-6" : ""
+            }`}
           >
             {children}
           </div>

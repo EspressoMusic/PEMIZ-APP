@@ -664,29 +664,6 @@ function useOrdersManager({
     };
   }, [locale, previewOnly, previewOrders]);
 
-  async function setStatus(orderId: string, status: string) {
-    if (previewOnly) {
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === orderId
-            ? {
-                ...o,
-                status,
-                statusLabel: orderStatusLabel(status, locale),
-              }
-            : o
-        )
-      );
-      return;
-    }
-    await fetch("/api/dashboard/orders", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId, status }),
-    });
-    load();
-  }
-
   const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
   const historyOrders = orders.filter((o) => !isActiveOrderStatus(o.status));
   const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
@@ -698,7 +675,6 @@ function useOrdersManager({
     labels,
     activeOrders,
     historyOrders,
-    setStatus,
     openCustomer,
     customerModal,
     previewOnly,
@@ -707,12 +683,10 @@ function useOrdersManager({
 
 function OrdersPanels({
   orders,
-  onStatusChange,
   onCustomerClick,
   customerModal,
 }: {
   orders: DashboardOrderView[];
-  onStatusChange?: (orderId: string, status: string) => void;
   onCustomerClick?: ReturnType<
     typeof useDashboardCustomerProfile
   >["openCustomer"];
@@ -727,7 +701,6 @@ function OrdersPanels({
       <DashboardOrdersSection
         title={labels.activeOrders}
         orders={activeOrders}
-        onStatusChange={onStatusChange}
         onCustomerClick={onCustomerClick}
         customerModal={customerModal}
         emptyMessage={labels.noActiveOrders}
@@ -746,7 +719,6 @@ function OrdersActiveSheet({
   open,
   onClose,
   activeOrders,
-  onStatusChange,
   onCustomerClick,
   previewOnly,
   allOrdersForExport,
@@ -754,7 +726,6 @@ function OrdersActiveSheet({
   open: boolean;
   onClose: () => void;
   activeOrders: DashboardOrderView[];
-  onStatusChange: (orderId: string, status: string) => void;
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
   previewOnly?: boolean;
   allOrdersForExport?: DashboardOrderView[];
@@ -795,7 +766,6 @@ function OrdersActiveSheet({
         {searchField}
         <DashboardOrdersList
           orders={filteredOrders}
-          onStatusChange={onStatusChange}
           onCustomerClick={onCustomerClick}
           emptyMessage={
             hasSearchQuery ? labels.noOrderSearchResults : labels.noActiveOrders
@@ -884,7 +854,6 @@ export function DashboardOrdersEntry({
     labels,
     activeOrders,
     historyOrders,
-    setStatus,
     openCustomer,
     customerModal,
     previewOnly: isPreview,
@@ -906,7 +875,6 @@ export function DashboardOrdersEntry({
         open={open}
         onClose={() => setOpen(false)}
         activeOrders={activeOrders}
-        onStatusChange={setStatus}
         onCustomerClick={openCustomer}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
@@ -935,7 +903,6 @@ export function OrdersManager({
     labels,
     activeOrders,
     historyOrders,
-    setStatus,
     openCustomer,
     customerModal,
     previewOnly: isPreview,
@@ -944,7 +911,6 @@ export function OrdersManager({
   const panels = (
     <OrdersPanels
       orders={[...activeOrders, ...historyOrders]}
-      onStatusChange={setStatus}
       onCustomerClick={openCustomer}
       customerModal={customerModal}
     />
@@ -1012,7 +978,6 @@ export function OrdersManager({
         open={activeOrdersOpen}
         onClose={() => setActiveOrdersOpen(false)}
         activeOrders={activeOrders}
-        onStatusChange={setStatus}
         onCustomerClick={openCustomer}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}

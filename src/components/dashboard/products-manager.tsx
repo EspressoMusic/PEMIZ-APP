@@ -247,7 +247,7 @@ const ProductCard = memo(function ProductCard({
   onHide,
   onDelete,
   onStockSave,
-  onImagesSave,
+  onProductSave,
   showStock,
   showDuration,
   previewOnly,
@@ -258,34 +258,126 @@ const ProductCard = memo(function ProductCard({
   onHide: () => void;
   onDelete: () => void;
   onStockSave: (stock: number | null) => void | Promise<void>;
-  onImagesSave?: (urls: string[]) => void | Promise<void>;
+  onProductSave?: (patch: {
+    name: string;
+    description: string;
+    price: number;
+    salePrice: number | null;
+    stock: number | null;
+    serviceDurationMinutes: number | null;
+    imageUrls: string[];
+  }) => void | Promise<void>;
   showStock: boolean;
   showDuration: boolean;
   previewOnly?: boolean;
 }) {
   const images = productImages(p);
   const cover = primaryProductImageUrl(images, null);
-  const [imagesOpen, setImagesOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [draftName, setDraftName] = useState(p.name);
+  const [draftDescription, setDraftDescription] = useState(p.description ?? "");
+  const [draftPrice, setDraftPrice] = useState(String(p.price));
+  const [draftDiscountEnabled, setDraftDiscountEnabled] = useState(
+    p.salePrice != null
+  );
+  const [draftSalePrice, setDraftSalePrice] = useState(
+    p.salePrice != null ? String(p.salePrice) : ""
+  );
+  const [draftStockTracked, setDraftStockTracked] = useState(p.stock != null);
+  const [draftStock, setDraftStock] = useState(
+    p.stock != null ? String(p.stock) : ""
+  );
+  const [draftDuration, setDraftDuration] = useState(
+    p.serviceDurationMinutes != null ? String(p.serviceDurationMinutes) : ""
+  );
   const [draftImages, setDraftImages] = useState<string[]>(images);
-  const [imageError, setImageError] = useState("");
+  const [editError, setEditError] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
   const isHidden = !p.isActive;
   const hiddenDimClass = isHidden ? "opacity-50 saturate-[0.85]" : "";
   const stockAlert = showStock && isProductStockAlert(p.stock);
+  const editTitle = showDuration ? labels.serviceEditTitle : labels.productEditTitle;
 
   useEffect(() => {
-    if (!imagesOpen) return;
+    if (!editOpen) return;
+    setDraftName(p.name);
+    setDraftDescription(p.description ?? "");
+    setDraftPrice(String(p.price));
+    setDraftDiscountEnabled(p.salePrice != null);
+    setDraftSalePrice(p.salePrice != null ? String(p.salePrice) : "");
+    setDraftStockTracked(p.stock != null);
+    setDraftStock(p.stock != null ? String(p.stock) : "");
+    setDraftDuration(
+      p.serviceDurationMinutes != null ? String(p.serviceDurationMinutes) : ""
+    );
     setDraftImages(images);
-    setImageError("");
-  }, [imagesOpen, images]);
+    setEditError("");
+    // Only re-seed drafts when the sheet transitions to open — `p` and
+    // `images` are recomputed every render, so including them here would
+    // reset in-progress edits (or loop) on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editOpen]);
 
-  async function saveImages() {
+  async function saveProduct() {
     if (imageUploading) {
-      setImageError(labels.productImageUploading);
+      setEditError(labels.productImageUploading);
       return;
     }
-    await onImagesSave?.(draftImages);
-    setImagesOpen(false);
+    const name = draftName.trim();
+    const price = Number(draftPrice);
+    if (!name || Number.isNaN(price) || price <= 0) {
+      setEditError(labels.appointmentStoreSetupNeedService);
+      return;
+    }
+
+    let salePrice: number | null = null;
+    if (draftDiscountEnabled) {
+      const parsedSale = Number(draftSalePrice);
+      if (!draftSalePrice.trim() || Number.isNaN(parsedSale) || parsedSale <= 0) {
+        setEditError(labels.productDiscountRequired);
+        return;
+      }
+      if (parsedSale >= price) {
+        setEditError(labels.productDiscountBelowPrice);
+        return;
+      }
+      salePrice = parsedSale;
+    }
+
+    let stock: number | null = null;
+    if (showStock && draftStockTracked) {
+      const parsedStock = parseStockInput(draftStock);
+      if (parsedStock == null) {
+        setEditError(labels.productStockInvalid);
+        return;
+      }
+      stock = parsedStock;
+    }
+
+    let serviceDurationMinutes: number | null = null;
+    if (showDuration) {
+      const parsedDuration = Number(draftDuration);
+      if (
+        !draftDuration.trim() ||
+        Number.isNaN(parsedDuration) ||
+        parsedDuration < 15
+      ) {
+        setEditError(labels.serviceDurationRequired);
+        return;
+      }
+      serviceDurationMinutes = Math.round(parsedDuration);
+    }
+
+    await onProductSave?.({
+      name,
+      description: draftDescription.trim(),
+      price,
+      salePrice,
+      stock,
+      serviceDurationMinutes,
+      imageUrls: draftImages,
+    });
+    setEditOpen(false);
   }
 
   return (
@@ -310,21 +402,21 @@ const ProductCard = memo(function ProductCard({
               {images.length}
             </span>
           ) : null}
-          {onImagesSave && !previewOnly ? (
+          {onProductSave && !previewOnly ? (
             <button
               type="button"
-              onClick={() => setImagesOpen(true)}
+              onClick={() => setEditOpen(true)}
               className="absolute bottom-1.5 end-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-bakery-ink/75 text-white"
-              aria-label={labels.productImageEdit}
+              aria-label={editTitle}
             >
               <Pencil className="h-3.5 w-3.5" strokeWidth={2.25} />
             </button>
           ) : null}
         </div>
-      ) : onImagesSave ? (
+      ) : onProductSave ? (
         <button
           type="button"
-          onClick={() => setImagesOpen(true)}
+          onClick={() => setEditOpen(true)}
           className="flex h-[5.75rem] w-full flex-col items-center justify-center gap-0.5 bg-bakery-card text-bakery-ink transition hover:bg-bakery-cream-light active:scale-[0.98]"
         >
           <span className="text-2xl leading-none" aria-hidden>
@@ -339,12 +431,12 @@ const ProductCard = memo(function ProductCard({
           🧁
         </div>
       )}
-      {onImagesSave && !previewOnly ? (
+      {onProductSave && !previewOnly ? (
         <DashboardActionSheet
-          open={imagesOpen}
-          onClose={() => setImagesOpen(false)}
-          title={labels.productImageUpload}
-          ariaLabel={labels.productImageUpload}
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          title={editTitle}
+          ariaLabel={editTitle}
           placement="center"
           showBackButton
           compact
@@ -352,23 +444,121 @@ const ProductCard = memo(function ProductCard({
           topLayer
         >
           <div className="flex flex-col gap-3">
-            {imageError ? (
+            {editError ? (
               <p className="rounded-2xl bg-bakery-error/10 px-3 py-2 text-[13px] font-semibold text-bakery-error">
-                {imageError}
+                {editError}
               </p>
             ) : null}
+            <div className="flex flex-col gap-1.5">
+              <Input
+                label={showDuration ? labels.serviceName : labels.productName}
+                labelClassName="text-[13px]"
+                className="py-2.5 text-[15px]"
+                value={draftName}
+                onChange={(e) => setDraftName(e.target.value)}
+                required
+              />
+              <Input
+                label={labels.productPrice}
+                labelClassName="text-[13px]"
+                className="py-2.5 text-[15px]"
+                type="number"
+                step="0.01"
+                dir="ltr"
+                value={draftPrice}
+                onChange={(e) => setDraftPrice(e.target.value)}
+                required
+              />
+              <Input
+                label={labels.productDescription}
+                labelClassName="text-[13px]"
+                className="py-2.5 text-[15px]"
+                value={draftDescription}
+                onChange={(e) => setDraftDescription(e.target.value)}
+              />
+              {showDuration ? (
+                <Input
+                  label={labels.serviceDurationMinutes}
+                  labelClassName="text-[13px]"
+                  className="py-2.5 text-[15px]"
+                  type="number"
+                  min={15}
+                  max={480}
+                  step={15}
+                  dir="ltr"
+                  value={draftDuration}
+                  onChange={(e) => setDraftDuration(e.target.value)}
+                  required
+                />
+              ) : null}
+            </div>
             <ProductImagesField
               compact
               images={draftImages}
               onChange={setDraftImages}
-              onError={setImageError}
+              onError={setEditError}
               onUploadingChange={setImageUploading}
             />
+            <div className="flex flex-col gap-1.5">
+              <div className="dashboard-form-option-row flex w-full items-center justify-between gap-2 rounded-[14px] px-2.5 py-2 text-start">
+                <span className="text-[13px] font-bold text-bakery-ink">
+                  {labels.productDiscount}
+                </span>
+                <Toggle
+                  enabled={draftDiscountEnabled}
+                  onChange={setDraftDiscountEnabled}
+                  ariaLabel={labels.productDiscount}
+                />
+              </div>
+              {draftDiscountEnabled ? (
+                <Input
+                  label={labels.productDiscountPrice}
+                  labelClassName="text-[13px]"
+                  className="py-2.5 text-[15px]"
+                  type="number"
+                  step="0.01"
+                  min={0.01}
+                  dir="ltr"
+                  value={draftSalePrice}
+                  onChange={(e) => setDraftSalePrice(e.target.value)}
+                  required
+                />
+              ) : null}
+              {showStock ? (
+                <>
+                  <div className="dashboard-form-option-row flex w-full items-center justify-between gap-2 rounded-[14px] px-2.5 py-2 text-start">
+                    <span className="text-[13px] font-bold text-bakery-ink">
+                      {labels.productStock}
+                    </span>
+                    <Toggle
+                      enabled={draftStockTracked}
+                      onChange={setDraftStockTracked}
+                      ariaLabel={labels.productStock}
+                    />
+                  </div>
+                  {draftStockTracked ? (
+                    <Input
+                      labelClassName="text-[13px]"
+                      className="py-2.5 text-[15px]"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      dir="ltr"
+                      value={draftStock}
+                      onChange={(e) =>
+                        setDraftStock(e.target.value.replace(/\D/g, ""))
+                      }
+                      required
+                    />
+                  ) : null}
+                </>
+              ) : null}
+            </div>
             <Button
               type="button"
               className="dashboard-form-submit-btn min-h-[44px] font-extrabold"
               disabled={imageUploading}
-              onClick={() => void saveImages()}
+              onClick={() => void saveProduct()}
             >
               {imageUploading ? labels.productImageUploading : labels.save}
             </Button>
@@ -752,16 +942,27 @@ export function ProductsManager({
     [previewOnly, load]
   );
 
-  const updateProductImages = useCallback(
-    async (id: string, imageUrls: string[]) => {
+  const updateProduct = useCallback(
+    async (
+      id: string,
+      patch: {
+        name: string;
+        description: string;
+        price: number;
+        salePrice: number | null;
+        stock: number | null;
+        serviceDurationMinutes: number | null;
+        imageUrls: string[];
+      }
+    ) => {
       if (previewOnly) {
         setProducts((prev) =>
           prev.map((p) =>
             p.id === id
               ? {
                   ...p,
-                  imageUrls,
-                  imageUrl: imageUrls[0] ?? null,
+                  ...patch,
+                  imageUrl: patch.imageUrls[0] ?? null,
                 }
               : p
           )
@@ -775,8 +976,8 @@ export function ProductsManager({
           p.id === id
             ? {
                 ...p,
-                imageUrls,
-                imageUrl: imageUrls[0] ?? null,
+                ...patch,
+                imageUrl: patch.imageUrls[0] ?? null,
               }
             : p
         )
@@ -784,7 +985,7 @@ export function ProductsManager({
       const res = await fetch(`/api/dashboard/products/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrls }),
+        body: JSON.stringify(patch),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -859,10 +1060,10 @@ export function ProductsManager({
     if (!res.ok) {
       setProducts(prev);
       setError(data.error ?? labels.saveError);
-      setDeleteTarget(null);
       return;
     }
 
+    setError("");
     setDeleteTarget(null);
   }, [deleteTarget, previewOnly, products, labels.saveError]);
 
@@ -879,7 +1080,7 @@ export function ProductsManager({
           onHide={() => void setProductActive(p.id, p.isActive)}
           onDelete={() => requestDeleteProduct(p.id, p.name)}
           onStockSave={(stock) => updateProductStock(p.id, stock)}
-          onImagesSave={(urls) => updateProductImages(p.id, urls)}
+          onProductSave={(patch) => updateProduct(p.id, patch)}
           showStock={!isServices}
           showDuration={isServices}
         />
@@ -1048,7 +1249,11 @@ export function ProductsManager({
   const deleteProductSheet = (
     <DashboardActionSheet
       open={deleteTarget !== null}
-      onClose={() => !deletingProduct && setDeleteTarget(null)}
+      onClose={() => {
+        if (deletingProduct) return;
+        setError("");
+        setDeleteTarget(null);
+      }}
       title={labels.delete}
       ariaLabel={labels.delete}
       placement="center"
@@ -1057,6 +1262,11 @@ export function ProductsManager({
       panelClassName="w-full max-w-md"
     >
       <div className="space-y-6 px-2 py-2 text-center">
+        {error ? (
+          <p className="rounded-2xl bg-bakery-error/10 px-3 py-2 text-[13px] font-semibold text-bakery-error">
+            {error}
+          </p>
+        ) : null}
         <p className="text-[15px] font-semibold leading-relaxed text-bakery-ink">
           {labels.confirmDeleteProduct.replace(
             "{name}",
@@ -1067,7 +1277,10 @@ export function ProductsManager({
           <button
             type="button"
             disabled={deletingProduct}
-            onClick={() => setDeleteTarget(null)}
+            onClick={() => {
+              setError("");
+              setDeleteTarget(null);
+            }}
             className="min-h-[48px] min-w-[7.5rem] rounded-xl border-2 border-bakery-border bg-bakery-card px-4 text-[15px] font-extrabold text-bakery-ink transition hover:bg-bakery-surface active:opacity-80 disabled:opacity-50"
           >
             {labels.cancel}
