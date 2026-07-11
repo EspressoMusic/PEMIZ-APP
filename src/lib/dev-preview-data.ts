@@ -8,6 +8,7 @@ import { calendarConfigFromBusiness } from "@/lib/appointment-calendar-config";
 import { buildSlotsForRange } from "@/lib/appointment-slot-generator";
 import type { StoreChatMessageDto } from "@/lib/store-chat";
 import type { SellerChatThread } from "@/lib/seller-chat-threads";
+import { DEFAULT_STORE_PANELS_VISIBLE } from "@/lib/store-panels-visible";
 
 export const DEV_PREVIEW_SELLER_THREADS: SellerChatThread[] = [
   {
@@ -410,6 +411,7 @@ export const DEV_STORE_BUSINESS = {
   type: "STORE" as const,
   storeDecoration: "flowers",
   sellerContactPhone: "050-1234567",
+  storePanelsVisible: { ...DEFAULT_STORE_PANELS_VISIBLE, coupons: true },
   products: devPreviewCustomerProducts(),
   deals: [
     {

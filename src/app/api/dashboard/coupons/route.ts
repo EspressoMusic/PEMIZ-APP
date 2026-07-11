@@ -3,6 +3,10 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireStoreOwner } from "@/lib/dashboard-auth";
+import {
+  storePanelsFromBusiness,
+  storePanelsVisibleToJson,
+} from "@/lib/store-panels-visible";
 
 const schema = z.object({
   code: z
@@ -63,6 +67,18 @@ export async function POST(req: Request) {
       },
       include: couponInclude,
     });
+
+    // Adding a coupon should immediately let customers redeem it at checkout.
+    const panels = storePanelsFromBusiness(ctx.user.business);
+    if (!panels.coupons) {
+      await prisma.business.update({
+        where: { id: ctx.user.business.id },
+        data: {
+          storePanelsVisible: storePanelsVisibleToJson({ ...panels, coupons: true }),
+        },
+      });
+    }
+
     return jsonOk({ coupon });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {

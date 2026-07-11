@@ -254,7 +254,7 @@ export function CouponsManager({
       ...(minOrderAmount ? { minOrderAmount: Number(minOrderAmount) } : {}),
       ...(totalUnlimited ? {} : { maxRedemptions: totalCount }),
       maxRedemptionsPerCustomer: perCustomerUnlimited ? 0 : perCustomerCount,
-      ...(noExpiry
+      ...(noExpiry || !validUntil
         ? {}
         : { validUntil: new Date(`${validUntil}T23:59:59`).toISOString() }),
     };
@@ -272,7 +272,10 @@ export function CouponsManager({
             maxRedemptions: totalUnlimited ? null : totalCount,
             maxRedemptionsPerCustomer: perCustomerUnlimited ? 0 : perCustomerCount,
             isActive: true,
-            validUntil: noExpiry ? null : new Date(`${validUntil}T23:59:59`).toISOString(),
+            validUntil:
+              noExpiry || !validUntil
+                ? null
+                : new Date(`${validUntil}T23:59:59`).toISOString(),
             _count: { redemptions: 0 },
           },
           ...prev,
@@ -319,7 +322,10 @@ export function CouponsManager({
       minOrderAmount: minOrderAmount ? Number(minOrderAmount) : null,
       maxRedemptions: totalUnlimited ? null : totalCount,
       maxRedemptionsPerCustomer: perCustomerUnlimited ? 0 : perCustomerCount,
-      validUntil: noExpiry ? null : new Date(`${validUntil}T23:59:59`).toISOString(),
+      validUntil:
+        noExpiry || !validUntil
+          ? null
+          : new Date(`${validUntil}T23:59:59`).toISOString(),
     };
 
     setSaving(true);

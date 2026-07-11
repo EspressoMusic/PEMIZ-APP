@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Input } from "@/components/ui";
+import { Button, Input, Toggle } from "@/components/ui";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatCustomerMoney } from "@/lib/customer-money";
@@ -37,6 +37,7 @@ export function OrderCheckoutModal({
 }) {
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
+  const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [localError, setLocalError] = useState("");
 
@@ -44,6 +45,7 @@ export function OrderCheckoutModal({
     if (open) {
       setName(initialName);
       setPhone(initialPhone);
+      setCouponEnabled(false);
       setCouponCode("");
       setLocalError("");
     }
@@ -60,7 +62,8 @@ export function OrderCheckoutModal({
           submitting: "שולח...",
           invalidPhone: "יש להזין מספר נייד ישראלי תקין (למשל 050-1234567)",
           nameRequired: "יש למלא שם",
-          couponCode: "קוד קופון (אופציונלי)",
+          couponToggle: "קופון",
+          couponCode: "קוד קופון",
         }
       : {
           title: "Complete your order",
@@ -71,7 +74,8 @@ export function OrderCheckoutModal({
           submitting: "Sending...",
           invalidPhone: "Enter a valid Israeli mobile number (e.g. 050-1234567)",
           nameRequired: "Please enter your name",
-          couponCode: "Coupon code (optional)",
+          couponToggle: "Coupon",
+          couponCode: "Coupon code",
         };
 
   const displayError = error || localError;
@@ -128,14 +132,33 @@ export function OrderCheckoutModal({
             inputMode="tel"
           />
           {showCoupon ? (
-            <Input
-              label={t.couponCode}
-              labelClassName="text-center"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-              className="text-center"
-              dir="ltr"
-            />
+            <div className="flex items-stretch gap-2">
+              <div className="flex shrink-0 items-center gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-2.5 py-2">
+                <span className="text-[12px] font-bold leading-tight text-bakery-ink">
+                  {t.couponToggle}
+                </span>
+                <Toggle
+                  enabled={couponEnabled}
+                  onChange={(next) => {
+                    setCouponEnabled(next);
+                    if (!next) setCouponCode("");
+                  }}
+                  ariaLabel={t.couponToggle}
+                />
+              </div>
+              {couponEnabled ? (
+                <div className="min-w-0 flex-1">
+                  <Input
+                    aria-label={t.couponCode}
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    className="text-center"
+                    dir="ltr"
+                    autoFocus
+                  />
+                </div>
+              ) : null}
+            </div>
           ) : null}
           <Button
             type="button"
