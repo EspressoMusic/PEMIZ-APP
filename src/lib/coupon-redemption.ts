@@ -16,13 +16,13 @@ export function isCouponTotalLimitReached(
   return redemptionCount >= maxRedemptions;
 }
 
-export function couponInvalidOrExpiredError(locale: "he" | "en" = "he"): string {
+export function couponInvalidOrExpiredError(locale: "he" | "en" = "en"): string {
   return locale === "he"
     ? "קוד הקופון לא תקין או שפג תוקפו"
     : "This coupon code is invalid or has expired";
 }
 
-export function couponRedemptionLimitError(locale: "he" | "en" = "he"): string {
+export function couponRedemptionLimitError(locale: "he" | "en" = "en"): string {
   return locale === "he"
     ? "הגעת למכסת המימושים לקופון הזה"
     : "You reached the redemption limit for this coupon";
@@ -30,7 +30,7 @@ export function couponRedemptionLimitError(locale: "he" | "en" = "he"): string {
 
 export function couponMinOrderError(
   minOrderAmount: number,
-  locale: "he" | "en" = "he"
+  locale: "he" | "en" = "en"
 ): string {
   return locale === "he"
     ? `סכום ההזמנה חייב להיות לפחות ${minOrderAmount.toFixed(2)} ₪ למימוש הקופון`

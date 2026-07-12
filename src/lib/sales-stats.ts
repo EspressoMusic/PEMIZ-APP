@@ -31,7 +31,7 @@ function monthKey(d: Date) {
 
 export function buildSalesStatsBuckets(
   period: SalesStatsPeriod,
-  locale: AppLocale = "he"
+  locale: AppLocale = "en"
 ): SalesStatsBucket[] {
   const now = new Date();
   const dateLocale = locale === "en" ? "en-US" : "he-IL";
@@ -143,7 +143,7 @@ function bucketKeyForOrder(createdAt: Date, period: SalesStatsPeriod): string {
 export function computeSalesStats(
   orders: OrderForStats[],
   period: SalesStatsPeriod,
-  locale: AppLocale = "he"
+  locale: AppLocale = "en"
 ): {
   points: SalesStatsPoint[];
   totalRevenue: number;
@@ -188,7 +188,7 @@ export function getSalesStatsPeriodMeta(period: SalesStatsPeriod, locale: AppLoc
   return map[period];
 }
 
-export function demoSalesStats(period: SalesStatsPeriod, locale: AppLocale = "he") {
+export function demoSalesStats(period: SalesStatsPeriod, locale: AppLocale = "en") {
   const buckets = buildSalesStatsBuckets(period, locale);
   const demoCounts =
     period === "year"

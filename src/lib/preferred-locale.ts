@@ -4,6 +4,7 @@ import {
   DASHBOARD_LOCALE_COOKIE,
   parseLocaleCookie,
 } from "@/lib/dashboard-appearance-boot";
+import { SITE_LOCALE } from "@/lib/site-locale";
 
 export function normalizePreferredLocale(
   value: string | null | undefined
@@ -14,6 +15,7 @@ export function normalizePreferredLocale(
 export async function readPreferredLocaleFromCookies(): Promise<AppLocale> {
   const cookieStore = await cookies();
   return (
-    parseLocaleCookie(cookieStore.get(DASHBOARD_LOCALE_COOKIE)?.value) ?? "he"
+    parseLocaleCookie(cookieStore.get(DASHBOARD_LOCALE_COOKIE)?.value) ??
+    SITE_LOCALE
   );
 }

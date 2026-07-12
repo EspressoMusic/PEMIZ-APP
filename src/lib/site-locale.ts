@@ -1,7 +1,7 @@
 import type { CustomerLocale } from "@/lib/customer-preferences";
 
 /** Default UI language when no preference is stored. */
-export const SITE_LOCALE: CustomerLocale = "he";
+export const SITE_LOCALE: CustomerLocale = "en";
 
 export function resolveSiteLocale(
   value?: string | null | undefined

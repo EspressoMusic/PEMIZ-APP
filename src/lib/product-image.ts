@@ -26,7 +26,7 @@ const IMAGE_ERRORS: Record<
 
 export function readProductImageFile(
   file: File,
-  locale: AppLocale = "he"
+  locale: AppLocale = "en"
 ): Promise<string> {
   const err = IMAGE_ERRORS[locale];
   return new Promise((resolve, reject) => {
@@ -132,7 +132,7 @@ async function postProductImageForm(
 export async function uploadProductImageBlob(
   blob: Blob,
   fileName: string,
-  locale: AppLocale = "he"
+  locale: AppLocale = "en"
 ): Promise<string> {
   const mime = blob.type === "image/png" ? "image/png" : "image/jpeg";
   const typedBlob =
@@ -143,7 +143,7 @@ export async function uploadProductImageBlob(
 
 export async function uploadProductImageFile(
   file: File,
-  locale: AppLocale = "he"
+  locale: AppLocale = "en"
 ): Promise<string> {
   const err = IMAGE_ERRORS[locale];
   if (!isAllowedImageMime(file.type)) {

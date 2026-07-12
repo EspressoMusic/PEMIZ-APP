@@ -1,3 +1,5 @@
+import { SITE_LOCALE } from "@/lib/site-locale";
+
 export type MarketingLocale = "en" | "he";
 
 export const MARKETING_LOCALE_KEY = "bizilink-marketing-locale";
@@ -427,7 +429,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
 export function normalizeMarketingLocale(
   value: string | null | undefined
 ): MarketingLocale {
-  return value === "en" ? "en" : "he";
+  return value === "he" ? "he" : SITE_LOCALE;
 }
 
 export function applyMarketingLocale(locale: MarketingLocale) {

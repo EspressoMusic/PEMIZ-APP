@@ -59,7 +59,7 @@ export function parseStoreDecoration(value?: string | null): StoreDecorationId {
 
 export function storeDecorationLabel(
   decoration: StoreDecorationId,
-  locale: "he" | "en" = "he"
+  locale: "he" | "en" = "en"
 ): string {
   const meta = STORE_DECORATIONS.find((d) => d.id === decoration);
   if (!meta) return decoration;
@@ -68,7 +68,7 @@ export function storeDecorationLabel(
 
 export function storeDecorationDescription(
   decoration: StoreDecorationId,
-  locale: "he" | "en" = "he"
+  locale: "he" | "en" = "en"
 ): string {
   const meta = STORE_DECORATIONS.find((d) => d.id === decoration);
   if (!meta) return "";
@@ -159,7 +159,7 @@ export function parseStoreTheme(value?: string | null): StoreThemeId {
 
 export function storeThemeLabel(
   theme: StoreThemeId,
-  locale: "he" | "en" = "he"
+  locale: "he" | "en" = "en"
 ): string {
   const meta = STORE_THEMES.find((t) => t.id === theme);
   if (!meta) return theme;

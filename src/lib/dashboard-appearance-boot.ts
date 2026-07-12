@@ -2,6 +2,7 @@ import type { AppLocale } from "@/lib/app-locale";
 import { normalizeAppLocale } from "@/lib/app-locale";
 import { MARKETING_LOCALE_KEY } from "@/lib/marketing-locale";
 import { parseStoreTheme, type StoreThemeId } from "@/lib/store-themes";
+import { SITE_LOCALE } from "@/lib/site-locale";
 
 export const DASHBOARD_THEME_COOKIE = "linky-dashboard-theme";
 export const DASHBOARD_LOCALE_COOKIE = "linky-dashboard-locale";
@@ -10,7 +11,7 @@ const THEME_KEY = "linky-dashboard-theme";
 const LOCALE_KEY = "linky-dashboard-locale";
 
 /** Runs in <head> before paint — applies saved theme before first paint */
-export const DASHBOARD_APPEARANCE_BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var t=sessionStorage.getItem("${THEME_KEY}");if(t==="dark"||t==="light"||t==="calm"||t==="turquoise"||t==="modern")d.setAttribute("data-store-theme",t==="modern"?"turquoise":t);var l=sessionStorage.getItem("${LOCALE_KEY}");if(l!=="he"&&l!=="en"){var m=localStorage.getItem("${MARKETING_LOCALE_KEY}");if(m==="he"||m==="en")l=m;else{var c=document.cookie.match(/(?:^|; )linky-dashboard-locale=([^;]*)/);l=c&&decodeURIComponent(c[1])==="en"?"en":"he";}}if(l!=="en")l="he";d.setAttribute("data-locale",l);d.lang=l==="he"?"he":"en";d.dir=l==="he"?"rtl":"ltr";sessionStorage.setItem("${LOCALE_KEY}",l);}catch(e){}})();`;
+export const DASHBOARD_APPEARANCE_BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var t=sessionStorage.getItem("${THEME_KEY}");if(t==="dark"||t==="light"||t==="calm"||t==="turquoise"||t==="modern")d.setAttribute("data-store-theme",t==="modern"?"turquoise":t);var l=sessionStorage.getItem("${LOCALE_KEY}");if(l!=="he"&&l!=="en"){var m=localStorage.getItem("${MARKETING_LOCALE_KEY}");if(m==="he"||m==="en")l=m;else{var c=document.cookie.match(/(?:^|; )linky-dashboard-locale=([^;]*)/);l=c&&decodeURIComponent(c[1])==="he"?"he":"${SITE_LOCALE}";}}if(l!=="he")l="${SITE_LOCALE}";d.setAttribute("data-locale",l);d.lang=l==="he"?"he":"en";d.dir=l==="he"?"rtl":"ltr";sessionStorage.setItem("${LOCALE_KEY}",l);}catch(e){}})();`;
 
 export function writeDashboardThemeCookie(theme: StoreThemeId) {
   if (typeof document === "undefined") return;

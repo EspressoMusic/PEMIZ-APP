@@ -7,6 +7,7 @@ import { isGuestLoginAllowed } from "@/lib/auth-guest-dev";
 import { generateUniqueBusinessSlug } from "@/lib/business";
 import { isDatabaseConfigured, databaseConfigHint } from "@/lib/db-env";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { SITE_LOCALE } from "@/lib/site-locale";
 
 export const runtime = "nodejs";
 
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
         slug,
         description: "Sandbox payment test store — safe to delete.",
         type: "STORE",
-        storeLocale: "he",
+        storeLocale: SITE_LOCALE,
         ownerId: user.id,
         termsAcceptedAt: new Date(),
         isActive: true,

@@ -18,6 +18,7 @@ import {
   type MarketingLocale,
 } from "@/lib/marketing-locale";
 import { writeDashboardLocaleSession } from "@/lib/dashboard-appearance-session";
+import { SITE_LOCALE } from "@/lib/site-locale";
 
 type MarketingLocaleContextValue = {
   locale: MarketingLocale;
@@ -32,7 +33,7 @@ const MarketingLocaleContext = createContext<MarketingLocaleContextValue | null>
 );
 
 export function MarketingLocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<MarketingLocale>("he");
+  const [locale, setLocaleState] = useState<MarketingLocale>(SITE_LOCALE);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {

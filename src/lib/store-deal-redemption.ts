@@ -9,7 +9,7 @@ export function isDealRedemptionLimitReached(
 
 export function dealRedemptionLimitError(
   maxRedemptionsPerCustomer: number,
-  locale: "he" | "en" = "he"
+  locale: "he" | "en" = "en"
 ): string {
   if (maxRedemptionsPerCustomer === 1) {
     return locale === "he"

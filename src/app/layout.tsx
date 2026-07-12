@@ -6,6 +6,7 @@ import {
   parseThemeCookie,
 } from "@/lib/dashboard-appearance-boot";
 import { DEFAULT_STORE_THEME } from "@/lib/store-themes";
+import { SITE_LOCALE } from "@/lib/site-locale";
 import { PwaRoot } from "@/components/pwa/pwa-root";
 import { getAppBaseUrl } from "@/lib/app-url";
 
@@ -75,7 +76,7 @@ export default async function RootLayout({
   );
   const locale = parseLocaleCookie(
     cookieStore.get("linky-dashboard-locale")?.value
-  ) ?? "he";
+  ) ?? SITE_LOCALE;
 
   return (
     <html

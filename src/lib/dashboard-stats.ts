@@ -1,7 +1,7 @@
 import type { AppLocale } from "@/lib/app-locale";
 
 /** Last 7 days labels + keys for grouping */
-export function last7DayBuckets(locale: AppLocale = "he") {
+export function last7DayBuckets(locale: AppLocale = "en") {
   const buckets: { key: string; label: string }[] = [];
   const now = new Date();
   const dateLocale = locale === "en" ? "en-US" : "he-IL";

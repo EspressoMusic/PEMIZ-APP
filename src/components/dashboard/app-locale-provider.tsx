@@ -25,6 +25,7 @@ import {
   hydrateDashboardLocale,
   readDashboardLocaleSession,
 } from "@/lib/dashboard-appearance-session";
+import { SITE_LOCALE } from "@/lib/site-locale";
 
 type AppLocaleContextValue = {
   locale: AppLocale;
@@ -40,7 +41,7 @@ const AppLocaleContext = createContext<AppLocaleContextValue | null>(null);
 
 export function AppLocaleProvider({
   children,
-  initialLocale = "he",
+  initialLocale = SITE_LOCALE,
 }: {
   children: ReactNode;
   initialLocale?: string | null;
@@ -86,7 +87,7 @@ export function AppLocaleProvider({
 export function useAppLocale() {
   const ctx = useContext(AppLocaleContext);
   if (!ctx) {
-    const locale: AppLocale = "he";
+    const locale: AppLocale = SITE_LOCALE;
     return {
       locale,
       labels: getDashboardLabels(locale),

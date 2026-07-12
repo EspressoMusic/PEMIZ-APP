@@ -163,7 +163,7 @@ export const publicReviewSchema = z.object({
 
 export function zodFirstError(
   parsed: z.ZodSafeParseError<unknown>,
-  locale: AppLocale = "he"
+  locale: AppLocale = "en"
 ): string {
   return parsed.error.issues[0]?.message ?? getAuthMessages(locale).invalidData;
 }
