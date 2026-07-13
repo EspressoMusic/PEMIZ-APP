@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { useEffect, useRef, useState } from "react";
+import {
+  GoogleAuthProvider,
+  getRedirectResult,
+  signInWithRedirect,
+  signOut,
+} from "firebase/auth";
 import { Button } from "@/components/ui";
 import { getFirebaseAuth, isFirebaseClientConfigured } from "@/lib/firebase/client";
 import { extractFirebaseErrorCode } from "@/lib/firebase/config";
@@ -37,15 +42,76 @@ export function CustomerGoogleSignIn({
   labels,
   compact = false,
   onSignedIn,
+  onBeforeRedirect,
 }: {
   slug: string;
   locale: CustomerLocale;
   labels: CustomerLabels;
   compact?: boolean;
   onSignedIn: (email: string, name?: string) => void;
+  // Called right before the browser navigates away for sign-in, so the
+  // caller can stash anything (cart, open panels) that would otherwise be
+  // lost across the full-page redirect round trip.
+  onBeforeRedirect?: () => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const redirectHandled = useRef(false);
+
+  async function completeSignIn(firebaseIdToken: string) {
+    const res = await fetch(`/api/public/${slug}/customer-auth/google`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firebaseIdToken }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      email?: string;
+      name?: string;
+    };
+
+    if (!res.ok || !data.email) {
+      setError(data.error ?? labels.googleSignInError);
+      return;
+    }
+
+    onSignedIn(data.email, data.name);
+  }
+
+  // Handles the return leg of signInWithRedirect below — Google sends the
+  // browser back to this same page after the account picker.
+  useEffect(() => {
+    if (redirectHandled.current || !isFirebaseClientConfigured()) return;
+    redirectHandled.current = true;
+    const auth = getFirebaseAuth();
+    if (!auth) return;
+
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (!result) return;
+        setLoading(true);
+        try {
+          const firebaseIdToken = await result.user.getIdToken(true);
+          await signOut(auth).catch(() => {});
+          await completeSignIn(firebaseIdToken);
+        } finally {
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        const code = extractFirebaseErrorCode(err);
+        if (
+          code === "auth/user-cancelled" ||
+          code === "auth/redirect-cancelled-by-user"
+        ) {
+          setError(labels.googleSignInCancelled);
+        } else {
+          setError(labels.googleSignInError);
+        }
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function signIn() {
     setError("");
@@ -64,39 +130,17 @@ export function CustomerGoogleSignIn({
 
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
-      const result = await signInWithPopup(auth, provider);
-      const firebaseIdToken = await result.user.getIdToken(true);
-      await signOut(auth).catch(() => {});
-
-      const res = await fetch(`/api/public/${slug}/customer-auth/google`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firebaseIdToken }),
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        email?: string;
-        name?: string;
-      };
-
-      if (!res.ok || !data.email) {
-        setError(data.error ?? labels.googleSignInError);
-        return;
-      }
-
-      onSignedIn(data.email, data.name);
+      // signInWithPopup breaks under Safari ITP / Chrome third-party-storage
+      // restrictions / ad blockers — Firebase reports a bogus
+      // popup-closed-by-user right after account selection. Redirect flow
+      // doesn't depend on cross-window postMessage, so it isn't affected.
+      onBeforeRedirect?.();
+      await signInWithRedirect(auth, provider);
     } catch (err) {
-      const code = extractFirebaseErrorCode(err);
-      if (
-        code === "auth/popup-closed-by-user" ||
-        code === "auth/cancelled-popup-request"
-      ) {
-        setError(labels.googleSignInCancelled);
-        return;
+      if (process.env.NODE_ENV === "development") {
+        console.error("[Linky google auth]", extractFirebaseErrorCode(err) || err);
       }
       setError(labels.googleSignInError);
-    } finally {
       setLoading(false);
     }
   }

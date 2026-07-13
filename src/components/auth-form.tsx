@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  getRedirectResult,
+  signInWithRedirect,
+  signOut,
+} from "firebase/auth";
 import { Alert, Panel } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { DashboardConfettiBackground } from "@/components/dashboard/dashboard-confetti-background";
@@ -43,12 +48,91 @@ export function AuthForm({ allowGuest = false }: { allowGuest?: boolean }) {
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const [confetti, setConfetti] = useState(false);
+  const redirectHandled = useRef(false);
 
   useEffect(() => {
     if (searchParams.get("reset") === "1") {
       setInfo(copy.authPasswordResetInfo);
     }
   }, [searchParams, copy.authPasswordResetInfo]);
+
+  // Handles the return leg of signInWithRedirect below — Google sends the
+  // browser back to this same page after the account picker.
+  useEffect(() => {
+    if (redirectHandled.current || !isFirebaseClientConfigured()) return;
+    redirectHandled.current = true;
+    const auth = getFirebaseAuth();
+    if (!auth) return;
+
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (!result) return;
+        setLoading(true);
+        try {
+          const firebaseIdToken = await result.user.getIdToken(true);
+          await signOut(auth).catch(() => {});
+          await completeGoogleSignIn(firebaseIdToken);
+        } finally {
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        const code = extractFirebaseErrorCode(err);
+        if (
+          code === "auth/user-cancelled" ||
+          code === "auth/redirect-cancelled-by-user"
+        ) {
+          setError(copy.authGoogleCancelled);
+        } else {
+          if (process.env.NODE_ENV === "development") {
+            console.error("[Linky google auth]", code || err);
+          }
+          setError(copy.authGoogleError);
+        }
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function completeGoogleSignIn(firebaseIdToken: string) {
+    const res = await fetch("/api/auth/google", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firebaseIdToken }),
+    });
+    const contentType = res.headers.get("content-type") ?? "";
+    const data = contentType.includes("application/json")
+      ? ((await res.json().catch(() => ({}))) as {
+          error?: string;
+          hasBusiness?: boolean;
+          redirectTo?: string;
+          isNewUser?: boolean;
+        })
+      : {};
+
+    if (!res.ok) {
+      setError(
+        localizeAuthError(
+          data.error ??
+            (res.status >= 500 ? copy.authServerError : copy.authGoogleError),
+          locale
+        )
+      );
+      return;
+    }
+
+    if (data.isNewUser) {
+      setConfetti(true);
+    }
+
+    if (data.redirectTo) {
+      router.push(data.redirectTo);
+    } else if (data.hasBusiness === false) {
+      router.push("/onboarding");
+    } else {
+      router.push("/dashboard");
+    }
+    router.refresh();
+  }
 
   async function signInWithGoogle() {
     setError("");
@@ -67,64 +151,17 @@ export function AuthForm({ allowGuest = false }: { allowGuest?: boolean }) {
 
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
-      const result = await signInWithPopup(auth, provider);
-      const firebaseIdToken = await result.user.getIdToken(true);
-      await signOut(auth).catch(() => {});
-
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firebaseIdToken }),
-      });
-      const contentType = res.headers.get("content-type") ?? "";
-      const data = contentType.includes("application/json")
-        ? ((await res.json().catch(() => ({}))) as {
-            error?: string;
-            hasBusiness?: boolean;
-            redirectTo?: string;
-            isNewUser?: boolean;
-          })
-        : {};
-
-      if (!res.ok) {
-        setError(
-          localizeAuthError(
-            data.error ??
-              (res.status >= 500
-                ? copy.authServerError
-                : copy.authGoogleError),
-            locale
-          )
-        );
-        return;
-      }
-
-      if (data.isNewUser) {
-        setConfetti(true);
-      }
-
-      if (data.redirectTo) {
-        router.push(data.redirectTo);
-      } else if (data.hasBusiness === false) {
-        router.push("/onboarding");
-      } else {
-        router.push("/dashboard");
-      }
-      router.refresh();
+      // signInWithPopup breaks under Safari ITP / Chrome third-party-storage
+      // restrictions / ad blockers — Firebase reports a bogus
+      // popup-closed-by-user right after account selection. Redirect flow
+      // doesn't depend on cross-window postMessage, so it isn't affected.
+      await signInWithRedirect(auth, provider);
     } catch (err) {
       const code = extractFirebaseErrorCode(err);
-      if (
-        code === "auth/popup-closed-by-user" ||
-        code === "auth/cancelled-popup-request"
-      ) {
-        setError(copy.authGoogleCancelled);
-      } else {
-        if (process.env.NODE_ENV === "development") {
-          console.error("[Linky google auth]", code || err);
-        }
-        setError(copy.authGoogleError);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[Linky google auth]", code || err);
       }
-    } finally {
+      setError(copy.authGoogleError);
       setLoading(false);
     }
   }
@@ -188,10 +225,14 @@ export function AuthForm({ allowGuest = false }: { allowGuest?: boolean }) {
               type="button"
               disabled={loading}
               onClick={() => void signInWithGoogle()}
-              className="flex min-h-[58px] w-full items-center justify-center gap-3 rounded-full border-2 border-bakery-border bg-white px-5 py-4 text-[17px] font-bold text-bakery-ink shadow-sm transition hover:bg-bakery-surface disabled:opacity-60 sm:min-h-[62px] sm:text-[18px]"
+              className="flex min-h-[58px] w-full items-center justify-center gap-3 rounded-full border-2 border-bakery-border bg-white px-5 py-4 text-[17px] font-bold text-bakery-ink shadow-sm transition hover:bg-bakery-surface disabled:cursor-not-allowed sm:min-h-[62px] sm:text-[18px]"
             >
-              <GoogleIcon />
-              {loading ? copy.authGoogleLoading : copy.authGoogleButton}
+              <span
+                className={`flex items-center justify-center gap-3 ${loading ? "opacity-60" : ""}`}
+              >
+                <GoogleIcon />
+                {loading ? copy.authGoogleLoading : copy.authGoogleButton}
+              </span>
             </button>
             {allowGuest ? (
               <button
