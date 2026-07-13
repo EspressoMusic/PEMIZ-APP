@@ -20,6 +20,7 @@ type Coupon = {
   maxRedemptions: number | null;
   maxRedemptionsPerCustomer: number;
   isActive: boolean;
+  autoGrantOnReview: boolean;
   validUntil: string | null;
   _count?: { redemptions: number };
 };
@@ -123,6 +124,11 @@ function CouponCard({
           <p className="text-[15px] font-extrabold leading-snug text-bakery-ink">
             {couponDiscountLabel(coupon, formatMoney)} {labels.couponDiscountValue}
           </p>
+          {coupon.autoGrantOnReview ? (
+            <p className="text-[12px] font-bold text-bakery-primary">
+              {labels.couponAutoGrantBadge}
+            </p>
+          ) : null}
           {coupon.validUntil ? (
             <p className="text-[12px] font-semibold text-bakery-muted">
               {labels.couponValidUntil}: {formatDayDate(coupon.validUntil)}
@@ -185,6 +191,7 @@ export function CouponsManager({
   const [totalCount, setTotalCount] = useState(100);
   const [noExpiry, setNoExpiry] = useState(true);
   const [validUntil, setValidUntil] = useState("");
+  const [autoGrantOnReview, setAutoGrantOnReview] = useState(false);
 
   async function load() {
     if (previewOnly) return;
@@ -209,6 +216,7 @@ export function CouponsManager({
     setTotalCount(100);
     setNoExpiry(true);
     setValidUntil("");
+    setAutoGrantOnReview(false);
     setError("");
   }
 
@@ -231,6 +239,7 @@ export function CouponsManager({
     setTotalCount(coupon.maxRedemptions ?? 100);
     setNoExpiry(coupon.validUntil == null);
     setValidUntil(coupon.validUntil ? coupon.validUntil.slice(0, 10) : "");
+    setAutoGrantOnReview(coupon.autoGrantOnReview);
     setEditingId(coupon.id);
   }
 
@@ -257,6 +266,7 @@ export function CouponsManager({
       ...(noExpiry || !validUntil
         ? {}
         : { validUntil: new Date(`${validUntil}T23:59:59`).toISOString() }),
+      autoGrantOnReview,
     };
 
     setSaving(true);
@@ -272,13 +282,16 @@ export function CouponsManager({
             maxRedemptions: totalUnlimited ? null : totalCount,
             maxRedemptionsPerCustomer: perCustomerUnlimited ? 0 : perCustomerCount,
             isActive: true,
+            autoGrantOnReview,
             validUntil:
               noExpiry || !validUntil
                 ? null
                 : new Date(`${validUntil}T23:59:59`).toISOString(),
             _count: { redemptions: 0 },
           },
-          ...prev,
+          ...(autoGrantOnReview
+            ? prev.map((c) => ({ ...c, autoGrantOnReview: false }))
+            : prev),
         ]);
         setAddOpen(false);
         if (standaloneList) setListOpen(true);
@@ -326,13 +339,17 @@ export function CouponsManager({
         noExpiry || !validUntil
           ? null
           : new Date(`${validUntil}T23:59:59`).toISOString(),
+      autoGrantOnReview,
     };
 
     setSaving(true);
     try {
       if (previewOnly) {
         setCoupons((prev) =>
-          prev.map((c) => (c.id === editingId ? { ...c, ...payload } : c))
+          prev.map((c) => {
+            if (c.id === editingId) return { ...c, ...payload };
+            return autoGrantOnReview ? { ...c, autoGrantOnReview: false } : c;
+          })
         );
         setEditingId(null);
         if (standaloneList) setListOpen(true);
@@ -446,6 +463,22 @@ export function CouponsManager({
             />
           </div>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-3 py-2.5 text-start">
+        <div className="min-w-0">
+          <span className="block text-[13px] font-bold text-bakery-ink">
+            {labels.couponAutoGrantOnReview}
+          </span>
+          <span className="block text-[11px] font-semibold leading-snug text-bakery-muted">
+            {labels.couponAutoGrantOnReviewHint}
+          </span>
+        </div>
+        <Toggle
+          enabled={autoGrantOnReview}
+          onChange={setAutoGrantOnReview}
+          ariaLabel={labels.couponAutoGrantOnReview}
+        />
       </div>
     </>
   );

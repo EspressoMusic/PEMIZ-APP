@@ -24,6 +24,7 @@ const schema = z.object({
   maxRedemptions: z.number().int().positive().optional(),
   maxRedemptionsPerCustomer: z.number().int().min(0).max(99).optional(),
   validUntil: z.string().datetime().optional(),
+  autoGrantOnReview: z.boolean().optional(),
 });
 
 const couponInclude = {
@@ -54,18 +55,28 @@ export async function POST(req: Request) {
   }
 
   try {
-    const coupon = await prisma.coupon.create({
-      data: {
-        businessId: ctx.user.business.id,
-        code: parsed.data.code.toUpperCase(),
-        discountType: parsed.data.discountType,
-        discountValue: parsed.data.discountValue,
-        minOrderAmount: parsed.data.minOrderAmount ?? null,
-        maxRedemptions: parsed.data.maxRedemptions ?? null,
-        maxRedemptionsPerCustomer: parsed.data.maxRedemptionsPerCustomer ?? 1,
-        validUntil: parsed.data.validUntil ? new Date(parsed.data.validUntil) : null,
-      },
-      include: couponInclude,
+    const coupon = await prisma.$transaction(async (tx) => {
+      // Only one coupon per business can be the auto-granted review reward.
+      if (parsed.data.autoGrantOnReview) {
+        await tx.coupon.updateMany({
+          where: { businessId: ctx.user.business.id, autoGrantOnReview: true },
+          data: { autoGrantOnReview: false },
+        });
+      }
+      return tx.coupon.create({
+        data: {
+          businessId: ctx.user.business.id,
+          code: parsed.data.code.toUpperCase(),
+          discountType: parsed.data.discountType,
+          discountValue: parsed.data.discountValue,
+          minOrderAmount: parsed.data.minOrderAmount ?? null,
+          maxRedemptions: parsed.data.maxRedemptions ?? null,
+          maxRedemptionsPerCustomer: parsed.data.maxRedemptionsPerCustomer ?? 1,
+          validUntil: parsed.data.validUntil ? new Date(parsed.data.validUntil) : null,
+          autoGrantOnReview: parsed.data.autoGrantOnReview ?? false,
+        },
+        include: couponInclude,
+      });
     });
 
     // Adding a coupon should immediately let customers redeem it at checkout.

@@ -249,6 +249,9 @@ model Coupon {
   // 1 = once per customer; 0 = unlimited; N = up to N redemptions
   maxRedemptionsPerCustomer Int                 @default(1)
   isActive                  Boolean             @default(true)
+  // If true, this coupon's code is handed to a customer automatically after they submit a store review.
+  // Only one coupon per business may have this set (enforced in the API layer).
+  autoGrantOnReview         Boolean             @default(false)
   validUntil                DateTime?
   createdAt                 DateTime            @default(now())
   redemptions               CouponRedemption[]

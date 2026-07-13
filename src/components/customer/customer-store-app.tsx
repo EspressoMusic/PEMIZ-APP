@@ -28,7 +28,10 @@ import {
 } from "./customer-store-tab-nav";
 import { CustomerFaqSheet } from "./customer-faq-sheet";
 import { CustomerReviewsSheet } from "./customer-reviews-sheet";
-import { CustomerReviewPromptModal } from "./customer-review-prompt-modal";
+import {
+  CustomerReviewPromptModal,
+  type ReviewRewardCoupon,
+} from "./customer-review-prompt-modal";
 import { CustomerDisplaySheet } from "./customer-display-sheet";
 import { CustomerLegalSheet } from "./customer-legal-sheet";
 import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
@@ -408,6 +411,8 @@ export function CustomerStoreApp({
   const [faqOpen, setFaqOpen] = useState(false);
   const [reviewsSheetOpen, setReviewsSheetOpen] = useState(false);
   const [reviewPromptOpen, setReviewPromptOpen] = useState(false);
+  const [reviewRewardCoupon, setReviewRewardCoupon] =
+    useState<ReviewRewardCoupon | null>(null);
   const [displayOpen, setDisplayOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
   const [installAppOpen, setInstallAppOpen] = useState(false);
@@ -2299,7 +2304,25 @@ export function CustomerStoreApp({
         locale={locale}
         storeTheme={displayTheme}
         labels={labels}
+        onRewardCoupon={setReviewRewardCoupon}
       />
+
+      {reviewRewardCoupon && (
+        <CelebrationModal
+          open
+          onClose={() => setReviewRewardCoupon(null)}
+          title={labels.reviewRewardTitle}
+          subtitle={labels.reviewRewardSubtitle}
+          detail={`${reviewRewardCoupon.code} — ${
+            reviewRewardCoupon.discountType === "PERCENTAGE"
+              ? `${reviewRewardCoupon.discountValue}%`
+              : formatCustomerMoney(reviewRewardCoupon.discountValue, locale)
+          } ${labels.reviewRewardOff}`}
+          buttonLabel={labels.great}
+          closeAriaLabel={labels.close}
+          locale={locale}
+        />
+      )}
 
       <CustomerReviewsSheet
         open={reviewsSheetOpen}

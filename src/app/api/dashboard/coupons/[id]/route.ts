@@ -11,6 +11,7 @@ const patchSchema = z.object({
   maxRedemptions: z.number().int().positive().nullable().optional(),
   maxRedemptionsPerCustomer: z.number().int().min(0).max(99).optional(),
   validUntil: z.string().datetime().nullable().optional(),
+  autoGrantOnReview: z.boolean().optional(),
 });
 
 export async function PATCH(
@@ -35,27 +36,43 @@ export async function PATCH(
     return jsonError("אחוז הנחה לא יכול לעלות על 100");
   }
 
-  const coupon = await prisma.coupon.update({
-    where: { id, businessId: ctx.user.business.id },
-    data: {
-      ...(parsed.data.isActive !== undefined && { isActive: parsed.data.isActive }),
-      ...(parsed.data.discountValue !== undefined && {
-        discountValue: parsed.data.discountValue,
-      }),
-      ...(parsed.data.minOrderAmount !== undefined && {
-        minOrderAmount: parsed.data.minOrderAmount,
-      }),
-      ...(parsed.data.maxRedemptions !== undefined && {
-        maxRedemptions: parsed.data.maxRedemptions,
-      }),
-      ...(parsed.data.maxRedemptionsPerCustomer !== undefined && {
-        maxRedemptionsPerCustomer: parsed.data.maxRedemptionsPerCustomer,
-      }),
-      ...(parsed.data.validUntil !== undefined && {
-        validUntil: parsed.data.validUntil ? new Date(parsed.data.validUntil) : null,
-      }),
-    },
-    include: { _count: { select: { redemptions: true } } },
+  const coupon = await prisma.$transaction(async (tx) => {
+    // Only one coupon per business can be the auto-granted review reward.
+    if (parsed.data.autoGrantOnReview) {
+      await tx.coupon.updateMany({
+        where: {
+          businessId: ctx.user.business.id,
+          autoGrantOnReview: true,
+          id: { not: id },
+        },
+        data: { autoGrantOnReview: false },
+      });
+    }
+    return tx.coupon.update({
+      where: { id, businessId: ctx.user.business.id },
+      data: {
+        ...(parsed.data.isActive !== undefined && { isActive: parsed.data.isActive }),
+        ...(parsed.data.discountValue !== undefined && {
+          discountValue: parsed.data.discountValue,
+        }),
+        ...(parsed.data.minOrderAmount !== undefined && {
+          minOrderAmount: parsed.data.minOrderAmount,
+        }),
+        ...(parsed.data.maxRedemptions !== undefined && {
+          maxRedemptions: parsed.data.maxRedemptions,
+        }),
+        ...(parsed.data.maxRedemptionsPerCustomer !== undefined && {
+          maxRedemptionsPerCustomer: parsed.data.maxRedemptionsPerCustomer,
+        }),
+        ...(parsed.data.validUntil !== undefined && {
+          validUntil: parsed.data.validUntil ? new Date(parsed.data.validUntil) : null,
+        }),
+        ...(parsed.data.autoGrantOnReview !== undefined && {
+          autoGrantOnReview: parsed.data.autoGrantOnReview,
+        }),
+      },
+      include: { _count: { select: { redemptions: true } } },
+    });
   });
 
   return jsonOk({ coupon });

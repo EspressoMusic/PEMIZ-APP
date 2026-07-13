@@ -556,6 +556,9 @@ export type DashboardLabels = {
   couponUnlimited: string;
   couponValidUntil: string;
   couponNoExpiry: string;
+  couponAutoGrantOnReview: string;
+  couponAutoGrantOnReviewHint: string;
+  couponAutoGrantBadge: string;
   couponSaveFailed: string;
   couponFillCode: string;
   couponFillValue: string;
@@ -1139,6 +1142,10 @@ const HE: DashboardLabels = {
   couponUnlimited: "ללא הגבלה",
   couponValidUntil: "בתוקף עד",
   couponNoExpiry: "ללא תאריך תפוגה",
+  couponAutoGrantOnReview: "מתנה על ביקורת",
+  couponAutoGrantOnReviewHint:
+    "לקוחות שכותבים ביקורת יקבלו את הקוד הזה במתנה. ניתן לסמן קופון אחד בלבד.",
+  couponAutoGrantBadge: "🎁 מוענק אוטומטית על ביקורת",
   couponSaveFailed: "שמירת הקופון נכשלה",
   couponFillCode: "יש להזין קוד קופון",
   couponFillValue: "יש להזין ערך הנחה תקין",
@@ -1836,6 +1843,10 @@ const EN: DashboardLabels = {
   couponUnlimited: "Unlimited",
   couponValidUntil: "Valid until",
   couponNoExpiry: "No expiry",
+  couponAutoGrantOnReview: "Gift for a review",
+  couponAutoGrantOnReviewHint:
+    "Customers who write a review automatically get this code as a gift. Only one coupon can be set at a time.",
+  couponAutoGrantBadge: "🎁 Auto-granted for reviews",
   couponSaveFailed: "Could not save the coupon",
   couponFillCode: "Enter a coupon code",
   couponFillValue: "Enter a valid discount value",

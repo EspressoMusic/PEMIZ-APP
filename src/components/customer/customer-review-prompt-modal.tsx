@@ -9,6 +9,12 @@ import type { StoreThemeId } from "@/lib/store-themes";
 import { hasReviewedStore, markReviewedStore } from "@/lib/customer-reviewed-flag";
 import type { CustomerLabels } from "./customer-labels";
 
+export type ReviewRewardCoupon = {
+  code: string;
+  discountType: "PERCENTAGE" | "FIXED";
+  discountValue: number;
+};
+
 export function CustomerReviewPromptModal({
   open,
   onClose,
@@ -17,6 +23,7 @@ export function CustomerReviewPromptModal({
   locale,
   storeTheme = "turquoise",
   labels,
+  onRewardCoupon,
 }: {
   open: boolean;
   onClose: () => void;
@@ -25,6 +32,7 @@ export function CustomerReviewPromptModal({
   locale: CustomerLocale;
   storeTheme?: StoreThemeId;
   labels: CustomerLabels;
+  onRewardCoupon?: (coupon: ReviewRewardCoupon) => void;
 }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -56,13 +64,15 @@ export function CustomerReviewPromptModal({
           comment: comment.trim() || undefined,
         }),
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         setError((data as { error?: string }).error ?? labels.reviewSubmitError);
         setSubmitting(false);
         return;
       }
       markReviewedStore(slug);
+      const reward = (data as { rewardCoupon?: ReviewRewardCoupon | null }).rewardCoupon;
+      if (reward) onRewardCoupon?.(reward);
       onClose();
     } catch {
       setError(labels.reviewSubmitError);

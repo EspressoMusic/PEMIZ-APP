@@ -3,6 +3,7 @@ import { jsonError, jsonOk } from "@/lib/api";
 import { publicReviewSchema, zodFirstError } from "@/lib/validation/schemas";
 import { isStorePanelEnabled } from "@/lib/store-panels-visible";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { isCouponTotalLimitReached } from "@/lib/coupon-redemption";
 
 export async function GET(
   req: Request,
@@ -82,5 +83,28 @@ export async function POST(
     },
   });
 
-  return jsonOk({ reviewId: review.id });
+  const rewardCoupon = await findReviewRewardCoupon(business.id);
+
+  return jsonOk({ reviewId: review.id, rewardCoupon });
+}
+
+/** The store's active auto-grant-on-review coupon, if it still has redemptions left. */
+async function findReviewRewardCoupon(businessId: string) {
+  const coupon = await prisma.coupon.findFirst({
+    where: {
+      businessId,
+      autoGrantOnReview: true,
+      isActive: true,
+      OR: [{ validUntil: null }, { validUntil: { gt: new Date() } }],
+    },
+    include: { _count: { select: { redemptions: true } } },
+  });
+  if (!coupon) return null;
+  if (isCouponTotalLimitReached(coupon.maxRedemptions, coupon._count.redemptions)) return null;
+
+  return {
+    code: coupon.code,
+    discountType: coupon.discountType,
+    discountValue: coupon.discountValue,
+  };
 }
