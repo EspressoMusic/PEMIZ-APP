@@ -1,51 +1,60 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
   <defs>
     <path
-      id="star-sparkle"
-      d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"
+      id="doodle-star-a"
+      d="M0,-10 L2.4,-3.8 L9.8,-3.2 L3.8,1.2 L6.2,8.6 L0,4.2 L-6.4,8.8 L-4,1.6 L-10.2,-3.6 L-2.4,-3.8 Z"
     />
+    <path
+      id="doodle-star-b"
+      d="M0,-8.5 L1.8,-2.8 L7.6,-2.2 L3.2,1.8 L5.4,7.4 L0,3.8 L-5.6,7.8 L-3.4,1.4 L-8.4,-2.8 L-1.6,-3.2 Z"
+    />
+    <path
+      id="doodle-star-c"
+      d="M0,-11.5 L3.2,-4.2 L11,-3.8 L4.6,1.8 L7.8,9.4 L0,5 L-7.4,9.2 L-4.8,1.4 L-11.2,-4 L-3,-4.4 Z"
+    />
+    <circle id="doodle-dot" r="1.1" />
   </defs>
 
-  <g fill="#ffffff">
-    <circle cx="14" cy="22" r="1.1" opacity="0.65" />
-    <circle cx="38" cy="8" r="0.8" opacity="0.5" />
-    <circle cx="62" cy="34" r="1.4" opacity="0.8" />
-    <circle cx="88" cy="12" r="0.9" opacity="0.55" />
-    <circle cx="112" cy="40" r="1.2" opacity="0.7" />
-    <circle cx="146" cy="18" r="1" opacity="0.6" />
-    <circle cx="172" cy="46" r="1.5" opacity="0.85" />
-    <circle cx="192" cy="10" r="0.7" opacity="0.45" />
-    <circle cx="8" cy="66" r="1.3" opacity="0.75" />
-    <circle cx="46" cy="72" r="0.8" opacity="0.5" />
-    <circle cx="78" cy="60" r="1.1" opacity="0.65" />
-    <circle cx="104" cy="82" r="0.9" opacity="0.55" />
-    <circle cx="134" cy="66" r="1.4" opacity="0.8" />
-    <circle cx="164" cy="88" r="1" opacity="0.6" />
-    <circle cx="24" cy="104" r="1.2" opacity="0.7" />
-    <circle cx="56" cy="118" r="0.8" opacity="0.5" />
-    <circle cx="92" cy="108" r="1.5" opacity="0.85" />
-    <circle cx="120" cy="128" r="0.9" opacity="0.55" />
-    <circle cx="150" cy="112" r="1.1" opacity="0.65" />
-    <circle cx="184" cy="132" r="1.3" opacity="0.75" />
-    <circle cx="10" cy="148" r="0.9" opacity="0.55" />
-    <circle cx="40" cy="164" r="1.2" opacity="0.7" />
-    <circle cx="70" cy="150" r="0.8" opacity="0.5" />
-    <circle cx="100" cy="172" r="1.4" opacity="0.8" />
-    <circle cx="128" cy="156" r="1" opacity="0.6" />
-    <circle cx="158" cy="176" r="1.2" opacity="0.7" />
-    <circle cx="188" cy="160" r="0.8" opacity="0.5" />
-    <circle cx="20" cy="190" r="1.1" opacity="0.65" />
-    <circle cx="60" cy="196" r="0.9" opacity="0.55" />
-    <circle cx="110" cy="192" r="1.3" opacity="0.75" />
-    <circle cx="150" cy="194" r="1" opacity="0.6" />
+  <g fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <use href="#doodle-dot" transform="translate(14,22)" opacity="0.55" />
+    <use href="#doodle-dot" transform="translate(38,8) scale(0.68)" opacity="0.4" />
+    <use href="#doodle-dot" transform="translate(62,34) scale(1.18)" opacity="0.7" />
+    <use href="#doodle-dot" transform="translate(88,12)" opacity="0.45" />
+    <use href="#doodle-dot" transform="translate(112,40) scale(1.05)" opacity="0.6" />
+    <use href="#doodle-dot" transform="translate(146,18)" opacity="0.5" />
+    <use href="#doodle-dot" transform="translate(172,46) scale(1.27)" opacity="0.75" />
+    <use href="#doodle-dot" transform="translate(192,10) scale(0.59)" opacity="0.35" />
+    <use href="#doodle-dot" transform="translate(8,66) scale(1.09)" opacity="0.65" />
+    <use href="#doodle-dot" transform="translate(46,72)" opacity="0.4" />
+    <use href="#doodle-dot" transform="translate(78,60)" opacity="0.55" />
+    <use href="#doodle-dot" transform="translate(104,82)" opacity="0.45" />
+    <use href="#doodle-dot" transform="translate(134,66) scale(1.18)" opacity="0.7" />
+    <use href="#doodle-dot" transform="translate(164,88)" opacity="0.5" />
+    <use href="#doodle-dot" transform="translate(24,104) scale(1.05)" opacity="0.6" />
+    <use href="#doodle-dot" transform="translate(56,118)" opacity="0.4" />
+    <use href="#doodle-dot" transform="translate(92,108) scale(1.27)" opacity="0.75" />
+    <use href="#doodle-dot" transform="translate(120,128)" opacity="0.45" />
+    <use href="#doodle-dot" transform="translate(150,112)" opacity="0.55" />
+    <use href="#doodle-dot" transform="translate(184,132) scale(1.09)" opacity="0.65" />
+    <use href="#doodle-dot" transform="translate(10,148)" opacity="0.45" />
+    <use href="#doodle-dot" transform="translate(40,164) scale(1.05)" opacity="0.6" />
+    <use href="#doodle-dot" transform="translate(70,150)" opacity="0.4" />
+    <use href="#doodle-dot" transform="translate(100,172) scale(1.18)" opacity="0.7" />
+    <use href="#doodle-dot" transform="translate(128,156)" opacity="0.5" />
+    <use href="#doodle-dot" transform="translate(158,176) scale(1.05)" opacity="0.6" />
+    <use href="#doodle-dot" transform="translate(188,160)" opacity="0.4" />
+    <use href="#doodle-dot" transform="translate(20,190)" opacity="0.55" />
+    <use href="#doodle-dot" transform="translate(60,196)" opacity="0.45" />
+    <use href="#doodle-dot" transform="translate(110,192) scale(1.09)" opacity="0.65" />
+    <use href="#doodle-dot" transform="translate(150,194)" opacity="0.5" />
   </g>
 
-  <g fill="#ffe9b0">
-    <use href="#star-sparkle" transform="translate(24,50) scale(0.32)" opacity="0.85" />
-    <use href="#star-sparkle" transform="translate(96,20) scale(0.26)" opacity="0.7" />
-    <use href="#star-sparkle" transform="translate(158,64) scale(0.34)" opacity="0.8" />
-    <use href="#star-sparkle" transform="translate(52,140) scale(0.28)" opacity="0.75" />
-    <use href="#star-sparkle" transform="translate(134,158) scale(0.3)" opacity="0.85" />
-    <use href="#star-sparkle" transform="translate(180,180) scale(0.24)" opacity="0.65" />
+  <g fill="none" stroke="#ffe9b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <use href="#doodle-star-a" transform="translate(24,50) scale(0.34) rotate(-8)" opacity="0.85" />
+    <use href="#doodle-star-b" transform="translate(96,20) scale(0.3) rotate(12)" opacity="0.7" />
+    <use href="#doodle-star-c" transform="translate(158,64) scale(0.36) rotate(-14)" opacity="0.8" />
+    <use href="#doodle-star-a" transform="translate(52,140) scale(0.32) rotate(18)" opacity="0.75" />
+    <use href="#doodle-star-b" transform="translate(134,158) scale(0.33) rotate(-6)" opacity="0.85" />
+    <use href="#doodle-star-c" transform="translate(180,180) scale(0.28) rotate(10)" opacity="0.65" />
   </g>
 </svg>

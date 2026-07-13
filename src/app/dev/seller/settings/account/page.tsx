@@ -14,9 +14,6 @@ export default function DevSellerSettingsAccountPage() {
       <div className="space-y-4">
         <DashboardSettingsBackLink basePath="/dev/seller" />
         <DashboardSettingsView
-          ownerName="בעל חנות (תצוגה)"
-          email="demo@linky.local"
-          phone="050-1234567"
           businessName="המאפייה שלי (תצוגה)"
           isActive
           previewOnly

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>תצוגת כוכבי דודל</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        padding: 24px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+      }
+
+      p {
+        margin: 0 0 20px;
+        color: #555;
+        line-height: 1.5;
+      }
+
+      .grid {
+        display: grid;
+        gap: 20px;
+        max-width: 900px;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .card h2 {
+        margin: 0;
+        padding: 14px 16px;
+        font-size: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .preview-box {
+        min-height: 220px;
+        position: relative;
+      }
+
+      .preview-box.stars-demo {
+        padding: 20px;
+      }
+
+      .customer-menu-stars {
+        position: relative;
+        min-height: 220px;
+        border-radius: 0 0 16px 16px;
+        padding: 20px;
+      }
+
+      .customer-menu-stars::before,
+      .customer-menu-stars::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: 0 0 16px 16px;
+      }
+
+      .customer-menu-stars::before {
+        background-image: url("./stars-pattern.svg"),
+          linear-gradient(180deg, #0b1130 0%, #171d4d 45%, #2a2f6e 100%);
+        background-repeat: repeat, no-repeat;
+        background-size: 170px 170px, cover;
+      }
+
+      .customer-menu-stars::after {
+        background-image: url("./stars-sparkle.svg");
+        background-repeat: repeat;
+        background-size: 170px 170px;
+        animation: twinkle 2.6s ease-in-out infinite;
+      }
+
+      .customer-menu-stars .content {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 14px;
+        padding: 16px;
+        max-width: 280px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0.25;
+          transform: scale(0.94);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.02);
+        }
+      }
+
+      .svg-frame {
+        padding: 20px;
+        background: #0b1130;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .svg-frame img {
+        width: min(100%, 320px);
+        height: auto;
+        image-rendering: auto;
+      }
+
+      code {
+        background: #eee;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.9em;
+        direction: ltr;
+        unicode-bidi: embed;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>תצוגת כוכבי דודל</h1>
+    <p>
+      אפשר לפתוח את הקובץ הזה ישירות מהמחשב (בלי שרת), או דרך
+      <code>http://localhost:3000/preview-stars.html</code> כש־<code>npm run dev</code> רץ.
+    </p>
+
+    <div class="grid">
+      <section class="card">
+        <h2>דמו — רקע כוכבים בתפריט לקוח</h2>
+        <div class="preview-box stars-demo">
+          <div class="customer-menu-stars">
+            <div class="content">
+              <strong>דוגמת כרטיס מוצר</strong>
+              <div>כוכבי דודל ברקע</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>דפוס כוכבים — stars-pattern.svg</h2>
+        <div class="svg-frame">
+          <img src="./stars-pattern.svg" alt="stars pattern" />
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>שכבת נצנוץ — stars-sparkle.svg</h2>
+        <div class="svg-frame">
+          <img src="./stars-sparkle.svg" alt="stars sparkle" />
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

@@ -6,7 +6,6 @@ import {
   DashboardActionRowButton,
 } from "@/components/dashboard/dashboard-action-row";
 import { DashboardDeleteStoreSection } from "@/components/dashboard/dashboard-delete-store-section";
-import { DashboardSellerDetailsCard } from "@/components/dashboard/dashboard-seller-details-card";
 import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
 import { DashboardStorePanelsSettingsGroup } from "@/components/dashboard/dashboard-store-panels-settings";
 import { DashboardSubscriptionSection } from "@/components/dashboard/dashboard-subscription-section";
@@ -19,9 +18,6 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useNativeApp } from "@/hooks/use-native-app";
 
 type Props = {
-  ownerName: string;
-  email: string;
-  phone?: string | null;
   businessName?: string;
   isActive: boolean;
   previewOnly?: boolean;
@@ -33,9 +29,6 @@ type Props = {
 };
 
 export function DashboardSettingsView({
-  ownerName,
-  email,
-  phone,
   businessName,
   isActive,
   previewOnly = false,
@@ -66,15 +59,6 @@ export function DashboardSettingsView({
                 businessType={businessType}
               />
             ) : null}
-
-            <DashboardSellerDetailsCard
-              embedded
-              ownerName={ownerName}
-              email={email}
-              phone={phone}
-              businessName={businessName}
-              isActive={isActive}
-            />
 
             <DashboardActionRow
               href={`${basePath}/customers/reviews`}

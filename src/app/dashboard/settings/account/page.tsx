@@ -16,9 +16,6 @@ export default async function SettingsAccountPage() {
         <DashboardSettingsBackLink />
       )}
       <DashboardSettingsView
-        ownerName={user.name}
-        email={user.email}
-        phone={user.phone}
         businessName={b?.name}
         isActive={b?.isActive ?? false}
         businessType={b?.type}

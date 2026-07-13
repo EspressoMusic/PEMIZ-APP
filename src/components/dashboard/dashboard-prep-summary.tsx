@@ -370,7 +370,7 @@ export function DashboardPrepSummary({
               </li>
             ))}
           </ul>
-          <div className="rounded-[14px] border border-bakery-primary/25 bg-bakery-primary/10 px-3 py-2.5 text-center">
+          <div className="dashboard-prep-summary-total rounded-[14px] px-3 py-2.5 text-center">
             <p className="text-[12px] font-bold text-bakery-muted">
               {labels.total}
             </p>

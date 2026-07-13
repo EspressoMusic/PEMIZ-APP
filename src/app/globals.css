@@ -185,9 +185,7 @@ html[data-customer-chrome-theme="turquoise"] .bakery-frame-bg {
   background-color: var(--cs-page-bg, var(--customer-bg, #ffffff));
 }
 
-/* Optional floral decoration ג€” a seller toggle layered on top of any store theme.
-   A patterned background of varied flower shapes sits fully behind the grid; the
-   opaque product cards simply sit on top of it, showing through the gaps/margins. */
+/* Optional floral decoration — subtle flower doodles behind the menu, WhatsApp style. */
 .customer-menu-flowers {
   position: relative;
   padding-inline: clamp(20px, 6vw, 34px);
@@ -199,8 +197,8 @@ html[data-customer-chrome-theme="turquoise"] .bakery-frame-bg {
   inset: -10px;
   background-image: url("/decorations/floral-pattern.svg");
   background-repeat: repeat;
-  background-size: 170px 170px;
-  opacity: 0.9;
+  background-size: 160px 160px;
+  opacity: 0.58;
   pointer-events: none;
   z-index: 0;
 }
@@ -3104,6 +3102,11 @@ html:not([data-store-theme="dark"])
   background: #d4c4a8;
 }
 
+.dashboard-prep-summary-total {
+  border: var(--dashboard-frame-border-width, 1.5px) solid var(--dashboard-soft-border-strong);
+  background: var(--bakery-icon-tile, var(--dashboard-tile-active-bg));
+}
+
 .dashboard-modal-backdrop {
   background: rgba(58, 47, 38, 0.58);
   backdrop-filter: blur(4px);
@@ -3662,6 +3665,28 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
 .customer-store-root.customer-theme-turquoise .customer-seller-notice-modal-inner {
   background: #f8fffe;
   border-color: rgba(15, 118, 110, 0.3);
+}
+
+/* Modal is portaled to document.body — theme via html[data-customer-chrome-theme]. */
+html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-modal-panel {
+  background: #d4ece7;
+  border-color: #0f766e;
+}
+
+html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-modal-inner {
+  background: #f8fffe;
+  border-color: rgba(15, 118, 110, 0.3);
+}
+
+html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-modal-panel .text-bakery-ink,
+html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-modal-panel .text-bakery-muted {
+  color: #134e4a;
+}
+
+html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-btn {
+  background: #0f766e !important;
+  color: #f8fffe !important;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.28);
 }
 
 .customer-seller-notice-megaphone-shell {
@@ -5704,7 +5729,7 @@ html[data-store-theme="turquoise"] .dashboard-customer-profile-modal {
 
 html[data-store-theme="turquoise"] :is(.dashboard-surface, .auth-surface) .dashboard-modal-card,
 html[data-store-theme="turquoise"] .dashboard-modal-card {
-  background: #d4ece7;
+  background: var(--dashboard-panel-bg);
 }
 
 html[data-store-theme="turquoise"] .dashboard-customer-profile-modal .dashboard-customer-detail-bar {

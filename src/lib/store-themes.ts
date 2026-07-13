@@ -31,8 +31,8 @@ export const STORE_DECORATIONS: StoreDecorationMeta[] = [
     id: "flowers",
     label: "פרחים",
     labelEn: "Flowers",
-    descriptionHe: "מסגרת פרחים סביב התפריט",
-    descriptionEn: "Floral border around the menu",
+    descriptionHe: "דודלים עדינים של פרחים ברקע התפריט, בסגנון וואטסאפ",
+    descriptionEn: "Subtle flower doodles behind the menu, WhatsApp style",
   },
   {
     id: "doodles",
@@ -45,8 +45,8 @@ export const STORE_DECORATIONS: StoreDecorationMeta[] = [
     id: "stars",
     label: "כוכבים",
     labelEn: "Stars",
-    descriptionHe: "שמיים כהים עם כוכבים נוצצים",
-    descriptionEn: "Dark night sky with sparkling stars",
+    descriptionHe: "שמיים כהים עם כוכבי דודל מנצנצים",
+    descriptionEn: "Dark night sky with hand-drawn doodle stars",
   },
 ];
 

@@ -13,9 +13,6 @@ export default function DevSellerAppointmentsAccountPage() {
       <div className="space-y-4">
         <DashboardSettingsBackLink basePath={DEV_APPOINTMENTS_SELLER_BASE} />
         <DashboardSettingsView
-          ownerName="בעל/ת סטודיו (תצוגה)"
-          email="appointments@linky.local"
-          phone="050-1234567"
           businessName={DEV_APPOINTMENTS_BUSINESS.name}
           isActive
           previewOnly

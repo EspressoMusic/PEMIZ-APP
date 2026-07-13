@@ -55,16 +55,11 @@ export function DashboardCustomerLinkCard({
   const { labels } = useAppLocale();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [absoluteUrl, setAbsoluteUrl] = useState(url);
   const pathLabel = displayPath(url);
   const customerStorePath = resolveCustomerStoreHref(url, previewHref);
   const customerStoreHref = customerStorePath
     ? appendSellerPreviewQuery(customerStorePath, sellerReturnHref)
     : null;
-
-  useEffect(() => {
-    setAbsoluteUrl(toAbsoluteUrl(url));
-  }, [url]);
 
   useEffect(() => {
     if (!open) return;
@@ -133,13 +128,6 @@ export function DashboardCustomerLinkCard({
         </div>
 
         <div className="space-y-3 px-4 py-4">
-          <p
-            className="dashboard-share-tile truncate rounded-[9999px] px-4 py-3 text-center font-mono text-[12px] font-semibold text-bakery-ink"
-            dir="ltr"
-          >
-            {absoluteUrl}
-          </p>
-
           <button
             type="button"
             onClick={() => void copyUrl()}

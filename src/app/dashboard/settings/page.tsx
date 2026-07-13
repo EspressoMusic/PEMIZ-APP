@@ -29,9 +29,6 @@ export default async function SettingsPage() {
   if (b.type !== "STORE") {
     return (
       <DashboardSettingsView
-        ownerName={user.name}
-        email={user.email}
-        phone={user.phone}
         businessName={b.name}
         isActive={b.isActive ?? false}
       />

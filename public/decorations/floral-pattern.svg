@@ -1,47 +1,142 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170" width="170" height="170">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
   <defs>
-    <g id="petals-peach">
-      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3"/>
-      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3" transform="rotate(72)"/>
-      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3" transform="rotate(144)"/>
-      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3" transform="rotate(216)"/>
-      <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#eebfa3" transform="rotate(288)"/>
-      <circle r="5" fill="#c97b56"/>
+    <g id="f-simple">
+      <circle r="2.6" />
+      <ellipse cx="0" cy="-7" rx="3.4" ry="6" />
+      <ellipse cx="0" cy="-7" rx="3.4" ry="6" transform="rotate(72)" />
+      <ellipse cx="0" cy="-7" rx="3.4" ry="6" transform="rotate(144)" />
+      <ellipse cx="0" cy="-7" rx="3.4" ry="6" transform="rotate(216)" />
+      <ellipse cx="0" cy="-7" rx="3.4" ry="6" transform="rotate(288)" />
     </g>
-    <g id="petals-rose">
-      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1"/>
-      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1" transform="rotate(72)"/>
-      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1" transform="rotate(144)"/>
-      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1" transform="rotate(216)"/>
-      <ellipse cx="0" cy="-9" rx="7" ry="10" fill="#e0a3a1" transform="rotate(288)"/>
-      <circle r="4.3" fill="#b96a63"/>
+    <g id="f-daisy">
+      <circle r="2.2" />
+      <circle cx="0" cy="-6" r="2.6" />
+      <circle cx="0" cy="-6" r="2.6" transform="rotate(45)" />
+      <circle cx="0" cy="-6" r="2.6" transform="rotate(90)" />
+      <circle cx="0" cy="-6" r="2.6" transform="rotate(135)" />
+      <circle cx="0" cy="-6" r="2.6" transform="rotate(180)" />
+      <circle cx="0" cy="-6" r="2.6" transform="rotate(225)" />
+      <circle cx="0" cy="-6" r="2.6" transform="rotate(270)" />
+      <circle cx="0" cy="-6" r="2.6" transform="rotate(315)" />
     </g>
-    <g id="petals-daisy">
-      <circle cx="0" cy="-8" r="5.4" fill="#f4ead9"/>
-      <circle cx="0" cy="-8" r="5.4" fill="#f4ead9" transform="rotate(90)"/>
-      <circle cx="0" cy="-8" r="5.4" fill="#f4ead9" transform="rotate(180)"/>
-      <circle cx="0" cy="-8" r="5.4" fill="#f4ead9" transform="rotate(270)"/>
-      <circle r="4" fill="#e2b969"/>
+    <g id="f-tulip">
+      <path d="M0,8 L0,-3" />
+      <path d="M0,-3 C-5.5,-10 -8,-3 -3.5,-1.5 C-1.5,-8 0,-3 0,-3" />
+      <path d="M0,-3 C5.5,-10 8,-3 3.5,-1.5 C1.5,-8 0,-3 0,-3" />
+      <path d="M-4,8 C-6,11 -1,12 0,10" />
+      <path d="M4,8 C6,11 1,12 0,10" />
     </g>
-    <path id="leaf" d="M0,0 C8,-11 22,-11 28,0 C22,11 8,11 0,0 Z" fill="#8ea672"/>
+    <g id="f-blossom">
+      <circle r="1.8" />
+      <path d="M0,-6.5 C1.6,-4 0,-1.5 -1.6,-4 Z" />
+      <path d="M0,-6.5 C1.6,-4 0,-1.5 -1.6,-4 Z" transform="rotate(72)" />
+      <path d="M0,-6.5 C1.6,-4 0,-1.5 -1.6,-4 Z" transform="rotate(144)" />
+      <path d="M0,-6.5 C1.6,-4 0,-1.5 -1.6,-4 Z" transform="rotate(216)" />
+      <path d="M0,-6.5 C1.6,-4 0,-1.5 -1.6,-4 Z" transform="rotate(288)" />
+    </g>
+    <g id="f-sun">
+      <circle r="3" />
+      <path d="M0,-9 L0,-11" />
+      <path d="M0,9 L0,11" />
+      <path d="M-9,0 L-11,0" />
+      <path d="M9,0 L11,0" />
+      <path d="M-6.4,-6.4 L-7.8,-7.8" />
+      <path d="M6.4,6.4 L7.8,7.8" />
+      <path d="M6.4,-6.4 L7.8,-7.8" />
+      <path d="M-6.4,6.4 L-7.8,7.8" />
+    </g>
+    <g id="f-rose">
+      <path d="M0,0 C-4,-6 -10,-4 -8,0 C-10,4 -4,6 0,0" />
+      <path d="M0,0 C4,-6 10,-4 8,0 C10,4 4,6 0,0" />
+      <path d="M0,0 C-2,-8 2,-8 0,0" />
+      <circle r="1.6" />
+    </g>
+    <g id="f-lavender">
+      <path d="M0,10 L0,-8" />
+      <ellipse cx="0" cy="-6" rx="2.2" ry="3.5" />
+      <ellipse cx="0" cy="-2" rx="2.2" ry="3.5" />
+      <ellipse cx="0" cy="2" rx="2.2" ry="3.5" />
+    </g>
+    <g id="f-dot">
+      <circle r="1.4" />
+      <circle cx="-4" cy="-3" r="1.1" />
+      <circle cx="4" cy="-2" r="1.1" />
+      <circle cx="0" cy="4" r="1.1" />
+    </g>
+    <g id="f-clover">
+      <circle cx="0" cy="-4" r="2.8" />
+      <circle cx="-4" cy="2" r="2.8" />
+      <circle cx="4" cy="2" r="2.8" />
+      <path d="M0,0 L0,8" />
+    </g>
+    <g id="leaf">
+      <path d="M0,0 C5,-6 13,-5 15,1 C10,6 3,6 0,0 Z" />
+      <path d="M0,0 C4,6 0,10 0,10" />
+    </g>
+    <g id="sprig">
+      <path d="M0,10 L0,-5" />
+      <use href="#leaf" transform="translate(0,-1) rotate(-32) scale(0.5)" />
+      <use href="#leaf" transform="translate(0,3) rotate(38) scale(-0.45,0.45)" />
+    </g>
+    <g id="vine">
+      <path d="M-6,8 C-2,2 4,0 8,-6" />
+      <use href="#leaf" transform="translate(-2,4) rotate(-20) scale(0.4)" />
+      <use href="#leaf" transform="translate(4,-1) rotate(25) scale(0.38)" />
+    </g>
   </defs>
 
-  <use href="#petals-peach" transform="translate(28,34) rotate(-12)"/>
-  <use href="#leaf" transform="translate(46,30) rotate(-10)"/>
-  <use href="#leaf" transform="translate(14,46) scale(-1,1) rotate(15)"/>
+  <g
+    fill="none"
+    stroke="#0f766e"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.42"
+  >
+    <use href="#f-simple" transform="translate(22,18) rotate(-12) scale(0.85)" />
+    <use href="#f-daisy" transform="translate(52,12) rotate(8) scale(0.75)" />
+    <use href="#leaf" transform="translate(38,28) rotate(-22) scale(0.55)" />
+    <use href="#f-tulip" transform="translate(14,44) rotate(6) scale(0.7)" />
+    <use href="#f-dot" transform="translate(68,34) rotate(-5) scale(0.9)" />
 
-  <use href="#petals-daisy" transform="translate(122,20) rotate(20) scale(1.05)"/>
-  <use href="#leaf" transform="translate(140,32) rotate(35) scale(0.8)"/>
+    <use href="#f-blossom" transform="translate(96,16) rotate(14) scale(0.8)" />
+    <use href="#f-sun" transform="translate(128,22) rotate(-8) scale(0.65)" />
+    <use href="#sprig" transform="translate(148,10) rotate(18) scale(0.6)" />
+    <use href="#f-rose" transform="translate(162,38) rotate(22) scale(0.72)" />
 
-  <use href="#petals-rose" transform="translate(80,88) rotate(8)"/>
-  <use href="#leaf" transform="translate(60,92) scale(-1,1) rotate(-10)"/>
-  <use href="#leaf" transform="translate(96,72) rotate(30) scale(0.9)"/>
+    <use href="#f-lavender" transform="translate(8,72) rotate(-6) scale(0.68)" />
+    <use href="#f-clover" transform="translate(34,68) rotate(10) scale(0.62)" />
+    <use href="#vine" transform="translate(58,58) rotate(-14) scale(0.75)" />
+    <use href="#f-daisy" transform="translate(82,74) rotate(-18) scale(0.7)" />
+    <use href="#leaf" transform="translate(104,62) rotate(30) scale(0.48)" />
 
-  <use href="#petals-peach" transform="translate(20,120) rotate(25) scale(0.85)"/>
-  <use href="#leaf" transform="translate(6,134) scale(-1,1) rotate(20) scale(0.8)"/>
+    <use href="#f-simple" transform="translate(132,58) rotate(6) scale(0.78)" />
+    <use href="#f-tulip" transform="translate(156,78) rotate(-10) scale(0.65)" />
+    <use href="#f-blossom" transform="translate(118,88) rotate(16) scale(0.68)" />
+    <use href="#f-dot" transform="translate(168,96) rotate(8) scale(0.85)" />
 
-  <use href="#petals-daisy" transform="translate(140,132) rotate(-15) scale(0.9)"/>
-  <use href="#leaf" transform="translate(122,146) rotate(-30) scale(0.75)"/>
+    <use href="#f-rose" transform="translate(24,102) rotate(-14) scale(0.68)" />
+    <use href="#sprig" transform="translate(6,118) rotate(4) scale(0.58)" />
+    <use href="#f-sun" transform="translate(48,118) rotate(12) scale(0.58)" />
+    <use href="#f-lavender" transform="translate(72,108) rotate(-8) scale(0.62)" />
 
-  <use href="#petals-rose" transform="translate(150,90) rotate(-25) scale(0.7)"/>
+    <use href="#f-daisy" transform="translate(98,112) rotate(-6) scale(0.72)" />
+    <use href="#f-clover" transform="translate(124,124) rotate(20) scale(0.58)" />
+    <use href="#vine" transform="translate(146,108) rotate(-12) scale(0.68)" />
+    <use href="#f-simple" transform="translate(168,128) rotate(-16) scale(0.7)" />
+
+    <use href="#f-blossom" transform="translate(18,148) rotate(8) scale(0.65)" />
+    <use href="#f-tulip" transform="translate(42,158) rotate(-18) scale(0.62)" />
+    <use href="#leaf" transform="translate(64,148) rotate(14) scale(0.52)" />
+    <use href="#f-dot" transform="translate(88,162) rotate(-4) scale(0.82)" />
+
+    <use href="#f-rose" transform="translate(112,152) rotate(10) scale(0.66)" />
+    <use href="#f-sun" transform="translate(138,162) rotate(-14) scale(0.55)" />
+    <use href="#sprig" transform="translate(158,148) rotate(6) scale(0.55)" />
+    <use href="#f-lavender" transform="translate(172,168) rotate(-8) scale(0.58)" />
+
+    <use href="#f-daisy" transform="translate(78,38) rotate(22) scale(0.62)" />
+    <use href="#f-blossom" transform="translate(108,38) rotate(-20) scale(0.6)" />
+    <use href="#leaf" transform="translate(142,142) rotate(-28) scale(0.45)" />
+  </g>
 </svg>
