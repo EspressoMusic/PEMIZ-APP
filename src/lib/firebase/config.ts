@@ -8,7 +8,14 @@ export type FirebaseClientConfig = {
 
 export function readFirebaseClientConfig(): FirebaseClientConfig | null {
   const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.trim();
-  const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN?.trim();
+  // authDomain must match the domain actually serving the page (Google/Chrome
+  // require this since 2024 — see next.config.ts's /__/auth/* proxy comment),
+  // and that domain differs for production vs. every Vercel preview build.
+  // Deriving it from the current host means one working config everywhere,
+  // instead of hardcoding a single domain that only matches one deployment.
+  const authDomain =
+    (typeof window !== "undefined" ? window.location.host : undefined) ??
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN?.trim();
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim();
   const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID?.trim();
   const messagingSenderId =

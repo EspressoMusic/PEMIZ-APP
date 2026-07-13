@@ -126,6 +126,16 @@ import { CustomerCenterModal } from "./customer-center-modal";
 import { CustomerPhoneVerification } from "./customer-phone-verification";
 import { CustomerGoogleSignIn } from "./customer-google-sign-in";
 import type { ContactView } from "./customer-contact-modal";
+import {
+  clearCustomerGoogleResumeSnapshot,
+  peekCustomerGoogleResumeSnapshot,
+  saveCustomerGoogleResumeSnapshot,
+} from "@/lib/customer-google-redirect-resume";
+
+type CustomerGoogleResumeSnapshot = {
+  cart?: Record<string, number>;
+  cartDeals?: PendingDealSnapshot[];
+};
 
 const CustomerContactModal = dynamic(
   () =>
@@ -419,6 +429,23 @@ export function CustomerStoreApp({
   );
   const [orderHistoryLoading, setOrderHistoryLoading] = useState(false);
   const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
+  // signInWithGoogle uses a full-page redirect (see CustomerGoogleSignIn),
+  // which would otherwise wipe the cart and settings view on return. State
+  // stays SSR-safe above (sessionStorage doesn't exist during server
+  // render) and is only patched here, client-side, after mount — avoids a
+  // hydration mismatch from branching on browser storage during render.
+  useEffect(() => {
+    const snapshot = peekCustomerGoogleResumeSnapshot<CustomerGoogleResumeSnapshot>(
+      business.slug
+    );
+    if (!snapshot) return;
+    clearCustomerGoogleResumeSnapshot(business.slug);
+    setMainTab("settings");
+    setOrderHistoryOpen(true);
+    if (snapshot.cart) setCart(snapshot.cart);
+    if (snapshot.cartDeals) setCartDeals(snapshot.cartDeals);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [historyDetailOrder, setHistoryDetailOrder] =
     useState<CustomerOrderHistoryEntry | null>(null);
   const prevActiveOrderCountRef = useRef(0);
@@ -1753,6 +1780,12 @@ export function CustomerStoreApp({
             locale={locale}
             labels={labels}
             compact
+            onBeforeRedirect={() =>
+              saveCustomerGoogleResumeSnapshot(business.slug, {
+                cart,
+                cartDeals,
+              })
+            }
             onSignedIn={(email) => {
               setCustomerGoogleEmail(email);
               void loadServerOrderHistory();
