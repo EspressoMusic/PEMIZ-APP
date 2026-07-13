@@ -595,6 +595,9 @@ export function DashboardAppointmentsHomeCalendar({
     const status = dayStatus(dateKey);
     const selected = dayModalOpen && selectedDay === dateKey;
     const isToday = dateKey === todayKey;
+    const appointmentCount =
+      appointmentsByDay.get(dateKey)?.filter((a) => a.status !== "CANCELLED")
+        .length ?? 0;
     return (
       <button
         key={dateKey}
@@ -607,6 +610,14 @@ export function DashboardAppointmentsHomeCalendar({
         title={status === "full" ? labels.homeCalendarFullDayHint : undefined}
       >
         {cell.day}
+        {appointmentCount > 0 ? (
+          <span
+            className="absolute bottom-1 end-1 min-w-[1.1rem] rounded-full bg-bakery-primary px-1 py-0.5 text-[9px] font-extrabold leading-none text-white shadow-sm"
+            aria-hidden="true"
+          >
+            {appointmentCount}
+          </span>
+        ) : null}
       </button>
     );
   }
