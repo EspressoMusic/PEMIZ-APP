@@ -34,7 +34,12 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=()",
   },
-  ...(isProd
+  // Only on real deployments (Vercel sets VERCEL=1), never on local
+  // production builds: browsers cache this header for 2 years, and once a
+  // local `next start` sends it for localhost, the browser force-upgrades
+  // every localhost URL to https and the dev server becomes unreachable
+  // (ERR_SSL_PROTOCOL_ERROR).
+  ...(isProd && process.env.VERCEL
     ? [
         {
           key: "Strict-Transport-Security",
@@ -116,7 +121,12 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/(.*)",
+        // Everything except /__/* — those paths are proxied to Firebase (see
+        // rewrites above), and the sign-in flow loads /__/auth/iframe inside
+        // a hidden same-origin iframe. Applying frame-ancestors 'none' /
+        // X-Frame-Options: DENY there blocks that iframe and Google sign-in
+        // hangs; Firebase's own response headers must pass through untouched.
+        source: "/((?!__/).*)",
         headers: securityHeaders,
       },
     ];
