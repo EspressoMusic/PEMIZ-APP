@@ -25,7 +25,7 @@
 }
 
 .marketing-apple.marketing-apple--he {
-  font-family: var(--font-marketing-hebrew, Heebo), -apple-system,
+  font-family: var(--font-marketing-hebrew, Rubik), -apple-system,
     BlinkMacSystemFont, "SF Pro Hebrew", "Segoe UI", sans-serif;
 }
 
@@ -517,6 +517,13 @@
 
 .apple-price-features li:last-child {
   border-bottom: none;
+}
+
+.apple-price-trial {
+  margin: -8px 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--apple-link);
 }
 
 .apple-price-btn {

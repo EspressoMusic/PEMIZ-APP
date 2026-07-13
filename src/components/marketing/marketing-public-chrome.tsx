@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { marketingInter } from "@/lib/fonts/marketing-fonts";
 
 const PUBLIC_NAV = [
   { href: "/", label: "Home" },
@@ -85,8 +84,4 @@ export function MarketingPublicFooter() {
       </div>
     </footer>
   );
-}
-
-export function marketingPublicPageClassName() {
-  return `marketing-site ${marketingInter.className} ${marketingInter.variable}`;
 }

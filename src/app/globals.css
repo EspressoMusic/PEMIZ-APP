@@ -131,7 +131,7 @@ html[data-locale="en"] body {
 
 html[lang="he"] .home-landing-bg,
 html[data-locale="he"] .home-landing-bg {
-  font-family: var(--font-marketing-hebrew, "Heebo"), "Heebo", system-ui, sans-serif;
+  font-family: var(--font-marketing-hebrew, "Rubik"), "Rubik", system-ui, sans-serif;
   font-weight: 500;
   letter-spacing: 0.01em;
 }

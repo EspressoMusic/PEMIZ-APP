@@ -384,6 +384,7 @@ function MarketingSiteContent() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              <p className="price-trial">{copy.premiumTrial}</p>
               <Link href="/login" prefetch={false} className="btn btn-primary price-btn">
                 {copy.getPremium}
               </Link>

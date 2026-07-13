@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import "@/styles/marketing-apple.css";
-import { marketingHeebo, marketingInter } from "@/lib/fonts/marketing-fonts";
+import { marketingPlusJakarta, marketingRubik } from "@/lib/fonts/marketing-fonts";
 import { MarketingLocaleToggle } from "./marketing-locale-toggle";
 import {
   MarketingLocaleProvider,
@@ -75,7 +75,7 @@ function MarketingSiteAppleContent() {
     formSent,
   } = useMarketingSiteEffects();
 
-  const fontClass = locale === "he" ? marketingHeebo.className : marketingInter.className;
+  const fontClass = locale === "he" ? marketingRubik.className : marketingPlusJakarta.className;
   const heClass = locale === "he" ? "marketing-apple--he" : "";
 
   useEffect(() => {
@@ -305,6 +305,7 @@ function MarketingSiteAppleContent() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              <p className="apple-price-trial">{copy.premiumTrial}</p>
               <Link href="/login" prefetch={false} className="apple-price-btn">
                 {copy.getPremium}
               </Link>

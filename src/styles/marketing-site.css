@@ -13,8 +13,8 @@
   --radius: 22px;
   --container: 1240px;
   --ease: cubic-bezier(.22, .61, .36, 1);
-  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Sora', system-ui, sans-serif;
   --line: rgba(138, 79, 255, 0.15);
 }
 
@@ -329,8 +329,8 @@ img { max-width: 100%; display: block; }
 }
 
 .marketing-site[dir="rtl"] {
-  --font-body: var(--font-marketing-hebrew, "Heebo"), "Heebo", system-ui, sans-serif;
-  --font-display: var(--font-marketing-hebrew, "Heebo"), "Heebo", system-ui, sans-serif;
+  --font-body: var(--font-marketing-hebrew, "Rubik"), "Rubik", system-ui, sans-serif;
+  --font-display: var(--font-marketing-hebrew, "Rubik"), "Rubik", system-ui, sans-serif;
   font-weight: 500;
   letter-spacing: 0.01em;
 }
@@ -929,6 +929,14 @@ section { position: relative; padding: 120px 0; }
   border-color: rgba(138, 79, 255, 0.14);
 }
 
+.marketing-site[data-theme="light"] .logo-text {
+  color: var(--heading);
+}
+
+.marketing-site[data-theme="light"] .logo-text span {
+  color: var(--accent-2);
+}
+
 .marketing-site[data-theme="light"] .contact-form {
   background: linear-gradient(180deg, #faf7ff 0%, #ebe3ff 100%);
   border-color: rgba(138, 79, 255, 0.12);
@@ -1293,6 +1301,13 @@ section { position: relative; padding: 120px 0; }
   content: "✦"; position: absolute; left: 0; color: var(--accent-2); font-size: 13px;
 }
 .price-btn { width: 100%; justify-content: center; }
+.price-trial {
+  margin: -12px 0 18px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
 
 /* Monthly plan — gold accent */
 .price-card--gold {
@@ -1330,6 +1345,9 @@ section { position: relative; padding: 120px 0; }
 }
 .price-card--gold .btn-primary:hover {
   box-shadow: 0 14px 36px rgba(160, 115, 20, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.price-card--gold .price-trial {
+  color: #8b6914;
 }
 
 .marketing-side-confetti {

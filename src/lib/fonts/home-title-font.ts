@@ -1,7 +1,7 @@
-import { Heebo } from "next/font/google";
+import { Rubik } from "next/font/google";
 
-/** Bold geometric Hebrew — matches landing welcome preview (Heebo בולד) */
-export const homeTitleFont = Heebo({
+/** Bold Hebrew landing titles */
+export const homeTitleFont = Rubik({
   subsets: ["hebrew"],
   weight: "800",
   display: "swap",

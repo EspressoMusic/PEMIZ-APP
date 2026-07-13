@@ -25,6 +25,7 @@ export type MarketingCopy = {
   pricingTitleEm: string;
   premiumBadge: string;
   premiumPeriod: string;
+  premiumTrial: string;
   premiumFeatures: string[];
   getPremium: string;
   ultimateBadge: string;
@@ -167,6 +168,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     pricingTitleEm: "Scale later.",
     premiumBadge: "Monthly Plan",
     premiumPeriod: "/ month",
+    premiumTrial: "14-day free trial",
     premiumFeatures: [
       "Full Peymiz access",
       "Business page + shareable link",
@@ -319,6 +321,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     pricingTitleEm: "גדלים בהמשך.",
     premiumBadge: "תוכנית חודשית",
     premiumPeriod: "/ חודש",
+    premiumTrial: "14 יום ניסיון חינם",
     premiumFeatures: [
       "גישה מלאה ל-Peymiz",
       "דף עסק + קישור לשיתוף",

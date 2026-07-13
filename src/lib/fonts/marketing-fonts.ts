@@ -1,20 +1,21 @@
-import { Heebo, Inter, Outfit } from "next/font/google";
+import { Plus_Jakarta_Sans, Rubik, Sora } from "next/font/google";
 
-/** Hebrew marketing / landing — bold geometric (matches Heebo בולד preview) */
-export const marketingHeebo = Heebo({
+/** Hebrew marketing / landing */
+export const marketingRubik = Rubik({
   subsets: ["hebrew", "latin"],
   weight: ["400", "500", "600", "700", "800"],
   display: "swap",
   variable: "--font-marketing-hebrew",
 });
 
-export const marketingInter = Inter({
+export const marketingPlusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   variable: "--font-marketing-body-en",
 });
 
-export const marketingOutfit = Outfit({
+export const marketingSora = Sora({
   subsets: ["latin"],
   weight: ["600", "700", "800"],
   display: "swap",
@@ -23,14 +24,18 @@ export const marketingOutfit = Outfit({
 
 export function marketingSiteFontClass(locale: "en" | "he") {
   if (locale === "he") {
-    return `${marketingHeebo.className} ${marketingHeebo.variable}`;
+    return `${marketingRubik.className} ${marketingRubik.variable}`;
   }
-  return `${marketingInter.className} ${marketingOutfit.variable}`;
+  return `${marketingPlusJakarta.className} ${marketingPlusJakarta.variable} ${marketingSora.variable}`;
 }
 
 export function homeLandingFontClass(locale: "en" | "he") {
   if (locale === "he") {
-    return `${marketingHeebo.className} ${marketingHeebo.variable}`;
+    return `${marketingRubik.className} ${marketingRubik.variable}`;
   }
-  return `${marketingInter.className} ${marketingInter.variable}`;
+  return `${marketingPlusJakarta.className} ${marketingPlusJakarta.variable}`;
+}
+
+export function marketingPublicPageClassName() {
+  return `marketing-site ${marketingPlusJakarta.className} ${marketingPlusJakarta.variable} ${marketingSora.variable}`;
 }
