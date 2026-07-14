@@ -5,8 +5,8 @@ import { LegalDocumentBody } from "@/components/legal/legal-document-body";
 import {
   MarketingPublicFooter,
   MarketingPublicHeader,
-  marketingPublicPageClassName,
 } from "@/components/marketing/marketing-public-chrome";
+import { marketingPublicPageClassName } from "@/lib/fonts/marketing-fonts";
 
 export function MarketingLegalShell({ markdown }: { markdown: string }) {
   return (
