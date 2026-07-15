@@ -108,33 +108,42 @@ export async function DELETE(
   const existing = await findOwnedProduct(ctx.user.business.id, id);
   if (!existing) return jsonError("מוצר לא נמצא", 404);
 
+  const businessId = ctx.user.business.id;
+
+  // Products referenced by existing orders can't be hard-deleted (order
+  // history joins straight to the Product row for name/price). Soft-delete
+  // instead: it disappears from the store and from the seller's product
+  // list, but stays intact so past orders keep showing it correctly.
   const orderItemCount = await prisma.orderItem.count({
     where: { productId: id },
   });
   if (orderItemCount > 0) {
-    return jsonError(
-      "לא ניתן למחוק מוצר שמופיע בהזמנות. השתמש ב«הסתר» כדי שלא יוצג ללקוחות.",
-      409
-    );
-  }
-
-  const businessId = ctx.user.business.id;
-
-  try {
-    await prisma.$transaction([
-      prisma.storeDeal.updateMany({
-        where: { businessId, productAId: id },
-        data: { productAId: null },
-      }),
-      prisma.storeDeal.updateMany({
-        where: { businessId, productBId: id },
-        data: { productBId: null },
-      }),
-      prisma.storeDealItem.deleteMany({ where: { productId: id } }),
-      prisma.product.delete({ where: { id, businessId } }),
-    ]);
-  } catch {
-    return jsonError("לא ניתן למחוק את המוצר כרגע. נסו «הסתר» במקום.", 409);
+    await prisma.product.update({
+      where: { id, businessId },
+      data: { isActive: false, deletedAt: new Date() },
+    });
+  } else {
+    try {
+      await prisma.$transaction([
+        prisma.storeDeal.updateMany({
+          where: { businessId, productAId: id },
+          data: { productAId: null },
+        }),
+        prisma.storeDeal.updateMany({
+          where: { businessId, productBId: id },
+          data: { productBId: null },
+        }),
+        prisma.storeDealItem.deleteMany({ where: { productId: id } }),
+        prisma.product.delete({ where: { id, businessId } }),
+      ]);
+    } catch {
+      // Race: an order referencing this product was placed between the
+      // count check above and the delete — fall back to the same soft-delete.
+      await prisma.product.update({
+        where: { id, businessId },
+        data: { isActive: false, deletedAt: new Date() },
+      });
+    }
   }
 
   if (ctx.user.business.type === "APPOINTMENTS") {

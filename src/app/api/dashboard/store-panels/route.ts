@@ -18,6 +18,7 @@ const schema = z.object({
   settings: z.boolean().optional(),
   reviews: z.boolean().optional(),
   coupons: z.boolean().optional(),
+  customerAddress: z.boolean().optional(),
 });
 
 export async function GET() {

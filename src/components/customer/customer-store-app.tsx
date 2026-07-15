@@ -37,6 +37,7 @@ import { CustomerLegalSheet } from "./customer-legal-sheet";
 import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
 import { CustomerCookieConsent } from "./customer-cookie-consent";
 import { OrderCheckoutModal } from "./order-checkout-modal";
+import type { SelectedAddress } from "./address-autocomplete-input";
 import { CustomerCartCheckoutBar } from "./customer-cart-checkout-bar";
 import { playProductAddedSound, playOrderCompletedSound } from "@/lib/ui-sounds";
 import { cn } from "@/lib/utils";
@@ -411,6 +412,7 @@ export function CustomerStoreApp({
   const [faqOpen, setFaqOpen] = useState(false);
   const [reviewsSheetOpen, setReviewsSheetOpen] = useState(false);
   const [reviewPromptOpen, setReviewPromptOpen] = useState(false);
+  const [reviewThanksOpen, setReviewThanksOpen] = useState(false);
   const [reviewRewardCoupon, setReviewRewardCoupon] =
     useState<ReviewRewardCoupon | null>(null);
   const [displayOpen, setDisplayOpen] = useState(false);
@@ -1094,7 +1096,12 @@ export function CustomerStoreApp({
     }
   }
 
-  async function submitOrder(name: string, phone: string, couponCode?: string) {
+  async function submitOrder(
+    name: string,
+    phone: string,
+    couponCode?: string,
+    address?: SelectedAddress
+  ) {
     if (cartLines.length === 0 && cartDeals.length === 0) return;
     const orderSnapshot: CustomerOrderHistoryEntry = {
       id: `order-${Date.now()}`,
@@ -1121,6 +1128,14 @@ export function CustomerStoreApp({
       customerPhone: phone,
       ...(customerGoogleEmail
         ? { customerEmail: customerGoogleEmail }
+        : {}),
+      ...(address?.text
+        ? {
+            customerAddress: address.text,
+            customerAddressLat: address.lat,
+            customerAddressLng: address.lng,
+            customerAddressPlaceId: address.placeId,
+          }
         : {}),
     };
     const placedOrderNumbers: number[] = [];
@@ -2272,12 +2287,13 @@ export function CustomerStoreApp({
         initialName={customerName}
         initialPhone={orderPhone}
         showCoupon={panels.coupons && cartLines.length > 0}
+        showAddress={panels.customerAddress}
         submitting={orderSubmitting}
         error={orderError}
-        onSubmit={(name, phone, couponCode) => {
+        onSubmit={(name, phone, couponCode, address) => {
           setCustomerName(name);
           setOrderPhone(phone);
-          void submitOrder(name, phone, couponCode);
+          void submitOrder(name, phone, couponCode, address);
         }}
       />
 
@@ -2305,7 +2321,22 @@ export function CustomerStoreApp({
         storeTheme={displayTheme}
         labels={labels}
         onRewardCoupon={setReviewRewardCoupon}
+        onSubmitted={(hasRewardCoupon) => {
+          if (!hasRewardCoupon) setReviewThanksOpen(true);
+        }}
       />
+
+      {reviewThanksOpen && (
+        <CelebrationModal
+          open
+          onClose={() => setReviewThanksOpen(false)}
+          title={labels.reviewThanksTitle}
+          subtitle={labels.reviewThanksSubtitle}
+          buttonLabel={labels.great}
+          closeAriaLabel={labels.close}
+          locale={locale}
+        />
+      )}
 
       {reviewRewardCoupon && (
         <CelebrationModal

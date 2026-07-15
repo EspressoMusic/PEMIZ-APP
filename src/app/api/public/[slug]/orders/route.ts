@@ -64,6 +64,10 @@ const schema = z.object({
   notes: z.string().max(500).optional(),
   dealId: z.string().optional(),
   couponCode: z.string().max(30).optional(),
+  customerAddress: z.string().max(300).optional(),
+  customerAddressLat: z.number().optional(),
+  customerAddressLng: z.number().optional(),
+  customerAddressPlaceId: z.string().max(300).optional(),
   items: z
     .array(
       z.object({
@@ -176,6 +180,17 @@ export async function POST(
   if (business.type !== "STORE") return jsonError("עסק זה אינו מקבל הזמנות", 400);
 
   const panels = storePanelsFromBusiness(business);
+
+  function addressFields(data: z.infer<typeof schema>) {
+    if (!panels.customerAddress || !data.customerAddress) return {};
+    return {
+      customerAddress: data.customerAddress,
+      customerAddressLat: data.customerAddressLat ?? null,
+      customerAddressLng: data.customerAddressLng ?? null,
+      customerAddressPlaceId: data.customerAddressPlaceId ?? null,
+    };
+  }
+
   const scheduleEnabled =
     panels.orderLimits && (business.orderScheduleEnabled ?? false);
   if (!isWithinOrderSchedule(scheduleEnabled, business.orderSchedule)) {
@@ -255,6 +270,7 @@ export async function POST(
             notes: parsed.data.notes
               ? `${parsed.data.notes} [דיל: ${deal.name}]`
               : `[דיל: ${deal.name}]`,
+            ...addressFields(parsed.data),
           }
         );
         await tx.dealRedemption.create({
@@ -343,6 +359,7 @@ export async function POST(
         customerPhone: phone,
         customerEmail: parsed.data.customerEmail || null,
         notes: parsed.data.notes,
+        ...addressFields(parsed.data),
         ...(couponId && {
           couponId,
           couponCode,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, ClipboardList, Download, History, Search, X } from "lucide-react";
+import { Calendar, ClipboardList, Download, History, Search, Trash2, X } from "lucide-react";
 import {
   Alert,
   Button,
@@ -86,11 +86,23 @@ function orderStatusLabel(status: string, locale: AppLocale): string {
   return map[status] ?? status;
 }
 
-/** ממתין נשאר פעיל; אושר/הושלם/בוטל עוברים אוטומטית להיסטוריה ולעולם לא נמחקים */
-const ACTIVE_ORDER_STATUSES = new Set(["PENDING"]);
+/** הזמנות נשארות בחלון "הזמנות" (ולא נמחקות) עד שהמוכר מסיר אותן ידנית — אז הן עוברות להיסטוריה. */
+function isOrderHidden(order: DashboardOrderView) {
+  return !!order.sellerHiddenAt;
+}
 
-function isActiveOrderStatus(status: string) {
-  return ACTIVE_ORDER_STATUSES.has(status);
+/** לא-הושלמו למעלה, הושלמו למטה; בתוך כל קבוצה — החדשות קודם. */
+function sortOrdersForOrdersWindow(
+  orders: DashboardOrderView[]
+): DashboardOrderView[] {
+  return [...orders].sort((a, b) => {
+    const aDone = a.status === "COMPLETED";
+    const bDone = b.status === "COMPLETED";
+    if (aDone !== bDone) return aDone ? 1 : -1;
+    return (
+      new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+    );
+  });
 }
 
 function orderMatchesDate(order: DashboardOrderView, dateStr: string): boolean {
@@ -166,6 +178,10 @@ export function mapOrdersFromApi(
     customerPhone: string;
     status: string;
     createdAt: string;
+    customerAddress?: string | null;
+    customerAddressLat?: number | null;
+    customerAddressLng?: number | null;
+    sellerHiddenAt?: string | null;
     items: {
       quantity: number;
       priceAtOrder: number;
@@ -182,6 +198,10 @@ export function mapOrdersFromApi(
       status: o.status,
       statusLabel: orderStatusLabel(o.status, locale),
       createdAt: o.createdAt,
+      customerAddress: o.customerAddress,
+      customerAddressLat: o.customerAddressLat,
+      customerAddressLng: o.customerAddressLng,
+      sellerHiddenAt: o.sellerHiddenAt,
       items: o.items.map((it) => ({
         name: it.product.name,
         quantity: it.quantity,
@@ -603,6 +623,117 @@ function DashboardOrdersCalendarButton({
   );
 }
 
+function DashboardOrdersDeleteMenuButton({
+  orders,
+  onHideOrders,
+}: {
+  orders: DashboardOrderView[];
+  onHideOrders?: (orderIds: string[]) => void | Promise<void>;
+}) {
+  const { labels } = useAppLocale();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingTarget, setPendingTarget] = useState<"all" | "completed" | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  if (!onHideOrders || orders.length === 0) return null;
+
+  const completedOrders = orders.filter((o) => o.status === "COMPLETED");
+
+  function chooseTarget(target: "all" | "completed") {
+    setMenuOpen(false);
+    setPendingTarget(target);
+  }
+
+  async function confirmDelete() {
+    const ids =
+      pendingTarget === "all"
+        ? orders.map((o) => o.id)
+        : completedOrders.map((o) => o.id);
+    setDeleting(true);
+    await onHideOrders?.(ids);
+    setDeleting(false);
+    setPendingTarget(null);
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setMenuOpen(true)}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-bakery-ink transition hover:bg-bakery-cream-light/80 active:opacity-80"
+        aria-label={labels.deleteOrdersButtonLabel}
+        title={labels.deleteOrdersButtonLabel}
+      >
+        <Trash2 className="h-5 w-5" strokeWidth={2.5} />
+      </button>
+
+      <DashboardActionSheet
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        ariaLabel={labels.deleteOrdersButtonLabel}
+        placement="center"
+        showBackButton
+        backButtonOutside
+        compact
+        fitContent
+      >
+        <div className="space-y-2 px-1 py-1">
+          <button
+            type="button"
+            onClick={() => chooseTarget("all")}
+            className="w-full rounded-[14px] border-2 border-bakery-primary bg-bakery-primary px-4 py-3 text-center text-[15px] font-extrabold text-bakery-on-primary transition hover:opacity-95 active:opacity-80"
+          >
+            {labels.deleteAllOrders}
+          </button>
+          <button
+            type="button"
+            disabled={completedOrders.length === 0}
+            onClick={() => chooseTarget("completed")}
+            className="w-full rounded-[14px] border-2 border-bakery-primary bg-bakery-primary px-4 py-3 text-center text-[15px] font-extrabold text-bakery-on-primary transition hover:opacity-95 active:opacity-80 disabled:opacity-40"
+          >
+            {labels.deleteCompletedOrders}
+          </button>
+        </div>
+      </DashboardActionSheet>
+
+      <DashboardActionSheet
+        open={pendingTarget !== null}
+        onClose={() => !deleting && setPendingTarget(null)}
+        title={labels.deleteOrdersModalTitle}
+        ariaLabel={labels.deleteOrdersModalTitle}
+        placement="center"
+        expanded={false}
+        fitContent
+        panelClassName="w-full max-w-md"
+      >
+        <div className="space-y-6 px-2 py-2 text-center">
+          <p className="text-[15px] font-semibold leading-relaxed text-bakery-ink">
+            {labels.deleteOrdersModalBody}
+          </p>
+          <div className="flex flex-row items-stretch justify-center gap-3">
+            <button
+              type="button"
+              disabled={deleting}
+              onClick={() => setPendingTarget(null)}
+              className="min-h-[48px] min-w-[7.5rem] rounded-xl border-2 border-bakery-border bg-bakery-card px-4 text-[15px] font-extrabold text-bakery-ink transition hover:bg-bakery-surface active:opacity-80 disabled:opacity-50"
+            >
+              {labels.cancel}
+            </button>
+            <button
+              type="button"
+              disabled={deleting}
+              onClick={() => void confirmDelete()}
+              className="min-h-[48px] min-w-[7.5rem] rounded-xl border-2 border-bakery-error/45 bg-bakery-card px-4 text-[15px] font-extrabold text-bakery-error transition hover:bg-bakery-error/10 active:opacity-80 disabled:opacity-50"
+            >
+              {deleting ? labels.deleting : labels.deleteOrdersModalConfirm}
+            </button>
+          </div>
+        </div>
+      </DashboardActionSheet>
+    </>
+  );
+}
+
 function OrdersPreviewBanner() {
   return (
     <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
@@ -664,8 +795,13 @@ function useOrdersManager({
     };
   }, [locale, previewOnly, previewOrders]);
 
-  const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
-  const historyOrders = orders.filter((o) => !isActiveOrderStatus(o.status));
+  const activeOrders = sortOrdersForOrdersWindow(
+    orders.filter((o) => !isOrderHidden(o))
+  );
+  const historyOrders = orders.filter(isOrderHidden);
+  const unfinishedOrdersCount = activeOrders.filter(
+    (o) => o.status !== "COMPLETED"
+  ).length;
   const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
     previewOnly,
     previewOrders: orders,
@@ -687,33 +823,74 @@ function useOrdersManager({
     });
   }
 
+  async function toggleOrderCompletion(orderId: string) {
+    const current = orders.find((o) => o.id === orderId);
+    if (!current) return;
+    const nextStatus = current.status === "COMPLETED" ? "CONFIRMED" : "COMPLETED";
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === orderId
+          ? { ...o, status: nextStatus, statusLabel: orderStatusLabel(nextStatus, locale) }
+          : o
+      )
+    );
+    if (previewOnly) return;
+    await fetch("/api/dashboard/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, status: nextStatus }),
+    });
+  }
+
+  async function hideOrders(orderIds: string[]) {
+    const hiddenAt = new Date().toISOString();
+    setOrders((prev) =>
+      prev.map((o) =>
+        orderIds.includes(o.id) ? { ...o, sellerHiddenAt: hiddenAt } : o
+      )
+    );
+    if (previewOnly) return;
+    await fetch("/api/dashboard/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderIds, hide: true }),
+    });
+  }
+
   return {
     labels,
     activeOrders,
     historyOrders,
+    unfinishedOrdersCount,
     openCustomer,
     customerModal,
     confirmOrder,
+    toggleOrderCompletion,
+    hideOrders,
     previewOnly,
   };
 }
 
 function OrdersPanels({
-  orders,
+  activeOrders,
+  historyOrders,
   onCustomerClick,
   onConfirmOrder,
+  onToggleComplete,
+  onHideOrders,
   customerModal,
 }: {
-  orders: DashboardOrderView[];
+  activeOrders: DashboardOrderView[];
+  historyOrders: DashboardOrderView[];
   onCustomerClick?: ReturnType<
     typeof useDashboardCustomerProfile
   >["openCustomer"];
   onConfirmOrder?: (orderId: string) => void;
+  onToggleComplete?: (orderId: string) => void;
+  onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   customerModal?: React.ReactNode;
 }) {
   const { labels } = useAppLocale();
-  const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status));
-  const historyOrders = orders.filter((o) => !isActiveOrderStatus(o.status));
 
   return (
     <div className="space-y-5 pb-2">
@@ -722,6 +899,8 @@ function OrdersPanels({
         orders={activeOrders}
         onCustomerClick={onCustomerClick}
         onConfirmOrder={onConfirmOrder}
+        onToggleComplete={onToggleComplete}
+        onHideOrders={onHideOrders}
         customerModal={customerModal}
         emptyMessage={labels.noActiveOrders}
       />
@@ -741,6 +920,8 @@ function OrdersActiveSheet({
   activeOrders,
   onCustomerClick,
   onConfirmOrder,
+  onToggleComplete,
+  onHideOrders,
   previewOnly,
   allOrdersForExport,
 }: {
@@ -749,6 +930,8 @@ function OrdersActiveSheet({
   activeOrders: DashboardOrderView[];
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
   onConfirmOrder?: (orderId: string) => void;
+  onToggleComplete?: (orderId: string) => void;
+  onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   previewOnly?: boolean;
   allOrdersForExport?: DashboardOrderView[];
 }) {
@@ -779,6 +962,10 @@ function OrdersActiveSheet({
             previewOnly={previewOnly}
             previewOrders={allOrdersForExport ?? activeOrders}
           />
+          <DashboardOrdersDeleteMenuButton
+            orders={activeOrders}
+            onHideOrders={onHideOrders}
+          />
           {headerEndAction}
         </div>
       }
@@ -790,6 +977,8 @@ function OrdersActiveSheet({
           orders={filteredOrders}
           onCustomerClick={onCustomerClick}
           onConfirmOrder={onConfirmOrder}
+          onToggleComplete={onToggleComplete}
+          onHideOrders={onHideOrders}
           emptyMessage={
             hasSearchQuery ? labels.noOrderSearchResults : labels.noActiveOrders
           }
@@ -877,15 +1066,18 @@ export function DashboardOrdersEntry({
     labels,
     activeOrders,
     historyOrders,
+    unfinishedOrdersCount,
     openCustomer,
     customerModal,
     confirmOrder,
+    toggleOrderCompletion,
+    hideOrders,
     previewOnly: isPreview,
   } = useOrdersManager({ previewOnly, previewOrders });
 
   const title =
-    activeOrders.length > 0
-      ? `${labels.orders} (${activeOrders.length})`
+    unfinishedOrdersCount > 0
+      ? `${labels.orders} (${unfinishedOrdersCount})`
       : labels.orders;
 
   return (
@@ -901,6 +1093,8 @@ export function DashboardOrdersEntry({
         activeOrders={activeOrders}
         onCustomerClick={openCustomer}
         onConfirmOrder={confirmOrder}
+        onToggleComplete={toggleOrderCompletion}
+        onHideOrders={hideOrders}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
       />
@@ -928,17 +1122,23 @@ export function OrdersManager({
     labels,
     activeOrders,
     historyOrders,
+    unfinishedOrdersCount,
     openCustomer,
     customerModal,
     confirmOrder,
+    toggleOrderCompletion,
+    hideOrders,
     previewOnly: isPreview,
   } = useOrdersManager({ previewOnly, previewOrders });
 
   const panels = (
     <OrdersPanels
-      orders={[...activeOrders, ...historyOrders]}
+      activeOrders={activeOrders}
+      historyOrders={historyOrders}
       onCustomerClick={openCustomer}
       onConfirmOrder={confirmOrder}
+      onToggleComplete={toggleOrderCompletion}
+      onHideOrders={hideOrders}
       customerModal={customerModal}
     />
   );
@@ -966,10 +1166,10 @@ export function OrdersManager({
             </span>
             <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
               {labels.orders}
-              {activeOrders.length > 0 && (
+              {unfinishedOrdersCount > 0 && (
                 <span className="font-semibold text-bakery-muted">
                   {" "}
-                  ({activeOrders.length})
+                  ({unfinishedOrdersCount})
                 </span>
               )}
             </span>
@@ -1007,6 +1207,8 @@ export function OrdersManager({
         activeOrders={activeOrders}
         onCustomerClick={openCustomer}
         onConfirmOrder={confirmOrder}
+        onToggleComplete={toggleOrderCompletion}
+        onHideOrders={hideOrders}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
       />

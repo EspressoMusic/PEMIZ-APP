@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { Button, Input, Toggle } from "@/components/ui";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
+import {
+  AddressAutocompleteInput,
+  type SelectedAddress,
+} from "@/components/customer/address-autocomplete-input";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import type { StoreThemeId } from "@/lib/store-themes";
@@ -17,6 +21,7 @@ export function OrderCheckoutModal({
   initialName,
   initialPhone,
   showCoupon = false,
+  showAddress = false,
   onSubmit,
   submitting,
   error,
@@ -30,7 +35,13 @@ export function OrderCheckoutModal({
   initialName: string;
   initialPhone: string;
   showCoupon?: boolean;
-  onSubmit: (name: string, phone: string, couponCode?: string) => void;
+  showAddress?: boolean;
+  onSubmit: (
+    name: string,
+    phone: string,
+    couponCode?: string,
+    address?: SelectedAddress
+  ) => void;
   submitting: boolean;
   error?: string;
   summary?: string;
@@ -39,6 +50,8 @@ export function OrderCheckoutModal({
   const [phone, setPhone] = useState(initialPhone);
   const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponCode, setCouponCode] = useState("");
+  const [address, setAddress] = useState("");
+  const [addressPlace, setAddressPlace] = useState<SelectedAddress | null>(null);
   const [localError, setLocalError] = useState("");
 
   useEffect(() => {
@@ -47,6 +60,8 @@ export function OrderCheckoutModal({
       setPhone(initialPhone);
       setCouponEnabled(false);
       setCouponCode("");
+      setAddress("");
+      setAddressPlace(null);
       setLocalError("");
     }
   }, [open, initialName, initialPhone]);
@@ -64,6 +79,7 @@ export function OrderCheckoutModal({
           nameRequired: "יש למלא שם",
           couponToggle: "קופון",
           couponCode: "קוד קופון",
+          address: "כתובת מגורים",
         }
       : {
           title: "Complete your order",
@@ -76,6 +92,7 @@ export function OrderCheckoutModal({
           nameRequired: "Please enter your name",
           couponToggle: "Coupon",
           couponCode: "Coupon code",
+          address: "Home address",
         };
 
   const displayError = error || localError;
@@ -131,6 +148,21 @@ export function OrderCheckoutModal({
             dir="ltr"
             inputMode="tel"
           />
+          {showAddress ? (
+            <AddressAutocompleteInput
+              label={t.address}
+              value={address}
+              onValueChange={(next) => {
+                setAddress(next);
+                setAddressPlace(null);
+              }}
+              onSelect={(place) => {
+                setAddress(place.text);
+                setAddressPlace(place);
+              }}
+              locale={locale}
+            />
+          ) : null}
           {showCoupon ? (
             <div className="flex items-stretch gap-2">
               <div className="flex shrink-0 items-center gap-2 rounded-[12px] border border-bakery-border/35 bg-bakery-input/80 px-2.5 py-2">
@@ -176,7 +208,20 @@ export function OrderCheckoutModal({
                 return;
               }
               setLocalError("");
-              onSubmit(trimmedName, trimmedPhone, couponCode.trim() || undefined);
+              const trimmedAddress = address.trim();
+              onSubmit(
+                trimmedName,
+                trimmedPhone,
+                couponCode.trim() || undefined,
+                showAddress && trimmedAddress
+                  ? addressPlace ?? {
+                      text: trimmedAddress,
+                      lat: null,
+                      lng: null,
+                      placeId: null,
+                    }
+                  : undefined
+              );
             }}
           >
             {submitting ? t.submitting : t.submit}

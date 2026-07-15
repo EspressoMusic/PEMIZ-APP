@@ -1,0 +1,9 @@
+<!doctype html>
+<meta charset="utf-8" />
+<script>
+  var allowed = ["turquoise", "calm", "light", "dark"];
+  var theme = new URLSearchParams(location.search).get("theme");
+  if (allowed.indexOf(theme) === -1) theme = "turquoise";
+  document.cookie = "linky-dashboard-theme=" + theme + "; path=/; max-age=31536000; samesite=lax";
+  location.href = "/onboarding";
+</script>

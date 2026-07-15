@@ -2238,7 +2238,8 @@ html:not([data-store-theme="dark"]) .auth-surface .bakery-field:focus {
 
 .auth-surface .auth-option-btn--selected {
   border: 3px solid var(--bakery-primary, #5d4037);
-  background-color: var(--auth-field-bg);
+  background-color: var(--bakery-primary, #5d4037);
+  color: var(--bakery-on-primary, #ffffff);
   box-shadow: none;
 }
 
@@ -5738,7 +5739,7 @@ html[data-store-theme="turquoise"] .dashboard-customer-profile-modal .dashboard-
 }
 
 html[data-store-theme="turquoise"] .auth-surface {
-  --dashboard-panel-bg: #f8fffe;
+  --dashboard-panel-bg: #c6e8e2;
   --dashboard-frame-border: #0f766e;
   --dashboard-shadow: rgba(15, 118, 110, 0.08);
 }

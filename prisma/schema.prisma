@@ -177,6 +177,9 @@ model Product {
   stock                  Int?
   serviceDurationMinutes Int?
   isActive               Boolean     @default(true)
+  // Soft-delete: set instead of removing the row when order history still
+  // references this product, so past orders keep showing its name/price.
+  deletedAt   DateTime?
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
   dealsAsA    StoreDeal[]       @relation("DealProductA")
@@ -280,12 +283,17 @@ model Order {
   customerName   String
   customerPhone  String
   customerEmail  String?
+  customerAddress        String?
+  customerAddressLat     Float?
+  customerAddressLng     Float?
+  customerAddressPlaceId String?
   notes          String?
   status         String      @default("PENDING")
   couponId       String?
   coupon         Coupon?     @relation(fields: [couponId], references: [id])
   couponCode     String?
   discountAmount Float       @default(0)
+  sellerHiddenAt DateTime?
   createdAt      DateTime    @default(now())
   items          OrderItem[]
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Flower2, MoonStar, Palette, PenTool } from "lucide-react";
+import { BookOpen, Palette } from "lucide-react";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useStoreTheme } from "@/components/dashboard/store-theme-provider";
@@ -12,8 +12,6 @@ import {
   STORE_THEMES,
   parseStoreDecoration,
   parseStoreTheme,
-  storeDecorationDescription,
-  storeDecorationLabel,
   storeThemeLabel,
   type StoreDecorationId,
   type StoreThemeId,
@@ -37,7 +35,7 @@ export function DashboardStoreStylePicker({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const { locale, labels, setLocale: setAppLocale } = useAppLocale();
-  const { theme, setTheme: setAppTheme, decoration, setDecoration: setAppDecoration } =
+  const { theme, setTheme: setAppTheme, setDecoration: setAppDecoration } =
     useStoreTheme();
 
   async function saveAppearance(patch: {
@@ -138,7 +136,7 @@ export function DashboardStoreStylePicker({
           <p className="text-center text-[14px] font-bold text-bakery-ink">
             {labels.storeLanguageForCustomers}
           </p>
-          <div className="flex justify-center gap-2">
+          <div className="mx-auto flex w-fit gap-1.5 rounded-[16px] border border-bakery-border/35 bg-bakery-card/80 p-1">
             {(
               [
                 { id: "he" as const, label: labels.hebrew },
@@ -150,10 +148,10 @@ export function DashboardStoreStylePicker({
                 type="button"
                 disabled={saving}
                 onClick={() => saveAppearance({ storeLocale: l.id })}
-                className={`rounded-full px-5 py-2 text-[14px] font-extrabold transition ${
+                className={`rounded-[12px] px-5 py-2 text-[14px] font-extrabold transition ${
                   locale === l.id
-                    ? "bg-bakery-primary/15 text-bakery-primary ring-2 ring-bakery-primary/30"
-                    : "border border-bakery-border/35 bg-bakery-input/80 text-bakery-ink"
+                    ? "bg-bakery-primary text-bakery-on-primary shadow-[var(--shadow-bakery-btn)]"
+                    : "text-bakery-ink hover:bg-bakery-cream-hover"
                 }`}
               >
                 {l.label}
@@ -194,43 +192,6 @@ export function DashboardStoreStylePicker({
                 </button>
               );
             })}
-          </div>
-
-          <p className="text-center text-[14px] font-bold text-bakery-ink">
-            {labels.storeDecorationTitle}
-          </p>
-          <div className="flex justify-center gap-3">
-            {(
-              [
-                { id: "flowers" as const, Icon: Flower2 },
-                { id: "doodles" as const, Icon: PenTool },
-                { id: "stars" as const, Icon: MoonStar },
-              ] satisfies { id: StoreDecorationId; Icon: typeof Flower2 }[]
-            ).map(({ id, Icon }) => {
-                const active = decoration === id;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    disabled={saving}
-                    aria-label={storeDecorationDescription(id, locale)}
-                    aria-pressed={active}
-                    title={storeDecorationLabel(id, locale)}
-                    onClick={() =>
-                      saveAppearance({
-                        storeDecoration: active ? "none" : id,
-                      })
-                    }
-                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border transition ${
-                      active
-                        ? "border-bakery-primary bg-bakery-primary/15 ring-2 ring-bakery-primary/30"
-                        : "border-bakery-border/35 bg-bakery-input/80"
-                    }`}
-                  >
-                    <Icon className="h-6 w-6 text-bakery-primary" strokeWidth={1.75} />
-                  </button>
-                );
-              })}
           </div>
 
           {SELLER_WELCOME_GUIDE_ENABLED ? (

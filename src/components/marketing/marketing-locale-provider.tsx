@@ -18,6 +18,7 @@ import {
   type MarketingLocale,
 } from "@/lib/marketing-locale";
 import { writeDashboardLocaleSession } from "@/lib/dashboard-appearance-session";
+import { readDashboardLocaleCookie } from "@/lib/dashboard-appearance-boot";
 import { SITE_LOCALE } from "@/lib/site-locale";
 
 type MarketingLocaleContextValue = {
@@ -37,9 +38,12 @@ export function MarketingLocaleProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const saved = normalizeMarketingLocale(
-      localStorage.getItem(MARKETING_LOCALE_KEY)
-    );
+    const stored = localStorage.getItem(MARKETING_LOCALE_KEY);
+    // No stored preference yet — fall back to the locale the proxy
+    // auto-detected from the visitor's location on their first request.
+    const saved = stored
+      ? normalizeMarketingLocale(stored)
+      : (readDashboardLocaleCookie() ?? SITE_LOCALE);
     setLocaleState(saved);
     applyMarketingLocale(saved);
     writeDashboardLocaleSession(saved);

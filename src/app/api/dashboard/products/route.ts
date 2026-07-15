@@ -31,7 +31,7 @@ export async function GET() {
   const ctx = await requireCatalogOwner();
   if (!ctx.ok) return ctx.response;
   const products = await prisma.product.findMany({
-    where: { businessId: ctx.user.business.id },
+    where: { businessId: ctx.user.business.id, deletedAt: null },
     orderBy: { createdAt: "desc" },
     select: productSelect,
   });

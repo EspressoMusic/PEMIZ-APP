@@ -1,4 +1,4 @@
-import { type ReactNode, type ButtonHTMLAttributes, type InputHTMLAttributes } from "react";
+import { forwardRef, type ReactNode, type ButtonHTMLAttributes, type InputHTMLAttributes } from "react";
 
 export { Toggle } from "@/components/ui-toggle";
 
@@ -78,17 +78,14 @@ export function Button({
   );
 }
 
-export function Input({
-  label,
-  labelClassName = "",
-  error,
-  className = "",
-  ...props
-}: InputHTMLAttributes<HTMLInputElement> & {
-  label?: string;
-  labelClassName?: string;
-  error?: string;
-}) {
+export const Input = forwardRef<
+  HTMLInputElement,
+  InputHTMLAttributes<HTMLInputElement> & {
+    label?: string;
+    labelClassName?: string;
+    error?: string;
+  }
+>(function Input({ label, labelClassName = "", error, className = "", ...props }, ref) {
   return (
     <label className="block space-y-1.5">
       {label && (
@@ -99,6 +96,7 @@ export function Input({
         </span>
       )}
       <input
+        ref={ref}
         className={`bakery-field w-full rounded-2xl border-[1.5px] border-bakery-border/32 bg-bakery-input px-4 py-3 text-start text-base text-bakery-ink outline-none focus:border-[2px] focus:border-bakery-ink/70 sm:text-[15px] ${className}`}
         {...props}
       />
@@ -107,7 +105,7 @@ export function Input({
       )}
     </label>
   );
-}
+});
 
 export function Textarea({
   label,

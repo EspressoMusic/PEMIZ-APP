@@ -115,6 +115,7 @@ export async function GET(req: Request) {
     "שם לקוח",
     "טלפון",
     "אימייל",
+    "כתובת",
     "מוצר",
     "כמות",
     "מחיר ליחידה",
@@ -146,6 +147,7 @@ export async function GET(req: Request) {
       order.customerName,
       order.customerPhone,
       order.customerEmail ?? "",
+      order.customerAddress ?? "",
     ];
     const couponCell = order.couponCode ?? "";
     const discountCell = order.discountAmount > 0 ? order.discountAmount.toFixed(2) : "";

@@ -139,6 +139,14 @@ export function DashboardStorePanelsSettings({
         disabled={saving}
         onChange={(coupons) => void patch({ coupons })}
       />
+      {isStore ? (
+        <PanelToggleRow
+          label={labels.storePanelCustomerAddress}
+          enabled={panels.customerAddress}
+          disabled={saving}
+          onChange={(customerAddress) => void patch({ customerAddress })}
+        />
+      ) : null}
       <PanelToggleRow
         label={labels.storePanelSettings}
         enabled={panels.settings}

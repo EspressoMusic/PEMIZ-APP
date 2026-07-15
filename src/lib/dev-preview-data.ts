@@ -131,6 +131,9 @@ export const DEV_PREVIEW_ORDERS = [
     status: "PENDING",
     statusLabel: "Pending",
     createdAt: "2026-06-04T17:20:00.000Z",
+    customerAddress: "רוטשילד 1, תל אביב",
+    customerAddressLat: 32.0663,
+    customerAddressLng: 34.7748,
     items: [
       {
         name: "Yummy",
@@ -411,7 +414,7 @@ export const DEV_STORE_BUSINESS = {
   type: "STORE" as const,
   storeDecoration: "stars",
   sellerContactPhone: "050-1234567",
-  storePanelsVisible: { ...DEFAULT_STORE_PANELS_VISIBLE, coupons: true },
+  storePanelsVisible: { ...DEFAULT_STORE_PANELS_VISIBLE, coupons: true, customerAddress: true },
   products: devPreviewCustomerProducts(),
   deals: [
     {

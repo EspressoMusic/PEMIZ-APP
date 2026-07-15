@@ -36,3 +36,9 @@ export function parseThemeCookie(value: string | undefined): StoreThemeId | null
 export function parseLocaleCookie(value: string | undefined): AppLocale | null {
   return value === "en" || value === "he" ? value : null;
 }
+
+export function readDashboardLocaleCookie(): AppLocale | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|; )linky-dashboard-locale=([^;]*)/);
+  return match ? parseLocaleCookie(decodeURIComponent(match[1])) : null;
+}

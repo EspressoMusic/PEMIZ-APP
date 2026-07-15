@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Star, X } from "lucide-react";
 import { Button, Input, Textarea } from "@/components/ui";
+import { CelebrationModal } from "@/components/celebration-modal";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import type { StoreThemeId } from "@/lib/store-themes";
@@ -97,6 +99,7 @@ export function CustomerReviewsSheet({
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [thanksOpen, setThanksOpen] = useState(false);
   const closeLabel = locale === "he" ? "סגור" : "Close";
 
   function loadReviews() {
@@ -118,6 +121,7 @@ export function CustomerReviewsSheet({
     setRating(0);
     setComment("");
     setError("");
+    setThanksOpen(false);
     setName(customerName);
     void loadReviews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,6 +159,7 @@ export function CustomerReviewsSheet({
       setRating(0);
       setComment("");
       await loadReviews();
+      setThanksOpen(true);
     } catch {
       setError(labels.reviewSubmitError);
     } finally {
@@ -165,6 +170,7 @@ export function CustomerReviewsSheet({
   const hasReviewed = hasReviewedStore(slug);
 
   return (
+    <>
     <CustomerCenterModal
       open={open}
       onClose={onClose}
@@ -299,5 +305,20 @@ export function CustomerReviewsSheet({
         )}
       </div>
     </CustomerCenterModal>
+    {thanksOpen &&
+      typeof document !== "undefined" &&
+      createPortal(
+        <CelebrationModal
+          open
+          onClose={() => setThanksOpen(false)}
+          title={labels.reviewThanksTitle}
+          subtitle={labels.reviewThanksSubtitle}
+          buttonLabel={labels.great}
+          closeAriaLabel={closeLabel}
+          locale={locale}
+        />,
+        document.body
+      )}
+    </>
   );
 }

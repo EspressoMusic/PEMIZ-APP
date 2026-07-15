@@ -136,7 +136,11 @@ export type DashboardLabels = {
   storePanelOrderLimits: string;
   storePanelSettings: string;
   storePanelCoupons: string;
+  storePanelCustomerAddress: string;
   storePanelsSaveFailed: string;
+  customerAddress: string;
+  openInMaps: string;
+  openInWaze: string;
   extras: string;
   customers: string;
   customerMessage: string;
@@ -190,6 +194,15 @@ export type DashboardLabels = {
   total: string;
   prepSummaryButton: string;
   completeOrder: string;
+  undoCompleteOrder: string;
+  deleteSelectedOrders: string;
+  ordersSelectedCount: string;
+  deleteOrdersModalTitle: string;
+  deleteOrdersModalBody: string;
+  deleteOrdersModalConfirm: string;
+  deleteOrdersButtonLabel: string;
+  deleteAllOrders: string;
+  deleteCompletedOrders: string;
   pending: string;
   confirmed: string;
   completed: string;
@@ -688,7 +701,11 @@ const HE: DashboardLabels = {
   storePanelOrderLimits: "הגבלות הזמנה",
   storePanelSettings: "פאנל הגדרות",
   storePanelCoupons: "קוד קופון בהזמנה",
+  storePanelCustomerAddress: "כתובת מגורים בהזמנה",
   storePanelsSaveFailed: "שמירת ההגדרות נכשלה",
+  customerAddress: "כתובת",
+  openInMaps: "גוגל מפות",
+  openInWaze: "וויז",
   extras: "פרטים נוספים",
   customers: "לקוחות",
   customerMessage: "הודעה ללקוחות",
@@ -742,6 +759,16 @@ const HE: DashboardLabels = {
   total: "סה״כ",
   prepSummaryButton: "סיכום",
   completeOrder: "סמן כהושלם",
+  undoCompleteOrder: "בטל סימון כהושלם",
+  deleteSelectedOrders: "מחיקת הנבחרות",
+  ordersSelectedCount: "{count} נבחרו",
+  deleteOrdersModalTitle: "למחוק את ההזמנות שנבחרו?",
+  deleteOrdersModalBody:
+    "ההזמנות יוסרו מרשימת ההזמנות אך יישארו שמורות בלוח השנה ובהיסטוריית ההזמנות.",
+  deleteOrdersModalConfirm: "מחיקת הזמנות",
+  deleteOrdersButtonLabel: "מחיקת הזמנות",
+  deleteAllOrders: "מחיקת כל ההזמנות",
+  deleteCompletedOrders: "מחיקת ההזמנות שהושלמו",
   pending: "ממתין",
   confirmed: "אושר",
   completed: "הושלם",
@@ -1388,7 +1415,11 @@ const EN: DashboardLabels = {
   storePanelOrderLimits: "Order limits",
   storePanelSettings: "Settings panel",
   storePanelCoupons: "Coupon code at checkout",
+  storePanelCustomerAddress: "Home address at checkout",
   storePanelsSaveFailed: "Could not save panel settings",
+  customerAddress: "Address",
+  openInMaps: "Google Maps",
+  openInWaze: "Waze",
   extras: "More details",
   customers: "Customers",
   customerMessage: "Message customers",
@@ -1442,6 +1473,16 @@ const EN: DashboardLabels = {
   total: "Total",
   prepSummaryButton: "Summary",
   completeOrder: "Mark completed",
+  undoCompleteOrder: "Unmark as completed",
+  deleteSelectedOrders: "Delete selected",
+  ordersSelectedCount: "{count} selected",
+  deleteOrdersModalTitle: "Delete selected orders?",
+  deleteOrdersModalBody:
+    "Orders will be removed from this list but stay saved in the calendar and order history.",
+  deleteOrdersModalConfirm: "Delete orders",
+  deleteOrdersButtonLabel: "Delete orders",
+  deleteAllOrders: "Delete all orders",
+  deleteCompletedOrders: "Delete completed orders",
   pending: "Pending",
   confirmed: "Confirmed",
   completed: "Completed",

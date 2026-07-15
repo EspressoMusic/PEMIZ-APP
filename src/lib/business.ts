@@ -51,7 +51,10 @@ export async function getBusinessBySlug(slug: string) {
     where: { slug: slug.toLowerCase() },
     include: {
       owner: { select: { phone: true } },
-      products: { where: { isActive: true }, orderBy: { name: "asc" } },
+      products: {
+        where: { isActive: true, deletedAt: null },
+        orderBy: { name: "asc" },
+      },
       slots: {
         where: { startAt: { gte: new Date() } },
         orderBy: { startAt: "asc" },

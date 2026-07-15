@@ -19,12 +19,29 @@ const statusSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"]),
 });
 
+const hideSchema = z.object({
+  orderIds: z.array(z.string()).min(1).max(100),
+  hide: z.literal(true),
+});
+
+const patchSchema = z.union([statusSchema, hideSchema]);
+
 export async function PATCH(req: Request) {
   const ctx = await requireBusinessOwner();
   if (!ctx.ok) return ctx.response;
   const body = await req.json().catch(() => null);
-  const parsed = statusSchema.safeParse(body);
+  const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
+
+  if ("hide" in parsed.data) {
+    // Removes orders from the seller's active Orders window without ever
+    // deleting them — they stay in the calendar and order history.
+    await prisma.order.updateMany({
+      where: { id: { in: parsed.data.orderIds }, businessId: ctx.user.business.id },
+      data: { sellerHiddenAt: new Date() },
+    });
+    return jsonOk({ ok: true });
+  }
 
   const order = await prisma.order.findFirst({
     where: { id: parsed.data.orderId, businessId: ctx.user.business.id },

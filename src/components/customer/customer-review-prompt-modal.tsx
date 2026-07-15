@@ -24,6 +24,7 @@ export function CustomerReviewPromptModal({
   storeTheme = "turquoise",
   labels,
   onRewardCoupon,
+  onSubmitted,
 }: {
   open: boolean;
   onClose: () => void;
@@ -33,6 +34,7 @@ export function CustomerReviewPromptModal({
   storeTheme?: StoreThemeId;
   labels: CustomerLabels;
   onRewardCoupon?: (coupon: ReviewRewardCoupon) => void;
+  onSubmitted?: (hasRewardCoupon: boolean) => void;
 }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -73,6 +75,7 @@ export function CustomerReviewPromptModal({
       markReviewedStore(slug);
       const reward = (data as { rewardCoupon?: ReviewRewardCoupon | null }).rewardCoupon;
       if (reward) onRewardCoupon?.(reward);
+      onSubmitted?.(Boolean(reward));
       onClose();
     } catch {
       setError(labels.reviewSubmitError);

@@ -104,7 +104,7 @@ export default function OnboardingPage() {
                   className="font-bold text-bakery-ink hover:underline"
                 >
                   {locale === "he" ? "תנאי השימוש" : "Terms of Service"}
-                </Link>
+                </Link>{" "}
                 {copy.onboardAcceptTermsMiddle}{" "}
                 <Link
                   href="/privacy"
