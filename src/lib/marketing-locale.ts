@@ -14,12 +14,12 @@ export type MarketingCopy = {
   contactUs: string;
   scroll: string;
   heroTagline: string;
-  heroSub: string;
   eyebrowProduct: string;
   productTitle: string;
   productTitleEm: string;
   productLead: string;
   benefits: { title: string; body: string }[];
+  usageSteps: { title: string; body: string }[];
   eyebrowPricing: string;
   pricingTitle: string;
   pricingTitleEm: string;
@@ -39,18 +39,11 @@ export type MarketingCopy = {
   eyebrowContact: string;
   contactTitle: string;
   contactTitleEm: string;
-  contactLead: string;
-  email: string;
-  whatsapp: string;
+  demoBookLead: string;
+  contactPhoneEyebrow: string;
+  contactPhoneHint: string;
+  contactPhoneCall: string;
   whatsappMegaCta: string;
-  formName: string;
-  formEmail: string;
-  formMessage: string;
-  formNamePlaceholder: string;
-  formEmailPlaceholder: string;
-  formMessagePlaceholder: string;
-  sendMessage: string;
-  messageSent: string;
   footerCopyPeymiz: string;
   privacy: string;
   terms: string;
@@ -130,13 +123,29 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     contactUs: "Contact Us",
     scroll: "Scroll",
     heroTagline: "One simple link for your small business.",
-    heroSub:
-      "Manage orders, bookings, and customer messages from one clean dashboard.",
     eyebrowProduct: "Who are we",
-    productTitle: "Everything you need.",
-    productTitleEm: "Nothing extra.",
+    productTitle: "Four simple steps.",
+    productTitleEm: "You're live.",
     productLead:
-      "Peymiz helps small businesses run online without building a custom app or juggling too many tools.",
+      "Peymiz helps business owners receive organized orders instead of running between phone calls and messages.",
+    usageSteps: [
+      {
+        title: "Open your store",
+        body: "Set up your Peymiz business page in just a few minutes.",
+      },
+      {
+        title: "Add products",
+        body: "List what you sell or the services you offer — photos, prices, and details.",
+      },
+      {
+        title: "Share with customers",
+        body: "Send one link on WhatsApp, Instagram, or anywhere customers find you.",
+      },
+      {
+        title: "Receive orders",
+        body: "Get orders and messages straight to your dashboard — organized and simple.",
+      },
+    ],
     benefits: [
       {
         title: "One digital business page",
@@ -192,19 +201,11 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     eyebrowContact: "Contact",
     contactTitle: "Interested in trying",
     contactTitleEm: "Peymiz?",
-    contactLead:
-      "Contact us to start your free trial and get your business online with one simple link.",
-    email: "Email",
-    whatsapp: "WhatsApp",
+    demoBookLead: "Call us for a personal walkthrough of Peymiz.",
+    contactPhoneEyebrow: "Contact",
+    contactPhoneHint: "Available Sun–Thu, 10:00–16:00 (Israel time)",
+    contactPhoneCall: "Call now",
     whatsappMegaCta: "Chat with us on WhatsApp",
-    formName: "Name",
-    formEmail: "Email",
-    formMessage: "Message",
-    formNamePlaceholder: "Your name",
-    formEmailPlaceholder: "you@business.com",
-    formMessagePlaceholder: "Tell us about your business...",
-    sendMessage: "Send Message",
-    messageSent: "Message sent ✓",
     footerCopyPeymiz: "© 2026 Peymiz. B2B software for small businesses.",
     privacy: "Privacy",
     terms: "Terms",
@@ -284,12 +285,29 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     contactUs: "צור קשר",
     scroll: "גלול",
     heroTagline: "קישור אחד פשוט לעסק שלך.",
-    heroSub: "נהל הזמנות, תורים והודעות לקוחות מלוח בקרה אחד ונקי.",
     eyebrowProduct: "מי אנחנו",
-    productTitle: "כל מה שצריך.",
-    productTitleEm: "בלי עודף.",
+    productTitle: "ארבעה שלבים פשוטים.",
+    productTitleEm: "ואתם באוויר.",
     productLead:
-      "Peymiz עוזר לעסקים קטנים לעבוד אונליין בלי לבנות אפליקציה ייעודית או לנהל יותר מדי כלים.",
+      "Peymiz עוזרת לבעלי עסקים לקבל הזמנות מסודרות במקום להתרוצץ בין טלפון והודעות.",
+    usageSteps: [
+      {
+        title: "פתיחת חנות",
+        body: "פותחים את דף העסק ב-Peymiz תוך דקות — בלי טכנולוגיה מסובכת.",
+      },
+      {
+        title: "הוספת מוצרים",
+        body: "מפרסמים מה שאתם מוכרים או השירותים שאתם מציעים — תמונות, מחירים ופרטים.",
+      },
+      {
+        title: "שליחה ללקוח",
+        body: "שולחים קישור אחד בוואטסאפ, אינסטגרם או בכל מקום שהלקוחות מוצאים אתכם.",
+      },
+      {
+        title: "קבלת הזמנות",
+        body: "מקבלים הזמנות והודעות ישירות ללוח הבקרה — מסודר ופשוט.",
+      },
+    ],
     benefits: [
       {
         title: "דף עסק דיגיטלי אחד",
@@ -345,19 +363,11 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     eyebrowContact: "צור קשר",
     contactTitle: "מעוניינים לנסות את",
     contactTitleEm: "Peymiz?",
-    contactLead:
-      "צרו קשר כדי להתחיל נסיון חינם ולהעלות את העסק אונליין עם קישור אחד פשוט.",
-    email: "אימייל",
-    whatsapp: "WhatsApp",
+    demoBookLead: "התקשרו אלינו לתיאום הדרכה אישית על Peymiz.",
+    contactPhoneEyebrow: "צור קשר",
+    contactPhoneHint: "זמינים בימים א׳–ה׳, 10:00–16:00",
+    contactPhoneCall: "התקשרו עכשיו",
     whatsappMegaCta: "דברו איתנו בוואטסאפ",
-    formName: "שם",
-    formEmail: "אימייל",
-    formMessage: "הודעה",
-    formNamePlaceholder: "השם שלך",
-    formEmailPlaceholder: "you@business.com",
-    formMessagePlaceholder: "ספרו לנו על העסק שלכם...",
-    sendMessage: "שליחת הודעה",
-    messageSent: "ההודעה נשלחה ✓",
     footerCopyPeymiz: "© 2026 Peymiz. תוכנה לעסקים קטנים.",
     privacy: "פרטיות",
     terms: "תנאים",

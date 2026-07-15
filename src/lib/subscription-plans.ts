@@ -6,16 +6,16 @@ export type SubscriptionPlan = {
   id: SubscriptionPlanId;
   /** Monthly price in USD (English locale). */
   priceUsd: number;
-  /** Monthly price in ILS (Hebrew locale). */
-  priceIls: number;
   monthlyOrderLimit: number;
   featureKeys: readonly [string, string, string];
 };
 
+/** Approximate USD → ILS rate for Hebrew locale display (≈ Bank of Israel, Jul 2026). */
+const USD_TO_ILS_RATE = 3.01;
+
 const PREMIUM_PLAN: SubscriptionPlan = {
   id: "premium",
-  priceUsd: 49,
-  priceIls: 149,
+  priceUsd: 29,
   monthlyOrderLimit: 500,
   featureKeys: [
     "subscriptionPremiumFeature1",
@@ -28,7 +28,6 @@ const PREMIUM_PLAN: SubscriptionPlan = {
 const LEGACY_ULTIMATE_PLAN: SubscriptionPlan = {
   id: "ultimate",
   priceUsd: 89,
-  priceIls: 325,
   monthlyOrderLimit: 1000,
   featureKeys: [
     "subscriptionUltimateFeature1",
@@ -59,7 +58,9 @@ export function formatPlanPrice(amount: number, locale: AppLocale): string {
 }
 
 export function planPrice(plan: SubscriptionPlan, locale: AppLocale): number {
-  return locale === "he" ? plan.priceIls : plan.priceUsd;
+  return locale === "he"
+    ? Math.round(plan.priceUsd * USD_TO_ILS_RATE)
+    : plan.priceUsd;
 }
 
 export function monthlyOrderLimitForPlan(

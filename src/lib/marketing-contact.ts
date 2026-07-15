@@ -15,3 +15,23 @@ export function marketingWhatsAppUrl(locale: MarketingLocale): string | null {
       : "Hi, I'd like to learn about Peymiz";
   return buildWhatsAppChatUrl(marketingWhatsAppPhone(), text);
 }
+
+/** Pretty display for the marketing contact number (e.g. 058-612-2187). */
+export function marketingDisplayPhone(): string {
+  const digits = marketingWhatsAppPhone().replace(/\D/g, "");
+  if (digits.length === 10 && digits.startsWith("05")) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  return marketingWhatsAppPhone();
+}
+
+export function marketingTelUrl(): string {
+  const digits = marketingWhatsAppPhone().replace(/\D/g, "");
+  const e164 =
+    digits.length === 10 && digits.startsWith("0")
+      ? `+972${digits.slice(1)}`
+      : digits.startsWith("972")
+        ? `+${digits}`
+        : `+${digits}`;
+  return `tel:${e164}`;
+}

@@ -65,9 +65,9 @@ const schema = z.object({
   dealId: z.string().optional(),
   couponCode: z.string().max(30).optional(),
   customerAddress: z.string().max(300).optional(),
-  customerAddressLat: z.number().optional(),
-  customerAddressLng: z.number().optional(),
-  customerAddressPlaceId: z.string().max(300).optional(),
+  customerAddressLat: z.number().nullable().optional(),
+  customerAddressLng: z.number().nullable().optional(),
+  customerAddressPlaceId: z.string().max(300).nullable().optional(),
   items: z
     .array(
       z.object({

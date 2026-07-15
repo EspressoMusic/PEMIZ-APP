@@ -123,6 +123,18 @@ export const publicInquirySchema = z.object({
     .max(2000, "Message is too long"),
 });
 
+export const demoBookingSchema = z.object({
+  customerName: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(80, "Name is too long"),
+  customerEmail: z.string().email("Invalid email").max(254),
+  customerPhone: optionalCustomerPhoneSchema,
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
+  locale: z.enum(["en", "he"]).optional(),
+});
+
 export const publicChatPostSchema = z.object({
   channel: z.literal("SELLER"),
   customerName: z.string().trim().min(2, "Name must be at least 2 characters").max(80),

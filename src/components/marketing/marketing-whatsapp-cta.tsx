@@ -25,13 +25,30 @@ export function MarketingWhatsAppCta({
   locale,
   label,
   className = "contact-whatsapp-wrap",
+  floating = false,
 }: {
   locale: MarketingLocale;
   label: string;
   className?: string;
+  floating?: boolean;
 }) {
   const href = marketingWhatsAppUrl(locale);
   if (!href) return null;
+
+  if (floating) {
+    return (
+      <a
+        href={href}
+        className="contact-whatsapp-floating"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+        title={label}
+      >
+        <WhatsAppLogo size={34} />
+      </a>
+    );
+  }
 
   return (
     <div className={className}>

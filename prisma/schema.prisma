@@ -19,6 +19,18 @@ model PlatformConfig {
   updatedAt                 DateTime @updatedAt
 }
 
+model DemoBooking {
+  id            String   @id @default(cuid())
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  notes         String?
+  locale        String   @default("en")
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model User {
   id                         String    @id @default(cuid())
   email                      String    @unique

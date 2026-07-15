@@ -225,7 +225,7 @@ export function AuthForm({ allowGuest = false }: { allowGuest?: boolean }) {
               type="button"
               disabled={loading}
               onClick={() => void signInWithGoogle()}
-              className="flex min-h-[58px] w-full items-center justify-center gap-3 rounded-full border-2 border-bakery-border bg-white px-5 py-4 text-[17px] font-bold text-bakery-ink shadow-sm transition hover:bg-bakery-surface disabled:cursor-not-allowed sm:min-h-[62px] sm:text-[18px]"
+              className="auth-google-btn flex min-h-[58px] w-full items-center justify-center gap-3 rounded-full border-2 border-bakery-border bg-white px-5 py-4 text-[17px] font-bold text-bakery-ink shadow-sm transition hover:bg-bakery-surface disabled:cursor-not-allowed sm:min-h-[62px] sm:text-[18px]"
             >
               <span
                 className={`flex items-center justify-center gap-3 ${loading ? "opacity-60" : ""}`}

@@ -2253,6 +2253,23 @@ html:not([data-store-theme="dark"]) .auth-surface .bakery-field:focus {
   box-shadow: 0 2px 8px rgba(93, 64, 55, 0.35);
 }
 
+/* Critical path: lives in globals.css so the Google button keeps its frame
+   when /login is reached via client-side nav from the marketing site (the
+   route CSS chunk is not injected on that transition). */
+.auth-surface .auth-google-btn {
+  border: 2px solid var(--bakery-border, #5eb8aa);
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.auth-surface .auth-google-btn:hover:not(:disabled) {
+  background-color: var(--bakery-surface, var(--bakery-cream-hover, #eef8f6));
+}
+
+.auth-surface .auth-google-btn:disabled {
+  cursor: not-allowed;
+}
+
 html[data-store-theme="dark"] .auth-surface {
   --auth-field-bg: var(--dashboard-field-bg, var(--bakery-input, #242a33));
   --auth-field-border: var(--dashboard-soft-border-strong, rgba(255, 255, 255, 0.14));

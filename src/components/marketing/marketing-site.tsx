@@ -16,47 +16,9 @@ import {
 } from "./marketing-locale-provider";
 import { MarketingSideConfetti } from "./marketing-side-confetti";
 import { MarketingPlanPrice } from "./marketing-plan-price";
+import { MarketingContactPhoneCard } from "./marketing-contact-phone-card";
 import { MarketingWhatsAppCta } from "./marketing-whatsapp-cta";
-
-const BENEFIT_ICONS = [
-  (
-    <svg key="1" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
-  ),
-  (
-    <svg key="2" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-    </svg>
-  ),
-  (
-    <svg key="3" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="3" width="7" height="7" />
-      <rect x="14" y="3" width="7" height="7" />
-      <rect x="14" y="14" width="7" height="7" />
-      <rect x="3" y="14" width="7" height="7" />
-    </svg>
-  ),
-  (
-    <svg key="4" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-      <line x1="3" y1="6" x2="21" y2="6" />
-      <path d="M16 10a4 4 0 0 1-8 0" />
-    </svg>
-  ),
-  (
-    <svg key="5" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  ),
-  (
-    <svg key="6" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
-    </svg>
-  ),
-];
+import { MarketingUsageFlow } from "./marketing-usage-flow";
 
 export function MarketingSite() {
   return (
@@ -85,8 +47,6 @@ function MarketingSiteContent() {
     scrollProgress,
     activeSection,
     scrollToSection,
-    handleContactSubmit,
-    formSent,
     footerConfettiActive,
     footerConfettiBurst,
   } = useMarketingSiteEffects();
@@ -292,9 +252,6 @@ function MarketingSiteContent() {
             <p className="hero-tagline" data-reveal="left">
               {copy.heroTagline}
             </p>
-            <p className="hero-sub" data-reveal="left">
-              {copy.heroSub}
-            </p>
 
             <div className="hero-cta" data-reveal="left">
               <Link href="/login" prefetch={false} className="btn btn-primary btn-big btn-hero-cta">
@@ -343,20 +300,12 @@ function MarketingSiteContent() {
             <h2 className="section-title center" data-reveal="scale">
               {copy.productTitle} <em>{copy.productTitleEm}</em>
             </h2>
-            <p className="section-lead center" data-reveal>
+            <p className="section-lead center" data-reveal="scale">
               {copy.productLead}
             </p>
           </div>
 
-          <div className="benefits-grid">
-            {copy.benefits.map((b, i) => (
-              <article key={b.title} className="benefit-card" data-reveal="scale" data-tilt>
-                <div className="benefit-icon">{BENEFIT_ICONS[i]}</div>
-                <h3>{b.title}</h3>
-                <p>{b.body}</p>
-              </article>
-            ))}
-          </div>
+          <MarketingUsageFlow steps={copy.usageSteps} />
         </div>
       </section>
 
@@ -432,36 +381,23 @@ function MarketingSiteContent() {
       <section className="contact-section" id="contact">
         <div className="container contact-grid">
           <div className="contact-copy" data-reveal="left">
-            <span className="section-eyebrow light">{copy.eyebrowContact}</span>
             <h2 className="section-title light">
               {copy.contactTitle} <em>{copy.contactTitleEm}</em>
             </h2>
-            <p className="contact-lead">{copy.contactLead}</p>
-
-            <MarketingWhatsAppCta locale={locale} label={copy.whatsappMegaCta} />
+            <p className="contact-lead">{copy.demoBookLead}</p>
           </div>
 
-          <form className="contact-form" data-reveal="right" onSubmit={handleContactSubmit}>
-            <label>
-              <span>{copy.formName}</span>
-              <input type="text" name="name" placeholder={copy.formNamePlaceholder} required />
-            </label>
-            <label>
-              <span>{copy.formEmail}</span>
-              <input type="email" name="email" placeholder={copy.formEmailPlaceholder} required />
-            </label>
-            <label>
-              <span>{copy.formMessage}</span>
-              <textarea name="message" rows={4} placeholder={copy.formMessagePlaceholder} required />
-            </label>
-            <button className="btn btn-primary btn-big" type="submit">
-              {formSent ? copy.messageSent : copy.sendMessage}
-            </button>
-          </form>
+          <MarketingContactPhoneCard locale={locale} copy={copy} />
         </div>
       </section>
 
       <MarketingPublicFooter />
+
+      <MarketingWhatsAppCta
+        locale={locale}
+        label={copy.whatsappMegaCta}
+        floating
+      />
 
       <button
         type="button"

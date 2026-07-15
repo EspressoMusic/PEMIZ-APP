@@ -1132,9 +1132,11 @@ export function CustomerStoreApp({
       ...(address?.text
         ? {
             customerAddress: address.text,
-            customerAddressLat: address.lat,
-            customerAddressLng: address.lng,
-            customerAddressPlaceId: address.placeId,
+            ...(address.lat != null ? { customerAddressLat: address.lat } : {}),
+            ...(address.lng != null ? { customerAddressLng: address.lng } : {}),
+            ...(address.placeId != null
+              ? { customerAddressPlaceId: address.placeId }
+              : {}),
           }
         : {}),
     };

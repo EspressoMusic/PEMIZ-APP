@@ -10,6 +10,7 @@ import {
   MarketingLocaleProvider,
   useMarketingLocale,
 } from "./marketing-locale-provider";
+import { MarketingContactPhoneCard } from "./marketing-contact-phone-card";
 import { MarketingWhatsAppCta } from "./marketing-whatsapp-cta";
 import { useMarketingSiteEffects } from "./use-marketing-site-effects";
 import {
@@ -71,8 +72,6 @@ function MarketingSiteAppleContent() {
     rootRef,
     activeSection,
     scrollToSection,
-    handleContactSubmit,
-    formSent,
   } = useMarketingSiteEffects();
 
   const fontClass = locale === "he" ? marketingRubik.className : marketingPlusJakarta.className;
@@ -178,9 +177,6 @@ function MarketingSiteAppleContent() {
           <h1 className="apple-hero-title" data-reveal>
             {copy.heroTagline}
           </h1>
-          <p className="apple-hero-sub" data-reveal>
-            {copy.heroSub}
-          </p>
           <div className="apple-hero-cta" data-reveal>
             <AppleLinkCta href="/login">{copy.startTrial}</AppleLinkCta>
             <AppleLinkCta
@@ -248,9 +244,6 @@ function MarketingSiteAppleContent() {
           <h2 className="apple-spotlight-title" data-reveal>
             {copy.productTitle} {copy.productTitleEm}
           </h2>
-          <p className="apple-spotlight-sub" data-reveal>
-            {copy.productLead}
-          </p>
           <div className="apple-benefits-row">
             {spotlightBenefits.map((b) => (
               <article key={b.title} className="apple-benefit" data-reveal>
@@ -344,46 +337,14 @@ function MarketingSiteAppleContent() {
               <h2>
                 {copy.contactTitle} {copy.contactTitleEm}
               </h2>
-              <p>{copy.contactLead}</p>
-              <MarketingWhatsAppCta locale={locale} label={copy.whatsappMegaCta} />
+              <p>{copy.demoBookLead}</p>
             </div>
 
-            <form
-              className="apple-contact-form"
-              data-reveal
-              onSubmit={handleContactSubmit}
-            >
-              <label>
-                <span>{copy.formName}</span>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder={copy.formNamePlaceholder}
-                  required
-                />
-              </label>
-              <label>
-                <span>{copy.formEmail}</span>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder={copy.formEmailPlaceholder}
-                  required
-                />
-              </label>
-              <label>
-                <span>{copy.formMessage}</span>
-                <textarea
-                  name="message"
-                  rows={4}
-                  placeholder={copy.formMessagePlaceholder}
-                  required
-                />
-              </label>
-              <button type="submit" className="apple-price-btn">
-                {formSent ? copy.messageSent : copy.sendMessage}
-              </button>
-            </form>
+            <MarketingContactPhoneCard
+              locale={locale}
+              copy={copy}
+              className="apple-contact-form contact-phone-card"
+            />
           </div>
         </section>
       </main>
@@ -400,6 +361,12 @@ function MarketingSiteAppleContent() {
           </nav>
         </div>
       </footer>
+
+      <MarketingWhatsAppCta
+        locale={locale}
+        label={copy.whatsappMegaCta}
+        floating
+      />
     </div>
   );
 }

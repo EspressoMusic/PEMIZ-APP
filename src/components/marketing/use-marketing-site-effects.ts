@@ -98,8 +98,8 @@ export function useMarketingSiteEffects() {
       observer.observe(el);
     });
 
-    root.querySelectorAll(".benefit-card").forEach((el, i) => {
-      (el as HTMLElement).style.transitionDelay = `${i * 0.08}s`;
+    root.querySelectorAll(".usage-step").forEach((el, i) => {
+      (el as HTMLElement).style.transitionDelay = `${i * 0.12}s`;
     });
     root.querySelectorAll(".price-card").forEach((el, i) => {
       (el as HTMLElement).style.transitionDelay = `${i * 0.15}s`;

@@ -209,3 +209,111 @@ export async function sendTrialEndingWarningEmail(
   console.log(`[Linky Email] No RESEND_API_KEY — trial warning to ${to}`);
   return { sent: false };
 }
+
+export async function sendDemoBookingOwnerEmail(input: {
+  to: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  notes: string | null;
+}): Promise<SendResult> {
+  const subject = `בקשת הדרכה חדשה — ${input.customerName}`;
+  const phoneLine = input.customerPhone
+    ? `<p>טלפון: ${escapeHtml(input.customerPhone)}</p>`
+    : "";
+  const notesBody = input.notes?.trim()
+    ? escapeHtml(input.notes.trim()).replace(/\n/g, "<br />")
+    : "—";
+  const html = `
+    <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
+      <p>התקבלה בקשה חדשה לקביעת הדרכה מהאתר:</p>
+      <p><strong>שם:</strong> ${escapeHtml(input.customerName)}</p>
+      <p><strong>אימייל:</strong> ${escapeHtml(input.customerEmail)}</p>
+      ${phoneLine}
+      <p><strong>הערות:</strong></p>
+      <p style="margin:12px 0;padding:12px 14px;border-radius:12px;background:#f5efe6">${notesBody}</p>
+    </div>
+  `;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      `[Linky Email] Demo request notify → ${input.to}\nSubject: ${subject}\n` +
+        `Name: ${input.customerName}\nEmail: ${input.customerEmail}\n` +
+        `Phone: ${input.customerPhone ?? "—"}\nNotes: ${input.notes ?? "—"}`
+    );
+    return { sent: false };
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+  if (!apiKey) {
+    console.log(`[Linky Email] No RESEND_API_KEY — demo notify to ${input.to}`);
+    return { sent: false };
+  }
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from, to: [input.to], subject, html }),
+  });
+  if (!res.ok) {
+    console.error("[Linky Email] Resend failed", await res.text());
+    return { sent: false };
+  }
+  return { sent: true };
+}
+
+export async function sendDemoBookingCustomerEmail(input: {
+  to: string;
+  customerName: string;
+  locale: "en" | "he";
+}): Promise<SendResult> {
+  const isHe = input.locale === "he";
+  const subject = isHe
+    ? "קיבלנו את בקשת ההדרכה שלך — Peymiz"
+    : "We received your demo request — Peymiz";
+  const html = isHe
+    ? `
+    <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
+      <p>שלום ${escapeHtml(input.customerName)},</p>
+      <p>קיבלנו את הפרטים שלך. נחזור אליכם בהקדם לתיאום הדרכה.</p>
+      <p>תודה,<br />צוות Peymiz</p>
+    </div>
+  `
+    : `
+    <div style="font-family:sans-serif;line-height:1.6">
+      <p>Hi ${escapeHtml(input.customerName)},</p>
+      <p>We received your details and will get back to you soon to schedule your demo.</p>
+      <p>Thanks,<br />The Peymiz team</p>
+    </div>
+  `;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[Linky Email] Demo confirm → ${input.to}\n${subject}`);
+    return { sent: false };
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+  if (!apiKey) {
+    console.log(`[Linky Email] No RESEND_API_KEY — demo confirm to ${input.to}`);
+    return { sent: false };
+  }
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from, to: [input.to], subject, html }),
+  });
+  if (!res.ok) {
+    console.error("[Linky Email] Resend failed", await res.text());
+    return { sent: false };
+  }
+  return { sent: true };
+}
