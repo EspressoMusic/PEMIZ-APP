@@ -1,15 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BellRing } from "lucide-react";
-import { Alert, Button } from "@/components/ui";
+import { Alert } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import {
-  isIosDevice,
-  isInstalledPwa,
-  isPushSupported,
-  subscribeToPush,
-} from "@/lib/push-client";
+import { isPushSupported, requestAndSubscribePush } from "@/lib/push-client";
 
 function pushSubscribeErrorMessage(
   error: unknown,
@@ -58,14 +53,17 @@ type PushState = "idle" | "loading" | "subscribed" | "denied" | "unsupported" | 
 export function DashboardSellerPushRegistration({
   alertsEnabled,
   previewOnly = false,
+  requestSignal = 0,
 }: {
   alertsEnabled: boolean;
   previewOnly?: boolean;
+  /** Increment this to (re)trigger the browser permission prompt + subscribe, e.g. from the toggle that turned alerts on. */
+  requestSignal?: number;
 }) {
   const { labels } = useAppLocale();
   const [state, setState] = useState<PushState>("idle");
-  const [publicKey, setPublicKey] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const lastTriggeredRef = useRef(0);
 
   const refreshConfig = useCallback(async () => {
     if (previewOnly || !isPushSupported()) {
@@ -80,13 +78,7 @@ export function DashboardSellerPushRegistration({
         configured?: boolean;
         publicKey?: string | null;
       };
-      if (!res.ok || !data.configured || !data.publicKey) {
-        setState("unconfigured");
-        setPublicKey(null);
-        return;
-      }
-      setPublicKey(data.publicKey);
-      setState("idle");
+      setState(res.ok && data.configured && data.publicKey ? "idle" : "unconfigured");
     } catch {
       setState("unconfigured");
     }
@@ -96,72 +88,46 @@ export function DashboardSellerPushRegistration({
     void refreshConfig();
   }, [refreshConfig]);
 
-  async function subscribe() {
+  const subscribe = useCallback(async () => {
     if (previewOnly) {
       setError(labels.pushPreviewOnly);
-      return;
-    }
-    if (!alertsEnabled) {
-      setError(labels.pushAlertsMustEnable);
-      return;
-    }
-    if (!publicKey) {
-      setError(labels.pushUnconfigured);
-      return;
-    }
-    if (!isPushSupported()) {
-      setState("unsupported");
-      return;
-    }
-
-    if (isIosDevice() && !isInstalledPwa()) {
-      setError(labels.pushIosNeedsInstall);
-      setState("idle");
       return;
     }
 
     setError("");
     setState("loading");
 
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
+    const outcome = await requestAndSubscribePush();
+    switch (outcome.status) {
+      case "unsupported":
+        setState("unsupported");
+        return;
+      case "unconfigured":
+        setState("unconfigured");
+        return;
+      case "ios_needs_install":
+        setError(labels.pushIosNeedsInstall);
+        setState("idle");
+        return;
+      case "denied":
         setState("denied");
         return;
-      }
-
-      const subscription = await subscribeToPush(publicKey);
-
-      const json = subscription.toJSON();
-      if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
-        setError(labels.pushSubscribeError);
+      case "error":
+        setError(pushSubscribeErrorMessage(outcome.error, labels));
         setState("idle");
         return;
-      }
-
-      const res = await fetch("/api/dashboard/push/subscribe", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          endpoint: json.endpoint,
-          keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
-        }),
-      });
-
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(data.error ?? labels.pushSubscribeError);
-        setState("idle");
+      case "subscribed":
+        setState("subscribed");
         return;
-      }
-
-      setState("subscribed");
-    } catch (error) {
-      setError(pushSubscribeErrorMessage(error, labels));
-      setState("idle");
     }
-  }
+  }, [previewOnly, labels]);
+
+  useEffect(() => {
+    if (requestSignal > 0 && requestSignal !== lastTriggeredRef.current) {
+      lastTriggeredRef.current = requestSignal;
+      void subscribe();
+    }
+  }, [requestSignal, subscribe]);
 
   if (!alertsEnabled) return null;
 
@@ -197,16 +163,11 @@ export function DashboardSellerPushRegistration({
         <Alert variant="success">{labels.pushSubscribed}</Alert>
       ) : state === "denied" ? (
         <Alert variant="error">{labels.pushPermissionDenied}</Alert>
-      ) : (
-        <Button
-          type="button"
-          className="w-full"
-          disabled={state === "loading" || !alertsEnabled}
-          onClick={() => void subscribe()}
-        >
-          {state === "loading" ? labels.chatLoading : labels.pushSubscribeButton}
-        </Button>
-      )}
+      ) : state === "loading" ? (
+        <p className="text-center text-[13px] font-semibold text-bakery-muted">
+          {labels.chatLoading}
+        </p>
+      ) : null}
 
       {error ? <Alert variant="error">{error}</Alert> : null}
     </div>

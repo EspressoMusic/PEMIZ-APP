@@ -99,3 +99,62 @@ export function isPushSupported(): boolean {
     "Notification" in window
   );
 }
+
+export type PushEnableOutcome =
+  | { status: "subscribed" }
+  | { status: "denied" }
+  | { status: "unconfigured" }
+  | { status: "unsupported" }
+  | { status: "ios_needs_install" }
+  | { status: "error"; error: unknown };
+
+export async function requestAndSubscribePush(
+  configUrl = "/api/dashboard/push/config",
+  subscribeUrl = "/api/dashboard/push/subscribe"
+): Promise<PushEnableOutcome> {
+  if (!isPushSupported()) return { status: "unsupported" };
+  if (isIosDevice() && !isInstalledPwa()) {
+    return { status: "ios_needs_install" };
+  }
+
+  try {
+    const configRes = await fetch(configUrl, { credentials: "same-origin" });
+    const configData = (await configRes.json()) as {
+      configured?: boolean;
+      publicKey?: string | null;
+    };
+    if (!configRes.ok || !configData.configured || !configData.publicKey) {
+      return { status: "unconfigured" };
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return { status: "denied" };
+
+    const subscription = await subscribeToPush(configData.publicKey);
+    const json = subscription.toJSON();
+    if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
+      return { status: "error", error: new Error("invalid_subscription") };
+    }
+
+    const res = await fetch(subscribeUrl, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        endpoint: json.endpoint,
+        keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+      }),
+    });
+    if (!res.ok) {
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      return {
+        status: "error",
+        error: new Error(data.error ?? "subscribe_failed"),
+      };
+    }
+
+    return { status: "subscribed" };
+  } catch (error) {
+    return { status: "error", error };
+  }
+}

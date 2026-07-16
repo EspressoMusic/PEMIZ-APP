@@ -61,6 +61,7 @@ export function DashboardSellerAlertsSettings({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [pushRequestSignal, setPushRequestSignal] = useState(0);
 
   async function persist(next: SellerAlertsSettings) {
     const previous = settings;
@@ -111,7 +112,12 @@ export function DashboardSellerAlertsSettings({
             label={labels.alertsEnableTitle}
             enabled={settings.enabled}
             disabled={saving}
-            onChange={(enabled) => patch({ enabled })}
+            onChange={(enabled) => {
+              patch({ enabled });
+              if (enabled && !previewOnly) {
+                setPushRequestSignal((n) => n + 1);
+              }
+            }}
           />
 
           <DashboardHelpText>
@@ -151,10 +157,9 @@ export function DashboardSellerAlertsSettings({
             <DashboardSellerPushRegistration
               alertsEnabled={settings.enabled}
               previewOnly={previewOnly}
+              requestSignal={pushRequestSignal}
             />
-          ) : (
-            <Alert variant="info">{labels.pushAlertsMustEnable}</Alert>
-          )}
+          ) : null}
 
           {error ? <Alert variant="error">{error}</Alert> : null}
           {message ? <Alert variant="success">{message}</Alert> : null}

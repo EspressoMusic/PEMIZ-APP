@@ -74,6 +74,10 @@ export const businessCreateSchema = z.object({
   description: z.string().max(500).optional(),
   type: z.enum(["STORE", "APPOINTMENTS"]),
   acceptTerms: z.literal(true),
+  reviews: z.boolean().optional(),
+  coupons: z.boolean().optional(),
+  deals: z.boolean().optional(),
+  orderConfirmationRequired: z.boolean().optional(),
 });
 
 export const businessPatchSchema = z.object({

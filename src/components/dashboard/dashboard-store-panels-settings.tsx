@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid, Users, UserCog, type LucideIcon } from "lucide-react";
 import { Alert, Toggle } from "@/components/ui";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
@@ -41,50 +41,22 @@ function PanelToggleRow({
   );
 }
 
-export function DashboardStorePanelsSettings({
-  initial = DEFAULT_STORE_PANELS_VISIBLE,
-  previewOnly = false,
-  businessType = "STORE",
-}: {
-  initial?: StorePanelsVisible;
-  previewOnly?: boolean;
-  businessType?: string;
-}) {
+type PanelsListProps = {
+  panels: StorePanelsVisible;
+  saving: boolean;
+  error: string;
+  patch: (patch: Partial<StorePanelsVisible>) => void;
+};
+
+function DashboardStorePanelsCustomerList({
+  panels,
+  saving,
+  error,
+  patch,
+  businessType,
+}: PanelsListProps & { businessType: string }) {
   const { labels } = useAppLocale();
-  const [panels, setPanels] = useState(initial);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const isStore = businessType === "STORE";
-
-  async function patch(patch: Partial<StorePanelsVisible>) {
-    const next = { ...panels, ...patch };
-    setPanels(next);
-    if (previewOnly) return;
-
-    setSaving(true);
-    setError("");
-    try {
-      const res = await fetch("/api/dashboard/store-panels", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setPanels(panels);
-        setError(
-          (data as { error?: string }).error ?? labels.storePanelsSaveFailed
-        );
-        return;
-      }
-      if (data.panels) setPanels(data.panels as StorePanelsVisible);
-    } catch {
-      setPanels(panels);
-      setError(labels.storePanelsSaveFailed);
-    } finally {
-      setSaving(false);
-    }
-  }
 
   return (
     <div className="dashboard-settings-style-rows space-y-2">
@@ -153,7 +125,87 @@ export function DashboardStorePanelsSettings({
         disabled={saving}
         onChange={(settings) => void patch({ settings })}
       />
+      <PanelToggleRow
+        label={labels.storePanelInstallApp}
+        enabled={panels.installApp}
+        disabled={saving}
+        onChange={(installApp) => void patch({ installApp })}
+      />
     </div>
+  );
+}
+
+function DashboardStorePanelsSellerList({
+  panels,
+  saving,
+  error,
+  patch,
+}: PanelsListProps) {
+  const { labels } = useAppLocale();
+
+  return (
+    <div className="dashboard-settings-style-rows space-y-2">
+      {error ? <Alert variant="error">{error}</Alert> : null}
+      <PanelToggleRow
+        label={labels.storePanelSellerDeals}
+        enabled={panels.sellerDeals}
+        disabled={saving}
+        onChange={(sellerDeals) => void patch({ sellerDeals })}
+      />
+      <PanelToggleRow
+        label={labels.storePanelSellerCoupons}
+        enabled={panels.sellerCoupons}
+        disabled={saving}
+        onChange={(sellerCoupons) => void patch({ sellerCoupons })}
+      />
+      <PanelToggleRow
+        label={labels.storePanelSellerReviews}
+        enabled={panels.sellerReviews}
+        disabled={saving}
+        onChange={(sellerReviews) => void patch({ sellerReviews })}
+      />
+      <PanelToggleRow
+        label={labels.storePanelSellerAlerts}
+        enabled={panels.sellerAlerts}
+        disabled={saving}
+        onChange={(sellerAlerts) => void patch({ sellerAlerts })}
+      />
+      <PanelToggleRow
+        label={labels.storePanelSellerInstallApp}
+        enabled={panels.sellerInstallApp}
+        disabled={saving}
+        onChange={(sellerInstallApp) => void patch({ sellerInstallApp })}
+      />
+    </div>
+  );
+}
+
+/** Nested "row button -> sheet" pair, opened from inside the "App layout" sheet. */
+function DashboardStorePanelsSubGroup({
+  icon,
+  title,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <DashboardActionRowButton onClick={() => setOpen(true)} icon={icon} title={title} />
+      <DashboardActionSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={title}
+        ariaLabel={title}
+        placement="top"
+        showBackButton
+      >
+        {children}
+      </DashboardActionSheet>
+    </>
   );
 }
 
@@ -161,13 +213,54 @@ export function DashboardStorePanelsSettingsGroup({
   initial = DEFAULT_STORE_PANELS_VISIBLE,
   previewOnly = false,
   businessType = "STORE",
+  onPanelsChange,
 }: {
   initial?: StorePanelsVisible;
   previewOnly?: boolean;
   businessType?: string;
+  onPanelsChange?: (panels: StorePanelsVisible) => void;
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
+  const [panels, setPanels] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function patch(patch: Partial<StorePanelsVisible>) {
+    const next = { ...panels, ...patch };
+    setPanels(next);
+    onPanelsChange?.(next);
+    if (previewOnly) return;
+
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch("/api/dashboard/store-panels", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setPanels(panels);
+        onPanelsChange?.(panels);
+        setError(
+          (data as { error?: string }).error ?? labels.storePanelsSaveFailed
+        );
+        return;
+      }
+      if (data.panels) {
+        setPanels(data.panels as StorePanelsVisible);
+        onPanelsChange?.(data.panels as StorePanelsVisible);
+      }
+    } catch {
+      setPanels(panels);
+      onPanelsChange?.(panels);
+      setError(labels.storePanelsSaveFailed);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <>
@@ -181,14 +274,37 @@ export function DashboardStorePanelsSettingsGroup({
         onClose={() => setOpen(false)}
         title={labels.storePanelsTitle}
         ariaLabel={labels.storePanelsTitle}
-        placement="top"
+        placement="center"
         showBackButton
+        backButtonOutside
+        compact
+        fitContent
       >
-        <DashboardStorePanelsSettings
-          initial={initial}
-          previewOnly={previewOnly}
-          businessType={businessType}
-        />
+        <div className="dashboard-settings-style-rows space-y-2">
+          <DashboardStorePanelsSubGroup
+            icon={Users}
+            title={labels.storePanelsCustomerSectionTitle}
+          >
+            <DashboardStorePanelsCustomerList
+              panels={panels}
+              saving={saving}
+              error={error}
+              patch={patch}
+              businessType={businessType}
+            />
+          </DashboardStorePanelsSubGroup>
+          <DashboardStorePanelsSubGroup
+            icon={UserCog}
+            title={labels.storePanelsSellerSectionTitle}
+          >
+            <DashboardStorePanelsSellerList
+              panels={panels}
+              saving={saving}
+              error={error}
+              patch={patch}
+            />
+          </DashboardStorePanelsSubGroup>
+        </div>
       </DashboardActionSheet>
     </>
   );

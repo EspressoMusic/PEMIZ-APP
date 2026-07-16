@@ -9,6 +9,18 @@ export type StorePanelsVisible = {
   reviews: boolean;
   coupons: boolean;
   customerAddress: boolean;
+  /** Customer-facing "install app" menu row in the store's settings sheet. */
+  installApp: boolean;
+  /** Seller-facing "Alerts" row in the seller's own account/settings screen. */
+  sellerAlerts: boolean;
+  /** Seller-facing "install app" row in the seller's own account/settings screen. */
+  sellerInstallApp: boolean;
+  /** Seller-facing deals management entry in the seller's own dashboard nav. */
+  sellerDeals: boolean;
+  /** Seller-facing coupons management entry in the seller's own dashboard nav. */
+  sellerCoupons: boolean;
+  /** Seller-facing reviews management entry in the seller's own dashboard nav. */
+  sellerReviews: boolean;
 };
 
 export const DEFAULT_STORE_PANELS_VISIBLE: StorePanelsVisible = {
@@ -19,9 +31,15 @@ export const DEFAULT_STORE_PANELS_VISIBLE: StorePanelsVisible = {
   faq: true,
   orderLimits: true,
   settings: true,
-  reviews: true,
+  reviews: false,
   coupons: false,
   customerAddress: false,
+  installApp: false,
+  sellerAlerts: true,
+  sellerInstallApp: true,
+  sellerDeals: true,
+  sellerCoupons: true,
+  sellerReviews: true,
 };
 
 const KEYS = Object.keys(

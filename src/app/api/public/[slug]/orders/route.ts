@@ -180,6 +180,8 @@ export async function POST(
   if (business.type !== "STORE") return jsonError("עסק זה אינו מקבל הזמנות", 400);
 
   const panels = storePanelsFromBusiness(business);
+  const orderStatus =
+    business.orderConfirmationRequired === false ? "CONFIRMED" : "PENDING";
 
   function addressFields(data: z.infer<typeof schema>) {
     if (!panels.customerAddress || !data.customerAddress) return {};
@@ -270,6 +272,7 @@ export async function POST(
             notes: parsed.data.notes
               ? `${parsed.data.notes} [דיל: ${deal.name}]`
               : `[דיל: ${deal.name}]`,
+            status: orderStatus,
             ...addressFields(parsed.data),
           }
         );
@@ -359,6 +362,7 @@ export async function POST(
         customerPhone: phone,
         customerEmail: parsed.data.customerEmail || null,
         notes: parsed.data.notes,
+        status: orderStatus,
         ...addressFields(parsed.data),
         ...(couponId && {
           couponId,

@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, LogOut, CircleAlert, Smartphone, Star } from "lucide-react";
+import { useState } from "react";
+import { Bell, ClipboardCheck, LogOut, CircleAlert, Smartphone, Star } from "lucide-react";
 import {
   DashboardActionRow,
   DashboardActionRowButton,
@@ -40,6 +41,7 @@ export function DashboardSettingsView({
 }: Props) {
   const { labels } = useAppLocale();
   const nativeApp = useNativeApp();
+  const [panels, setPanels] = useState(initialStorePanels);
   const showStoreQuickLinks =
     showQuickActionRows &&
     (businessType === "STORE" ||
@@ -50,6 +52,11 @@ export function DashboardSettingsView({
     <div className="space-y-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <ul className="space-y-2 text-start">
+            <DashboardSubscriptionSection
+              embedded
+              previewOnly={previewOnly}
+            />
+
             {businessType === "STORE" ||
             businessType === "APPOINTMENTS" ||
             businessType === "RENTAL" ? (
@@ -57,14 +64,17 @@ export function DashboardSettingsView({
                 initial={initialStorePanels}
                 previewOnly={previewOnly}
                 businessType={businessType}
+                onPanelsChange={setPanels}
               />
             ) : null}
 
-            <DashboardActionRow
-              href={`${basePath}/customers/reviews`}
-              icon={Star}
-              title={labels.reviewsTitle}
-            />
+            {panels.sellerReviews ? (
+              <DashboardActionRow
+                href={`${basePath}/customers/reviews`}
+                icon={Star}
+                title={labels.reviewsTitle}
+              />
+            ) : null}
 
             {!isActive ? (
               <li>
@@ -75,19 +85,31 @@ export function DashboardSettingsView({
               </li>
             ) : null}
 
+            {businessType === "STORE" ? (
+              <DashboardActionRow
+                href={`${basePath}/settings/misc`}
+                icon={ClipboardCheck}
+                title={labels.miscSettings}
+              />
+            ) : null}
+
             {showStoreQuickLinks ? (
               <>
-                <DashboardStoreCustomers
-                  embedded
-                  previewOnly={previewOnly}
-                  previewOrders={previewCustomerOrders}
-                />
-                <DashboardActionRow
-                  href={`${basePath}/settings/alerts`}
-                  icon={Bell}
-                  title={labels.alerts}
-                />
-                {!nativeApp ? (
+                {businessType !== "STORE" ? (
+                  <DashboardStoreCustomers
+                    embedded
+                    previewOnly={previewOnly}
+                    previewOrders={previewCustomerOrders}
+                  />
+                ) : null}
+                {businessType !== "STORE" && panels.sellerAlerts ? (
+                  <DashboardActionRow
+                    href={`${basePath}/settings/alerts`}
+                    icon={Bell}
+                    title={labels.alerts}
+                  />
+                ) : null}
+                {businessType !== "STORE" && panels.sellerInstallApp && !nativeApp ? (
                   <DashboardActionRow
                     href={`${basePath}/settings/app`}
                     icon={Smartphone}
@@ -96,11 +118,6 @@ export function DashboardSettingsView({
                 ) : null}
               </>
             ) : null}
-
-            <DashboardSubscriptionSection
-              embedded
-              previewOnly={previewOnly}
-            />
 
             <DashboardActionRowButton
               onClick={async () => {

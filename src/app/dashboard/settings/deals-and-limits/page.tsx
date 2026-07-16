@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { DashboardDealsAndLimitsHub } from "@/components/dashboard/dashboard-deals-and-limits-hub";
+import { storePanelsFromBusiness } from "@/lib/store-panels-visible";
 
 export default async function SettingsDealsAndLimitsPage() {
   const user = await getCurrentUser();
@@ -13,6 +14,7 @@ export default async function SettingsDealsAndLimitsPage() {
     <DashboardDealsAndLimitsHub
       initialOrderScheduleEnabled={b.orderScheduleEnabled ?? false}
       initialOrderScheduleJson={b.orderSchedule ?? null}
+      panels={storePanelsFromBusiness(b)}
     />
   );
 }

@@ -20,7 +20,7 @@ export function AppLoadingSplash() {
 
   return (
     <div
-      className="app-loading-splash fixed inset-0 z-[9999] flex items-center justify-center transition-opacity duration-300 ease-out"
+      className="app-loading-splash fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-5 transition-opacity duration-300 ease-out"
       style={{ backgroundColor: APP_SPLASH_BG }}
       aria-hidden
     >
@@ -30,8 +30,11 @@ export function AppLoadingSplash() {
         alt=""
         width={512}
         height={512}
-        className="h-[min(72vw,18rem)] w-[min(72vw,18rem)] object-contain sm:h-72 sm:w-72"
+        className="app-loading-splash-logo h-[min(72vw,18rem)] w-[min(72vw,18rem)] object-contain sm:h-72 sm:w-72"
       />
+      <p className="app-loading-splash-tagline">
+        <span className="app-loading-splash-tagline-brand">Peymiz</span> orders made simple
+      </p>
     </div>
   );
 }

@@ -14,6 +14,10 @@ import { DashboardCouponsEntry } from "@/components/dashboard/coupons-manager";
 import { DashboardOrderScheduleSettings } from "@/components/dashboard/dashboard-order-schedule-settings";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
+import {
+  DEFAULT_STORE_PANELS_VISIBLE,
+  type StorePanelsVisible,
+} from "@/lib/store-panels-visible";
 
 function DashboardStoreLimitsGroup({
   previewOnly = false,
@@ -64,21 +68,27 @@ export function DashboardDealsAndLimitsHubGrid({
   initialOrderScheduleJson = null,
   initialProducts,
   initialDeals,
+  panels = DEFAULT_STORE_PANELS_VISIBLE,
 }: {
   previewOnly?: boolean;
   initialOrderScheduleEnabled?: boolean;
   initialOrderScheduleJson?: string | null;
   initialProducts?: ComponentProps<typeof DashboardDealsEntry>["initialProducts"];
   initialDeals?: ComponentProps<typeof DashboardDealsEntry>["initialDeals"];
+  panels?: StorePanelsVisible;
 }) {
   return (
     <ul className="space-y-2 text-start">
-      <DashboardDealsEntry
-        previewOnly={previewOnly}
-        initialProducts={initialProducts}
-        initialDeals={initialDeals}
-      />
-      <DashboardCouponsEntry previewOnly={previewOnly} />
+      {panels.sellerDeals ? (
+        <DashboardDealsEntry
+          previewOnly={previewOnly}
+          initialProducts={initialProducts}
+          initialDeals={initialDeals}
+        />
+      ) : null}
+      {panels.sellerCoupons ? (
+        <DashboardCouponsEntry previewOnly={previewOnly} />
+      ) : null}
       <DashboardStoreLimitsGroup
         previewOnly={previewOnly}
         initialEnabled={initialOrderScheduleEnabled}
@@ -95,6 +105,7 @@ export function DashboardDealsAndLimitsHub({
   initialOrderScheduleJson = null,
   initialProducts,
   initialDeals,
+  panels = DEFAULT_STORE_PANELS_VISIBLE,
 }: {
   basePath?: string;
   previewOnly?: boolean;
@@ -102,6 +113,7 @@ export function DashboardDealsAndLimitsHub({
   initialOrderScheduleJson?: string | null;
   initialProducts?: ComponentProps<typeof DashboardDealsEntry>["initialProducts"];
   initialDeals?: ComponentProps<typeof DashboardDealsEntry>["initialDeals"];
+  panels?: StorePanelsVisible;
 }) {
   return (
     <div className={`${DASHBOARD_PAGE_ROOT} justify-start text-center`}>
@@ -116,6 +128,7 @@ export function DashboardDealsAndLimitsHub({
             initialOrderScheduleJson={initialOrderScheduleJson}
             initialProducts={initialProducts}
             initialDeals={initialDeals}
+            panels={panels}
           />
         </div>
       </div>

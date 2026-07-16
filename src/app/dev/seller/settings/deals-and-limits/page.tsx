@@ -17,6 +17,7 @@ export default function DevSellerSettingsDealsAndLimitsPage() {
             previewOnly
             initialProducts={DEV_PREVIEW_PRODUCTS}
             initialDeals={DEV_PREVIEW_DEALS}
+            panels={DEV_STORE_BUSINESS.storePanelsVisible}
           />
         </DashboardShell>
       </div>

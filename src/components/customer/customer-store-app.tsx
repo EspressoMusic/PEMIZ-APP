@@ -285,13 +285,16 @@ function resolveInitialDisplayPreferences(
   ownerTheme: CustomerDisplayTheme
 ) {
   const prefs = loadCustomerPreferences(slug, ownerLocale);
-  const hasSavedPrefs =
-    typeof window !== "undefined" &&
-    !!getCustomerDeviceItem(`linky-customer-prefs-${slug}`);
   return {
     locale: prefs.locale,
     textScale: prefs.textScale,
-    theme: hasSavedPrefs ? prefs.theme : ownerTheme,
+    // The "Language & display" row that lets a customer pick their own theme
+    // has been disabled ("coming soon") since the 2026-06-11 redesign — there
+    // is currently no live path that writes an explicit theme choice. Always
+    // follow the store's current theme so old cached values (from before it
+    // was disabled) can't freeze the storefront on a color the seller no
+    // longer uses. Revisit this once that row is re-enabled.
+    theme: ownerTheme,
   };
 }
 
@@ -361,6 +364,7 @@ export function CustomerStoreApp({
     storeAddress?: string | null;
     orderScheduleEnabled?: boolean;
     orderSchedule?: string | null;
+    orderConfirmationRequired?: boolean;
     appointmentBookingByDay?: boolean;
     storeBroadcast?: string | null;
     storeBroadcastAt?: string | null;
@@ -391,6 +395,7 @@ export function CustomerStoreApp({
     business.storeLocale === "en" ? "en" : "he";
   const effectiveOrderScheduleEnabled =
     panels.orderLimits && (business.orderScheduleEnabled ?? false);
+  const orderConfirmationRequired = business.orderConfirmationRequired ?? true;
   const showContactSeller =
     showWhatsAppContact || panels.inquiries;
   const appointmentCancelPolicy = parseAppointmentCancelPolicy(
@@ -1108,7 +1113,9 @@ export function CustomerStoreApp({
       placedAt: new Date().toISOString(),
       lines: activeCartLines,
       total: checkoutTotal,
-      statusLabel: labels.pendingOrder,
+      statusLabel: orderConfirmationRequired
+        ? labels.pendingOrder
+        : labels.orderConfirmedStatus,
     };
     if (!name || !phone) {
       setOrderError(
@@ -2008,11 +2015,13 @@ export function CustomerStoreApp({
                   unavailableLabel={labels.contactOptionWhatsAppUnavailable}
                 />
               ) : null}
-              <SettingsMenuRow
-                icon={Smartphone}
-                title={labels.installApp}
-                onClick={() => setInstallAppOpen(true)}
-              />
+              {panels.installApp ? (
+                <SettingsMenuRow
+                  icon={Smartphone}
+                  title={labels.installApp}
+                  onClick={() => setInstallAppOpen(true)}
+                />
+              ) : null}
             </div>
           </div>
         );

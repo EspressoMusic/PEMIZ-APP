@@ -1,6 +1,5 @@
 import { resolveSiteLocale, SITE_LOCALE } from "@/lib/site-locale";
 import {
-  DEFAULT_STORE_THEME,
   parseStoreTheme,
   storeThemeLabel,
   type StoreThemeId,
@@ -13,13 +12,14 @@ export type CustomerTextScale = "100" | "110" | "125";
 
 export type CustomerPreferences = {
   locale: CustomerLocale;
-  theme: CustomerDisplayTheme;
+  /** null = customer never explicitly picked a theme; follow the store's current theme. */
+  theme: CustomerDisplayTheme | null;
   textScale: CustomerTextScale;
 };
 
 const DEFAULTS: CustomerPreferences = {
   locale: SITE_LOCALE,
-  theme: DEFAULT_STORE_THEME,
+  theme: null,
   textScale: "100",
 };
 
@@ -52,7 +52,7 @@ export function loadCustomerPreferences(
         parsed.locale === "he" || parsed.locale === "en"
           ? parsed.locale
           : ownerLocale,
-      theme: parseStoreTheme(parsed.theme),
+      theme: parsed.theme != null ? parseStoreTheme(parsed.theme) : null,
       textScale:
         parsed.textScale === "110" || parsed.textScale === "125"
           ? parsed.textScale

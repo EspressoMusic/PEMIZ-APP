@@ -103,6 +103,9 @@ model Business {
   platformOwnerMessageReadAt DateTime?
   orderScheduleEnabled   Boolean  @default(false)
   orderSchedule          String?
+  // If true (default), new orders start PENDING and need the seller to confirm them.
+  // If false, new orders are created already CONFIRMED (no manual approval step).
+  orderConfirmationRequired Boolean @default(true)
   appointmentSlotGapMinutes      Int    @default(0)
   appointmentSlotDurationMinutes Int    @default(60)
   appointmentBookingStart        String  @default("09:00")

@@ -94,6 +94,7 @@ export function DashboardActionsHub({
         placement="center"
         showBackButton
         backButtonLabel={labels.backToActions}
+        backButtonOutside
         compact
         fitContent
       >
@@ -108,6 +109,7 @@ export function DashboardActionsHub({
           placement="center"
           showBackButton
           backButtonLabel={labels.backToActions}
+          backButtonOutside
           compact
           fitContent
         >
@@ -122,6 +124,7 @@ export function DashboardActionsHub({
           placement="center"
           showBackButton
           backButtonLabel={labels.backToActions}
+          backButtonOutside
           compact
           fitContent
         >

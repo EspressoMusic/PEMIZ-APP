@@ -19,6 +19,12 @@ const schema = z.object({
   reviews: z.boolean().optional(),
   coupons: z.boolean().optional(),
   customerAddress: z.boolean().optional(),
+  installApp: z.boolean().optional(),
+  sellerAlerts: z.boolean().optional(),
+  sellerInstallApp: z.boolean().optional(),
+  sellerDeals: z.boolean().optional(),
+  sellerCoupons: z.boolean().optional(),
+  sellerReviews: z.boolean().optional(),
 });
 
 export async function GET() {

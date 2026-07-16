@@ -308,6 +308,72 @@ html[data-customer-chrome-theme="turquoise"] body {
 
 /* Logo stays fixed ג€” no float animation on landing */
 
+.app-loading-splash-logo {
+  animation: app-loading-logo-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    app-loading-logo-breathe 2.4s ease-in-out 0.7s infinite;
+}
+
+@keyframes app-loading-logo-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(12px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes app-loading-logo-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.035);
+  }
+}
+
+.app-loading-splash-tagline {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  animation: app-loading-tagline-in 0.6s ease-out 0.35s forwards;
+}
+
+.app-loading-splash-tagline-brand {
+  color: var(--bakery-ink, #134e4a);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+@keyframes app-loading-tagline-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loading-splash-logo,
+  .app-loading-splash-tagline {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Matte red / warn ג€” flat fills, no glossy button shadow */
 button.master-btn-matte-warn,
 button.master-btn-matte-danger,

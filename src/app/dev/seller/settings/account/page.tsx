@@ -20,6 +20,7 @@ export default function DevSellerSettingsAccountPage() {
           basePath="/dev/seller"
           showQuickActionRows
           previewCustomerOrders={DEV_PREVIEW_ORDERS}
+          initialStorePanels={DEV_STORE_BUSINESS.storePanelsVisible}
         />
       </div>
     </DashboardShell>

@@ -110,6 +110,11 @@ export type MarketingCopy = {
   onboardSubmit: string;
   onboardCreating: string;
   onboardTermsError: string;
+  onboardFeaturesTitle: string;
+  onboardFeatureReviews: string;
+  onboardFeatureCoupons: string;
+  onboardFeatureDeals: string;
+  onboardFeatureOrderConfirmation: string;
 };
 
 export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
@@ -274,6 +279,11 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardSubmit: "Open store",
     onboardCreating: "Creating...",
     onboardTermsError: "Please accept the Terms of Service and Privacy Policy",
+    onboardFeaturesTitle: "Which features would you like to turn on?",
+    onboardFeatureReviews: "Reviews",
+    onboardFeatureCoupons: "Coupons",
+    onboardFeatureDeals: "Deals",
+    onboardFeatureOrderConfirmation: "Order confirmation",
   },
   he: {
     loading: "טוען את Peymiz...",
@@ -436,6 +446,11 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardSubmit: "פתיחת חנות",
     onboardCreating: "יוצר...",
     onboardTermsError: "יש לאשר את תנאי השימוש ומדיניות הפרטיות",
+    onboardFeaturesTitle: "אילו תכונות להפעיל בחנות?",
+    onboardFeatureReviews: "ביקורות",
+    onboardFeatureCoupons: "קופונים",
+    onboardFeatureDeals: "מבצעים",
+    onboardFeatureOrderConfirmation: "אישור הזמנה",
   },
 };
 

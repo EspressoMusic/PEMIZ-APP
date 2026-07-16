@@ -3,14 +3,35 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Input, Textarea, Alert, Panel, PageTitle } from "@/components/ui";
+import { Button, Input, Textarea, Alert, Panel, PageTitle, Toggle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { useMarketingLocale } from "@/components/marketing/marketing-locale-provider";
+
+function OnboardFeatureToggleRow({
+  label,
+  enabled,
+  onChange,
+}: {
+  label: string;
+  enabled: boolean;
+  onChange: (next: boolean) => void;
+}) {
+  return (
+    <div className="flex w-full items-center justify-between gap-3 rounded-2xl border-2 border-bakery-border bg-bakery-card px-3 py-3">
+      <span className="text-[14px] font-bold text-bakery-ink">{label}</span>
+      <Toggle enabled={enabled} onChange={onChange} ariaLabel={label} variant="auth" />
+    </div>
+  );
+}
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { copy, locale } = useMarketingLocale();
   const [type, setType] = useState<"STORE" | "APPOINTMENTS">("STORE");
+  const [reviews, setReviews] = useState(false);
+  const [coupons, setCoupons] = useState(false);
+  const [deals, setDeals] = useState(false);
+  const [orderConfirmationRequired, setOrderConfirmationRequired] = useState(true);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +53,9 @@ export default function OnboardingPage() {
         description: fd.get("description") || undefined,
         type,
         acceptTerms,
+        ...(type === "STORE"
+          ? { reviews, coupons, deals, orderConfirmationRequired }
+          : {}),
       }),
     });
     const data = await res.json();
@@ -87,6 +111,36 @@ export default function OnboardingPage() {
                 </button>
               </div>
             </div>
+
+            {type === "STORE" ? (
+              <div>
+                <span className="text-[14px] font-bold text-bakery-ink">
+                  {copy.onboardFeaturesTitle}
+                </span>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <OnboardFeatureToggleRow
+                    label={copy.onboardFeatureReviews}
+                    enabled={reviews}
+                    onChange={setReviews}
+                  />
+                  <OnboardFeatureToggleRow
+                    label={copy.onboardFeatureCoupons}
+                    enabled={coupons}
+                    onChange={setCoupons}
+                  />
+                  <OnboardFeatureToggleRow
+                    label={copy.onboardFeatureDeals}
+                    enabled={deals}
+                    onChange={setDeals}
+                  />
+                  <OnboardFeatureToggleRow
+                    label={copy.onboardFeatureOrderConfirmation}
+                    enabled={orderConfirmationRequired}
+                    onChange={setOrderConfirmationRequired}
+                  />
+                </div>
+              </div>
+            ) : null}
 
             <label className="flex items-start gap-2 text-[13px] leading-snug text-bakery-muted">
               <input

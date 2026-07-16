@@ -14,6 +14,11 @@ export type DashboardLabels = {
   deals: string;
   limits: string;
   dealsAndLimits: string;
+  miscSettings: string;
+  orderConfirmationTitle: string;
+  orderConfirmationHint: string;
+  orderConfirmationEnableConfirmTitle: string;
+  orderConfirmationEnableConfirmBody: string;
   services: string;
   appointments: string;
   appointmentSlots: string;
@@ -57,10 +62,13 @@ export type DashboardLabels = {
   pushSubscribeError: string;
   pushServiceUnavailable: string;
   pushIosNeedsInstall: string;
-  pushAlertsMustEnable: string;
   pushInvalidVapidKey: string;
   pushServiceWorkerFailed: string;
   pushPreviewOnly: string;
+  sellerNotifyPromptTitle: string;
+  sellerNotifyPromptBody: string;
+  sellerNotifyPromptYes: string;
+  sellerNotifyPromptNo: string;
   subscription: string;
   subscriptionPlansTitle: string;
   subscriptionPlansHint: string;
@@ -127,6 +135,8 @@ export type DashboardLabels = {
   sellerNudgePreviewDemo: string;
   accountAndLink: string;
   storePanelsTitle: string;
+  storePanelsCustomerSectionTitle: string;
+  storePanelsSellerSectionTitle: string;
   storePanelDeals: string;
   storePanelBroadcast: string;
   storePanelChat: string;
@@ -137,6 +147,12 @@ export type DashboardLabels = {
   storePanelSettings: string;
   storePanelCoupons: string;
   storePanelCustomerAddress: string;
+  storePanelInstallApp: string;
+  storePanelSellerAlerts: string;
+  storePanelSellerInstallApp: string;
+  storePanelSellerDeals: string;
+  storePanelSellerCoupons: string;
+  storePanelSellerReviews: string;
   storePanelsSaveFailed: string;
   customerAddress: string;
   openInMaps: string;
@@ -680,6 +696,13 @@ const HE: DashboardLabels = {
   deals: "דילים",
   limits: "הגבלות",
   dealsAndLimits: "דילים והגבלות",
+  miscSettings: "שונות",
+  orderConfirmationTitle: "אישור הזמנה",
+  orderConfirmationHint:
+    "כשהאפשרות פעילה, הזמנות חדשות ממתינות לאישור שלך לפני שהן נכנסות לתהליך הטיפול. כשהיא כבויה, הזמנות מאושרות אוטומטית מיד עם ביצוען.",
+  orderConfirmationEnableConfirmTitle: "להפעיל אישור הזמנה?",
+  orderConfirmationEnableConfirmBody:
+    "כל לקוח שיבצע הזמנה אצלך יצטרך לחכות לאישור שלך לפני שההזמנה תאושר ותיכנס לטיפול. אפשר לכבות את זה שוב בכל רגע.",
   services: "שירותים",
   appointments: "תורים",
   appointmentSlots: "משבצות תורים",
@@ -696,7 +719,9 @@ const HE: DashboardLabels = {
   workingDays: "ימי עבודה",
   settings: "הגדרות",
   accountAndLink: "חשבון",
-  storePanelsTitle: "מה יופיע באתר הלקוחות",
+  storePanelsTitle: "סידור אפליקציה",
+  storePanelsCustomerSectionTitle: "מה שהלקוח רואה",
+  storePanelsSellerSectionTitle: "מה שהמוכר רואה",
   storePanelDeals: "מבצעים",
   storePanelBroadcast: "הודעות והתראות ללקוחות",
   storePanelChat: "פנייה בוואטסאפ",
@@ -707,6 +732,12 @@ const HE: DashboardLabels = {
   storePanelSettings: "פאנל הגדרות",
   storePanelCoupons: "קוד קופון בהזמנה",
   storePanelCustomerAddress: "כתובת מגורים בהזמנה",
+  storePanelInstallApp: "התקנת אפליקציה ללקוח",
+  storePanelSellerAlerts: "התראות למוכר",
+  storePanelSellerInstallApp: "התקנת אפליקציה למוכר",
+  storePanelSellerDeals: "ניהול מבצעים",
+  storePanelSellerCoupons: "ניהול קופונים",
+  storePanelSellerReviews: "ניהול ביקורות",
   storePanelsSaveFailed: "שמירת ההגדרות נכשלה",
   customerAddress: "כתובת",
   openInMaps: "גוגל מפות",
@@ -1273,7 +1304,7 @@ const HE: DashboardLabels = {
   platformOwnerMessageGotIt: "הבנתי",
   pushEnableTitle: "התראות דחיפה במכשיר",
   pushEnableHint:
-    "לאחר הפעלת ההתראות למעלה, לחצו כאן ואשרו הרשאת התראות בדפדפן. כך תקבלו הודעה גם כשהאפליקציה סגורה (Android / iPhone מותקן למסך הבית).",
+    "לאחר הפעלת ההתראות למעלה, הדפדפן יבקש אישור להתראות באופן אוטומטי. כך תקבלו הודעה גם כשהאפליקציה סגורה (Android / iPhone מותקן למסך הבית).",
   pushSubscribeButton: "הפעלת התראות במכשיר",
   pushSubscribed: "מחובר להתראות דחיפה במכשיר זה",
   pushPermissionDenied:
@@ -1286,13 +1317,16 @@ const HE: DashboardLabels = {
     "הדפדפן או המכשיר לא מאפשרים התראות דחיפה כאן. ב-iPhone — התקינו את האפליקציה למסך הבית (Safari → שיתוף → הוסף למסך הבית) ונסו שוב. ב-Android — השתמשו ב-Chrome.",
   pushIosNeedsInstall:
     "ב-iPhone, התראות דחיפה עובדות רק אחרי התקנת האפליקציה למסך הבית: Safari → שיתוף → הוסף למסך הבית, ואז חזרו לכאן.",
-  pushAlertsMustEnable:
-    "קודם הפעילו את המתג «הפעלת התראות» למעלה, ואז לחצו שוב על «הפעלת התראות במכשיר».",
   pushInvalidVapidKey:
     "מפתח VAPID בשרת לא תקין. ב-Vercel — ודאו ש-VAPID_PUBLIC_KEY ו-VAPID_PRIVATE_KEY הועתקו בלי גרשיים מיותרים, ואז Redeploy.",
   pushServiceWorkerFailed:
     "לא הצלחנו לטעון את האפליקציה ברקע. סגרו את האפליקציה, פתחו מחדש מהמסך הראשי, ונסו שוב.",
   pushPreviewOnly: "בתצוגת דמו אין חיבור להתראות אמיתיות.",
+  sellerNotifyPromptTitle: "לקבל התראות?",
+  sellerNotifyPromptBody:
+    "נשלח לך התראה על פניות חדשות, הזמנות, הודעות בצ'אט ומצב מלאי — גם כשהאפליקציה סגורה.",
+  sellerNotifyPromptYes: "כן, הפעילו התראות",
+  sellerNotifyPromptNo: "לא עכשיו",
   subscription: "מנוי",
   subscriptionPlansTitle: "חבילות מנוי",
   subscriptionPlansHint: "14 ימי ניסיון חינם, ואז בחרו מנוי חודשי",
@@ -1402,6 +1436,13 @@ const EN: DashboardLabels = {
   deals: "Deals",
   limits: "Limits",
   dealsAndLimits: "Deals & limits",
+  miscSettings: "Misc",
+  orderConfirmationTitle: "Order confirmation",
+  orderConfirmationHint:
+    "When enabled, new orders wait for your approval before moving into processing. When disabled, orders are confirmed automatically as soon as they're placed.",
+  orderConfirmationEnableConfirmTitle: "Turn on order confirmation?",
+  orderConfirmationEnableConfirmBody:
+    "Every customer who places an order will need to wait for your approval before it's confirmed and moves into processing. You can turn this off again anytime.",
   services: "Services",
   appointments: "Appointments",
   appointmentSlots: "Time slots",
@@ -1418,7 +1459,9 @@ const EN: DashboardLabels = {
   workingDays: "Working days",
   settings: "Settings",
   accountAndLink: "Account",
-  storePanelsTitle: "What customers see on your store",
+  storePanelsTitle: "App layout",
+  storePanelsCustomerSectionTitle: "What the customer sees",
+  storePanelsSellerSectionTitle: "What the seller sees",
   storePanelDeals: "Deals",
   storePanelBroadcast: "Messages & alerts to customers",
   storePanelChat: "WhatsApp contact",
@@ -1429,6 +1472,12 @@ const EN: DashboardLabels = {
   storePanelSettings: "Settings panel",
   storePanelCoupons: "Coupon code at checkout",
   storePanelCustomerAddress: "Home address at checkout",
+  storePanelInstallApp: "Customer app install",
+  storePanelSellerAlerts: "Seller alerts",
+  storePanelSellerInstallApp: "Seller app install",
+  storePanelSellerDeals: "Deals management",
+  storePanelSellerCoupons: "Coupons management",
+  storePanelSellerReviews: "Reviews management",
   storePanelsSaveFailed: "Could not save panel settings",
   customerAddress: "Address",
   openInMaps: "Google Maps",
@@ -1996,7 +2045,7 @@ const EN: DashboardLabels = {
   platformOwnerMessageGotIt: "Got it",
   pushEnableTitle: "Push notifications on this device",
   pushEnableHint:
-    "After enabling alerts above, tap here and allow notifications in the browser. You’ll get alerts even when the app is closed (Android / iOS home-screen install).",
+    "After enabling alerts above, your browser will automatically ask you to allow notifications. You’ll get alerts even when the app is closed (Android / iOS home-screen install).",
   pushSubscribeButton: "Enable push on this device",
   pushSubscribed: "Push notifications enabled on this device",
   pushPermissionDenied:
@@ -2008,13 +2057,16 @@ const EN: DashboardLabels = {
     "Push is not available in this browser. On iPhone, install the app to your home screen (Safari → Share → Add to Home Screen) and try again. On Android, use Chrome.",
   pushIosNeedsInstall:
     "On iPhone, push notifications work only after installing the app to your home screen: Safari → Share → Add to Home Screen, then return here.",
-  pushAlertsMustEnable:
-    "Turn on «Enable notifications» above first, then tap «Enable notifications on device» again.",
   pushInvalidVapidKey:
     "The server VAPID public key is invalid. In Vercel, paste VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY without extra quotes, then redeploy.",
   pushServiceWorkerFailed:
     "Could not load the background worker. Close the app, reopen it from your home screen, and try again.",
   pushPreviewOnly: "Push is not available in preview mode.",
+  sellerNotifyPromptTitle: "Get notified?",
+  sellerNotifyPromptBody:
+    "We'll alert you about new inquiries, orders, chat messages, and low stock — even when the app is closed.",
+  sellerNotifyPromptYes: "Yes, enable notifications",
+  sellerNotifyPromptNo: "Not now",
   subscription: "Subscription",
   subscriptionPlansTitle: "Subscription plans",
   subscriptionPlansHint: "14-day free trial, then choose a monthly plan",

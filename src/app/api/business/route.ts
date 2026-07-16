@@ -14,6 +14,10 @@ import {
   businessPatchSchema,
   zodFirstError,
 } from "@/lib/validation/schemas";
+import {
+  DEFAULT_STORE_PANELS_VISIBLE,
+  storePanelsVisibleToJson,
+} from "@/lib/store-panels-visible";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -38,6 +42,12 @@ export async function POST(req: Request) {
 
   const slug = await generateUniqueBusinessSlug(parsed.data.name);
   const storeLocale = await readPreferredLocaleFromCookies();
+  const storePanelsVisible = storePanelsVisibleToJson({
+    ...DEFAULT_STORE_PANELS_VISIBLE,
+    ...(parsed.data.reviews !== undefined ? { reviews: parsed.data.reviews } : {}),
+    ...(parsed.data.coupons !== undefined ? { coupons: parsed.data.coupons } : {}),
+    ...(parsed.data.deals !== undefined ? { deals: parsed.data.deals } : {}),
+  });
 
   const business = await prisma.business.create({
     data: {
@@ -50,6 +60,10 @@ export async function POST(req: Request) {
       termsAcceptedAt: new Date(),
       isActive: true,
       approvedAt: new Date(),
+      storePanelsVisible,
+      ...(parsed.data.orderConfirmationRequired !== undefined
+        ? { orderConfirmationRequired: parsed.data.orderConfirmationRequired }
+        : {}),
     },
     select: {
       id: true,
