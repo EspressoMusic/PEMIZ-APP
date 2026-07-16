@@ -79,6 +79,7 @@ export function DashboardShellClient({
   platformOwnerMessage = null,
   platformOwnerMessageAt = null,
   platformOwnerMessageReadAt = null,
+  storePanelsVisible = null,
 }: {
   children: ReactNode;
   businessType: string;
@@ -93,6 +94,7 @@ export function DashboardShellClient({
   platformOwnerMessage?: string | null;
   platformOwnerMessageAt?: string | null;
   platformOwnerMessageReadAt?: string | null;
+  storePanelsVisible?: string | null;
 }) {
   const pathname = usePathname();
   const hub = useDashboardHub();
@@ -164,6 +166,7 @@ export function DashboardShellClient({
                 businessType={businessType}
                 basePath={basePath}
                 appointmentScheduleConfigured={appointmentScheduleConfigured}
+                storePanelsVisible={storePanelsVisible}
               >
                 {shellBody}
               </SellerWelcomeGuide>

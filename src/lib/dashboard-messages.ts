@@ -453,11 +453,6 @@ export type DashboardLabels = {
   sellerGuideWelcomeHomeNotificationsBody: string;
   sellerGuideWelcomeSummaryTitle: string;
   sellerGuideWelcomeSummaryBody: string;
-  sellerGuideWelcomeTipCustomersTitle: string;
-  sellerGuideWelcomeTipCustomersBody: string;
-  sellerGuideWelcomeStepStoreTitle: string;
-  sellerGuideWelcomeStepStoreBody: string;
-  sellerGuideWelcomeStepStoreBodyAppointments: string;
   sellerGuideWelcomeStepLinkTitle: string;
   sellerGuideWelcomeStepLinkBody: string;
   sellerGuideWelcomeTipAddServiceTitle: string;
@@ -472,6 +467,34 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipDealsBody: string;
   sellerGuideWelcomeTipLimitsTitle: string;
   sellerGuideWelcomeTipLimitsBody: string;
+  sellerGuideWelcomeStepStorePanelTitle: string;
+  sellerGuideWelcomeStepStorePanelBody: string;
+  sellerGuideWelcomeStepCustomersPanelTitle: string;
+  sellerGuideWelcomeStepCustomersPanelBody: string;
+  sellerGuideChecklistOrdersSublabel: string;
+  sellerGuideChecklistProductsSublabel: string;
+  sellerGuideChecklistDealsTitle: string;
+  sellerGuideChecklistDealsSublabel: string;
+  sellerGuideChecklistCouponsTitle: string;
+  sellerGuideChecklistCouponsSublabel: string;
+  sellerGuideChecklistOrderHoursTitle: string;
+  sellerGuideChecklistOrderHoursSublabel: string;
+  sellerGuideChecklistBroadcastSublabel: string;
+  sellerGuideChecklistInquiriesSublabel: string;
+  sellerGuideChecklistFaqSublabel: string;
+  sellerGuideWelcomeStepSettingsTitle: string;
+  sellerGuideWelcomeStepSettingsBody: string;
+  sellerGuideWelcomeStepPanelsTitle: string;
+  sellerGuideWelcomeStepPanelsBody: string;
+  sellerGuideWelcomeTipCouponsTitle: string;
+  sellerGuideWelcomeTipCouponsBody: string;
+  sellerGuideWelcomeTipBroadcastTitle: string;
+  sellerGuideWelcomeTipBroadcastBody: string;
+  sellerGuideWelcomeTipInquiriesTitle: string;
+  sellerGuideWelcomeTipInquiriesBody: string;
+  sellerGuideWelcomeTipFaqTitle: string;
+  sellerGuideWelcomeTipFaqBody: string;
+  sellerGuideContinueDeepDive: string;
   sellerGuideReplayTitle: string;
   sellerGuideReplayBody: string;
   sellerGuideReplayAction: string;
@@ -1062,14 +1085,6 @@ const HE: DashboardLabels = {
   sellerGuideWelcomeSummaryTitle: "דילים, קופונים וביקורות",
   sellerGuideWelcomeSummaryBody:
     "בחנות תמצא גם דילים, מבצעים וקופונים.",
-  sellerGuideWelcomeTipCustomersTitle: "לקוחות",
-  sellerGuideWelcomeTipCustomersBody:
-    "פניות, צ'אט, הודעות ושאלות נפוצות — כל מה שקשור ללקוחות, במסך **לקוחות**.",
-  sellerGuideWelcomeStepStoreTitle: "חנות",
-  sellerGuideWelcomeStepStoreBody:
-    "מוצרים, הזמנות, דילים והגדרות — כל מה שקשור לחנות, במסך **חנות**.",
-  sellerGuideWelcomeStepStoreBodyAppointments:
-    "שירותים, תורים, יומן והגדרות — כל מה שקשור לעסק, במסך **חנות**.",
   sellerGuideWelcomeStepLinkTitle: "קישור ללקוחות",
   sellerGuideWelcomeStepLinkBody:
     "מהבית מעתיקים ושולחים את הקישור — כך לקוחות נכנסים לחנות.",
@@ -1091,6 +1106,41 @@ const HE: DashboardLabels = {
   sellerGuideWelcomeTipLimitsTitle: "הגבלות הזמנה",
   sellerGuideWelcomeTipLimitsBody:
     "פעולות → חנות → דילים והגבלות → הגבלות. ימים ושעות.",
+  sellerGuideWelcomeStepStorePanelTitle: "חנות",
+  sellerGuideWelcomeStepStorePanelBody: "כל מה שתוכל ליצור במסך **חנות**:",
+  sellerGuideWelcomeStepCustomersPanelTitle: "לקוחות",
+  sellerGuideWelcomeStepCustomersPanelBody:
+    "כל מה שקשור ללקוחות שלך, במסך **לקוחות**:",
+  sellerGuideChecklistOrdersSublabel: "צפייה ואישור בהזמנות שהתקבלו",
+  sellerGuideChecklistProductsSublabel: "הוספת מוצרים לחנות",
+  sellerGuideChecklistDealsTitle: "דילים",
+  sellerGuideChecklistDealsSublabel: "יצירת מבצעים והנחות על מוצרים",
+  sellerGuideChecklistCouponsTitle: "קופונים",
+  sellerGuideChecklistCouponsSublabel: "יצירת קודי קופון להנחה בקנייה",
+  sellerGuideChecklistOrderHoursTitle: "שעות הזמנה",
+  sellerGuideChecklistOrderHoursSublabel: "קביעת ימים ושעות לקבלת הזמנות",
+  sellerGuideChecklistBroadcastSublabel: "שליחת הודעה לכל הלקוחות שלך",
+  sellerGuideChecklistInquiriesSublabel: "מענה לשאלות שהתקבלו מלקוחות",
+  sellerGuideChecklistFaqSublabel: "שאלות ותשובות שלקוחות יראו בחנות",
+  sellerGuideWelcomeStepSettingsTitle: "הגדרות",
+  sellerGuideWelcomeStepSettingsBody:
+    "כאן תמצא את כל הגדרות החשבון והחנות שלך — מנוי, עיצוב, מדיניות ביטולים ועוד.",
+  sellerGuideWelcomeStepPanelsTitle: "עיצוב מסך החנות",
+  sellerGuideWelcomeStepPanelsBody:
+    "כאן תוכל להסיר ולהוסיף פאנלים מהחנות שלך — כמו דילים, ביקורות וקופונים.",
+  sellerGuideWelcomeTipCouponsTitle: "קופונים",
+  sellerGuideWelcomeTipCouponsBody:
+    "פעולות → חנות → דילים והגבלות → קופונים → הוסף.",
+  sellerGuideWelcomeTipBroadcastTitle: "הודעה ללקוחות",
+  sellerGuideWelcomeTipBroadcastBody:
+    "פעולות → לקוחות → הודעה ללקוחות. כותבים ושולחים לכל הרשימה.",
+  sellerGuideWelcomeTipInquiriesTitle: "פניות לקוחות",
+  sellerGuideWelcomeTipInquiriesBody:
+    "פעולות → לקוחות → פניות. כאן עונים לשאלות שהתקבלו מלקוחות.",
+  sellerGuideWelcomeTipFaqTitle: "שאלות נפוצות",
+  sellerGuideWelcomeTipFaqBody:
+    "פעולות → לקוחות → שאלות נפוצות. מוסיפים שאלות ותשובות שהלקוחות יראו בחנות.",
+  sellerGuideContinueDeepDive: "המשך למדריך המקיף",
   sellerGuideReplayTitle: "מדריך התחלה",
   sellerGuideReplayBody: "רוצה לעבור שוב על השלבים הראשונים בלינקי?",
   sellerGuideReplayAction: "הפעל מדריך שוב",
@@ -1803,14 +1853,6 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeSummaryTitle: "Deals, coupons & reviews",
   sellerGuideWelcomeSummaryBody:
     "In Store you'll also find deals and coupons.",
-  sellerGuideWelcomeTipCustomersTitle: "Customers",
-  sellerGuideWelcomeTipCustomersBody:
-    "Inquiries, chat, broadcasts, and FAQ — everything customer-related lives in **Customers**.",
-  sellerGuideWelcomeStepStoreTitle: "Store",
-  sellerGuideWelcomeStepStoreBody:
-    "Products, orders, deals, and settings — everything for your shop lives under Actions → Store.",
-  sellerGuideWelcomeStepStoreBodyAppointments:
-    "Services, bookings, calendar, and settings — everything for your business lives under Actions → Store.",
   sellerGuideWelcomeStepLinkTitle: "Customer link",
   sellerGuideWelcomeStepLinkBody:
     "From Home, copy or share your link — that's how customers reach you.",
@@ -1832,6 +1874,42 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeTipLimitsTitle: "Order limits",
   sellerGuideWelcomeTipLimitsBody:
     "Actions → Store → Deals & limits → Limits. Days and hours.",
+  sellerGuideWelcomeStepStorePanelTitle: "Store",
+  sellerGuideWelcomeStepStorePanelBody:
+    "Everything you can create in the **Store** screen:",
+  sellerGuideWelcomeStepCustomersPanelTitle: "Customers",
+  sellerGuideWelcomeStepCustomersPanelBody:
+    "Everything related to your customers, in the **Customers** screen:",
+  sellerGuideChecklistOrdersSublabel: "View and confirm orders you've received",
+  sellerGuideChecklistProductsSublabel: "Add products to your store",
+  sellerGuideChecklistDealsTitle: "Deals",
+  sellerGuideChecklistDealsSublabel: "Create promotions and discounts on products",
+  sellerGuideChecklistCouponsTitle: "Coupons",
+  sellerGuideChecklistCouponsSublabel: "Create discount coupon codes for checkout",
+  sellerGuideChecklistOrderHoursTitle: "Order hours",
+  sellerGuideChecklistOrderHoursSublabel: "Set the days and hours you accept orders",
+  sellerGuideChecklistBroadcastSublabel: "Send a message to all of your customers",
+  sellerGuideChecklistInquiriesSublabel: "Answer questions customers send you",
+  sellerGuideChecklistFaqSublabel: "Questions and answers customers will see in your store",
+  sellerGuideWelcomeStepSettingsTitle: "Settings",
+  sellerGuideWelcomeStepSettingsBody:
+    "Find all your account and store settings here — subscription, styling, cancellation policy and more.",
+  sellerGuideWelcomeStepPanelsTitle: "Store layout",
+  sellerGuideWelcomeStepPanelsBody:
+    "Add or remove panels from your store here — like deals, reviews and coupons.",
+  sellerGuideWelcomeTipCouponsTitle: "Coupons",
+  sellerGuideWelcomeTipCouponsBody:
+    "Actions → Store → Deals & limits → Coupons → Add.",
+  sellerGuideWelcomeTipBroadcastTitle: "Message to customers",
+  sellerGuideWelcomeTipBroadcastBody:
+    "Actions → Customers → Message to customers. Write and send to your whole list.",
+  sellerGuideWelcomeTipInquiriesTitle: "Customer inquiries",
+  sellerGuideWelcomeTipInquiriesBody:
+    "Actions → Customers → Inquiries. Answer questions customers send you.",
+  sellerGuideWelcomeTipFaqTitle: "FAQ",
+  sellerGuideWelcomeTipFaqBody:
+    "Actions → Customers → FAQ. Add questions and answers customers will see in your store.",
+  sellerGuideContinueDeepDive: "Continue to the full guide",
   sellerGuideReplayTitle: "Getting started guide",
   sellerGuideReplayBody: "Want to walk through the first steps in Linky again?",
   sellerGuideReplayAction: "Show guide again",

@@ -91,6 +91,7 @@ export default async function DashboardLayout({
             platformOwnerMessageReadAt={
               user.business.platformOwnerMessageReadAt?.toISOString() ?? null
             }
+            storePanelsVisible={user.business.storePanelsVisible ?? null}
           >
             {children}
           </DashboardShell>

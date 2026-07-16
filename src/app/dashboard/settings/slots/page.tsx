@@ -15,12 +15,14 @@ export default async function SettingsSlotsPage() {
       <div className="px-1 text-start">
         <DashboardActionsBackLink />
       </div>
-      <DashboardAppointmentsCalendarSettings
-        workingDays={{
-          initialEnabled: b.orderScheduleEnabled ?? false,
-          initialScheduleJson: b.orderSchedule ?? null,
-        }}
-      />
+      <div data-tour-id="tour-appointment-calendar">
+        <DashboardAppointmentsCalendarSettings
+          workingDays={{
+            initialEnabled: b.orderScheduleEnabled ?? false,
+            initialScheduleJson: b.orderSchedule ?? null,
+          }}
+        />
+      </div>
     </div>
   );
 }

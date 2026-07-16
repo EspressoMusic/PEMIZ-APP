@@ -24,10 +24,12 @@ export default async function SettingsLimitsPage() {
       <div className="px-1 text-start">
         <DashboardSettingsBackLink />
       </div>
-      <DashboardOrderScheduleSettings
-        initialEnabled={b.orderScheduleEnabled ?? false}
-        initialScheduleJson={b.orderSchedule ?? null}
-      />
+      <div data-tour-id="tour-order-hours">
+        <DashboardOrderScheduleSettings
+          initialEnabled={b.orderScheduleEnabled ?? false}
+          initialScheduleJson={b.orderSchedule ?? null}
+        />
+      </div>
     </div>
   );
 }

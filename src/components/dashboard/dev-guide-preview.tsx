@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
 import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
+import { DashboardSettingsView } from "@/components/dashboard-settings";
 import {
   DEV_APPOINTMENTS_BUSINESS,
   DEV_APPOINTMENTS_OWNER_NAME,
@@ -16,6 +17,10 @@ import {
   getDevSellerHomeCalendarPreview,
 } from "@/lib/dev-preview-data";
 import { demoPrepSummary } from "@/lib/dashboard-prep-summary";
+import {
+  DEFAULT_STORE_PANELS_VISIBLE,
+  storePanelsVisibleToJson,
+} from "@/lib/store-panels-visible";
 
 /** Shared layout body for /dev/guide and /dev/guide/appointments — each is its
  * own real route (plus a matching /actions sub-route) so only one screen is
@@ -36,6 +41,9 @@ export function DevGuidePreview({
   const pathname = usePathname();
   const isActionsRoute =
     pathname === `${basePath}/actions` || pathname === `${basePath}/actions/`;
+  const isSettingsAccountRoute =
+    pathname === `${basePath}/settings/account` ||
+    pathname === `${basePath}/settings/account/`;
 
   const isAppointments = businessType === "APPOINTMENTS";
   const other = isAppointments
@@ -52,6 +60,9 @@ export function DevGuidePreview({
   const initialActiveServiceCount = isAppointments
     ? DEV_APPOINTMENTS_BUSINESS.products.length
     : 0;
+  const storePanelsVisible = isAppointments
+    ? DEFAULT_STORE_PANELS_VISIBLE
+    : DEV_STORE_BUSINESS.storePanelsVisible;
 
   return (
     <DashboardShell
@@ -63,6 +74,7 @@ export function DevGuidePreview({
       orderScheduleEnabled={orderScheduleEnabled}
       orderSchedule={orderSchedule}
       initialActiveServiceCount={initialActiveServiceCount}
+      storePanelsVisible={storePanelsVisibleToJson(storePanelsVisible)}
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <div className="shrink-0 border-b border-bakery-border/25 px-4 py-2 text-center">
@@ -93,7 +105,23 @@ export function DevGuidePreview({
         </div>
 
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
-          {isActionsRoute ? (
+          {isSettingsAccountRoute ? (
+            <div className="px-3 py-3">
+              <DashboardSettingsView
+                businessName={storeMeta.name}
+                isActive
+                previewOnly
+                businessType={businessType}
+                basePath={basePath}
+                showQuickActionRows
+                initialStorePanels={
+                  isAppointments
+                    ? DEFAULT_STORE_PANELS_VISIBLE
+                    : DEV_STORE_BUSINESS.storePanelsVisible
+                }
+              />
+            </div>
+          ) : isActionsRoute ? (
             <DashboardActionsHub
               businessType={businessType}
               basePath={basePath}

@@ -9,7 +9,9 @@ export default function DashboardFaqPage() {
   return (
     <DashboardSellerPageStack className={DASHBOARD_PAGE_ROOT}>
       <DashboardCustomersBackLink />
-      <FaqManager />
+      <div data-tour-id="tour-faq">
+        <FaqManager />
+      </div>
     </DashboardSellerPageStack>
   );
 }

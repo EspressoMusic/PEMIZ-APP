@@ -10,7 +10,9 @@ export default async function DashboardCustomersBroadcastPage() {
   return (
     <div className="space-y-4">
       <DashboardCustomersBackLink />
-      <DashboardStoreBroadcast />
+      <div data-tour-id="tour-broadcast">
+        <DashboardStoreBroadcast />
+      </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardActionRowButton } from "@/components/dashboard/dashboard-action-row";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 
 type DiscountType = "PERCENTAGE" | "FIXED";
 
@@ -50,6 +51,8 @@ function EditorModal({
   footer: ReactNode;
   closeLabel: string;
 }) {
+  const panelRef = useDialogA11y<HTMLDivElement>(open, onClose);
+
   if (!open) return null;
 
   return (
@@ -65,7 +68,11 @@ function EditorModal({
         onClick={onClose}
         aria-label={closeLabel}
       />
-      <div className="dashboard-modal-card relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto p-5">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="dashboard-modal-card relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto p-5 outline-none"
+      >
         <div className="relative px-10 pt-1">
           <h2 className="text-center text-[18px] font-extrabold text-bakery-ink">
             {title}
@@ -73,6 +80,7 @@ function EditorModal({
           <button
             type="button"
             onClick={onClose}
+            aria-label={closeLabel}
             className="absolute end-0 top-0 rounded-full p-1 text-bakery-muted hover:bg-bakery-card/80"
           >
             <X className="h-5 w-5" />
@@ -713,6 +721,7 @@ export function DashboardCouponsEntry({
         title={labels.couponsTitle}
         expanded={open}
         active={open}
+        tourId="tour-add-coupon"
       />
       {open ? (
         <CouponsManager
