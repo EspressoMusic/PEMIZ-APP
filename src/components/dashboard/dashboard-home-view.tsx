@@ -83,7 +83,7 @@ export function DashboardHomeView({
     >
       <div className={`${homeStack} shrink-0 ${isAppointments ? "pb-1.5" : "pb-2"}`}>
         <div className="dashboard-home-header dashboard-home-header--greeting relative flex flex-col items-center justify-center px-4 py-3">
-          <div className="absolute end-3 top-3 z-10">
+          <div className="absolute end-3 top-3 z-10" data-tour-id="tour-home-notifications">
             {inquiryBell}
           </div>
           {ownerName.trim() ? (
@@ -110,7 +110,10 @@ export function DashboardHomeView({
         }`}
       >
         {isAppointments ? (
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <div
+            className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+            data-tour-id="tour-home-calendar"
+          >
             <DashboardAppointmentsHomeCalendar
               previewOnly={Boolean(appointmentsCalendarPreview)}
               initialSlots={appointmentsCalendarPreview?.slots}
@@ -126,7 +129,10 @@ export function DashboardHomeView({
             />
           </div>
         ) : showPrepSummary && prepProducts ? (
-          <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+          <div
+            className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+            data-tour-id="tour-home-orders"
+          >
             <DashboardPrepSummary
               initialProducts={prepProducts}
               initialOrders={initialOrders}

@@ -1,42 +1,57 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { SellerWelcomeGuide } from "@/components/dashboard/seller-welcome-guide";
-import { SellerSpotlightTourProvider } from "@/components/dashboard/seller-spotlight-tour";
+import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
 import { DashboardActionsHub } from "@/components/dashboard/dashboard-actions-hub";
 import {
   DEV_APPOINTMENTS_BUSINESS,
+  DEV_APPOINTMENTS_OWNER_NAME,
+  DEV_PREVIEW_ORDERS,
   DEV_STORE_BUSINESS,
+  DEV_STORE_OWNER_NAME,
   getDevPreviewAppointmentsSeller,
+  getDevSellerHomeCalendarPreview,
 } from "@/lib/dev-preview-data";
+import { demoPrepSummary } from "@/lib/dashboard-prep-summary";
 
+/** Shared layout body for /dev/guide and /dev/guide/appointments — each is its
+ * own real route (plus a matching /actions sub-route) so only one screen is
+ * ever visible at a time, exactly like the real dashboard's home/actions tabs. */
 export function DevGuidePreview({
   businessType,
   title,
   basePath,
   storageId,
+  children,
 }: {
   businessType: "STORE" | "APPOINTMENTS";
   title: string;
   basePath: string;
   storageId: string;
+  children?: ReactNode;
 }) {
-  const other =
-    businessType === "STORE"
-      ? { href: "/dev/guide/appointments", label: "מדריך חנות פגישות" }
-      : { href: "/dev/guide", label: "מדריך חנות מוצרים" };
+  const pathname = usePathname();
+  const isActionsRoute =
+    pathname === `${basePath}/actions` || pathname === `${basePath}/actions/`;
 
-  const storeMeta =
-    businessType === "STORE" ? DEV_STORE_BUSINESS : DEV_APPOINTMENTS_BUSINESS;
-  const orderScheduleEnabled =
-    businessType === "APPOINTMENTS"
-      ? (DEV_APPOINTMENTS_BUSINESS.orderScheduleEnabled ?? false)
-      : false;
-  const orderSchedule =
-    businessType === "APPOINTMENTS"
-      ? (DEV_APPOINTMENTS_BUSINESS.orderSchedule ?? null)
-      : null;
+  const isAppointments = businessType === "APPOINTMENTS";
+  const other = isAppointments
+    ? { href: "/dev/guide", label: "מדריך חנות מוצרים" }
+    : { href: "/dev/guide/appointments", label: "מדריך חנות פגישות" };
+
+  const storeMeta = isAppointments ? DEV_APPOINTMENTS_BUSINESS : DEV_STORE_BUSINESS;
+  const orderScheduleEnabled = isAppointments
+    ? (DEV_APPOINTMENTS_BUSINESS.orderScheduleEnabled ?? false)
+    : false;
+  const orderSchedule = isAppointments
+    ? (DEV_APPOINTMENTS_BUSINESS.orderSchedule ?? null)
+    : null;
+  const initialActiveServiceCount = isAppointments
+    ? DEV_APPOINTMENTS_BUSINESS.products.length
+    : 0;
 
   return (
     <DashboardShell
@@ -47,65 +62,82 @@ export function DevGuidePreview({
       storeTheme={storeMeta.storeTheme}
       orderScheduleEnabled={orderScheduleEnabled}
       orderSchedule={orderSchedule}
+      initialActiveServiceCount={initialActiveServiceCount}
     >
-      <SellerSpotlightTourProvider
-        businessId={storageId}
-        businessType={businessType}
-        basePath={basePath}
-      >
-        <SellerWelcomeGuide
-          businessId={storageId}
-          businessType={businessType}
-          basePath={basePath}
-          forceStart
-          appointmentScheduleConfigured
-        >
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="shrink-0 border-b border-bakery-border/25 px-4 py-2 text-center">
-              <p className="text-[12px] font-bold text-bakery-muted">{title}</p>
-              <p className="mt-1 text-[11px] text-bakery-muted">
-                תצוגה מקדימה — חלון הסבר בפתיחה
-              </p>
-              <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
-                <Link
-                  href="/dev"
-                  className="text-[13px] font-bold text-bakery-primary hover:underline"
-                >
-                  חזרה ל-dev
-                </Link>
-                <Link
-                  href={other.href}
-                  className="text-[13px] font-bold text-bakery-muted hover:text-bakery-ink hover:underline"
-                >
-                  {other.label}
-                </Link>
-                <Link
-                  href={`${businessType === "STORE" ? "/dev/guide" : "/dev/guide/appointments"}?reset=1`}
-                  className="text-[13px] font-bold text-bakery-muted hover:text-bakery-ink hover:underline"
-                >
-                  הצג מדריך שוב
-                </Link>
-              </div>
-            </div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="shrink-0 border-b border-bakery-border/25 px-4 py-2 text-center">
+          <p className="text-[12px] font-bold text-bakery-muted">{title}</p>
+          <p className="mt-1 text-[11px] text-bakery-muted">
+            תצוגה מקדימה — סיור ההסבר בפתיחה
+          </p>
+          <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/dev"
+              className="text-[13px] font-bold text-bakery-primary hover:underline"
+            >
+              חזרה ל-dev
+            </Link>
+            <Link
+              href={other.href}
+              className="text-[13px] font-bold text-bakery-muted hover:text-bakery-ink hover:underline"
+            >
+              {other.label}
+            </Link>
+            <Link
+              href={`${basePath}?reset=1`}
+              className="text-[13px] font-bold text-bakery-muted hover:text-bakery-ink hover:underline"
+            >
+              הצג מדריך שוב
+            </Link>
+          </div>
+        </div>
 
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
+          {isActionsRoute ? (
             <DashboardActionsHub
               businessType={businessType}
               basePath={basePath}
               previewOnly
               previewAppointments={
-                businessType === "APPOINTMENTS"
-                  ? getDevPreviewAppointmentsSeller()
-                  : undefined
+                isAppointments ? getDevPreviewAppointmentsSeller() : undefined
               }
               previewBookingByDay={
-                businessType === "APPOINTMENTS"
+                isAppointments
                   ? (DEV_APPOINTMENTS_BUSINESS.appointmentBookingByDay ?? false)
                   : false
               }
             />
-          </div>
-        </SellerWelcomeGuide>
-      </SellerSpotlightTourProvider>
+          ) : isAppointments ? (
+            <DashboardHomeView
+              ownerName={DEV_APPOINTMENTS_OWNER_NAME}
+              businessSlug="demo-appointments"
+              businessType="APPOINTMENTS"
+              basePath={basePath}
+              customerLink="/dev/customer-appointments"
+              previewHref="/dev/customer-appointments"
+              inquiriesHref={`${basePath}/customers/inquiries`}
+              inquiryBellPreview
+              appointmentsCalendarPreview={getDevSellerHomeCalendarPreview()}
+            />
+          ) : (
+            <DashboardHomeView
+              ownerName={DEV_STORE_OWNER_NAME}
+              businessSlug="demo-store"
+              basePath={basePath}
+              customerLink="/b/demo-store"
+              previewHref="/dev/customer"
+              showPrepSummary
+              prepProducts={demoPrepSummary()}
+              initialOrders={DEV_PREVIEW_ORDERS.filter(
+                (order) => order.status === "PENDING"
+              )}
+              inquiriesHref={`${basePath}/customers/inquiries`}
+              inquiryBellPreview
+            />
+          )}
+        </div>
+      </div>
+      {children}
     </DashboardShell>
   );
 }

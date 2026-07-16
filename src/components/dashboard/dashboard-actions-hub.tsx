@@ -55,18 +55,21 @@ export function DashboardActionsHub({
               onClick={() => setCustomersOpen(true)}
               icon={Users}
               label={labels.customers}
+              tourId="tour-customers-square"
             />
             {showStoreHub || showAppointmentsHub ? (
               <DashboardActionSquare
                 onClick={() => setStoreOpen(true)}
                 icon={Store}
                 label={labels.store}
+                tourId="tour-store-square"
               />
             ) : (
               <DashboardActionSquare
                 href={`${basePath}/settings`}
                 icon={Store}
                 label={labels.store}
+                tourId="tour-store-square"
               />
             )}
           </div>

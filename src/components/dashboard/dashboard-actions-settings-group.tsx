@@ -76,6 +76,7 @@ export function DashboardActionsSettingsGroup({
                   <DashboardStoreStylePicker
                     previewOnly={previewOnly}
                     businessType={businessType}
+                    basePath={basePath}
                   />
                   <DashboardAppointmentCancelSettings
                     embedded

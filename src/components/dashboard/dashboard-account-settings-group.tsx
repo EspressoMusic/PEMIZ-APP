@@ -21,6 +21,7 @@ export function DashboardAccountSettingsGroup({
       <DashboardStoreStylePicker
         previewOnly={previewOnly}
         businessType={businessType}
+        basePath={basePath}
       />
       <DashboardActionRow
         href={`${basePath}/settings/account`}

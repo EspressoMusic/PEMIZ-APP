@@ -432,6 +432,11 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipAddProductBody: string;
   sellerGuideWelcomeTipOrdersTitle: string;
   sellerGuideWelcomeTipOrdersBody: string;
+  sellerGuideWelcomeHomeOrdersBody: string;
+  sellerGuideWelcomeHomeNotificationsTitle: string;
+  sellerGuideWelcomeHomeNotificationsBody: string;
+  sellerGuideWelcomeSummaryTitle: string;
+  sellerGuideWelcomeSummaryBody: string;
   sellerGuideWelcomeTipCustomersTitle: string;
   sellerGuideWelcomeTipCustomersBody: string;
   sellerGuideWelcomeStepStoreTitle: string;
@@ -1018,14 +1023,22 @@ const HE: DashboardLabels = {
   sellerGuideWelcomeTipOrdersTitle: "הזמנות",
   sellerGuideWelcomeTipOrdersBody:
     "פעולות → חנות → הזמנות. פותחים הזמנה ולוחצים אשר.",
+  sellerGuideWelcomeHomeOrdersBody:
+    "כאן בעצם יופיעו לך כל ההזמנות שלך, ברגע שהן מתקבלות.",
+  sellerGuideWelcomeHomeNotificationsTitle: "התראות",
+  sellerGuideWelcomeHomeNotificationsBody:
+    "כאן תקבל התראות חדשות — הזמנות ופניות מלקוחות.",
+  sellerGuideWelcomeSummaryTitle: "דילים, קופונים וביקורות",
+  sellerGuideWelcomeSummaryBody:
+    "בחנות תמצא גם דילים, מבצעים וקופונים.",
   sellerGuideWelcomeTipCustomersTitle: "לקוחות",
   sellerGuideWelcomeTipCustomersBody:
-    "פניות, צ'אט, הודעות ושאלות נפוצות — כל מה שקשור ללקוחות, במסך «לקוחות» תחת «פעולות».",
+    "פניות, צ'אט, הודעות ושאלות נפוצות — כל מה שקשור ללקוחות, במסך **לקוחות**.",
   sellerGuideWelcomeStepStoreTitle: "חנות",
   sellerGuideWelcomeStepStoreBody:
-    "מוצרים, הזמנות, דילים והגדרות — כל מה שקשור לחנות, במסך «חנות» תחת «פעולות».",
+    "מוצרים, הזמנות, דילים והגדרות — כל מה שקשור לחנות, במסך **חנות**.",
   sellerGuideWelcomeStepStoreBodyAppointments:
-    "שירותים, תורים, יומן והגדרות — כל מה שקשור לעסק, במסך «חנות» תחת «פעולות».",
+    "שירותים, תורים, יומן והגדרות — כל מה שקשור לעסק, במסך **חנות**.",
   sellerGuideWelcomeStepLinkTitle: "קישור ללקוחות",
   sellerGuideWelcomeStepLinkBody:
     "מהבית מעתיקים ושולחים את הקישור — כך לקוחות נכנסים לחנות.",
@@ -1733,9 +1746,17 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeTipOrdersTitle: "Orders",
   sellerGuideWelcomeTipOrdersBody:
     "Actions → Store → Orders. Open an order and tap Confirm.",
+  sellerGuideWelcomeHomeOrdersBody:
+    "This is where all your orders will show up, as soon as they come in.",
+  sellerGuideWelcomeHomeNotificationsTitle: "Notifications",
+  sellerGuideWelcomeHomeNotificationsBody:
+    "This is where you'll get notified — new orders and customer messages.",
+  sellerGuideWelcomeSummaryTitle: "Deals, coupons & reviews",
+  sellerGuideWelcomeSummaryBody:
+    "In Store you'll also find deals and coupons.",
   sellerGuideWelcomeTipCustomersTitle: "Customers",
   sellerGuideWelcomeTipCustomersBody:
-    "Inquiries, chat, broadcasts, and FAQ — everything customer-related lives under Actions → Customers.",
+    "Inquiries, chat, broadcasts, and FAQ — everything customer-related lives in **Customers**.",
   sellerGuideWelcomeStepStoreTitle: "Store",
   sellerGuideWelcomeStepStoreBody:
     "Products, orders, deals, and settings — everything for your shop lives under Actions → Store.",

@@ -34,12 +34,14 @@ export function DashboardActionSquare({
   icon,
   label,
   active = false,
+  tourId,
 }: {
   href?: string;
   onClick?: () => void;
   icon: LucideIcon;
   label: string;
   active?: boolean;
+  tourId?: string;
 }) {
   const className = `${tileClassName}${active ? " dashboard-action-square--active" : ""}`;
 
@@ -49,6 +51,7 @@ export function DashboardActionSquare({
         type="button"
         onClick={onClick}
         aria-expanded={active}
+        data-tour-id={tourId}
         className={className}
         {...getDashboardPressProps<HTMLButtonElement>()}
       >
@@ -64,6 +67,7 @@ export function DashboardActionSquare({
   return (
     <Link
       href={href}
+      data-tour-id={tourId}
       className={className}
       {...getDashboardPressProps<HTMLAnchorElement>()}
     >

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { BookOpen, Palette } from "lucide-react";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -23,14 +23,15 @@ export function DashboardStoreStylePicker({
   previewOnly = false,
   embeddedInPanel = false,
   businessType = "STORE",
+  basePath = "/dashboard",
 }: {
   previewOnly?: boolean;
   /** Inside shared «חשבון וחנות» panel in settings. */
   embeddedInPanel?: boolean;
   businessType?: string;
+  basePath?: string;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -89,12 +90,9 @@ export function DashboardStoreStylePicker({
       router.push(`${guidePath}?reset=1`);
       return;
     }
-    const params = new URLSearchParams(
-      typeof window !== "undefined" ? window.location.search : ""
-    );
-    params.set("reset", "1");
-    const query = params.toString();
-    router.push(query ? `${pathname}?${query}` : `${pathname}?reset=1`);
+    // Always replay on the dashboard home screen — the guide highlights real
+    // home/actions elements, so it needs to land where those actually exist.
+    router.push(`${basePath}?reset=1`);
   }
 
   const styleButton = (

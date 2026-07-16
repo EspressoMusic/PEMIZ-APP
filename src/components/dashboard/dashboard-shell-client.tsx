@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { AppointmentStoreWelcomeSetup } from "@/components/dashboard/appointment-store-welcome-setup";
 import { SellerWelcomeGuide } from "@/components/dashboard/seller-welcome-guide";
-import { SellerSpotlightTourProvider } from "@/components/dashboard/seller-spotlight-tour";
 import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
 import { DashboardPlatformMessageBanner } from "@/components/dashboard/dashboard-platform-message-banner";
@@ -158,24 +157,18 @@ export function DashboardShellClient({
       <StoreThemeProvider initialTheme={storeTheme} initialDecoration={storeDecoration}>
         <DashboardUiPreferencesProvider>
           {inSellerApp ? (
-            <SellerSpotlightTourProvider
-              businessId={businessId}
-              businessType={businessType}
-              basePath={basePath}
-            >
-              {tourEnabled ? (
-                <SellerWelcomeGuide
-                  businessId={businessId}
-                  businessType={businessType}
-                  basePath={basePath}
-                  appointmentScheduleConfigured={appointmentScheduleConfigured}
-                >
-                  {shellBody}
-                </SellerWelcomeGuide>
-              ) : (
-                shellBody
-              )}
-            </SellerSpotlightTourProvider>
+            tourEnabled ? (
+              <SellerWelcomeGuide
+                businessId={businessId}
+                businessType={businessType}
+                basePath={basePath}
+                appointmentScheduleConfigured={appointmentScheduleConfigured}
+              >
+                {shellBody}
+              </SellerWelcomeGuide>
+            ) : (
+              shellBody
+            )
           ) : (
             shellBody
           )}
