@@ -8,6 +8,7 @@ import {
   customerThemeClass,
   type StoreThemeId,
 } from "@/lib/store-themes";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 
 /** Modal top bar: centered title, close on the side, optional leading control (back). */
 export function CustomerModalHeaderBar({
@@ -73,6 +74,7 @@ export function CustomerCenterModal({
 }) {
   const themeClass = customerThemeClass(storeTheme);
   const closeLabel = locale === "he" ? "סגור" : "Close";
+  const panelRef = useDialogA11y<HTMLDivElement>(open, onClose);
 
   useEffect(() => {
     if (!open) return;
@@ -99,7 +101,9 @@ export function CustomerCenterModal({
         aria-label={closeLabel}
       />
       <div
-        className={`customer-store-root ${themeClass} customer-center-modal__panel relative flex max-h-[min(88dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] shadow-[0_12px_40px_rgba(58,47,38,0.2)] ${panelClassName}`}
+        ref={panelRef}
+        tabIndex={-1}
+        className={`customer-store-root ${themeClass} customer-center-modal__panel relative flex max-h-[min(88dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] shadow-[0_12px_40px_rgba(58,47,38,0.2)] outline-none ${panelClassName}`}
       >
         {header ??
           (title ? (

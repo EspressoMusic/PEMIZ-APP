@@ -35,6 +35,7 @@ function MarketingSiteContent() {
     { id: "home", label: copy.navHome },
     { id: "product", label: copy.navProduct },
     { id: "pricing", label: copy.navPricing },
+    { id: "faq", label: copy.navFaq },
     { id: "contact", label: copy.navContact },
   ] as const;
   const {
@@ -242,7 +243,7 @@ function MarketingSiteContent() {
             <h1 className="hero-brand" data-reveal="left">
               <Image
                 src="/marketing/wordmark.png"
-                alt="Peymiz"
+                alt={`Peymiz — ${copy.heroTagline}`}
                 width={520}
                 height={120}
                 className="hero-wordmark"
@@ -352,6 +353,46 @@ function MarketingSiteContent() {
                 {copy.getUltimate}
               </Link>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="faq-section" id="faq">
+        <div className="container">
+          <div className="section-head">
+            <span className="section-eyebrow" data-reveal="scale">
+              {copy.eyebrowFaq}
+            </span>
+            <h2 className="section-title center" data-reveal="scale">
+              {copy.faqTitle} <em>{copy.faqTitleEm}</em>
+            </h2>
+          </div>
+          <div className="faq-list">
+            {copy.faq.map((item, i) => (
+              <details
+                key={item.question}
+                className="faq-item"
+                data-reveal="scale"
+                open={i === 0}
+              >
+                <summary className="faq-question">
+                  {item.question}
+                  <svg
+                    className="faq-chevron"
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </summary>
+                <p className="faq-answer">{item.answer}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>

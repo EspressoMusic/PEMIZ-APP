@@ -30,7 +30,7 @@ export function Toggle({
         isAuth
           ? "auth-toggle"
           : enabled
-            ? "border-[3px] border-bakery-primary bg-bakery-primary shadow-[0_2px_8px_rgba(93,64,55,0.35)]"
+            ? "border-[3px] border-bakery-primary bg-bakery-primary shadow-[0_2px_8px_rgba(109,76,65,0.35)]"
             : "border-[3px] border-bakery-primary bg-bakery-input shadow-[inset_0_1px_2px_rgba(78,52,46,0.08)]"
       } ${className}`}
       dir="ltr"

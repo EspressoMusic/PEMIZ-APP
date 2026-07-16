@@ -110,6 +110,19 @@ export default async function PublicBusinessPage({
       }
     : null;
 
+  const faqJsonLd =
+    !unavailable && business.faqItems.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: business.faqItems.map((f) => ({
+            "@type": "Question",
+            name: f.question,
+            acceptedAnswer: { "@type": "Answer", text: f.answer },
+          })),
+        }
+      : null;
+
   return (
     <div className="bakery-frame-bg h-dvh overflow-hidden">
       {localBusinessJsonLd && (
@@ -117,6 +130,14 @@ export default async function PublicBusinessPage({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(localBusinessJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+      )}
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c"),
           }}
         />
       )}

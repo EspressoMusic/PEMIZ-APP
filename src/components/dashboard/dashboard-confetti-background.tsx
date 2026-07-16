@@ -24,7 +24,7 @@ export function DashboardConfettiBackground({ active }: { active: boolean }) {
 
   const pieces = useMemo<Piece[]>(() => {
     if (!mounted || !active || reducedMotion) return [];
-    const colors = ["#e6d4b8", "#5c4a3e", "#c9b89a", "#43a047", "#7eb8ff", "#f4f0e8"];
+    const colors = ["#e6d4b8", "#6d4c41", "#c9b89a", "#43a047", "#7eb8ff", "#f4f0e8"];
     return Array.from({ length: 24 }, (_, id) => ({
       id,
       left: Math.random() * 100,

@@ -15,7 +15,6 @@ export function DashboardShell({
   platformOwnerMessage = null,
   platformOwnerMessageAt = null,
   platformOwnerMessageReadAt = null,
-  storePanelsVisible = null,
 }: {
   children: ReactNode;
   businessType: string;
@@ -30,7 +29,6 @@ export function DashboardShell({
   platformOwnerMessage?: string | null;
   platformOwnerMessageAt?: string | null;
   platformOwnerMessageReadAt?: string | null;
-  storePanelsVisible?: string | null;
 }) {
   return (
     <DashboardShellClient
@@ -46,7 +44,6 @@ export function DashboardShell({
       platformOwnerMessage={platformOwnerMessage}
       platformOwnerMessageAt={platformOwnerMessageAt}
       platformOwnerMessageReadAt={platformOwnerMessageReadAt}
-      storePanelsVisible={storePanelsVisible}
     >
       {children}
     </DashboardShellClient>

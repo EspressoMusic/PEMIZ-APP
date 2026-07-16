@@ -9,16 +9,8 @@ import {
 } from "@/lib/subscription-plans";
 
 function featureLabel(labels: DashboardLabels, key: string): string {
-  switch (key) {
-    case "subscriptionPremiumFeature1":
-      return labels.subscriptionPremiumFeature1;
-    case "subscriptionPremiumFeature2":
-      return labels.subscriptionPremiumFeature2;
-    case "subscriptionPremiumFeature3":
-      return labels.subscriptionPremiumFeature3;
-    default:
-      return "";
-  }
+  const value = (labels as unknown as Record<string, string>)[key];
+  return typeof value === "string" ? value : "";
 }
 
 export function DashboardSubscriptionPlanPicker({

@@ -162,7 +162,9 @@ function DashboardDayAppointmentsModal({
               </h3>
               {bookableSlots.length === 0 ? (
                 <p className="rounded-[16px] border border-bakery-border/30 bg-bakery-card/70 px-4 py-4 text-center text-[14px] font-semibold text-bakery-muted">
-                  {labels.homeCalendarNoSlotsDay}
+                  {sortedSlots.length > 0
+                    ? labels.homeCalendarFullDayHint
+                    : labels.homeCalendarNoSlotsDay}
                 </p>
               ) : (
                 <ul className="space-y-2">

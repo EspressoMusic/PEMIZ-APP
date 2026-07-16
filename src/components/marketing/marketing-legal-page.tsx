@@ -8,5 +8,5 @@ export function MarketingLegalPage({
   documentId: PlatformLegalDocId;
 }) {
   const doc = loadPlatformLegalDocument(documentId);
-  return <MarketingLegalShell markdown={doc.markdown} />;
+  return <MarketingLegalShell markdown={doc.markdown} lang={doc.lang} />;
 }

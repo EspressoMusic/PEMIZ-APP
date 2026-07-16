@@ -343,13 +343,13 @@ export function CustomerContactModal({
     return (
       <div className="px-4 py-4">
         {hasPendingInquiry ? (
-          <Panel className="rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square px-4 py-4 text-center">
+          <Panel className="rounded-[18px] border-[3px] border-[#6D4C41]/22 bg-bakery-square px-4 py-4 text-center">
             <p className="text-[15px] font-semibold leading-relaxed text-bakery-ink">
               {labels.inquiryPendingBlocked}
             </p>
           </Panel>
         ) : (
-          <Panel className="rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square">
+          <Panel className="rounded-[18px] border-[3px] border-[#6D4C41]/22 bg-bakery-square">
             <form onSubmit={onSubmitInquiry} className="space-y-3">
               {inquirySubmitError ? (
                 <p
@@ -522,6 +522,7 @@ export function CustomerContactModal({
             value={chatDraft}
             onChange={(e) => setChatDraft(e.target.value)}
             placeholder={labels.chatPlaceholder}
+            aria-label={labels.chatPlaceholder}
             disabled={chatSending || chatVerifyRequired}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {

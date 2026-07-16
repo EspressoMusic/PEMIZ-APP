@@ -27,7 +27,9 @@ export function DashboardTrialPaywall({
       </PageTitle>
 
       <div className="mb-4">
-        <Alert variant="error">{labels.trialExpiredTitle}</Alert>
+        <Alert variant="error" className="text-center">
+          {labels.trialExpiredTitle}
+        </Alert>
       </div>
 
       <p className="mb-4 text-center text-[13px] font-semibold text-bakery-muted">

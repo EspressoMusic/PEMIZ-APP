@@ -41,12 +41,16 @@ export function SellerNotifyPrompt({
 
     let cancelled = false;
 
+    function isGuideDone() {
+      return (
+        !waitForGuide ||
+        localStorage.getItem(`${GUIDE_STORAGE_PREFIX}${businessId}`) === "1"
+      );
+    }
+
     async function check() {
       if (checkedRef.current) return;
-      const guideDone =
-        !waitForGuide ||
-        localStorage.getItem(`${GUIDE_STORAGE_PREFIX}${businessId}`) === "1";
-      if (!guideDone) return;
+      if (!isGuideDone()) return;
       checkedRef.current = true;
 
       try {
@@ -62,6 +66,12 @@ export function SellerNotifyPrompt({
         }
       } catch {
         // network hiccup — still ask, the seller can dismiss if not interested
+      }
+      // Re-check: the guide may have been replayed while this request was in
+      // flight — don't surface the prompt on top of a freshly-restarted tour.
+      if (!isGuideDone()) {
+        checkedRef.current = false;
+        return;
       }
       if (!cancelled) setOpen(true);
     }

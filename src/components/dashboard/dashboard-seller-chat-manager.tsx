@@ -301,6 +301,7 @@ export function DashboardSellerChatManager({
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder={labels.chatPlaceholder}
+                  aria-label={labels.chatPlaceholder}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();

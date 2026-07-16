@@ -101,7 +101,7 @@ export function isPushSupported(): boolean {
 }
 
 export type PushEnableOutcome =
-  | { status: "subscribed" }
+  | { status: "subscribed"; endpoint: string }
   | { status: "denied" }
   | { status: "unconfigured" }
   | { status: "unsupported" }
@@ -153,7 +153,7 @@ export async function requestAndSubscribePush(
       };
     }
 
-    return { status: "subscribed" };
+    return { status: "subscribed", endpoint: json.endpoint };
   } catch (error) {
     return { status: "error", error };
   }

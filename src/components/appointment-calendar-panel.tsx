@@ -169,7 +169,7 @@ export function AppointmentCalendarPanel({
         className={`flex w-full flex-col ${
           isModern
             ? "appointment-calendar-modern-surface min-h-0 flex-1"
-            : `rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.1)] ${homeCompact ? "min-h-0 flex-1" : "min-h-0 flex-1"}`
+            : `rounded-[18px] border-[3px] border-[#6D4C41]/22 bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.1)] ${homeCompact ? "min-h-0 flex-1" : "min-h-0 flex-1"}`
         }${panelClassName ? ` ${panelClassName}` : ""}`}
       >
         <div

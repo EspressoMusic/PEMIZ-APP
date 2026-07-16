@@ -86,6 +86,13 @@ export type DashboardLabels = {
   subscriptionPremiumFeature1: string;
   subscriptionPremiumFeature2: string;
   subscriptionPremiumFeature3: string;
+  subscriptionPremiumFeature4: string;
+  subscriptionPremiumFeature5: string;
+  subscriptionPremiumFeature6: string;
+  subscriptionPremiumFeature7: string;
+  subscriptionPremiumFeature8: string;
+  subscriptionPremiumFeature9: string;
+  subscriptionPremiumFeature10: string;
   subscriptionUltimateFeature1: string;
   subscriptionUltimateFeature2: string;
   subscriptionUltimateFeature3: string;
@@ -486,15 +493,8 @@ export type DashboardLabels = {
   sellerGuideWelcomeStepSettingsBody: string;
   sellerGuideWelcomeStepPanelsTitle: string;
   sellerGuideWelcomeStepPanelsBody: string;
-  sellerGuideWelcomeTipCouponsTitle: string;
-  sellerGuideWelcomeTipCouponsBody: string;
-  sellerGuideWelcomeTipBroadcastTitle: string;
-  sellerGuideWelcomeTipBroadcastBody: string;
-  sellerGuideWelcomeTipInquiriesTitle: string;
-  sellerGuideWelcomeTipInquiriesBody: string;
-  sellerGuideWelcomeTipFaqTitle: string;
-  sellerGuideWelcomeTipFaqBody: string;
-  sellerGuideContinueDeepDive: string;
+  sellerGuideWelcomeTipOrderConfirmationTitle: string;
+  sellerGuideWelcomeTipOrderConfirmationBody: string;
   sellerGuideReplayTitle: string;
   sellerGuideReplayBody: string;
   sellerGuideReplayAction: string;
@@ -1124,23 +1124,13 @@ const HE: DashboardLabels = {
   sellerGuideChecklistFaqSublabel: "שאלות ותשובות שלקוחות יראו בחנות",
   sellerGuideWelcomeStepSettingsTitle: "הגדרות",
   sellerGuideWelcomeStepSettingsBody:
-    "כאן תמצא את כל הגדרות החשבון והחנות שלך — מנוי, עיצוב, מדיניות ביטולים ועוד.",
+    "כאן תמצא את כל הגדרות החשבון והחנות שלך — מנוי, עיצוב ועוד.",
   sellerGuideWelcomeStepPanelsTitle: "עיצוב מסך החנות",
   sellerGuideWelcomeStepPanelsBody:
     "כאן תוכל להסיר ולהוסיף פאנלים מהחנות שלך — כמו דילים, ביקורות וקופונים.",
-  sellerGuideWelcomeTipCouponsTitle: "קופונים",
-  sellerGuideWelcomeTipCouponsBody:
-    "פעולות → חנות → דילים והגבלות → קופונים → הוסף.",
-  sellerGuideWelcomeTipBroadcastTitle: "הודעה ללקוחות",
-  sellerGuideWelcomeTipBroadcastBody:
-    "פעולות → לקוחות → הודעה ללקוחות. כותבים ושולחים לכל הרשימה.",
-  sellerGuideWelcomeTipInquiriesTitle: "פניות לקוחות",
-  sellerGuideWelcomeTipInquiriesBody:
-    "פעולות → לקוחות → פניות. כאן עונים לשאלות שהתקבלו מלקוחות.",
-  sellerGuideWelcomeTipFaqTitle: "שאלות נפוצות",
-  sellerGuideWelcomeTipFaqBody:
-    "פעולות → לקוחות → שאלות נפוצות. מוסיפים שאלות ותשובות שהלקוחות יראו בחנות.",
-  sellerGuideContinueDeepDive: "המשך למדריך המקיף",
+  sellerGuideWelcomeTipOrderConfirmationTitle: "אישור הזמנה",
+  sellerGuideWelcomeTipOrderConfirmationBody:
+    "פעולות → הגדרות → חשבון → שונות → אישור הזמנה. קובעים אם הזמנות חדשות ממתינות לאישורך או נכנסות אוטומטית.",
   sellerGuideReplayTitle: "מדריך התחלה",
   sellerGuideReplayBody: "רוצה לעבור שוב על השלבים הראשונים בלינקי?",
   sellerGuideReplayAction: "הפעל מדריך שוב",
@@ -1392,9 +1382,16 @@ const HE: DashboardLabels = {
   subscriptionContactUs: "צור קשר",
   subscriptionComingSoon: "תשלום מנוי יתווסף בהמשך — החנות נשארת פעילה בינתיים",
   subscriptionPreviewOnly: "בתצוגת דמו — בחירת חבילה ללא תשלום",
-  subscriptionPremiumFeature1: "עד 500 הזמנות בחודש",
-  subscriptionPremiumFeature2: "חנות מלאה, דשבורד ולקוחות",
-  subscriptionPremiumFeature3: "התראות וסטטיסטיקות",
+  subscriptionPremiumFeature1: "עד 1,000 הזמנות בחודש",
+  subscriptionPremiumFeature2: "חנות דיגיטלית מלאה למוצרים ותורים",
+  subscriptionPremiumFeature3: "ניהול מבצעים, הנחות וקודי קופון",
+  subscriptionPremiumFeature4: "קביעת תורים ולוח זמנים ללקוחות",
+  subscriptionPremiumFeature5: "שאלות ותשובות (FAQ) בעמוד החנות",
+  subscriptionPremiumFeature6: "צ'אט ומענה לפניות לקוחות",
+  subscriptionPremiumFeature7: "שליחת הודעות שידור לכל הלקוחות",
+  subscriptionPremiumFeature8: "ביקורות ודירוגים מלקוחות",
+  subscriptionPremiumFeature9: "התראות בזמן אמת על הזמנות, פניות ומלאי",
+  subscriptionPremiumFeature10: "דשבורד ניהול וסטטיסטיקות מכירות",
   subscriptionUltimateFeature1: "עד 1,000 הזמנות בחודש",
   subscriptionUltimateFeature2: "כל מה שבחבילה הרגילה",
   subscriptionUltimateFeature3: "תמיכה מועדפת",
@@ -1893,23 +1890,13 @@ const EN: DashboardLabels = {
   sellerGuideChecklistFaqSublabel: "Questions and answers customers will see in your store",
   sellerGuideWelcomeStepSettingsTitle: "Settings",
   sellerGuideWelcomeStepSettingsBody:
-    "Find all your account and store settings here — subscription, styling, cancellation policy and more.",
+    "Find all your account and store settings here — subscription, styling and more.",
   sellerGuideWelcomeStepPanelsTitle: "Store layout",
   sellerGuideWelcomeStepPanelsBody:
     "Add or remove panels from your store here — like deals, reviews and coupons.",
-  sellerGuideWelcomeTipCouponsTitle: "Coupons",
-  sellerGuideWelcomeTipCouponsBody:
-    "Actions → Store → Deals & limits → Coupons → Add.",
-  sellerGuideWelcomeTipBroadcastTitle: "Message to customers",
-  sellerGuideWelcomeTipBroadcastBody:
-    "Actions → Customers → Message to customers. Write and send to your whole list.",
-  sellerGuideWelcomeTipInquiriesTitle: "Customer inquiries",
-  sellerGuideWelcomeTipInquiriesBody:
-    "Actions → Customers → Inquiries. Answer questions customers send you.",
-  sellerGuideWelcomeTipFaqTitle: "FAQ",
-  sellerGuideWelcomeTipFaqBody:
-    "Actions → Customers → FAQ. Add questions and answers customers will see in your store.",
-  sellerGuideContinueDeepDive: "Continue to the full guide",
+  sellerGuideWelcomeTipOrderConfirmationTitle: "Order confirmation",
+  sellerGuideWelcomeTipOrderConfirmationBody:
+    "Actions → Settings → Account → Misc → Order confirmation. Choose whether new orders wait for your approval or go through automatically.",
   sellerGuideReplayTitle: "Getting started guide",
   sellerGuideReplayBody: "Want to walk through the first steps in Linky again?",
   sellerGuideReplayAction: "Show guide again",
@@ -2160,9 +2147,16 @@ const EN: DashboardLabels = {
   subscriptionContactUs: "Contact us",
   subscriptionComingSoon: "Subscription checkout coming later — your store stays active for now",
   subscriptionPreviewOnly: "Preview mode — plan selection without payment",
-  subscriptionPremiumFeature1: "Up to 500 orders per month",
-  subscriptionPremiumFeature2: "Full store, dashboard & customers",
-  subscriptionPremiumFeature3: "Alerts & analytics",
+  subscriptionPremiumFeature1: "Up to 1,000 orders per month",
+  subscriptionPremiumFeature2: "Full digital store for products & appointments",
+  subscriptionPremiumFeature3: "Deals, discounts & coupon codes",
+  subscriptionPremiumFeature4: "Appointment scheduling & calendar",
+  subscriptionPremiumFeature5: "Customer-facing FAQ page",
+  subscriptionPremiumFeature6: "Customer chat & inquiry replies",
+  subscriptionPremiumFeature7: "Broadcast messages to all customers",
+  subscriptionPremiumFeature8: "Customer reviews & ratings",
+  subscriptionPremiumFeature9: "Real-time alerts on orders, inquiries & stock",
+  subscriptionPremiumFeature10: "Management dashboard & sales stats",
   subscriptionUltimateFeature1: "Up to 1,000 orders per month",
   subscriptionUltimateFeature2: "Everything in Standard",
   subscriptionUltimateFeature3: "Priority support",

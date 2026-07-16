@@ -392,7 +392,7 @@ const ProductCard = memo(function ProductCard({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={cover}
-            alt=""
+            alt={p.name}
             className="h-full w-full object-cover"
             loading="lazy"
             decoding="async"

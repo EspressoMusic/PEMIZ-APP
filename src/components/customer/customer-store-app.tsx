@@ -2022,6 +2022,12 @@ export function CustomerStoreApp({
                   onClick={() => setInstallAppOpen(true)}
                 />
               ) : null}
+              <SettingsMenuRow
+                icon={ShieldPlus}
+                title={labels.legal}
+                subtitle={labels.legalSub}
+                onClick={() => setLegalOpen(true)}
+              />
             </div>
           </div>
         );

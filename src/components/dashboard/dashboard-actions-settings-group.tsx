@@ -34,6 +34,7 @@ export function DashboardActionsSettingsGroup({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="dashboard-settings-items"
+        data-tour-id="tour-settings-row"
         className={`${DASHBOARD_ACTION_ROW_CLASS}${
           open ? " bakery-float-tile--active" : ""
         }`}

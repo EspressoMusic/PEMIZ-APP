@@ -21,7 +21,7 @@ export function HomeLandingPricing() {
       <section className="app-safe-x px-4 py-6 sm:py-8">
         <div className="mx-auto max-w-lg rounded-[24px] border-[1.2px] border-bakery-border/45 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-5 shadow-[var(--shadow-bakery-panel)] sm:p-6">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[18px] border-[3px] border-[#5C4A3E]/18 bg-bakery-card px-4 py-5 text-center">
+            <div className="rounded-[18px] border-[3px] border-[#6D4C41]/18 bg-bakery-card px-4 py-5 text-center">
               <p className="text-[16px] font-extrabold text-bakery-ink">Premium</p>
               <p className="mt-2 text-[32px] font-extrabold tabular-nums text-bakery-primary">
                 $49

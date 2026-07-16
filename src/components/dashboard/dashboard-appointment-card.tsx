@@ -25,7 +25,7 @@ import {
 } from "@/lib/seller-appointment-booking";
 
 export const DASHBOARD_DAY_PANEL_HALO =
-  "shadow-[0_0_0_6px_rgba(92,74,62,0.12),0_6px_20px_rgba(58,47,38,0.15)]";
+  "shadow-[0_0_0_6px_rgba(109,76,65,0.12),0_6px_20px_rgba(58,47,38,0.15)]";
 
 export const DASHBOARD_NEXT_APPOINTMENT_FRAME =
   "!border-[3px] !border-[#b85c5c] shadow-[0_0_0_5px_rgba(184,92,92,0.18),0_6px_18px_rgba(184,92,92,0.14)]";

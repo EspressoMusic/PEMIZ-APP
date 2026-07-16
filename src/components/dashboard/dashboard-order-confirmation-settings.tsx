@@ -75,6 +75,7 @@ export function DashboardOrderConfirmationSettings({
 
   const row = (
     <div
+      data-tour-id="tour-order-confirmation"
       className={`${DASHBOARD_ACTION_ROW_CLASS} justify-between ${
         saving ? "opacity-45" : ""
       }`}

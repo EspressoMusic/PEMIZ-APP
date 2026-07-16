@@ -10,6 +10,7 @@ const PUBLIC_NAV = [
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
   { href: "/refund", label: "Refund" },
+  { href: "/accessibility", label: "Accessibility" },
 ] as const;
 
 export function MarketingPublicHeader() {

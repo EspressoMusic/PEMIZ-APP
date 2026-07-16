@@ -29,10 +29,6 @@ import {
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
-import {
-  storePanelsFromBusiness,
-  type StorePanelsVisible,
-} from "@/lib/store-panels-visible";
 
 const STORAGE_PREFIX = "linky_seller_guide_done:";
 
@@ -62,7 +58,7 @@ type GuideStep = {
   avoidSelector?: string;
 };
 
-function buildBasicSteps(
+function buildSteps(
   basePath: string,
   isAppointments: boolean,
   labels: DashboardLabels
@@ -179,123 +175,19 @@ function buildBasicSteps(
       title: labels.sellerGuideWelcomeStepSettingsTitle,
       body: labels.sellerGuideWelcomeStepSettingsBody,
     },
+    ...(isAppointments
+      ? []
+      : [
+          {
+            id: "order-confirmation",
+            displayStep: 6,
+            route: `${basePath}/settings/misc`,
+            targetSelector: '[data-tour-id="tour-order-confirmation"]',
+            title: labels.sellerGuideWelcomeTipOrderConfirmationTitle,
+            body: labels.sellerGuideWelcomeTipOrderConfirmationBody,
+          },
+        ]),
   ];
-}
-
-/** Second, opt-in phase covering every individual feature — each step is a real
- * dashboard route + `data-tour-id`, so it reuses the exact same route-push
- * navigation as the basic tour above (no sheet-opening needed). */
-function buildDeepDiveSteps(
-  basePath: string,
-  isAppointments: boolean,
-  labels: DashboardLabels,
-  panels: StorePanelsVisible
-): GuideStep[] {
-  const head: Omit<GuideStep, "displayStep">[] = isAppointments
-    ? [
-        {
-          id: "deep-services",
-          route: `${basePath}/products`,
-          targetSelector: '[data-tour-id="tour-add-product"]',
-          title: labels.sellerGuideWelcomeTipAddServiceTitle,
-          body: labels.sellerGuideWelcomeTipAddServiceBody,
-        },
-        {
-          id: "deep-appointments",
-          route: `${basePath}/appointments`,
-          targetSelector: '[data-tour-id="tour-appointments"]',
-          title: labels.sellerGuideWelcomeTipBookedAppointmentsTitle,
-          body: labels.sellerGuideWelcomeTipBookedAppointmentsBody,
-        },
-        {
-          id: "deep-calendar",
-          route: `${basePath}/settings/slots`,
-          targetSelector: '[data-tour-id="tour-appointment-calendar"]',
-          title: labels.sellerGuideWelcomeTipDurationGapTitle,
-          body: labels.sellerGuideWelcomeTipDurationGapBody,
-        },
-      ]
-    : [
-        {
-          id: "deep-products",
-          route: `${basePath}/products`,
-          targetSelector: '[data-tour-id="tour-add-product"]',
-          title: labels.sellerGuideWelcomeTipAddProductTitle,
-          body: labels.sellerGuideWelcomeTipAddProductBody,
-        },
-        {
-          id: "deep-orders",
-          route: `${basePath}/settings/orders`,
-          targetSelector: '[data-tour-id="tour-orders"]',
-          title: labels.sellerGuideWelcomeTipOrdersTitle,
-          body: labels.sellerGuideWelcomeTipOrdersBody,
-        },
-        ...(panels.sellerDeals
-          ? [
-              {
-                id: "deep-deals",
-                route: `${basePath}/settings/deals-and-limits`,
-                targetSelector: '[data-tour-id="tour-add-deal"]',
-                title: labels.sellerGuideWelcomeTipDealsTitle,
-                body: labels.sellerGuideWelcomeTipDealsBody,
-              },
-            ]
-          : []),
-        ...(panels.sellerCoupons
-          ? [
-              {
-                id: "deep-coupons",
-                route: `${basePath}/settings/deals-and-limits`,
-                targetSelector: '[data-tour-id="tour-add-coupon"]',
-                title: labels.sellerGuideWelcomeTipCouponsTitle,
-                body: labels.sellerGuideWelcomeTipCouponsBody,
-              },
-            ]
-          : []),
-        {
-          id: "deep-order-hours",
-          route: `${basePath}/settings/limits`,
-          targetSelector: '[data-tour-id="tour-order-hours"]',
-          title: labels.sellerGuideWelcomeTipLimitsTitle,
-          body: labels.sellerGuideWelcomeTipLimitsBody,
-        },
-      ];
-
-  const tail: Omit<GuideStep, "displayStep">[] = [
-    {
-      id: "deep-broadcast",
-      route: `${basePath}/customers/broadcast`,
-      targetSelector: '[data-tour-id="tour-broadcast"]',
-      title: labels.sellerGuideWelcomeTipBroadcastTitle,
-      body: labels.sellerGuideWelcomeTipBroadcastBody,
-    },
-    {
-      id: "deep-inquiries",
-      route: `${basePath}/customers/inquiries`,
-      targetSelector: '[data-tour-id="tour-inquiries"]',
-      title: labels.sellerGuideWelcomeTipInquiriesTitle,
-      body: labels.sellerGuideWelcomeTipInquiriesBody,
-    },
-    {
-      id: "deep-faq",
-      route: `${basePath}/faq`,
-      targetSelector: '[data-tour-id="tour-faq"]',
-      title: labels.sellerGuideWelcomeTipFaqTitle,
-      body: labels.sellerGuideWelcomeTipFaqBody,
-    },
-    {
-      id: "deep-store-layout",
-      route: `${basePath}/settings/account`,
-      targetSelector: '[data-tour-id="tour-store-panels"]',
-      title: labels.sellerGuideWelcomeStepPanelsTitle,
-      body: labels.sellerGuideWelcomeStepPanelsBody,
-    },
-  ];
-
-  return [...head, ...tail].map((step, index) => ({
-    ...step,
-    displayStep: index + 1,
-  }));
 }
 
 /** Renders `**word**` segments in guide copy as bold text instead of a literal marker. */
@@ -371,7 +263,7 @@ function GuideChecklist({ items }: { items: GuideListItem[] }) {
       {items.map(({ icon: Icon, label, sublabel }, index) => (
         <div
           key={label}
-          className="flex items-center justify-between gap-3 rounded-[14px] border border-bakery-border/30 bg-white/40 px-3 py-2"
+          className="flex items-center justify-between gap-3 rounded-[14px] border-2 border-black/20 bg-white/40 px-3 py-2"
         >
           <span className="flex min-w-0 items-center gap-2">
             <Icon
@@ -406,21 +298,15 @@ function GuideSpotlight({
   step,
   totalDisplaySteps,
   isLast,
-  isBasicFinale = false,
   onNext,
   onSkip,
-  onContinueDeepDive,
   labels,
 }: {
   step: GuideStep;
   totalDisplaySteps: number;
   isLast: boolean;
-  /** Last step of the basic tour, with a deep-dive continuation on offer — swaps the
-   * footer for a "continue to the full guide" choice instead of the usual Next/Finish. */
-  isBasicFinale?: boolean;
   onNext: () => void;
   onSkip: () => void;
-  onContinueDeepDive?: () => void;
   labels: DashboardLabels;
 }) {
   const [mounted, setMounted] = useState(false);
@@ -529,41 +415,22 @@ function GuideSpotlight({
           {renderEmphasized(step.body)}
         </p>
         {step.listItems ? <GuideChecklist items={step.listItems} /> : null}
-        {isBasicFinale ? (
-          <div className="mt-3 flex flex-col items-stretch gap-2">
-            <button
-              type="button"
-              onClick={onContinueDeepDive}
-              className="bakery-cta-3d bakery-cta-3d--primary !w-full min-h-[34px] rounded-full !px-3 !py-1.5 text-[13px] font-extrabold !shadow-none"
-            >
-              {labels.sellerGuideContinueDeepDive}
-            </button>
-            <button
-              type="button"
-              onClick={onSkip}
-              className="text-[13px] font-bold text-bakery-muted transition hover:text-bakery-ink"
-            >
-              {labels.sellerGuideFinish}
-            </button>
-          </div>
-        ) : (
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <button
-              type="button"
-              onClick={onSkip}
-              className="text-[13px] font-bold text-bakery-muted transition hover:text-bakery-ink"
-            >
-              {labels.sellerGuideSkip}
-            </button>
-            <button
-              type="button"
-              onClick={onNext}
-              className="bakery-cta-3d bakery-cta-3d--primary !w-auto min-h-[30px] rounded-full !px-3 !py-1.5 text-[12px] font-extrabold !shadow-none"
-            >
-              {isLast ? labels.sellerGuideFinish : labels.sellerGuideNext}
-            </button>
-          </div>
-        )}
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={onSkip}
+            className="text-[13px] font-bold text-bakery-muted transition hover:text-bakery-ink"
+          >
+            {labels.sellerGuideSkip}
+          </button>
+          <button
+            type="button"
+            onClick={onNext}
+            className="bakery-cta-3d bakery-cta-3d--primary !w-auto min-h-[30px] rounded-full !px-3 !py-1.5 text-[12px] font-extrabold !shadow-none"
+          >
+            {isLast ? labels.sellerGuideFinish : labels.sellerGuideNext}
+          </button>
+        </div>
       </div>
     </div>,
     document.body
@@ -576,7 +443,6 @@ function SellerWelcomeGuideInner({
   basePath = "/dashboard",
   forceStart = false,
   appointmentScheduleConfigured = true,
-  storePanelsVisible = null,
   children,
 }: {
   businessId: string;
@@ -584,7 +450,6 @@ function SellerWelcomeGuideInner({
   basePath?: string;
   forceStart?: boolean;
   appointmentScheduleConfigured?: boolean;
-  storePanelsVisible?: string | null;
   children?: ReactNode;
 }) {
   const router = useRouter();
@@ -595,53 +460,32 @@ function SellerWelcomeGuideInner({
   const resetRequested = searchParams.get("reset") === "1";
   const isAppointments = isScheduleLikeBusinessType(businessType);
   const [stepIndex, setStepIndex] = useState<number | null>(null);
-  const [phase, setPhase] = useState<"basic" | "deep">("basic");
-  // The deep-dive continuation navigates to real /dashboard routes (products,
-  // settings/orders, etc.) that don't exist under the /dev/guide preview sandbox.
-  const supportsDeepDive = basePath === "/dashboard";
 
-  const panels = useMemo(
-    () => storePanelsFromBusiness({ storePanelsVisible }),
-    [storePanelsVisible]
-  );
-
-  const basicSteps = useMemo(
-    () => buildBasicSteps(basePath, isAppointments, labels),
+  const steps = useMemo(
+    () => buildSteps(basePath, isAppointments, labels),
     [basePath, isAppointments, labels]
   );
-  const deepSteps = useMemo(
-    () => buildDeepDiveSteps(basePath, isAppointments, labels, panels),
-    [basePath, isAppointments, labels, panels]
-  );
-  const activeSteps = phase === "basic" ? basicSteps : deepSteps;
-  const totalDisplaySteps = activeSteps[activeSteps.length - 1]?.displayStep ?? 1;
+  const totalDisplaySteps = steps[steps.length - 1]?.displayStep ?? 1;
 
   const finish = useCallback(() => {
     localStorage.setItem(storageKey(businessId), "1");
     setStepIndex(null);
-    setPhase("basic");
     if (welcome) {
       router.replace(basePath);
     }
   }, [businessId, welcome, basePath, router]);
 
-  const continueDeepDive = useCallback(() => {
-    setPhase("deep");
-    setStepIndex(0);
-  }, []);
-
   const next = useCallback(() => {
     setStepIndex((current) => {
       if (current == null) return current;
       const nextIndex = current + 1;
-      const stepsNow = phase === "basic" ? basicSteps : deepSteps;
-      if (nextIndex >= stepsNow.length) {
+      if (nextIndex >= steps.length) {
         finish();
         return null;
       }
       return nextIndex;
     });
-  }, [phase, basicSteps, deepSteps, finish]);
+  }, [steps.length, finish]);
 
   // Decide whether to (re)start the tour. Guarded by `stepIndex != null` so this
   // never fires while the tour's own step-navigation is changing the route/query.
@@ -657,7 +501,6 @@ function SellerWelcomeGuideInner({
 
     if (resetRequested) {
       localStorage.removeItem(storageKey(businessId));
-      setPhase("basic");
       setStepIndex(0);
       router.replace(pathname);
       return;
@@ -702,7 +545,7 @@ function SellerWelcomeGuideInner({
   // only then do we push the route to reveal it.
   useEffect(() => {
     if (stepIndex == null) return;
-    const step = activeSteps[stepIndex];
+    const step = steps[stepIndex];
     if (!step || pathname === step.route) return;
 
     if (!step.targetSelector) {
@@ -727,28 +570,21 @@ function SellerWelcomeGuideInner({
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [stepIndex, activeSteps, pathname, router]);
+  }, [stepIndex, steps, pathname, router]);
 
-  const activeStep = stepIndex != null ? activeSteps[stepIndex] : null;
-  const isBasicFinale =
-    phase === "basic" &&
-    stepIndex === basicSteps.length - 1 &&
-    supportsDeepDive &&
-    deepSteps.length > 0;
+  const activeStep = stepIndex != null ? steps[stepIndex] : null;
 
   return (
     <>
       {children}
       {activeStep ? (
         <GuideSpotlight
-          key={`${phase}-${activeStep.id}`}
+          key={activeStep.id}
           step={activeStep}
           totalDisplaySteps={totalDisplaySteps}
-          isLast={stepIndex === activeSteps.length - 1}
-          isBasicFinale={isBasicFinale}
+          isLast={stepIndex === steps.length - 1}
           onNext={next}
           onSkip={finish}
-          onContinueDeepDive={continueDeepDive}
           labels={labels}
         />
       ) : null}
@@ -762,7 +598,6 @@ export function SellerWelcomeGuide({
   basePath = "/dashboard",
   forceStart = false,
   appointmentScheduleConfigured = true,
-  storePanelsVisible = null,
   children,
 }: {
   businessId: string;
@@ -770,7 +605,6 @@ export function SellerWelcomeGuide({
   basePath?: string;
   forceStart?: boolean;
   appointmentScheduleConfigured?: boolean;
-  storePanelsVisible?: string | null;
   children?: ReactNode;
 }) {
   return (
@@ -781,7 +615,6 @@ export function SellerWelcomeGuide({
         basePath={basePath}
         forceStart={forceStart}
         appointmentScheduleConfigured={appointmentScheduleConfigured}
-        storePanelsVisible={storePanelsVisible}
       >
         {children}
       </SellerWelcomeGuideInner>

@@ -76,7 +76,15 @@ As a business user, you are solely responsible for:
 
 You agree that Peymiz acts only as a technology provider and does not control or endorse your business activities.
 
-## 7. Products, Services, and Defects — No Peymiz Liability
+## 7. Accessibility
+
+Peymiz aims for the platform's own templates, dashboard, and navigation to align with WCAG 2.1 Level AA and Israeli Standard 5568 where applicable, and publishes an accessibility statement at **peymiz.com/accessibility**.
+
+The accessibility of your storefront also depends on content you add yourself — for example, alt text for product images, readable product descriptions, captions or transcripts for video, and accessible file formats for documents you upload. You are solely responsible for the accessibility of content you upload or publish, in the same way you are responsible for that content generally under Section 6.
+
+To the maximum extent permitted by law, Peymiz is not liable for accessibility claims arising from content added by a business through the Platform; such claims are the business's responsibility. This does not limit Peymiz's own responsibility for the accessibility of the platform features and templates it provides.
+
+## 8. Products, Services, and Defects — No Peymiz Liability
 
 Peymiz does not manufacture, inspect, test, package, ship, prepare, or sell any product or service listed by a business on the Platform. We have no involvement in and no control over the quality, safety, legality, accuracy, or fitness of any product or service a business offers.
 
@@ -89,7 +97,7 @@ Each business is exclusively responsible for:
 
 To the maximum extent permitted by law, Peymiz is **not liable for any claim, damage, or loss arising from a defective, unsafe, counterfeit, contaminated, or non-compliant product or service sold by a business** through the Platform. Customers with a complaint about a product or service must contact the business directly, not Peymiz.
 
-## 8. Prohibited Use
+## 9. Prohibited Use
 
 You may not use the Service to:
 
@@ -103,7 +111,7 @@ You may not use the Service to:
 
 We may investigate violations and take action including suspension or termination.
 
-## 9. Payment and Subscription Terms
+## 10. Payment and Subscription Terms
 
 Paid subscriptions are billed in advance on a recurring basis (e.g., monthly) until cancelled. By subscribing, you authorize us (or our payment provider) to charge your payment method for applicable fees and taxes.
 
@@ -116,23 +124,23 @@ Subscriptions may be billed through a third-party payment processor. Where our p
 
 See our **Refund Policy** for cancellation and refund rules.
 
-## 10. Free Trial
+## 11. Free Trial
 
 If a free trial is offered, you may use the Service without charge for the trial period disclosed at signup. Unless you cancel before the trial ends, your account may convert to a paid subscription and your payment method may be charged according to the plan you selected.
 
-## 11. Cancellation
+## 12. Cancellation
 
 You may cancel your subscription at any time through your account settings or by contacting us. Cancellation stops **future** renewals; it does not automatically entitle you to a refund for amounts already paid (see Refund Policy).
 
 Upon cancellation or termination, your access may end at the close of the current billing period unless otherwise stated.
 
-## 12. Service Availability — No Guarantee
+## 13. Service Availability — No Guarantee
 
 We strive to keep the Platform available and secure, but we do **not** guarantee uninterrupted, error-free, or permanent availability. Maintenance, updates, outages, and third-party failures may occur.
 
 We may modify, suspend, or discontinue features with reasonable notice when practicable.
 
-## 13. Suspension and Termination
+## 14. Suspension and Termination
 
 We may suspend or terminate your account immediately if you:
 
@@ -143,25 +151,25 @@ We may suspend or terminate your account immediately if you:
 
 You may stop using the Service at any time. Provisions that by nature should survive (liability limits, IP, governing law) will survive termination.
 
-## 14. Intellectual Property
+## 15. Intellectual Property
 
 The Platform, software, design, trademarks, and documentation are owned by Peymiz or its licensors. Except for the limited subscription license above, no rights are granted to you.
 
 You retain ownership of content you upload. You grant Peymiz a worldwide, non-exclusive license to host, store, display, and process your content solely to operate and improve the Service.
 
-## 15. Customer Data and Privacy
+## 16. Customer Data and Privacy
 
 You may enter or collect customer data through the Platform (orders, messages, appointments, contact details). **You are the controller** of your customers' data for your business purposes. Peymiz processes such data on your behalf to provide the Service, as described in our **Privacy Policy**.
 
 You must comply with applicable privacy laws and provide appropriate notices to your customers.
 
-## 16. Disclaimer of Warranties
+## 17. Disclaimer of Warranties
 
 THE SERVICE IS PROVIDED **"AS IS"** AND **"AS AVAILABLE"** WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
 
 We do not warrant that the Service will meet your requirements or that results will be accurate or reliable.
 
-## 17. Limitation of Liability
+## 18. Limitation of Liability
 
 TO THE MAXIMUM EXTENT PERMITTED BY LAW:
 
@@ -170,19 +178,19 @@ TO THE MAXIMUM EXTENT PERMITTED BY LAW:
 
 Some jurisdictions do not allow certain limitations; in those cases, our liability is limited to the fullest extent permitted by law.
 
-## 18. Indemnification
+## 19. Indemnification
 
 You agree to indemnify and hold harmless Peymiz from claims, damages, losses, and expenses (including reasonable legal fees) arising from your use of the Service, your business operations, your products or services (including any defect, safety issue, or resulting injury, illness, or property damage), your content, your customers, or your violation of these Terms or applicable law.
 
-## 19. Changes to the Service and Terms
+## 20. Changes to the Service and Terms
 
 We may update the Service and these Terms from time to time. Material changes will be posted on the Platform or notified by email where appropriate. Continued use after changes become effective constitutes acceptance. If you do not agree, you must stop using the Service and cancel your subscription.
 
-## 20. Governing Law and Jurisdiction
+## 21. Governing Law and Jurisdiction
 
 These Terms are governed by the laws of the **State of Israel**, without regard to conflict-of-law principles. Courts in Israel shall have exclusive jurisdiction over disputes arising from these Terms or the Service, subject to mandatory consumer protections that may apply to you under local law.
 
-## 21. Contact
+## 22. Contact
 
 Questions about these Terms:
 

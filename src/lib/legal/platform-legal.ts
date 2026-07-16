@@ -7,12 +7,15 @@ export type PlatformLegalDocId =
   | "cookie-policy"
   | "refund-cancellation-policy"
   | "acceptable-use-policy"
-  | "disclaimer-liability";
+  | "disclaimer-liability"
+  | "accessibility-statement";
 
 export type PlatformLegalDocument = {
   id: PlatformLegalDocId;
   titleHe: string;
   titleEn: string;
+  /** Source language of doc.markdown — drives the standalone page's lang/dir. */
+  lang: "he" | "en";
   markdown: string;
 };
 
@@ -21,37 +24,49 @@ export type PlatformLegalDocPayload = PlatformLegalDocument;
 
 const DOC_META: Record<
   PlatformLegalDocId,
-  { file: string; titleHe: string; titleEn: string }
+  { file: string; titleHe: string; titleEn: string; lang: "he" | "en" }
 > = {
   "terms-of-service": {
     file: "terms-of-service.md",
     titleHe: "תנאי שימוש",
     titleEn: "Terms of Service",
+    lang: "en",
   },
   "privacy-policy": {
     file: "privacy-policy.md",
     titleHe: "מדיניות פרטיות",
     titleEn: "Privacy Policy",
+    lang: "en",
   },
   "cookie-policy": {
     file: "cookie-policy.md",
     titleHe: "מדיניות עוגיות",
     titleEn: "Cookie Policy",
+    lang: "he",
   },
   "refund-cancellation-policy": {
     file: "refund-cancellation-policy.md",
     titleHe: "ביטולים והחזרים",
     titleEn: "Refund & Cancellation Policy",
+    lang: "en",
   },
   "acceptable-use-policy": {
     file: "acceptable-use-policy.md",
     titleHe: "שימוש מקובל ותוכן",
     titleEn: "Acceptable Use",
+    lang: "he",
   },
   "disclaimer-liability": {
     file: "disclaimer-liability.md",
     titleHe: "הגבלת אחריות",
     titleEn: "Disclaimer",
+    lang: "he",
+  },
+  "accessibility-statement": {
+    file: "accessibility-statement.md",
+    titleHe: "הצהרת נגישות",
+    titleEn: "Accessibility Statement",
+    lang: "he",
   },
 };
 
@@ -70,6 +85,7 @@ export function loadPlatformLegalDocument(
     id,
     titleHe: meta.titleHe,
     titleEn: meta.titleEn,
+    lang: meta.lang,
     markdown: readMarkdown(meta.file),
   };
 }

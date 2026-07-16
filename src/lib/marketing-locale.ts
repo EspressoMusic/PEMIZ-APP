@@ -9,6 +9,7 @@ export type MarketingCopy = {
   navHome: string;
   navProduct: string;
   navPricing: string;
+  navFaq: string;
   navContact: string;
   startTrial: string;
   contactUs: string;
@@ -36,6 +37,10 @@ export type MarketingCopy = {
   learnMore: string;
   pricingNote: string;
   tryNow: string;
+  eyebrowFaq: string;
+  faqTitle: string;
+  faqTitleEm: string;
+  faq: { question: string; answer: string }[];
   eyebrowContact: string;
   contactTitle: string;
   contactTitleEm: string;
@@ -123,6 +128,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     navHome: "Home",
     navProduct: "Who are we",
     navPricing: "Pricing",
+    navFaq: "FAQ",
     navContact: "Contact",
     startTrial: "Free Trial",
     contactUs: "Contact Us",
@@ -203,6 +209,41 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     learnMore: "Learn more",
     pricingNote: "Start with a free trial. Upgrade when you're ready to scale.",
     tryNow: "TRY NOW",
+    eyebrowFaq: "FAQ",
+    faqTitle: "Questions,",
+    faqTitleEm: "answered.",
+    faq: [
+      {
+        question: "What is Peymiz?",
+        answer:
+          "Peymiz is business software for small businesses. You get one shareable link with a business page, an online store or appointment booking, and a simple dashboard for orders, bookings, and customer messages.",
+      },
+      {
+        question: "Who is Peymiz for?",
+        answer:
+          "Peymiz fits small business owners who take orders or appointments — shops, home businesses, service providers, and anyone tired of managing customers over scattered phone calls and messages.",
+      },
+      {
+        question: "Is there a free trial?",
+        answer:
+          "Yes — every new business gets a 14-day free trial of the full Peymiz dashboard before any charge.",
+      },
+      {
+        question: "Is Peymiz a marketplace?",
+        answer:
+          "No. Peymiz is B2B software only, not a marketplace. We don't sell on your behalf and don't process payments for your customers — you stay in control of your products, services, pricing, and customer relationships.",
+      },
+      {
+        question: "Do I need a website or technical skills?",
+        answer:
+          "No. Set up your Peymiz business page in a few minutes with no coding and no expensive custom app, then share one link on WhatsApp, Instagram, or anywhere customers find you.",
+      },
+      {
+        question: "Can I sell products and take appointments at the same time?",
+        answer:
+          "Pick the store type that fits your business — a product store or appointment booking. Orders, bookings, and customer messages all land in the same dashboard either way.",
+      },
+    ],
     eyebrowContact: "Contact",
     contactTitle: "Interested in trying",
     contactTitleEm: "Peymiz?",
@@ -290,6 +331,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     navHome: "בית",
     navProduct: "מי אנחנו",
     navPricing: "מחירים",
+    navFaq: "שאלות נפוצות",
     navContact: "צור קשר",
     startTrial: "נסיון בחינם",
     contactUs: "צור קשר",
@@ -370,6 +412,41 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     learnMore: "למידע נוסף",
     pricingNote: "מתחילים בנסיון חינם. משדרגים כשמוכנים לגדול.",
     tryNow: "נסו עכשיו",
+    eyebrowFaq: "שאלות נפוצות",
+    faqTitle: "שאלות,",
+    faqTitleEm: "ותשובות.",
+    faq: [
+      {
+        question: "מה זה Peymiz?",
+        answer:
+          "Peymiz היא תוכנה לניהול עסקים קטנים. מקבלים קישור אחד לשיתוף עם דף עסק, חנות מוצרים או תורים, ולוח בקרה פשוט לניהול הזמנות, תורים והודעות מלקוחות.",
+      },
+      {
+        question: "למי מתאימה Peymiz?",
+        answer:
+          "Peymiz מתאימה לבעלי עסקים קטנים שמקבלים הזמנות או תורים — חנויות, עסקים ביתיים, נותני שירות, וכל מי שנמאס לו לנהל לקוחות דרך שיחות טלפון והודעות מפוזרות.",
+      },
+      {
+        question: "יש ניסיון חינם?",
+        answer:
+          "כן — כל עסק חדש מקבל 14 יום ניסיון חינם לגישה המלאה ללוח הבקרה של Peymiz, לפני כל חיוב.",
+      },
+      {
+        question: "האם Peymiz היא מרקטפלייס?",
+        answer:
+          "לא. Peymiz היא תוכנת B2B בלבד, לא מרקטפלייס. אנחנו לא מוכרים בשמכם ולא מעבדים תשלומים בשם הלקוחות שלכם — אתם נשארים בשליטה על המוצרים, השירותים, המחירים והקשר עם הלקוחות.",
+      },
+      {
+        question: "צריך אתר או ידע טכני כדי להשתמש ב-Peymiz?",
+        answer:
+          "לא. פותחים את דף העסק ב-Peymiz תוך דקות, בלי קוד ובלי פיתוח אפליקציה יקר, ואז שולחים קישור אחד בוואטסאפ, אינסטגרם או בכל מקום שהלקוחות מוצאים אתכם.",
+      },
+      {
+        question: "אפשר למכור מוצרים ולקבל תורים באותו הזמן?",
+        answer:
+          "בוחרים את סוג החנות שמתאים לעסק — חנות מוצרים או תורים. הזמנות, תורים והודעות מלקוחות מגיעים לאותו לוח בקרה בשני המקרים.",
+      },
+    ],
     eyebrowContact: "צור קשר",
     contactTitle: "מעוניינים לנסות את",
     contactTitleEm: "Peymiz?",

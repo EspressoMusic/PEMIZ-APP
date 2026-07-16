@@ -179,7 +179,7 @@ export function CustomerAppointmentBookingModal({
                   key={slot.id}
                   type="button"
                   onClick={() => pickTime(slot.id)}
-                  className="min-w-[5.5rem] rounded-[10px] border-[2px] border-[#5C4A3E]/22 bg-bakery-card px-3 py-2.5 text-[15px] font-extrabold text-bakery-ink transition hover:border-bakery-primary hover:bg-bakery-cream-light active:scale-[0.98]"
+                  className="min-w-[5.5rem] rounded-[10px] border-[2px] border-[#6D4C41]/22 bg-bakery-card px-3 py-2.5 text-[15px] font-extrabold text-bakery-ink transition hover:border-bakery-primary hover:bg-bakery-cream-light active:scale-[0.98]"
                 >
                   {formatSlotTime(slot.startAt, locale)}
                   <span className="mt-0.5 block text-[11px] font-semibold text-bakery-muted">

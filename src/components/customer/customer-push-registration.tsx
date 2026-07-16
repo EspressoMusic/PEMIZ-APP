@@ -169,7 +169,7 @@ export function CustomerPushRegistration({
 
   return (
     <div className="w-full space-y-2">
-      <div className="flex w-full items-center justify-between gap-3 rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/80 px-4 py-4 text-start">
+      <div className="flex w-full items-center justify-between gap-3 rounded-[22px] border-[3px] border-[#6D4C41]/22 bg-bakery-card/80 px-4 py-4 text-start">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-bakery-square/70">
             <BellRing className="h-5 w-5 text-bakery-primary" strokeWidth={1.75} />

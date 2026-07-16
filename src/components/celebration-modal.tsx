@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { Button } from "@/components/ui";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 type Piece = {
   id: number;
   left: number;
@@ -74,7 +75,7 @@ export function CelebrationModal({
   tone?: "default" | "calendar";
 }) {
   const pieces = useMemo<Piece[]>(() => {
-    const colors = ["#e6d4b8", "#5c4a3e", "#43a047", "#b94040", "#7eb8ff", "#f4f0e8"];
+    const colors = ["#e6d4b8", "#6d4c41", "#43a047", "#b94040", "#7eb8ff", "#f4f0e8"];
     return Array.from({ length: 56 }, (_, id) => ({
       id,
       left: Math.random() * 100,
@@ -84,6 +85,8 @@ export function CelebrationModal({
       size: 6 + Math.floor(Math.random() * 8),
     }));
   }, [open]);
+
+  const panelRef = useDialogA11y<HTMLDivElement>(open, onClose);
 
   useEffect(() => {
     if (!open) return;
@@ -166,14 +169,16 @@ export function CelebrationModal({
       </div>
 
       <div
-        className={`relative w-full max-w-sm animate-[product-pop_0.45s_ease-out] text-center shadow-[var(--shadow-bakery-panel)] ${
+        ref={panelRef}
+        tabIndex={-1}
+        className={`relative w-full max-w-sm animate-[product-pop_0.45s_ease-out] text-center outline-none shadow-[var(--shadow-bakery-panel)] ${
           isCalendar
-            ? "rounded-[24px] border-[3px] border-[#5d4037] bg-[#e6d5b8] p-4"
+            ? "rounded-[24px] border-[3px] border-[#6d4c41] bg-[#e6d5b8] p-4"
             : "rounded-[28px] border-[1.2px] border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-8"
         }`}
       >
         {isCalendar ? (
-          <div className="rounded-[18px] border border-[#5C4A3E]/14 bg-[#fffdf8] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+          <div className="rounded-[18px] border border-[#6D4C41]/14 bg-[#fffdf8] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
             {iconBlock}
             {textBlock}
           </div>

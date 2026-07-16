@@ -10,6 +10,7 @@ import {
   removeCustomerDeviceItem,
   setCustomerDeviceItem,
 } from "@/lib/customer-device-storage";
+import { requestAndSubscribePush } from "@/lib/push-client";
 
 function localDateKey(iso: string) {
   const d = new Date(iso);
@@ -61,7 +62,7 @@ function ReminderCard({
   onToggle: (next: boolean) => void;
 }) {
   return (
-    <div className="block w-full rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-[#E6D5B8] px-3 py-2.5 bakery-panel-shadow">
+    <div className="block w-full rounded-[18px] border-[3px] border-[#6D4C41]/22 bg-[#E6D5B8] px-3 py-2.5 bakery-panel-shadow">
       <div className="flex items-center gap-2">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] border border-bakery-border/35 bg-bakery-square shadow-[0_2px_6px_rgba(58,47,38,0.08)]">
           <BellRing
@@ -100,6 +101,7 @@ export function CustomerAppointmentReminderRow({
   onNeedPhone: () => void;
 }) {
   const [enabled, setEnabled] = useState(false);
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     try {
@@ -111,14 +113,30 @@ export function CustomerAppointmentReminderRow({
 
   if (!hasFullyBookedFutureDays(slots)) return null;
 
-  function setReminder(next: boolean) {
+  async function setReminder(next: boolean) {
+    if (pending) return;
+
     if (!next) {
+      let stored: { endpoint?: string } = {};
+      try {
+        const raw = getCustomerDeviceItem(reminderKey(businessSlug));
+        stored = raw ? (JSON.parse(raw) as { endpoint?: string }) : {};
+      } catch {
+        /* ignore */
+      }
       try {
         removeCustomerDeviceItem(reminderKey(businessSlug));
       } catch {
         /* ignore */
       }
       setEnabled(false);
+      if (stored.endpoint) {
+        fetch(`/api/public/${businessSlug}/appointments/waitlist`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint: stored.endpoint }),
+        }).catch(() => undefined);
+      }
       return;
     }
 
@@ -128,14 +146,34 @@ export function CustomerAppointmentReminderRow({
       return;
     }
 
+    setPending(true);
     try {
+      const outcome = await requestAndSubscribePush(
+        `/api/public/${businessSlug}/push/config`,
+        `/api/public/${businessSlug}/push/subscribe`
+      );
+      if (outcome.status !== "subscribed") return;
+
+      const res = await fetch(`/api/public/${businessSlug}/appointments/waitlist`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint: outcome.endpoint, phone }),
+      });
+      if (!res.ok) return;
+
       setCustomerDeviceItem(
         reminderKey(businessSlug),
-        JSON.stringify({ phone, createdAt: new Date().toISOString() })
+        JSON.stringify({
+          phone,
+          endpoint: outcome.endpoint,
+          createdAt: new Date().toISOString(),
+        })
       );
       setEnabled(true);
     } catch {
       /* ignore */
+    } finally {
+      setPending(false);
     }
   }
 

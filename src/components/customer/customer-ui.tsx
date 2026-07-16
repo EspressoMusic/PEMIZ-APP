@@ -112,7 +112,7 @@ export function CustomerQuantityStepper({
           max={effectiveMax}
           value={draft}
           aria-label={ariaLabel ?? "Quantity"}
-          className={`border-0 bg-transparent text-center font-extrabold tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${inputWidthClass} ${valueClass} ${
+          className={`border-0 bg-transparent text-center font-extrabold tabular-nums outline-none focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bakery-ink/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${inputWidthClass} ${valueClass} ${
             qty > 0 ? "text-black" : "text-bakery-ink"
           }`}
           onChange={(e) => setDraft(e.target.value)}

@@ -24,6 +24,7 @@ import {
 } from "@/lib/platform-limits";
 import { assertCanAcceptCustomerBooking } from "@/lib/subscription-usage";
 import { notifySellerNewAppointment } from "@/lib/seller-push";
+import { notifyAppointmentWaitlist } from "@/lib/customer-push";
 
 const postSchema = z.object({
   slotId: z.string(),
@@ -250,6 +251,8 @@ export async function PATCH(
     data: { status: "CANCELLED" },
     include: { slot: true },
   });
+
+  void notifyAppointmentWaitlist(business.id, business);
 
   return jsonOk({
     appointment: {

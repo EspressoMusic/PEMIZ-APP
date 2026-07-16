@@ -76,6 +76,17 @@ model CustomerPushSubscription {
   @@index([businessId])
 }
 
+model AppointmentWaitlistSubscription {
+  id            String   @id @default(cuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  endpoint      String   @unique
+  customerPhone String
+  createdAt     DateTime @default(now())
+
+  @@index([businessId])
+}
+
 model RateLimitBucket {
   key     String   @id
   count   Int
@@ -88,7 +99,7 @@ model Business {
   name            String
   description     String?
   type            String
-  storeTheme             String   @default("turquoise")
+  storeTheme             String   @default("calm")
   storeDecoration        String   @default("none")
   storeLocale            String   @default("en")
   storePolicy            String?
@@ -148,6 +159,7 @@ model Business {
   chatMessages    StoreChatMessage[]
   faqItems        FaqItem[]
   customerPushSubscriptions CustomerPushSubscription[]
+  appointmentWaitlistSubscriptions AppointmentWaitlistSubscription[]
   reviews         StoreReview[]
   coupons         Coupon[]
 }

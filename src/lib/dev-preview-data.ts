@@ -9,6 +9,7 @@ import { buildSlotsForRange } from "@/lib/appointment-slot-generator";
 import type { StoreChatMessageDto } from "@/lib/store-chat";
 import type { SellerChatThread } from "@/lib/seller-chat-threads";
 import { DEFAULT_STORE_PANELS_VISIBLE } from "@/lib/store-panels-visible";
+import { DEFAULT_STORE_THEME } from "@/lib/store-themes";
 
 export const DEV_PREVIEW_SELLER_THREADS: SellerChatThread[] = [
   {
@@ -512,7 +513,7 @@ export const DEV_STORE_BUSINESS = {
       sentAt: "2026-05-10T16:00:00.000Z",
     },
   ],
-  storeTheme: "turquoise",
+  storeTheme: DEFAULT_STORE_THEME,
   storeLocale: "he" as const,
   storePolicy:
     "Deliveries within the city Sun–Thu. Order by 6:00 PM for next-morning delivery.",
@@ -597,7 +598,7 @@ export const DEV_APPOINTMENTS_BUSINESS = {
       sentAt: "2026-06-01T10:00:00.000Z",
     },
   ],
-  storeTheme: "turquoise",
+  storeTheme: DEFAULT_STORE_THEME,
   storeLocale: "he" as const,
   storePolicy: "Appointments Sun–Thu. Arriving more than 10 minutes late may cancel the appointment.",
   storeTerms: "Cancel an appointment up to 24 hours before the scheduled time at no charge.",
@@ -926,7 +927,7 @@ export const DEV_RENTAL_BUSINESS = {
       sentAt: "2026-06-01T10:00:00.000Z",
     },
   ],
-  storeTheme: "turquoise",
+  storeTheme: DEFAULT_STORE_THEME,
   storeLocale: "he" as const,
   storePolicy: "Rentals Sun–Fri. Check-in from 3:00 PM, check-out by 11:00 AM.",
   storeTerms: "Cancel up to 48 hours before the rental start.",

@@ -7,7 +7,7 @@ export type SubscriptionPlan = {
   /** Monthly price in USD (English locale). */
   priceUsd: number;
   monthlyOrderLimit: number;
-  featureKeys: readonly [string, string, string];
+  featureKeys: readonly string[];
 };
 
 /** Approximate USD → ILS rate for Hebrew locale display (≈ Bank of Israel, Jul 2026). */
@@ -16,11 +16,18 @@ const USD_TO_ILS_RATE = 3.01;
 const PREMIUM_PLAN: SubscriptionPlan = {
   id: "premium",
   priceUsd: 29,
-  monthlyOrderLimit: 500,
+  monthlyOrderLimit: 1000,
   featureKeys: [
     "subscriptionPremiumFeature1",
     "subscriptionPremiumFeature2",
     "subscriptionPremiumFeature3",
+    "subscriptionPremiumFeature4",
+    "subscriptionPremiumFeature5",
+    "subscriptionPremiumFeature6",
+    "subscriptionPremiumFeature7",
+    "subscriptionPremiumFeature8",
+    "subscriptionPremiumFeature9",
+    "subscriptionPremiumFeature10",
   ],
 };
 

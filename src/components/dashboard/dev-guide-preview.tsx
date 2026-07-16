@@ -17,10 +17,7 @@ import {
   getDevSellerHomeCalendarPreview,
 } from "@/lib/dev-preview-data";
 import { demoPrepSummary } from "@/lib/dashboard-prep-summary";
-import {
-  DEFAULT_STORE_PANELS_VISIBLE,
-  storePanelsVisibleToJson,
-} from "@/lib/store-panels-visible";
+import { DEFAULT_STORE_PANELS_VISIBLE } from "@/lib/store-panels-visible";
 
 /** Shared layout body for /dev/guide and /dev/guide/appointments — each is its
  * own real route (plus a matching /actions sub-route) so only one screen is
@@ -60,9 +57,6 @@ export function DevGuidePreview({
   const initialActiveServiceCount = isAppointments
     ? DEV_APPOINTMENTS_BUSINESS.products.length
     : 0;
-  const storePanelsVisible = isAppointments
-    ? DEFAULT_STORE_PANELS_VISIBLE
-    : DEV_STORE_BUSINESS.storePanelsVisible;
 
   return (
     <DashboardShell
@@ -74,7 +68,6 @@ export function DevGuidePreview({
       orderScheduleEnabled={orderScheduleEnabled}
       orderSchedule={orderSchedule}
       initialActiveServiceCount={initialActiveServiceCount}
-      storePanelsVisible={storePanelsVisibleToJson(storePanelsVisible)}
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <div className="shrink-0 border-b border-bakery-border/25 px-4 py-2 text-center">

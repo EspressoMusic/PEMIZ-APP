@@ -7,6 +7,7 @@ import {
   FileText,
   Gavel,
   Files,
+  ClipboardCheck,
   ArrowRight,
   X,
   type LucideIcon,
@@ -161,6 +162,7 @@ export function CustomerLegalSheet({
           privacy: "מדיניות פרטיות",
           terms: "תנאי שימוש",
           protection: "הגנה משפטית",
+          a11yStatement: "הצהרת נגישות",
           moreDocs: "מסמכים נוספים",
           draftNotice:
             "טיוטה משפטית — יש לעיין בעורך דין לפני הסתמכות. Linky מספקת כלי בלבד; בעל החנות אחראי למוצרים ולתוכן.",
@@ -179,6 +181,7 @@ export function CustomerLegalSheet({
           privacy: "Privacy Policy",
           terms: "Terms of Service",
           protection: "Legal protection",
+          a11yStatement: "Accessibility Statement",
           moreDocs: "More documents",
           draftNotice:
             "Legal draft — consult a qualified lawyer. Linky provides the platform only; the store owner is responsible for products and content.",
@@ -203,7 +206,8 @@ export function CustomerLegalSheet({
       (id) =>
         id !== "privacy-policy" &&
         id !== "terms-of-service" &&
-        id !== "disclaimer-liability"
+        id !== "disclaimer-liability" &&
+        id !== "accessibility-statement"
     );
 
   useEffect(() => {
@@ -314,6 +318,16 @@ export function CustomerLegalSheet({
                     title={t.protection}
                     onClick={() => {
                       setActiveDocId("disclaimer-liability");
+                      setView("document");
+                    }}
+                  />
+                </li>
+                <li>
+                  <MenuTile
+                    icon={ClipboardCheck}
+                    title={t.a11yStatement}
+                    onClick={() => {
+                      setActiveDocId("accessibility-statement");
                       setView("document");
                     }}
                   />

@@ -515,6 +515,7 @@ export function DashboardInquiryBell({
                   value={chatDraft}
                   onChange={(e) => setChatDraft(e.target.value)}
                   placeholder={labels.chatPlaceholder}
+                  aria-label={labels.chatPlaceholder}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();

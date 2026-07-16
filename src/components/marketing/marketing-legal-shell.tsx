@@ -8,13 +8,19 @@ import {
 } from "@/components/marketing/marketing-public-chrome";
 import { marketingPublicPageClassName } from "@/lib/fonts/marketing-fonts";
 
-export function MarketingLegalShell({ markdown }: { markdown: string }) {
+export function MarketingLegalShell({
+  markdown,
+  lang = "he",
+}: {
+  markdown: string;
+  lang?: "he" | "en";
+}) {
   return (
     <div
       className={marketingPublicPageClassName()}
       data-theme="light"
-      lang="he"
-      dir="rtl"
+      lang={lang}
+      dir={lang === "en" ? "ltr" : "rtl"}
       style={{ cursor: "auto", minHeight: "100dvh" }}
     >
       <MarketingPublicHeader />

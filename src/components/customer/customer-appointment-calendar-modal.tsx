@@ -85,7 +85,7 @@ export function CustomerAppointmentCalendarModal({
         aria-label={labels.close}
       />
       <div className="appointments-calendar-frame relative flex max-h-[min(94dvh,780px)] w-full max-w-[min(100%,400px)] flex-col overflow-hidden rounded-[28px] border shadow-[0_12px_40px_rgba(58,47,38,0.1)]">
-        <div className="relative flex min-h-[56px] shrink-0 items-center justify-center border-b border-[#5C4A3E]/15 bg-white px-12 py-3.5">
+        <div className="relative flex min-h-[56px] shrink-0 items-center justify-center border-b border-[#6D4C41]/15 bg-white px-12 py-3.5">
           <h2 className="appointment-day-modal__title w-full text-center text-[22px] font-extrabold leading-tight sm:text-[24px]">
             {pickDayTitle}
           </h2>

@@ -81,7 +81,7 @@ export function CustomerAppointmentOpenSlotsPanel({
 
   return (
     <div
-      className="flex min-h-0 flex-col overflow-hidden rounded-[24px] border-[3px] border-[#5C4A3E]/22 bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.1)]"
+      className="flex min-h-0 flex-col overflow-hidden rounded-[24px] border-[3px] border-[#6D4C41]/22 bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.1)]"
       role="region"
       aria-label={labels.upcomingOpenSlots}
     >

@@ -2,7 +2,7 @@ export const STORE_THEME_IDS = ["turquoise", "calm", "light", "dark"] as const;
 
 export type StoreThemeId = (typeof STORE_THEME_IDS)[number];
 
-export const DEFAULT_STORE_THEME: StoreThemeId = "turquoise";
+export const DEFAULT_STORE_THEME: StoreThemeId = "calm";
 
 /** Optional decorative overlay, layered on top of any store theme (e.g. floral border). */
 export const STORE_DECORATION_IDS = ["none", "flowers", "doodles", "stars"] as const;
@@ -106,8 +106,8 @@ export const STORE_THEMES: StoreThemeMeta[] = [
     id: "turquoise",
     label: "טורקיז",
     labelEn: "Turquoise",
-    preview: "from-[#ffffff] to-[#0d9488]",
-    descriptionHe: "לבן וטורקיז — ברירת המחדל",
+    preview: "from-[#ffffff] to-[#0f766e]",
+    descriptionHe: "לבן וטורקיז",
     descriptionEn: "White & turquoise",
   },
   {
@@ -115,8 +115,8 @@ export const STORE_THEMES: StoreThemeMeta[] = [
     label: "רגוע",
     labelEn: "Relaxed",
     preview: "from-[#f5efe6] to-[#c9b89a]",
-    descriptionHe: "חום קרם — הסגנון הקלאסי",
-    descriptionEn: "Warm cream & brown",
+    descriptionHe: "חום קרם — ברירת המחדל",
+    descriptionEn: "Warm cream & brown — default",
   },
   {
     id: "light",

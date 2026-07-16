@@ -51,7 +51,7 @@
   --bakery-square: #d9ede8;
   --bakery-ink: #134e4a;
   --bakery-muted: #4b6b66;
-  --bakery-primary: #0d9488;
+  --bakery-primary: #0f766e;
   --bakery-on-primary: #ffffff;
   --bakery-input: #f8fffe;
   --bakery-border: #5eb8aa;
@@ -103,12 +103,12 @@
     -2px -3px 8px rgba(255, 255, 255, 0.09);
   --shadow-bakery-card: 0 3px 10px rgba(0, 0, 0, 0.13);
   --shadow-bakery-square: 0 5px 10px rgba(0, 0, 0, 0.16);
-  --shadow-bakery-btn: 0 4px 10px rgba(13, 148, 136, 0.24);
-  --bakery-primary-deep: #0f766e;
+  --shadow-bakery-btn: 0 4px 10px rgba(15, 118, 110, 0.24);
+  --bakery-primary-deep: #0b5d54;
   --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
-    0 10px 22px rgba(13, 148, 136, 0.28);
-  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(13, 148, 136, 0.45),
-    0 8px 18px rgba(13, 148, 136, 0.18);
+    0 10px 22px rgba(15, 118, 110, 0.28);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(15, 118, 110, 0.45),
+    0 8px 18px rgba(15, 118, 110, 0.18);
 }
 
 html,
@@ -621,7 +621,7 @@ html[data-store-theme="turquoise"],
   --bakery-square: #d9ede8;
   --bakery-ink: #134e4a;
   --bakery-muted: #4b6b66;
-  --bakery-primary: #0d9488;
+  --bakery-primary: #0f766e;
   --bakery-on-primary: #ffffff;
   --bakery-input: #f8fffe;
   --bakery-border: #5eb8aa;
@@ -635,12 +635,12 @@ html[data-store-theme="turquoise"],
   --customer-nav-active: #d9ede8;
   --customer-soft-wrap: #e8f5f2;
   --bakery-icon-tile: #b6ddd4;
-  --bakery-primary-deep: #0f766e;
+  --bakery-primary-deep: #0b5d54;
   --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
-    0 10px 22px rgba(13, 148, 136, 0.28);
-  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(13, 148, 136, 0.45),
-    0 8px 18px rgba(13, 148, 136, 0.18);
-  --shadow-bakery-btn: 0 4px 10px rgba(13, 148, 136, 0.24);
+    0 10px 22px rgba(15, 118, 110, 0.28);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(15, 118, 110, 0.45),
+    0 8px 18px rgba(15, 118, 110, 0.18);
+  --shadow-bakery-btn: 0 4px 10px rgba(15, 118, 110, 0.24);
   --cs-page-bg: #ffffff;
   --cs-nav-bg: #ffffff;
   --cs-nav-active: #ccfbf1;
@@ -679,7 +679,7 @@ html[data-store-theme="turquoise"],
 
 .customer-faq-card,
 .customer-faq-pill-btn {
-  border: 3px solid rgba(92, 74, 62, 0.22);
+  border: 3px solid rgba(109, 76, 65, 0.22);
   background: var(--bakery-square);
   box-shadow: 0 3px 10px rgba(58, 47, 38, 0.12);
 }
@@ -832,7 +832,7 @@ html[data-store-theme="turquoise"],
 }
 
 .customer-store-root.customer-theme-calm .customer-deal-card__redeem-btn {
-  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.28);
+  box-shadow: 0 4px 12px rgba(109, 76, 65, 0.28);
 }
 
 .customer-store-root.customer-theme-dark .customer-deal-card__redeem-btn {
@@ -862,7 +862,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --bakery-square: #e6d4b8;
   --bakery-ink: #3a2f26;
   --bakery-muted: #6b5d52;
-  --bakery-primary: #5c4a3e;
+  --bakery-primary: #6d4c41;
   --bakery-on-primary: #f8f4ec;
   --bakery-input: #f9f3e5;
   --bakery-border: #c9b89a;
@@ -876,11 +876,11 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --customer-nav-active: #dbc9b5;
   --customer-soft-wrap: #faf4e6;
   --bakery-icon-tile: #faf4e6;
-  --bakery-primary-deep: #43362c;
+  --bakery-primary-deep: #4b352b;
   --shadow-bakery-btn-3d-primary: 0 6px 0 var(--bakery-primary-deep),
-    0 10px 22px rgba(92, 74, 62, 0.28);
-  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(92, 74, 62, 0.45),
-    0 8px 18px rgba(92, 74, 62, 0.18);
+    0 10px 22px rgba(109, 76, 65, 0.28);
+  --shadow-bakery-btn-3d-secondary: 0 5px 0 rgba(109, 76, 65, 0.45),
+    0 8px 18px rgba(109, 76, 65, 0.18);
   --cs-page-bg: #faf6f0;
   --cs-nav-bg: #f1e3d3;
   --cs-nav-active: #dbc9b5;
@@ -893,7 +893,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --dashboard-soft-border: rgba(78, 52, 46, 0.12);
   --dashboard-soft-border-strong: rgba(78, 52, 46, 0.18);
   --dashboard-shadow: rgba(78, 52, 46, 0.14);
-  --shadow-bakery-btn: 0 4px 12px rgba(93, 64, 55, 0.28);
+  --shadow-bakery-btn: 0 4px 12px rgba(109, 76, 65, 0.28);
 }
 
 /* Fast, light entrance animations for modals/sheets ג€” quick, not sluggish */
@@ -958,7 +958,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 .customer-center-modal__panel {
   background-color: #ffffff;
   color: var(--bakery-ink, #134e4a);
-  border: 3px solid rgba(13, 148, 136, 0.22);
+  border: 3px solid rgba(15, 118, 110, 0.22);
   animation: modal-scale-in 0.14s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -969,12 +969,12 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 
 .customer-store-root.customer-theme-turquoise.customer-center-modal__panel {
   background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%);
-  border-color: rgba(13, 148, 136, 0.28);
+  border-color: rgba(15, 118, 110, 0.28);
 }
 
 .customer-store-root.customer-theme-calm.customer-center-modal__panel {
   background: linear-gradient(180deg, #faf4e6 0%, #f4ebe0 100%);
-  border-color: rgba(93, 64, 55, 0.22);
+  border-color: rgba(109, 76, 65, 0.22);
 }
 
 .customer-center-modal__panel.customer-profile-modal-panel,
@@ -994,7 +994,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 .customer-center-modal__panel.customer-appointment-detail-modal-panel,
 .customer-store-root.customer-theme-calm.customer-center-modal__panel.customer-appointment-detail-modal-panel {
   background: #e6d5b8;
-  border: 3px solid #5d4037;
+  border: 3px solid #6d4c41;
 }
 
 .customer-appointment-detail-modal-panel .customer-center-modal__body,
@@ -1007,7 +1007,7 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 .customer-store-root.customer-theme-calm.customer-appointment-detail-modal-panel
   .customer-center-modal__header {
   background: #e6d5b8;
-  border-bottom-color: rgba(93, 64, 55, 0.18);
+  border-bottom-color: rgba(109, 76, 65, 0.18);
 }
 
 .customer-store-root.customer-theme-light.customer-center-modal__panel {
@@ -1023,10 +1023,10 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
 .customer-store-root.customer-theme-turquoise.customer-center-modal__panel,
 .customer-store-root.customer-theme-modern.customer-center-modal__panel {
   background-color: #ffffff;
-  border-color: rgba(13, 148, 136, 0.28);
+  border-color: rgba(15, 118, 110, 0.28);
   box-shadow:
-    0 0 0 1px rgba(13, 148, 136, 0.1),
-    0 20px 40px rgba(13, 148, 136, 0.1);
+    0 0 0 1px rgba(15, 118, 110, 0.1),
+    0 20px 40px rgba(15, 118, 110, 0.1);
 }
 
 html[data-store-theme="light"] , .customer-store-root.customer-theme-light {
@@ -1093,10 +1093,10 @@ html[data-store-theme="turquoise"] {
   --dashboard-soft-border: rgba(15, 118, 110, 0.45);
   --dashboard-soft-border-strong: #0f766e;
   --dashboard-shadow: rgba(15, 118, 110, 0.08);
-  --dashboard-cyan-accent: #0d9488;
+  --dashboard-cyan-accent: #0f766e;
   --dashboard-cyan-border-soft: rgba(15, 118, 110, 0.35);
   --dashboard-cyan-border-medium: rgba(15, 118, 110, 0.5);
-  --dashboard-cyan-surface: rgba(13, 148, 136, 0.12);
+  --dashboard-cyan-surface: rgba(15, 118, 110, 0.12);
 }
 
 html[data-store-theme="calm"] {
@@ -1855,7 +1855,7 @@ html[data-store-theme="dark"] .border-bakery-border\/35.bg-bakery-on-primary {
 }
 
 .celebration-check-wrap--calendar {
-  color: #5c4a3e;
+  color: #6d4c41;
 }
 
 .celebration-check-svg {
@@ -2111,17 +2111,17 @@ html[data-store-theme="calm"] :is(.dashboard-surface, .auth-surface) {
   --bakery-input: #f9f3e5;
   --bakery-ink: #4e342e;
   --bakery-muted: #6d5c52;
-  --bakery-primary: #5d4037;
+  --bakery-primary: #6d4c41;
   --bakery-on-primary: #fff8f0;
-  --bakery-border: rgba(93, 64, 55, 0.2);
+  --bakery-border: rgba(109, 76, 65, 0.2);
   --dashboard-frame-border: rgba(78, 52, 46, 0.24);
   --dashboard-frame-border-width: 1.5px;
   --bakery-icon-tile: var(--bakery-prep-cream);
   --shadow-bakery-panel: 0 8px 28px rgba(78, 52, 46, 0.14);
   --shadow-bakery-card: 0 6px 20px rgba(78, 52, 46, 0.1);
   --shadow-bakery-square: 0 6px 18px rgba(78, 52, 46, 0.12);
-  --shadow-bakery-btn: 0 4px 14px rgba(93, 64, 55, 0.3);
-  --bakery-primary-deep: #4a3229;
+  --shadow-bakery-btn: 0 4px 14px rgba(109, 76, 65, 0.3);
+  --bakery-primary-deep: #4b352b;
   color: var(--bakery-ink);
 }
 
@@ -2236,7 +2236,7 @@ html:not([data-store-theme="dark"])
   .appointment-store-welcome-setup
   .bakery-field {
   border-radius: 1rem !important;
-  border: 1.5px solid rgba(93, 64, 55, 0.22) !important;
+  border: 1.5px solid rgba(109, 76, 65, 0.22) !important;
   background-color: #fffdf8 !important;
   min-height: 48px;
   padding-inline: 1rem;
@@ -2254,7 +2254,7 @@ html:not([data-store-theme="dark"])
   .appointment-store-welcome-setup
   .appointment-welcome-day-row {
   background-color: #faf6f0 !important;
-  border: 1px solid rgba(93, 64, 55, 0.18) !important;
+  border: 1px solid rgba(109, 76, 65, 0.18) !important;
 }
 
 html:not([data-store-theme="dark"])
@@ -2268,7 +2268,7 @@ html:not([data-store-theme="dark"])
 /* Login / signup ג€” visible fill boxes (not pill-borderless like dashboard) */
 .auth-surface {
   --auth-field-bg: var(--dashboard-field-bg, var(--bakery-input, #f9f3e5));
-  --auth-field-border: var(--bakery-border, rgba(93, 64, 55, 0.22));
+  --auth-field-border: var(--bakery-border, rgba(109, 76, 65, 0.22));
   --dashboard-panel-bg: #e6d5b8;
   --dashboard-frame-border: rgba(78, 52, 46, 0.32);
   --dashboard-frame-border-width: 1.5px;
@@ -2285,9 +2285,9 @@ html:not([data-store-theme="dark"]) .auth-surface .bakery-field {
 }
 
 html:not([data-store-theme="dark"]) .auth-surface .bakery-field:focus {
-  outline: 2px solid rgba(93, 64, 55, 0.28);
+  outline: 2px solid rgba(109, 76, 65, 0.28);
   outline-offset: 2px;
-  border-color: rgba(93, 64, 55, 0.45);
+  border-color: rgba(109, 76, 65, 0.45);
 }
 
 .auth-surface .auth-option-btn {
@@ -2303,20 +2303,20 @@ html:not([data-store-theme="dark"]) .auth-surface .bakery-field:focus {
 }
 
 .auth-surface .auth-option-btn--selected {
-  border: 3px solid var(--bakery-primary, #5d4037);
-  background-color: var(--bakery-primary, #5d4037);
+  border: 3px solid var(--bakery-primary, #6d4c41);
+  background-color: var(--bakery-primary, #6d4c41);
   color: var(--bakery-on-primary, #ffffff);
   box-shadow: none;
 }
 
 .auth-surface .auth-toggle {
-  border: 3px solid var(--bakery-primary, #5d4037);
+  border: 3px solid var(--bakery-primary, #6d4c41);
   background-color: var(--auth-field-bg);
 }
 
 .auth-surface .auth-toggle[aria-checked="true"] {
-  background-color: var(--bakery-primary, #5d4037);
-  box-shadow: 0 2px 8px rgba(93, 64, 55, 0.35);
+  background-color: var(--bakery-primary, #6d4c41);
+  box-shadow: 0 2px 8px rgba(109, 76, 65, 0.35);
 }
 
 /* Critical path: lives in globals.css so the Google button keeps its frame
@@ -2758,7 +2758,7 @@ html[data-store-theme="dark"] .dashboard-deal-form-sheet .bakery-field {
   align-items: center;
   justify-content: center;
   border: none;
-  background: #614136 !important;
+  background: #6d4c41 !important;
   color: #faf4e6 !important;
   box-shadow: 0 4px 14px rgba(58, 47, 38, 0.28);
   transition:
@@ -2858,15 +2858,15 @@ html:not([data-store-theme="dark"])
   .dashboard-store-style-sheet
   .dashboard-style-option-tile--active {
   background: #ffffff;
-  border: 2px solid rgba(97, 65, 54, 0.38);
+  border: 2px solid rgba(109, 76, 65, 0.38);
   box-shadow:
-    0 0 0 1px rgba(97, 65, 54, 0.1),
+    0 0 0 1px rgba(109, 76, 65, 0.1),
     0 2px 10px rgba(58, 47, 38, 0.08);
 }
 
 html:not([data-store-theme="dark"]) .dashboard-store-style-sheet .dashboard-style-guide-btn {
   border: none;
-  background: #614136 !important;
+  background: #6d4c41 !important;
   color: #faf4e6 !important;
   box-shadow: 0 4px 14px rgba(58, 47, 38, 0.28);
 }
@@ -2885,7 +2885,7 @@ html:not([data-store-theme="dark"]) .dashboard-broadcast-compose .dashboard-broa
 html:not([data-store-theme="dark"])
   .dashboard-broadcast-compose
   .dashboard-broadcast-field:focus {
-  outline: 2px solid rgba(93, 64, 55, 0.28);
+  outline: 2px solid rgba(109, 76, 65, 0.28);
   outline-offset: 2px;
   border-color: rgba(78, 52, 46, 0.18);
 }
@@ -2898,7 +2898,7 @@ html:not([data-store-theme="dark"]) .dashboard-broadcast-send-btn {
   justify-content: center;
   border-radius: 9999px;
   border: none;
-  background: #614136 !important;
+  background: #6d4c41 !important;
   padding: 0.875rem 1.25rem;
   font-size: 15px;
   font-weight: 800;
@@ -3055,7 +3055,7 @@ html:not([data-store-theme="dark"]) .dashboard-inquiry-reply-field {
 }
 
 html:not([data-store-theme="dark"]) .dashboard-inquiry-reply-field:focus {
-  outline: 2px solid rgba(93, 64, 55, 0.28);
+  outline: 2px solid rgba(109, 76, 65, 0.28);
   outline-offset: 2px;
   border-color: rgba(78, 52, 46, 0.18);
 }
@@ -3068,7 +3068,7 @@ html:not([data-store-theme="dark"]) .dashboard-inquiry-cta {
   justify-content: center;
   border-radius: 9999px;
   border: 1.5px solid rgba(58, 47, 38, 0.35);
-  background: #5c4a3e;
+  background: #6d4c41;
   padding: 0.625rem 1rem;
   font-size: 14px;
   font-weight: 800;
@@ -3129,7 +3129,7 @@ html:not([data-store-theme="dark"]) .dashboard-notification-bar__type {
   justify-content: center;
   width: 4.75rem;
   border-radius: 10px;
-  background: #614136;
+  background: #6d4c41;
   border: 1px solid rgba(58, 47, 38, 0.35);
   padding: 0.25rem 0.375rem;
   text-align: center;
@@ -3675,7 +3675,7 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
 }
 
 .customer-seller-notice-banner-strip {
-  border: 2px solid rgb(92 74 62 / 0.24);
+  border: 2px solid rgb(109, 76, 65 / 0.24);
   border-radius: 16px;
   background: #faf4e6;
 }
@@ -3703,17 +3703,17 @@ html[data-store-theme="dark"] .dashboard-prep-product-tile,
 
 .customer-seller-notice-icon {
   background: #d9c8ac;
-  border: 1.5px solid rgb(92 74 62 / 0.34);
+  border: 1.5px solid rgb(109, 76, 65 / 0.34);
   color: #3a2f26;
 }
 
 .customer-seller-notice-modal-panel {
   background: #e6d5b8;
-  border: 3px solid rgba(92, 74, 62, 0.22);
+  border: 3px solid rgba(109, 76, 65, 0.22);
 }
 
 .customer-seller-notice-modal-inner {
-  border: 3px solid rgba(92, 74, 62, 0.18);
+  border: 3px solid rgba(109, 76, 65, 0.18);
   background: #faf4e6;
 }
 
@@ -3868,7 +3868,7 @@ html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-btn {
 }
 
 .customer-wa-chat__bubble--out {
-  background: #5c4a3e;
+  background: #6d4c41;
   color: #f8f4ec;
   border-radius: 18px 18px 4px 18px;
 }
@@ -3891,7 +3891,7 @@ html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-btn {
   margin-bottom: 2px;
   font-size: 12px;
   font-weight: 700;
-  color: #5c4a3e;
+  color: #6d4c41;
 }
 
 .customer-wa-chat__text {
@@ -3902,7 +3902,7 @@ html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-btn {
 
 .customer-wa-chat__quote {
   margin-bottom: 6px;
-  border-inline-start: 3px solid rgba(92, 74, 62, 0.45);
+  border-inline-start: 3px solid rgba(109, 76, 65, 0.45);
   padding-inline-start: 8px;
   opacity: 0.92;
 }
@@ -3990,7 +3990,7 @@ html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-btn {
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background: #5c4a3e;
+  background: #6d4c41;
   color: #f8f4ec;
   box-shadow: 0 2px 8px rgba(58, 47, 38, 0.28);
   transition: opacity 0.15s;
@@ -4028,7 +4028,7 @@ html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-btn {
 }
 
 .customer-wa-chat__bubble--in .customer-wa-chat__action-btn {
-  color: #5c4a3e;
+  color: #6d4c41;
 }
 
 .customer-wa-chat__action-btn--like.is-liked {
@@ -4055,7 +4055,7 @@ html[data-customer-chrome-theme="turquoise"] .customer-seller-notice-btn {
 }
 
 .customer-seller-notice-btn {
-  background: #43362c !important;
+  background: #4b352b !important;
   color: #f8f4ec !important;
   border: none !important;
   box-shadow: 0 4px 12px rgba(58, 47, 38, 0.28);
@@ -4153,12 +4153,12 @@ html[data-store-theme="dark"] .dashboard-subscription-premium-strip {
 .dashboard-subscription-panel .bakery-cta-3d--primary:hover {
   transform: translateY(-1px);
   opacity: 0.95;
-  box-shadow: 0 5px 16px rgba(13, 148, 136, 0.32);
+  box-shadow: 0 5px 16px rgba(15, 118, 110, 0.32);
 }
 
 .dashboard-subscription-panel .bakery-cta-3d--primary:active {
   transform: scale(0.98);
-  box-shadow: 0 3px 10px rgba(13, 148, 136, 0.24);
+  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.24);
 }
 
 html[data-store-theme="calm"] .dashboard-subscription-panel .bakery-cta-3d--primary {
@@ -4643,15 +4643,35 @@ html:not([data-store-theme="dark"]) .bakery-field {
   transform: translateY(-2px);
   background: var(--bakery-card);
   box-shadow:
-    0 7px 0 rgba(92, 74, 62, 0.55),
+    0 7px 0 rgba(109, 76, 65, 0.55),
     0 12px 22px rgba(58, 47, 38, 0.24);
 }
 
 .bakery-cta-3d--secondary:active {
   transform: translateY(4px);
   box-shadow:
-    0 2px 0 rgba(92, 74, 62, 0.45),
+    0 2px 0 rgba(109, 76, 65, 0.45),
     0 4px 10px rgba(58, 47, 38, 0.18);
+}
+
+@keyframes guide-checklist-tick {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.guide-checklist-tick {
+  opacity: 0;
+  animation: guide-checklist-tick 0.35s ease-out forwards;
 }
 
 /* Peymiz marketing ג€” site-wide cookie consent (purple) */
@@ -4727,12 +4747,13 @@ html:not([data-store-theme="dark"]) .bakery-field {
   --appointment-cal-ink-muted: rgba(10, 10, 10, 0.38);
   --appointment-cal-day-fill: #fffdf8;
   --appointment-cal-day-ink: #0a0a0a;
-  --appointment-cal-board-border: #5d4037;
+  --appointment-cal-board-border: #6d4c41;
   --appointment-cal-day-border: color-mix(
     in srgb,
-    var(--bakery-success, #43a047) 34%,
+    var(--bakery-primary, #6d4c41) 40%,
     transparent
   );
+  --appointment-cal-day-border-booked: #0c5e58;
   background: var(--appointment-cal-board);
   border: 3px solid var(--appointment-cal-board-border) !important;
   border-radius: 20px;
@@ -4845,7 +4866,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
 }
 
 .appointment-day-modern[data-status="booked"] {
-  border-color: rgba(10, 10, 10, 0.16);
+  border-color: color-mix(in srgb, var(--appointment-cal-day-border-booked, #0c5e58) 55%, transparent);
   background: var(--appointment-cal-day-fill, #fffdf8);
   color: var(--appointment-cal-day-ink, #0a0a0a);
   cursor: pointer;
@@ -4854,24 +4875,25 @@ html:not([data-store-theme="dark"]) .bakery-field {
 .appointment-day-modern[data-status="available"]:hover,
 .appointment-day-modern[data-status="open"]:hover {
   background: #faf6f0;
-  border-color: color-mix(in srgb, var(--bakery-success, #43a047) 44%, transparent);
+  border-color: color-mix(in srgb, var(--bakery-primary, #6d4c41) 50%, transparent);
 }
 
 .appointment-day-modern[data-status="booked"]:hover {
   background: #faf6f0;
+  border-color: color-mix(in srgb, var(--appointment-cal-day-border-booked, #0c5e58) 70%, transparent);
 }
 
 .appointment-day-modern[data-status="full"] {
-  border-color: rgba(255, 180, 180, 0.65);
-  background: rgba(253, 238, 238, 0.22);
-  color: #fff5f5;
+  border-color: rgba(168, 88, 88, 0.4);
+  background: rgba(168, 88, 88, 0.1);
+  color: rgba(120, 55, 55, 0.75);
   cursor: pointer;
 }
 
 .appointment-day-modern[data-selected="true"] {
   border-color: color-mix(
     in srgb,
-    var(--bakery-success, #43a047) 48%,
+    var(--bakery-primary, #6d4c41) 55%,
     transparent
   ) !important;
   background: var(--appointment-cal-day-fill, #fffdf8) !important;
@@ -4880,7 +4902,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
 }
 
 .appointment-day-modern[data-today="true"] {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bakery-success, #43a047) 28%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bakery-primary, #6d4c41) 32%, transparent);
 }
 
 .appointment-day-modern:active {
@@ -4889,13 +4911,13 @@ html:not([data-store-theme="dark"]) .bakery-field {
 
 .appointments-calendar-shell {
   background: var(--dashboard-tile-bg);
-  border: 1.5px solid rgba(92, 74, 62, 0.14);
+  border: 1.5px solid rgba(109, 76, 65, 0.14);
   box-shadow: none;
 }
 
 .appointments-calendar-frame {
   background: var(--dashboard-tile-bg);
-  border: 1.5px solid rgba(92, 74, 62, 0.18);
+  border: 1.5px solid rgba(109, 76, 65, 0.18);
 }
 
 .appointments-calendar-frame-inner {
@@ -4909,12 +4931,12 @@ html:not([data-store-theme="dark"]) .bakery-field {
   --appointment-day-modal-ink: #0a0a0a;
   --appointment-day-modal-slot-fill: #fffdf8;
   background: var(--appointment-day-modal-board);
-  border: 3px solid #5d4037;
+  border: 3px solid #6d4c41;
   box-shadow: 0 12px 40px rgba(58, 47, 38, 0.12);
 }
 
 .appointment-day-modal__header {
-  border-bottom: 1px solid rgba(93, 64, 55, 0.18);
+  border-bottom: 1px solid rgba(109, 76, 65, 0.18);
   background: var(--appointment-day-modal-header);
 }
 
@@ -4958,7 +4980,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
 }
 
 .appointment-slot-row--past {
-  border-color: rgba(92, 74, 62, 0.1);
+  border-color: rgba(109, 76, 65, 0.1);
   background: rgba(255, 255, 255, 0.55);
   opacity: 0.85;
 }
@@ -4980,15 +5002,15 @@ html:not([data-store-theme="dark"]) .bakery-field {
 .appointment-slot-book-btn {
   border: none;
   border-radius: 9999px;
-  background: #614136;
+  background: #6d4c41;
   color: #fff8f0;
   font-weight: 800;
-  box-shadow: 0 4px 12px rgba(97, 65, 54, 0.28);
+  box-shadow: 0 4px 12px rgba(109, 76, 65, 0.28);
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .appointment-slot-book-btn:hover {
-  background: #4a3229;
+  background: #4b352b;
 }
 
 .appointment-slot-book-btn:active {
@@ -4996,7 +5018,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
 }
 
 .appointment-slot-empty {
-  border: 1.5px solid rgba(92, 74, 62, 0.14);
+  border: 1.5px solid rgba(109, 76, 65, 0.14);
   background: #ffffff;
   color: #6d5c52;
 }
@@ -5005,7 +5027,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
   width: 100%;
   min-height: 48px;
   border-radius: 14px;
-  border: 1.5px solid rgba(92, 74, 62, 0.28);
+  border: 1.5px solid rgba(109, 76, 65, 0.28);
   background: var(--dashboard-hub-bg);
   color: #4e342e;
   font-weight: 800;
@@ -5018,7 +5040,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
 
 .customer-service-option {
   border-radius: 1rem;
-  border: 1.5px solid rgba(92, 74, 62, 0.22);
+  border: 1.5px solid rgba(109, 76, 65, 0.22);
   background-color: #fffdf8;
   color: #0a0a0a;
   box-shadow: inset 0 1px 3px rgba(78, 52, 46, 0.06);
@@ -5034,7 +5056,7 @@ html:not([data-store-theme="dark"]) .bakery-field {
 }
 
 .customer-service-option--selected {
-  border: 3px solid #5d4037;
+  border: 3px solid #6d4c41;
   background-color: #fffdf8;
   box-shadow: none;
 }
@@ -5306,7 +5328,7 @@ html[data-store-theme="dark"] .dashboard-line-chart {
     color-mix(in srgb, var(--dashboard-surface, #1a1a1a) 92%, #243038) 0%,
     var(--dashboard-surface, #1a1a1a) 100%
   );
-  border: 3px solid color-mix(in srgb, var(--bakery-border, #5c4a3e) 28%, transparent);
+  border: 3px solid color-mix(in srgb, var(--bakery-border, #6d4c41) 28%, transparent);
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
     0 12px 32px rgba(0, 0, 0, 0.35);
@@ -5403,22 +5425,22 @@ html[data-store-theme="turquoise"] .bakery-field,
 
 html[data-store-theme="turquoise"] .bakery-field:focus,
 .customer-store-root.customer-theme-turquoise .bakery-field:focus {
-  border-color: #0d9488;
-  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18);
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
 }
 
 html[data-store-theme="turquoise"] .customer-bottom-nav,
 .customer-store-root.customer-theme-turquoise .customer-bottom-nav {
   background: #ffffff;
   border-color: #99f6e4;
-  box-shadow: 0 -8px 24px rgba(13, 148, 136, 0.08);
+  box-shadow: 0 -8px 24px rgba(15, 118, 110, 0.08);
 }
 
 html[data-store-theme="turquoise"] .customer-bottom-nav__link--active,
 .customer-store-root.customer-theme-turquoise .customer-bottom-nav__link--active {
   background: #ccfbf1;
-  color: #0d9488;
-  box-shadow: inset 0 0 0 1px rgba(13, 148, 136, 0.28);
+  color: #0f766e;
+  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.28);
 }
 
 html[data-store-theme="turquoise"] .bakery-sent-message-preview,
@@ -5613,28 +5635,28 @@ html[data-store-theme="turquoise"] .appointment-day-modal,
   --appointment-day-modal-header: #f0fdfa;
   --appointment-day-modal-ink: #134e4a;
   --appointment-day-modal-slot-fill: #ccfbf1;
-  border-color: rgba(13, 148, 136, 0.24);
+  border-color: rgba(15, 118, 110, 0.24);
 }
 
 html[data-store-theme="turquoise"] .appointment-day-modal__header,
 .customer-store-root.customer-theme-turquoise .appointment-day-modal__header {
-  border-bottom-color: rgba(13, 148, 136, 0.18);
+  border-bottom-color: rgba(15, 118, 110, 0.18);
 }
 
 html[data-store-theme="turquoise"] .appointment-calendar-modern-surface,
 .customer-store-root.customer-theme-turquoise .appointment-calendar-modern-surface {
   background: #ffffff;
-  border-color: rgba(13, 148, 136, 0.24) !important;
-  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.1);
+  border-color: rgba(15, 118, 110, 0.24) !important;
+  box-shadow: 0 4px 20px rgba(15, 118, 110, 0.1);
 }
 
 html[data-store-theme="turquoise"] .dashboard-store-style-sheet .bakery-float-tile--active,
 html[data-store-theme="turquoise"] .dashboard-store-style-sheet .dashboard-style-option-tile--active {
-  border-color: rgba(13, 148, 136, 0.55);
+  border-color: rgba(15, 118, 110, 0.55);
 }
 
 html[data-store-theme="turquoise"] .dashboard-line-chart {
-  --chart-accent: #0d9488;
+  --chart-accent: #0f766e;
   --chart-card-bg: #ffffff;
   --chart-grid: color-mix(in srgb, #64748b 18%, transparent);
   background: linear-gradient(
@@ -5642,32 +5664,32 @@ html[data-store-theme="turquoise"] .dashboard-line-chart {
     color-mix(in srgb, #f0fdfa 88%, white) 0%,
     #ffffff 100%
   );
-  border: 2px solid rgba(13, 148, 136, 0.2);
+  border: 2px solid rgba(15, 118, 110, 0.2);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 12px 32px rgba(13, 148, 136, 0.1);
+    0 12px 32px rgba(15, 118, 110, 0.1);
 }
 
 html[data-store-theme="turquoise"] .dashboard-line-chart__period {
   background: color-mix(in srgb, #ffffff 85%, #ccfbf1);
-  border-color: color-mix(in srgb, #0d9488 22%, transparent);
+  border-color: color-mix(in srgb, #0f766e 22%, transparent);
 }
 
 .customer-store-root.customer-theme-turquoise .customer-service-option {
-  border-color: rgba(13, 148, 136, 0.28);
+  border-color: rgba(15, 118, 110, 0.28);
   background-color: #ffffff;
   color: #134e4a;
 }
 
 .customer-store-root.customer-theme-turquoise .customer-service-option--selected {
-  border-color: #0d9488;
+  border-color: #0f766e;
   background-color: #ccfbf1;
 }
 
 html[data-store-theme="turquoise"] .dashboard-prep-product-tile,
 .customer-store-root.customer-theme-turquoise .dashboard-prep-product-tile {
   background: linear-gradient(165deg, #ffffff 0%, #f0fdfa 100%);
-  border-color: rgba(13, 148, 136, 0.24);
+  border-color: rgba(15, 118, 110, 0.24);
 }
 
 /* Turquoise ג€” no brown/beige dashboard chrome */
@@ -5695,7 +5717,7 @@ html[data-store-theme="turquoise"] .dashboard-broadcast-send-btn:hover:not(:disa
 html[data-store-theme="turquoise"] .dashboard-form-submit-btn:hover:not(:disabled),
 html[data-store-theme="turquoise"] .dashboard-store-style-sheet .dashboard-style-guide-btn:hover,
 html[data-store-theme="turquoise"] .appointment-slot-book-btn:hover {
-  background: #0d9488 !important;
+  background: #0f766e !important;
   box-shadow: none;
 }
 
@@ -5720,7 +5742,7 @@ html[data-store-theme="turquoise"] .dashboard-broadcast-compose .dashboard-broad
 html[data-store-theme="turquoise"]
   .dashboard-broadcast-compose
   .dashboard-broadcast-field:focus {
-  outline-color: rgba(13, 148, 136, 0.28);
+  outline-color: rgba(15, 118, 110, 0.28);
   border-color: rgba(15, 118, 110, 0.45);
 }
 

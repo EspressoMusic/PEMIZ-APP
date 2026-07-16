@@ -48,7 +48,7 @@ export function CustomerSellerNoticeBanner({
   rentalMode?: boolean;
 }) {
   const confettiPieces = useMemo<ConfettiPiece[]>(() => {
-    const colors = ["#e6d4b8", "#5c4a3e", "#43a047", "#c9a66b", "#7eb8ff", "#f4f0e8"];
+    const colors = ["#e6d4b8", "#6d4c41", "#43a047", "#c9a66b", "#7eb8ff", "#f4f0e8"];
     return Array.from({ length: 40 }, (_, id) => ({
       id,
       left: Math.random() * 100,

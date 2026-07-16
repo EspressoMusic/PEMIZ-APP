@@ -44,7 +44,7 @@ export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
       <button
         type="button"
         onClick={handleTap}
-        className={`${installTapClass} rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/80 px-4 py-4 !text-center`}
+        className={`${installTapClass} rounded-[22px] border-[3px] border-[#6D4C41]/22 bg-bakery-card/80 px-4 py-4 !text-center`}
       >
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-[16px] bg-bakery-square/70">
           <Smartphone className="h-7 w-7 text-bakery-primary" strokeWidth={1.75} />
@@ -67,7 +67,7 @@ export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
         <button
           type="button"
           onClick={handleTap}
-          className={`${installTapClass} rounded-[22px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/60 px-4 py-4`}
+          className={`${installTapClass} rounded-[22px] border-[3px] border-[#6D4C41]/22 bg-bakery-card/60 px-4 py-4`}
         >
           <ol className="space-y-2 text-[14px] font-semibold leading-relaxed text-bakery-ink">
             <li className="flex gap-2">
@@ -82,7 +82,7 @@ export function PwaInstallPanel({ copy }: { copy: InstallCopy }) {
         <button
           type="button"
           onClick={handleTap}
-          className={`${installTapClass} rounded-[18px] border-[3px] border-[#5C4A3E]/22 bg-bakery-card/50 px-4 py-3 !text-center text-[13px] font-semibold leading-relaxed text-bakery-muted`}
+          className={`${installTapClass} rounded-[18px] border-[3px] border-[#6D4C41]/22 bg-bakery-card/50 px-4 py-3 !text-center text-[13px] font-semibold leading-relaxed text-bakery-muted`}
         >
           {copy.androidHint}
         </button>

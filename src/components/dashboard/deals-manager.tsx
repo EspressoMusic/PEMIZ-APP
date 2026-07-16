@@ -323,7 +323,7 @@ const DealListItem = memo(function DealListItem({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={d.imageUrl}
-              alt=""
+              alt={d.name}
               className="mx-auto aspect-[4/3] w-full max-w-[220px] rounded-[14px] object-cover"
             />
           ) : null}
@@ -818,7 +818,7 @@ export function DealsManager({
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                       src={p.imageUrl}
-                                      alt=""
+                                      alt={p.name}
                                       className="h-9 w-9 shrink-0 rounded-[8px] object-cover"
                                     />
                                   ) : (
@@ -865,7 +865,7 @@ export function DealsManager({
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={p.imageUrl}
-                              alt=""
+                              alt={p.name}
                               className="h-11 w-11 shrink-0 rounded-[10px] object-cover"
                             />
                           ) : (
@@ -1034,7 +1034,7 @@ export function DealsManager({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={confirmDraft.imageUrl}
-                    alt=""
+                    alt={confirmDraft.name}
                     className="mx-auto aspect-[4/3] w-full max-w-[200px] rounded-[14px] object-cover"
                   />
                 )}

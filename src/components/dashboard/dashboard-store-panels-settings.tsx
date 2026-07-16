@@ -268,6 +268,7 @@ export function DashboardStorePanelsSettingsGroup({
         onClick={() => setOpen(true)}
         icon={LayoutGrid}
         title={labels.storePanelsTitle}
+        tourId="tour-store-panels"
       />
       <DashboardActionSheet
         open={open}

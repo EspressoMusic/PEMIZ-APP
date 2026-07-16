@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import { DayScheduleEditor } from "@/components/dashboard/day-schedule-editor";
 import {
   defaultDaySlots,
@@ -60,6 +61,8 @@ function EditorModal({
   closeLabel: string;
   editLabel: string;
 }) {
+  const panelRef = useDialogA11y<HTMLDivElement>(open, onClose);
+
   if (!open) return null;
 
   return (
@@ -76,7 +79,11 @@ function EditorModal({
         onClick={onClose}
         aria-label={closeLabel}
       />
-      <div className="dashboard-modal-card relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto p-5">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="dashboard-modal-card relative max-h-[min(88vh,640px)] w-full max-w-md overflow-y-auto p-5 outline-none"
+      >
         <div
           className={
             title
@@ -95,6 +102,7 @@ function EditorModal({
           <button
             type="button"
             onClick={onClose}
+            aria-label={closeLabel}
             className={`rounded-full p-1 text-bakery-muted hover:bg-bakery-card/80 ${
               title ? "absolute end-0 top-0" : ""
             }`}
@@ -497,7 +505,7 @@ export function FaqManager({
     <div
       className={`${DASHBOARD_PAGE_ROOT} flex min-h-0 flex-1 flex-col gap-2`}
     >
-      <DashboardPanelFrame className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden !border-[3px] !border-[#5C4A3E]/22 !p-3">
+      <DashboardPanelFrame className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden !border-[3px] !border-[#6D4C41]/22 !p-3">
         <div className="shrink-0 space-y-2">
           <DashboardHeading className="!text-[18px] sm:!text-[19px]">
             {labels.faq}

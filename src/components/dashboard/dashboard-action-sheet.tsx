@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { ChevronLeft } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { DASHBOARD_MOBILE_STACK } from "@/components/dashboard/dashboard-panel-frame";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 
 export function DashboardActionSheet({
   open,
@@ -61,6 +62,7 @@ export function DashboardActionSheet({
   const { labels } = useAppLocale();
   const closeLabel = labels.close;
   const [mounted, setMounted] = useState(false);
+  const panelRef = useDialogA11y<HTMLDivElement>(open, onClose);
 
   useEffect(() => {
     setMounted(true);
@@ -165,7 +167,9 @@ export function DashboardActionSheet({
       >
         {backOutside ? backControl : null}
         <div
-          className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex w-full flex-col ${
+          ref={panelRef}
+          tabIndex={-1}
+          className={`dashboard-surface dashboard-card bakery-action-sheet-panel relative flex w-full flex-col outline-none ${
             fullViewport
               ? "rounded-none bakery-action-sheet-panel--fullscreen sm:rounded-[32px]"
               : "rounded-[32px]"
