@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import type { CustomerCookieConsentLevel } from "@/lib/customer-cookie-consent";
+import type {
+  CookieConsentVariant,
+  CustomerCookieConsentLevel,
+} from "@/lib/customer-cookie-consent";
 
 export function CookieConsentBanner({
   title,
@@ -18,8 +21,8 @@ export function CookieConsentBanner({
   necessaryOnly: string;
   privacyLabel: string;
   onChoose: (level: CustomerCookieConsentLevel) => void;
-  /** Purple Peymiz marketing style vs warm bakery (customer stores). */
-  variant?: "bakery" | "site";
+  /** Purple Peymiz marketing style vs warm bakery (app shell, customer stores). */
+  variant?: CookieConsentVariant;
 }) {
   const isSite = variant === "site";
 

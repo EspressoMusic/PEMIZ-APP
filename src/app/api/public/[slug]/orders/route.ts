@@ -48,6 +48,7 @@ import {
 import { assertCanAcceptCustomerBooking } from "@/lib/subscription-usage";
 import { requireCustomerGoogleAccess } from "@/lib/customer-google-access";
 import { mapPublicOrdersToHistory } from "@/lib/public-customer-orders";
+import { customerOrderStatusLabel } from "@/lib/order-status-label";
 
 function afterOrderPlaced(
   businessId: string,
@@ -77,19 +78,6 @@ const schema = z.object({
     )
     .optional(),
 });
-
-function orderStatusLabelHe(status: string): string {
-  switch (status) {
-    case "CONFIRMED":
-      return "אושר";
-    case "COMPLETED":
-      return "הושלם";
-    case "CANCELLED":
-      return "בוטל";
-    default:
-      return "ממתין לאישור";
-  }
-}
 
 export async function GET(
   req: Request,
@@ -132,21 +120,8 @@ export async function GET(
     take: 50,
   });
 
-  const label =
-    business.storeLocale === "en"
-      ? (status: string) => {
-          switch (status) {
-            case "CONFIRMED":
-              return "Confirmed";
-            case "COMPLETED":
-              return "Completed";
-            case "CANCELLED":
-              return "Cancelled";
-            default:
-              return "Pending";
-          }
-        }
-      : orderStatusLabelHe;
+  const label = (status: string) =>
+    customerOrderStatusLabel(status, business.storeLocale === "en" ? "en" : "he");
 
   return jsonOk({ orders: mapPublicOrdersToHistory(orders, label) });
 }

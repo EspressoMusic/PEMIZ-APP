@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Check, Package, MapPin } from "lucide-react";
+import { Check, Package, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -92,14 +92,18 @@ export function DashboardOrderDetails({
   showPrices,
   onClose,
   onConfirm,
+  onReject,
 }: {
   order: DashboardOrderView;
   total: number;
   showPrices: boolean;
   onClose: () => void;
   onConfirm?: () => void;
+  onReject?: () => void;
 }) {
   const { labels, formatMoney } = useAppLocale();
+  const [confirmingReject, setConfirmingReject] = useState(false);
+  const isPending = order.status === "PENDING";
 
   return (
     <div className="space-y-2.5 text-start">
@@ -196,16 +200,64 @@ export function DashboardOrderDetails({
       )}
 
       <div className="border-t border-bakery-border/25 pt-2.5">
-        <Button
-          variant="primary"
-          className="min-h-[38px] w-full rounded-full px-3 py-2 text-[16px] font-extrabold"
-          onClick={() => {
-            onConfirm?.();
-            onClose();
-          }}
-        >
-          {labels.ok}
-        </Button>
+        {isPending && (onConfirm || onReject) ? (
+          confirmingReject ? (
+            <div className="space-y-2">
+              <p className="text-center text-[13px] font-semibold text-bakery-ink">
+                {labels.rejectOrderConfirmBody}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  className="min-h-[38px] flex-1 rounded-full px-3 py-2 text-[15px] font-extrabold"
+                  onClick={() => setConfirmingReject(false)}
+                >
+                  {labels.cancel}
+                </Button>
+                <Button
+                  variant="danger"
+                  className="min-h-[38px] flex-1 rounded-full px-3 py-2 text-[15px] font-extrabold"
+                  onClick={() => {
+                    onReject?.();
+                    onClose();
+                  }}
+                >
+                  {labels.rejectOrderButton}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Button
+                variant="danger"
+                className="flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[15px] font-extrabold"
+                onClick={() => setConfirmingReject(true)}
+              >
+                <X className="h-4 w-4" strokeWidth={2.5} />
+                {labels.rejectOrderButton}
+              </Button>
+              <Button
+                variant="primary"
+                className="flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[15px] font-extrabold"
+                onClick={() => {
+                  onConfirm?.();
+                  onClose();
+                }}
+              >
+                <Check className="h-4 w-4" strokeWidth={2.5} />
+                {labels.confirmOrderButton}
+              </Button>
+            </div>
+          )
+        ) : (
+          <Button
+            variant="primary"
+            className="min-h-[38px] w-full rounded-full px-3 py-2 text-[16px] font-extrabold"
+            onClick={onClose}
+          >
+            {labels.ok}
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -217,6 +269,7 @@ export function DashboardOrderCard({
   onOpenChange,
   onCustomerClick,
   onConfirmOrder,
+  onRejectOrder,
   onToggleComplete,
   showPrices = false,
   selectionMode = false,
@@ -229,6 +282,7 @@ export function DashboardOrderCard({
   onOpenChange: (next: boolean) => void;
   onCustomerClick?: (input: CustomerProfileInput) => void;
   onConfirmOrder?: (orderId: string) => void;
+  onRejectOrder?: (orderId: string) => void;
   onToggleComplete?: (orderId: string) => void;
   showPrices?: boolean;
   /** Multi-select mode is active for the whole list (entered via long-press). */
@@ -243,6 +297,7 @@ export function DashboardOrderCard({
     ? formatDateTime(order.createdAt)
     : null;
   const isCompleted = order.status === "COMPLETED";
+  const isRejected = order.status === "REJECTED";
   const pressProps = getDashboardPressProps<HTMLDivElement>();
   const longPress = useDashboardLongPress<HTMLDivElement>(
     () => onLongPress?.(),
@@ -288,7 +343,7 @@ export function DashboardOrderCard({
         }}
         onPointerMove={onLongPress ? longPress.onPointerMove : undefined}
         className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-action-square dashboard-order-row flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start ${
-          isCompleted ? "opacity-60" : ""
+          isCompleted || isRejected ? "opacity-60" : ""
         }`}
       >
         <button
@@ -325,7 +380,7 @@ export function DashboardOrderCard({
           >
             {selected ? <Check className="h-4 w-4" strokeWidth={3} /> : null}
           </span>
-        ) : onToggleComplete ? (
+        ) : onToggleComplete && !isRejected ? (
           <button
             type="button"
             onClick={(e) => {
@@ -368,6 +423,11 @@ export function DashboardOrderCard({
               ? () => onConfirmOrder(order.id)
               : undefined
           }
+          onReject={
+            onRejectOrder && order.status === "PENDING"
+              ? () => onRejectOrder(order.id)
+              : undefined
+          }
         />
       </DashboardActionSheet>
     </div>
@@ -379,6 +439,7 @@ export function DashboardOrdersSection({
   orders,
   onCustomerClick,
   onConfirmOrder,
+  onRejectOrder,
   onToggleComplete,
   onHideOrders,
   customerModal,
@@ -388,6 +449,7 @@ export function DashboardOrdersSection({
   orders: DashboardOrderView[];
   onCustomerClick?: (input: CustomerProfileInput) => void;
   onConfirmOrder?: (orderId: string) => void;
+  onRejectOrder?: (orderId: string) => void;
   onToggleComplete?: (orderId: string) => void;
   onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   customerModal?: ReactNode;
@@ -403,6 +465,7 @@ export function DashboardOrdersSection({
         orders={orders}
         onCustomerClick={onCustomerClick}
         onConfirmOrder={onConfirmOrder}
+        onRejectOrder={onRejectOrder}
         onToggleComplete={onToggleComplete}
         onHideOrders={onHideOrders}
         customerModal={customerModal}
@@ -417,6 +480,7 @@ export function DashboardOrdersList({
   orders,
   onCustomerClick,
   onConfirmOrder,
+  onRejectOrder,
   onToggleComplete,
   onHideOrders,
   emptyMessage,
@@ -427,6 +491,7 @@ export function DashboardOrdersList({
   orders: DashboardOrderView[];
   onCustomerClick?: (input: CustomerProfileInput) => void;
   onConfirmOrder?: (orderId: string) => void;
+  onRejectOrder?: (orderId: string) => void;
   onToggleComplete?: (orderId: string) => void;
   /** Enables long-press multi-select + bulk "delete from window" when provided. */
   onHideOrders?: (orderIds: string[]) => void | Promise<void>;
@@ -487,6 +552,7 @@ export function DashboardOrdersList({
               onOpenChange={(next) => setOpenOrderId(next ? o.id : null)}
               onCustomerClick={onCustomerClick}
               onConfirmOrder={onConfirmOrder}
+              onRejectOrder={onRejectOrder}
               onToggleComplete={onToggleComplete}
               showPrices={showPrices}
               selectionMode={selectionMode}

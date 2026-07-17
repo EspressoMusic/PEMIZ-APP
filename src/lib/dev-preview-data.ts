@@ -413,7 +413,7 @@ export const DEV_STORE_BUSINESS = {
   name: "My Bakery (Preview)",
   description: null,
   type: "STORE" as const,
-  storeDecoration: "stars",
+  storeDecoration: "none",
   sellerContactPhone: "050-1234567",
   storePanelsVisible: { ...DEFAULT_STORE_PANELS_VISIBLE, coupons: true, customerAddress: true },
   products: devPreviewCustomerProducts(),

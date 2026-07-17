@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import {
+  platformCookieConsentVariant,
   readPlatformCookieConsent,
   shouldShowPlatformCookieConsent,
   writePlatformCookieConsent,
@@ -62,7 +63,7 @@ export function SiteCookieConsent() {
 
   return (
     <CookieConsentBanner
-      variant="site"
+      variant={platformCookieConsentVariant(pathname)}
       title={copy.title}
       body={copy.body}
       acceptAll={copy.acceptAll}

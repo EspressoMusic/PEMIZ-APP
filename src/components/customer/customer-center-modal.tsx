@@ -46,7 +46,7 @@ export function CustomerModalHeaderBar({
   );
 }
 
-/** Centered dialog — not a bottom sheet */
+/** Centered dialog, or a bottom sheet when placement="bottom" */
 export function CustomerCenterModal({
   open,
   onClose,
@@ -58,6 +58,7 @@ export function CustomerCenterModal({
   storeTheme = "turquoise",
   bodyClassName = "",
   panelClassName = "",
+  placement = "center",
 }: {
   open: boolean;
   onClose: () => void;
@@ -71,6 +72,8 @@ export function CustomerCenterModal({
   storeTheme?: StoreThemeId;
   bodyClassName?: string;
   panelClassName?: string;
+  /** "bottom" slides up from the screen edge instead of a centered dialog */
+  placement?: "center" | "bottom";
 }) {
   const themeClass = customerThemeClass(storeTheme);
   const closeLabel = locale === "he" ? "סגור" : "Close";
@@ -87,9 +90,11 @@ export function CustomerCenterModal({
 
   if (!open || typeof document === "undefined") return null;
 
+  const isBottom = placement === "bottom";
+
   return createPortal(
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center p-4"
+      className={`fixed inset-0 z-[80] flex justify-center ${isBottom ? "items-end" : "items-center p-4"}`}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel ?? title ?? closeLabel}
@@ -103,7 +108,8 @@ export function CustomerCenterModal({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className={`customer-store-root ${themeClass} customer-center-modal__panel relative flex max-h-[min(88dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] shadow-[0_12px_40px_rgba(58,47,38,0.2)] outline-none ${panelClassName}`}
+        className={`customer-store-root ${themeClass} customer-center-modal__panel ${isBottom ? "customer-center-modal__panel--sheet rounded-t-[24px]" : "rounded-[24px]"} relative flex max-h-[min(88dvh,640px)] w-full max-w-md flex-col overflow-hidden shadow-[0_12px_40px_rgba(58,47,38,0.2)] outline-none ${panelClassName}`}
+        style={isBottom ? { paddingBottom: "env(safe-area-inset-bottom)" } : undefined}
       >
         {header ??
           (title ? (

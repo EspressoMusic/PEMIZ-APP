@@ -110,7 +110,8 @@ export type PushEnableOutcome =
 
 export async function requestAndSubscribePush(
   configUrl = "/api/dashboard/push/config",
-  subscribeUrl = "/api/dashboard/push/subscribe"
+  subscribeUrl = "/api/dashboard/push/subscribe",
+  extraBody?: Record<string, unknown>
 ): Promise<PushEnableOutcome> {
   if (!isPushSupported()) return { status: "unsupported" };
   if (isIosDevice() && !isInstalledPwa()) {
@@ -141,6 +142,7 @@ export async function requestAndSubscribePush(
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        ...extraBody,
         endpoint: json.endpoint,
         keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
       }),

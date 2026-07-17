@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { Button } from "@/components/ui";
 import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 type Piece = {
@@ -14,11 +14,34 @@ type Piece = {
 
 function AnimatedSuccessCheck({
   tone,
+  icon,
 }: {
   tone: "default" | "calendar";
+  /** Replaces the checkmark with a custom icon (e.g. "sent" instead of "done") inside the same badge circle. */
+  icon?: ReactNode;
 }) {
   const isCalendar = tone === "calendar";
   const size = isCalendar ? 56 : 64;
+
+  if (icon) {
+    return (
+      <div
+        className={`celebration-check-wrap ${isCalendar ? "celebration-check-wrap--calendar mb-3" : "mb-4"}`}
+        aria-hidden
+      >
+        <div
+          className="mx-auto flex items-center justify-center rounded-full text-bakery-primary"
+          style={{
+            width: size,
+            height: size,
+            backgroundColor: `color-mix(in srgb, var(--bakery-primary) ${isCalendar ? 12 : 15}%, transparent)`,
+          }}
+        >
+          {icon}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -62,6 +85,8 @@ export function CelebrationModal({
   closeAriaLabel = "Close",
   locale,
   tone = "default",
+  icon,
+  children,
 }: {
   open: boolean;
   onClose: () => void;
@@ -73,6 +98,9 @@ export function CelebrationModal({
   locale?: "he" | "en";
   /** Cream board + light inner card — matches appointments calendar. */
   tone?: "default" | "calendar";
+  /** Replaces the default checkmark badge with a custom icon (e.g. "sent" instead of "done"). */
+  icon?: ReactNode;
+  children?: ReactNode;
 }) {
   const pieces = useMemo<Piece[]>(() => {
     const colors = ["#e6d4b8", "#6d4c41", "#43a047", "#b94040", "#7eb8ff", "#f4f0e8"];
@@ -102,7 +130,9 @@ export function CelebrationModal({
   const lang = locale === "he" ? "he" : "en";
   const isCalendar = tone === "calendar";
 
-  const iconBlock = <AnimatedSuccessCheck tone={isCalendar ? "calendar" : "default"} />;
+  const iconBlock = (
+    <AnimatedSuccessCheck tone={isCalendar ? "calendar" : "default"} icon={icon} />
+  );
 
   const textBlock = (
     <>
@@ -132,6 +162,7 @@ export function CelebrationModal({
           {detail}
         </p>
       ) : null}
+      {children ? <div className="mt-4">{children}</div> : null}
     </>
   );
 

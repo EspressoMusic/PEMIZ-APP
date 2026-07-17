@@ -230,6 +230,10 @@ export type DashboardLabels = {
   confirmed: string;
   completed: string;
   cancelled: string;
+  rejected: string;
+  confirmOrderButton: string;
+  rejectOrderButton: string;
+  rejectOrderConfirmBody: string;
   order: string;
   orderNumber: string;
   searchOrders: string;
@@ -832,6 +836,10 @@ const HE: DashboardLabels = {
   confirmed: "אושר",
   completed: "הושלם",
   cancelled: "בוטל",
+  rejected: "נדחתה",
+  confirmOrderButton: "אישור הזמנה",
+  rejectOrderButton: "דחיית הזמנה",
+  rejectOrderConfirmBody: "לדחות את ההזמנה? הלקוח יקבל עדכון שההזמנה נדחתה.",
   order: "הזמנה",
   orderNumber: "מספר הזמנה",
   searchOrders: "חיפוש הזמנה",
@@ -1130,7 +1138,7 @@ const HE: DashboardLabels = {
     "כאן תוכל להסיר ולהוסיף פאנלים מהחנות שלך — כמו דילים, ביקורות וקופונים.",
   sellerGuideWelcomeTipOrderConfirmationTitle: "אישור הזמנה",
   sellerGuideWelcomeTipOrderConfirmationBody:
-    "פעולות → הגדרות → חשבון → שונות → אישור הזמנה. קובעים אם הזמנות חדשות ממתינות לאישורך או נכנסות אוטומטית.",
+    "כאן קובעים אם הזמנות חדשות ממתינות לאישורך לפני שהן נכנסות, או נכנסות אוטומטית לחנות.",
   sellerGuideReplayTitle: "מדריך התחלה",
   sellerGuideReplayBody: "רוצה לעבור שוב על השלבים הראשונים בלינקי?",
   sellerGuideReplayAction: "הפעל מדריך שוב",
@@ -1596,6 +1604,10 @@ const EN: DashboardLabels = {
   confirmed: "Confirmed",
   completed: "Completed",
   cancelled: "Cancelled",
+  rejected: "Rejected",
+  confirmOrderButton: "Confirm order",
+  rejectOrderButton: "Reject order",
+  rejectOrderConfirmBody: "Reject this order? The customer will be notified it was declined.",
   order: "Order",
   orderNumber: "Order number",
   searchOrders: "Search orders",
@@ -1896,7 +1908,7 @@ const EN: DashboardLabels = {
     "Add or remove panels from your store here — like deals, reviews and coupons.",
   sellerGuideWelcomeTipOrderConfirmationTitle: "Order confirmation",
   sellerGuideWelcomeTipOrderConfirmationBody:
-    "Actions → Settings → Account → Misc → Order confirmation. Choose whether new orders wait for your approval or go through automatically.",
+    "This is where you decide whether new orders wait for your approval before coming in, or go through automatically.",
   sellerGuideReplayTitle: "Getting started guide",
   sellerGuideReplayBody: "Want to walk through the first steps in Linky again?",
   sellerGuideReplayAction: "Show guide again",

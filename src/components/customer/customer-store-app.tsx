@@ -4,14 +4,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import {
+  Accessibility,
+  ArrowRight,
   HelpCircle,
   MessagesSquare,
   Receipt,
   SlidersHorizontal,
-  ShieldPlus,
   UserRound,
   Smartphone,
   Star,
+  Send,
 } from "lucide-react";
 import { Button, Input, Textarea } from "@/components/ui";
 import {
@@ -22,6 +24,7 @@ import {
   type CustomerTextScale,
 } from "@/lib/customer-preferences";
 import { getCustomerLabels } from "./customer-labels";
+import { OrderNotifyOptIn } from "./order-notify-optin";
 import {
   CustomerStoreTabNav,
   type CustomerMainTab,
@@ -33,7 +36,7 @@ import {
   type ReviewRewardCoupon,
 } from "./customer-review-prompt-modal";
 import { CustomerDisplaySheet } from "./customer-display-sheet";
-import { CustomerLegalSheet } from "./customer-legal-sheet";
+import { CustomerLegalSection } from "./customer-legal-sheet";
 import { CustomerInstallAppSheet } from "./customer-install-app-sheet";
 import { CustomerCookieConsent } from "./customer-cookie-consent";
 import { OrderCheckoutModal } from "./order-checkout-modal";
@@ -91,10 +94,13 @@ import type { PublicStoreDeal } from "@/lib/public-deals";
 import { useVisibilityInterval } from "@/hooks/use-visibility-interval";
 import {
   appendCustomerOrderHistory,
+  formatCustomerOrderDate,
   formatCustomerOrderNumbers,
   loadCustomerOrderHistory,
+  updateCustomerOrderHistoryStatuses,
   type CustomerOrderHistoryEntry,
 } from "@/lib/customer-order-history";
+import { customerOrderStatusToneClass } from "@/lib/order-status-label";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
 import { CustomerSellerPreviewBack } from "./customer-seller-preview-back";
 import {
@@ -126,7 +132,10 @@ import {
   canCustomerCancelAppointment,
   parseAppointmentCancelPolicy,
 } from "@/lib/appointment-cancel-policy";
-import { CustomerCenterModal } from "./customer-center-modal";
+import {
+  CustomerCenterModal,
+  CustomerModalHeaderBar,
+} from "./customer-center-modal";
 import { CustomerPhoneVerification } from "./customer-phone-verification";
 import { CustomerGoogleSignIn } from "./customer-google-sign-in";
 import type { ContactView } from "./customer-contact-modal";
@@ -429,6 +438,7 @@ export function CustomerStoreApp({
   >({});
   const [orderCheckoutOpen, setOrderCheckoutOpen] = useState(false);
   const [orderSuccessOpen, setOrderSuccessOpen] = useState(false);
+  const [lastOrderIds, setLastOrderIds] = useState<string[]>([]);
   const [activeOrdersOpen, setActiveOrdersOpen] = useState(false);
   const [localOrderHistory, setLocalOrderHistory] = useState<
     CustomerOrderHistoryEntry[]
@@ -672,6 +682,41 @@ export function CustomerStoreApp({
       setOrderHistoryLoading(false);
     }
   }, [business.slug, isScheduleLike]);
+
+  const hasPendingLocalOrders = localOrderHistory.some(
+    (order) => order.status === "PENDING" && (order.orderIds?.length ?? 0) > 0
+  );
+
+  const refreshLocalOrderStatuses = useCallback(async () => {
+    const orderIds = localOrderHistory
+      .filter((order) => order.status === "PENDING")
+      .flatMap((order) => order.orderIds ?? []);
+    if (orderIds.length === 0) return;
+    try {
+      const res = await fetch(`/api/public/${business.slug}/orders/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderIds }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        statuses?: Record<string, string>;
+      };
+      if (res.ok && data.statuses) {
+        setLocalOrderHistory(
+          updateCustomerOrderHistoryStatuses(business.slug, data.statuses, locale)
+        );
+      }
+    } catch {
+      // stay on the last known local status; try again next interval
+    }
+  }, [business.slug, localOrderHistory, locale]);
+
+  useVisibilityInterval(
+    () => void refreshLocalOrderStatuses(),
+    45_000,
+    120_000,
+    hasPendingLocalOrders
+  );
 
   const refreshCustomerGoogleSession = useCallback(async () => {
     if (business.slug === "demo-store" || isScheduleLike) return;
@@ -1113,6 +1158,7 @@ export function CustomerStoreApp({
       placedAt: new Date().toISOString(),
       lines: activeCartLines,
       total: checkoutTotal,
+      status: orderConfirmationRequired ? "PENDING" : "CONFIRMED",
       statusLabel: orderConfirmationRequired
         ? labels.pendingOrder
         : labels.orderConfirmedStatus,
@@ -1148,6 +1194,7 @@ export function CustomerStoreApp({
         : {}),
     };
     const placedOrderNumbers: number[] = [];
+    const placedOrderIds: string[] = [];
 
     for (const deal of cartDeals) {
       const res = await fetch(`/api/public/${business.slug}/orders`, {
@@ -1166,10 +1213,14 @@ export function CustomerStoreApp({
         return;
       }
       const data = (await res.json().catch(() => ({}))) as {
+        orderId?: string;
         orderNumber?: number;
       };
       if (typeof data.orderNumber === "number") {
         placedOrderNumbers.push(data.orderNumber);
+      }
+      if (typeof data.orderId === "string") {
+        placedOrderIds.push(data.orderId);
       }
     }
 
@@ -1197,10 +1248,14 @@ export function CustomerStoreApp({
         return;
       }
       const data = (await res.json().catch(() => ({}))) as {
+        orderId?: string;
         orderNumber?: number;
       };
       if (typeof data.orderNumber === "number") {
         placedOrderNumbers.push(data.orderNumber);
+      }
+      if (typeof data.orderId === "string") {
+        placedOrderIds.push(data.orderId);
       }
     } else {
       setOrderSubmitting(false);
@@ -1209,6 +1264,8 @@ export function CustomerStoreApp({
     orderSnapshot.orderNumbers =
       placedOrderNumbers.length > 0 ? placedOrderNumbers : undefined;
     orderSnapshot.orderNumber = placedOrderNumbers[0];
+    orderSnapshot.orderIds = placedOrderIds.length > 0 ? placedOrderIds : undefined;
+    setLastOrderIds(placedOrderIds);
 
     setCustomerName(name);
     setOrderPhone(phone);
@@ -1804,22 +1861,64 @@ export function CustomerStoreApp({
         onToggle={() => setOrderHistoryOpen((open) => !open)}
       >
         {!customerGoogleEmail ? (
-          <CustomerGoogleSignIn
-            slug={business.slug}
-            locale={locale}
-            labels={labels}
-            compact
-            onBeforeRedirect={() =>
-              saveCustomerGoogleResumeSnapshot(business.slug, {
-                cart,
-                cartDeals,
-              })
-            }
-            onSignedIn={(email) => {
-              setCustomerGoogleEmail(email);
-              void loadServerOrderHistory();
-            }}
-          />
+          <div className="space-y-3">
+            {localOrderHistory.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-center text-[12px] font-bold text-bakery-muted">
+                  {labels.orderHistoryOnThisDevice}
+                </p>
+                <ul className="space-y-2">
+                  {localOrderHistory.map((order) => {
+                    const orderNumberText = formatCustomerOrderNumbers(
+                      order.orderNumber,
+                      order.orderNumbers
+                    );
+                    return (
+                      <li
+                        key={order.id}
+                        className="w-full rounded-[18px] border-[2px] border-bakery-primary bg-bakery-square px-3 py-3 text-start"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-[13px] font-bold text-bakery-muted">
+                            {formatCustomerOrderDate(order.placedAt, locale)}
+                          </span>
+                          <span
+                            className={`text-[13px] font-extrabold ${customerOrderStatusToneClass(order.status)}`}
+                          >
+                            {order.statusLabel}
+                          </span>
+                        </div>
+                        {orderNumberText ? (
+                          <p className="mt-1 text-[12px] font-bold text-bakery-muted">
+                            {labels.orderNumber} {orderNumberText}
+                          </p>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p className="text-center text-[12px] font-semibold text-bakery-muted">
+                  {labels.orderHistorySignInForDetails}
+                </p>
+              </div>
+            ) : null}
+            <CustomerGoogleSignIn
+              slug={business.slug}
+              locale={locale}
+              labels={labels}
+              compact
+              onBeforeRedirect={() =>
+                saveCustomerGoogleResumeSnapshot(business.slug, {
+                  cart,
+                  cartDeals,
+                })
+              }
+              onSignedIn={(email) => {
+                setCustomerGoogleEmail(email);
+                void loadServerOrderHistory();
+              }}
+            />
+          </div>
         ) : (
           <div className="space-y-3">
             <p className="text-center text-[13px] font-semibold text-bakery-muted">
@@ -2023,9 +2122,8 @@ export function CustomerStoreApp({
                 />
               ) : null}
               <SettingsMenuRow
-                icon={ShieldPlus}
-                title={labels.legal}
-                subtitle={labels.legalSub}
+                icon={Accessibility}
+                title={labels.accessibility}
                 onClick={() => setLegalOpen(true)}
               />
             </div>
@@ -2153,6 +2251,41 @@ export function CustomerStoreApp({
         storeTheme={displayTheme}
       />
 
+      <CustomerCenterModal
+        open={legalOpen}
+        onClose={() => setLegalOpen(false)}
+        locale={locale}
+        storeTheme={displayTheme}
+        ariaLabel={labels.legal}
+        header={
+          <CustomerModalHeaderBar
+            title={labels.legal}
+            onClose={() => setLegalOpen(false)}
+            closeLabel={labels.back}
+            leading={
+              <button
+                type="button"
+                onClick={() => setLegalOpen(false)}
+                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[14px] font-semibold text-bakery-ink"
+              >
+                <ArrowRight className="h-5 w-5 rtl:rotate-180" strokeWidth={2} />
+                {labels.back}
+              </button>
+            }
+          />
+        }
+      >
+        <div className="px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <CustomerLegalSection
+            locale={locale}
+            textScale={textScale}
+            onTextScaleChange={(s) => updatePreferences({ textScale: s })}
+            storeTheme={displayTheme}
+            platformLegalDocs={platformLegalDocs}
+          />
+        </div>
+      </CustomerCenterModal>
+
       <CustomerDisplaySheet
         open={displayOpen}
         onClose={() => setDisplayOpen(false)}
@@ -2160,16 +2293,6 @@ export function CustomerStoreApp({
         theme={displayTheme}
         onLocaleChange={(l) => updatePreferences({ locale: l })}
         onThemeChange={(t) => updatePreferences({ theme: t })}
-      />
-
-      <CustomerLegalSheet
-        open={legalOpen}
-        onClose={() => setLegalOpen(false)}
-        locale={locale}
-        textScale={textScale}
-        onTextScaleChange={(s) => updatePreferences({ textScale: s })}
-        storeTheme={displayTheme}
-        platformLegalDocs={platformLegalDocs}
       />
 
       <CustomerInstallAppSheet
@@ -2321,12 +2444,25 @@ export function CustomerStoreApp({
           setOrderSuccessOpen(false);
           if (panels.reviews) setReviewPromptOpen(true);
         }}
-        title={labels.orderSuccessTitle}
-        detail={labels.orderSuccessDetail}
-        buttonLabel={labels.great}
+        title={orderConfirmationRequired ? labels.orderPendingTitle : labels.orderSuccessTitle}
+        detail={orderConfirmationRequired ? labels.orderPendingDetail : labels.orderSuccessDetail}
+        buttonLabel={orderConfirmationRequired ? labels.close : labels.great}
         closeAriaLabel={labels.close}
         locale={locale}
-      />
+        icon={
+          orderConfirmationRequired ? (
+            <Send className="h-7 w-7" strokeWidth={2} />
+          ) : undefined
+        }
+      >
+        {orderConfirmationRequired && lastOrderIds.length > 0 ? (
+          <OrderNotifyOptIn
+            slug={business.slug}
+            orderIds={lastOrderIds}
+            labels={labels}
+          />
+        ) : null}
+      </CelebrationModal>
       )}
 
       <CustomerReviewPromptModal

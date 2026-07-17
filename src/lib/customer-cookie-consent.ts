@@ -1,4 +1,5 @@
 export type CustomerCookieConsentLevel = "all" | "necessary";
+export type CookieConsentVariant = "bakery" | "site";
 
 const STORAGE_PREFIX = "linky-cookie-consent:";
 export const PLATFORM_COOKIE_CONSENT_SCOPE = "platform";
@@ -48,4 +49,30 @@ export function shouldShowPlatformCookieConsent(pathname: string): boolean {
   if (pathname.startsWith("/dev")) return false;
   if (pathname.startsWith("/master")) return false;
   return true;
+}
+
+/** Routes that leave the purple marketing site for the warm app shell. */
+const BAKERY_SHELL_ROUTES = [
+  "/app",
+  "/seller",
+  "/login",
+  "/signup",
+  "/onboarding",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+  "/trial-expired",
+  "/pending-approval",
+  "/paddle-checkout",
+  "/preview",
+];
+
+/** Match the banner to the surface behind it: warm on the app, purple on marketing. */
+export function platformCookieConsentVariant(
+  pathname: string
+): CookieConsentVariant {
+  const onAppShell = BAKERY_SHELL_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
+  return onAppShell ? "bakery" : "site";
 }

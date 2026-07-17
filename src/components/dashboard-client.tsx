@@ -82,6 +82,7 @@ function orderStatusLabel(status: string, locale: AppLocale): string {
     CONFIRMED: labels.confirmed,
     COMPLETED: labels.completed,
     CANCELLED: labels.cancelled,
+    REJECTED: labels.rejected,
   };
   return map[status] ?? status;
 }
@@ -823,6 +824,22 @@ function useOrdersManager({
     });
   }
 
+  async function rejectOrder(orderId: string) {
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === orderId
+          ? { ...o, status: "REJECTED", statusLabel: orderStatusLabel("REJECTED", locale) }
+          : o
+      )
+    );
+    if (previewOnly) return;
+    await fetch("/api/dashboard/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, status: "REJECTED" }),
+    });
+  }
+
   async function toggleOrderCompletion(orderId: string) {
     const current = orders.find((o) => o.id === orderId);
     if (!current) return;
@@ -865,6 +882,7 @@ function useOrdersManager({
     openCustomer,
     customerModal,
     confirmOrder,
+    rejectOrder,
     toggleOrderCompletion,
     hideOrders,
     previewOnly,
@@ -876,6 +894,7 @@ function OrdersPanels({
   historyOrders,
   onCustomerClick,
   onConfirmOrder,
+  onRejectOrder,
   onToggleComplete,
   onHideOrders,
   customerModal,
@@ -886,6 +905,7 @@ function OrdersPanels({
     typeof useDashboardCustomerProfile
   >["openCustomer"];
   onConfirmOrder?: (orderId: string) => void;
+  onRejectOrder?: (orderId: string) => void;
   onToggleComplete?: (orderId: string) => void;
   onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   customerModal?: React.ReactNode;
@@ -899,6 +919,7 @@ function OrdersPanels({
         orders={activeOrders}
         onCustomerClick={onCustomerClick}
         onConfirmOrder={onConfirmOrder}
+        onRejectOrder={onRejectOrder}
         onToggleComplete={onToggleComplete}
         onHideOrders={onHideOrders}
         customerModal={customerModal}
@@ -920,6 +941,7 @@ function OrdersActiveSheet({
   activeOrders,
   onCustomerClick,
   onConfirmOrder,
+  onRejectOrder,
   onToggleComplete,
   onHideOrders,
   previewOnly,
@@ -930,6 +952,7 @@ function OrdersActiveSheet({
   activeOrders: DashboardOrderView[];
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
   onConfirmOrder?: (orderId: string) => void;
+  onRejectOrder?: (orderId: string) => void;
   onToggleComplete?: (orderId: string) => void;
   onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   previewOnly?: boolean;
@@ -977,6 +1000,7 @@ function OrdersActiveSheet({
           orders={filteredOrders}
           onCustomerClick={onCustomerClick}
           onConfirmOrder={onConfirmOrder}
+          onRejectOrder={onRejectOrder}
           onToggleComplete={onToggleComplete}
           onHideOrders={onHideOrders}
           emptyMessage={
@@ -1070,6 +1094,7 @@ export function DashboardOrdersEntry({
     openCustomer,
     customerModal,
     confirmOrder,
+    rejectOrder,
     toggleOrderCompletion,
     hideOrders,
     previewOnly: isPreview,
@@ -1093,6 +1118,7 @@ export function DashboardOrdersEntry({
         activeOrders={activeOrders}
         onCustomerClick={openCustomer}
         onConfirmOrder={confirmOrder}
+        onRejectOrder={rejectOrder}
         onToggleComplete={toggleOrderCompletion}
         onHideOrders={hideOrders}
         previewOnly={isPreview}
@@ -1126,6 +1152,7 @@ export function OrdersManager({
     openCustomer,
     customerModal,
     confirmOrder,
+    rejectOrder,
     toggleOrderCompletion,
     hideOrders,
     previewOnly: isPreview,
@@ -1137,6 +1164,7 @@ export function OrdersManager({
       historyOrders={historyOrders}
       onCustomerClick={openCustomer}
       onConfirmOrder={confirmOrder}
+      onRejectOrder={rejectOrder}
       onToggleComplete={toggleOrderCompletion}
       onHideOrders={hideOrders}
       customerModal={customerModal}
@@ -1207,6 +1235,7 @@ export function OrdersManager({
         activeOrders={activeOrders}
         onCustomerClick={openCustomer}
         onConfirmOrder={confirmOrder}
+        onRejectOrder={rejectOrder}
         onToggleComplete={toggleOrderCompletion}
         onHideOrders={hideOrders}
         previewOnly={isPreview}

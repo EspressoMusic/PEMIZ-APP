@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/api";
 import { requireBusinessOwner } from "@/lib/dashboard-auth";
+import { notifyCustomerOrderStatus } from "@/lib/order-push";
 import { z } from "zod";
 
 export async function GET() {
@@ -16,7 +17,7 @@ export async function GET() {
 
 const statusSchema = z.object({
   orderId: z.string(),
-  status: z.enum(["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"]),
+  status: z.enum(["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "REJECTED"]),
 });
 
 const hideSchema = z.object({
@@ -52,5 +53,10 @@ export async function PATCH(req: Request) {
     where: { id: order.id, businessId: ctx.user.business.id },
     data: { status: parsed.data.status },
   });
+
+  if (parsed.data.status === "CONFIRMED" || parsed.data.status === "REJECTED") {
+    void notifyCustomerOrderStatus(order.id, parsed.data.status, ctx.user.business);
+  }
+
   return jsonOk({ order: updated });
 }

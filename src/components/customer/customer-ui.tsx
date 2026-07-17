@@ -254,9 +254,9 @@ function SettingsMenuRowBody({
   );
 }
 
-/** Active / history order tiles — single light fill + dark stroke */
+/** Active / history order tiles — single tinted fill + dark stroke */
 const orderCardShell =
-  "rounded-[18px] border-[2px] border-bakery-primary bg-bakery-card px-3 py-3";
+  "rounded-[18px] border-[2px] border-bakery-primary bg-bakery-square px-3 py-3";
 
 /** Settings / orders — single row tile (matches seller dashboard-action-row). */
 export function SettingsCollapsibleSection({
@@ -654,7 +654,7 @@ export function AppointmentPreviewCard({
     <button
       type="button"
       onClick={onClick}
-      className={`${orderCardShell} w-full space-y-1.5 text-start transition hover:bg-bakery-cream-light/40 active:scale-[0.99]`}
+      className={`${orderCardShell} w-full space-y-1.5 text-start transition hover:brightness-[0.98] active:scale-[0.99]`}
     >
       {content}
     </button>
