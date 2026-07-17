@@ -12,11 +12,14 @@ export function DashboardOrderConfirmationSettings({
   initialRequired = true,
   previewOnly = false,
   embedded = false,
+  embeddedWrapper = "li",
 }: {
   initialRequired?: boolean;
   previewOnly?: boolean;
   /** Inside a shared settings card — no outer card wrapper of its own. */
   embedded?: boolean;
+  /** "li" inside a <ul> (default), or "div" inside a plain panel (e.g. the Style & Language sheet). */
+  embeddedWrapper?: "li" | "div";
 }) {
   const { labels } = useAppLocale();
   const [required, setRequired] = useState(initialRequired);
@@ -75,6 +78,7 @@ export function DashboardOrderConfirmationSettings({
 
   const row = (
     <div
+      data-tour-id="tour-order-confirmation"
       className={`${DASHBOARD_ACTION_ROW_CLASS} justify-between ${
         saving ? "opacity-45" : ""
       }`}
@@ -133,25 +137,26 @@ export function DashboardOrderConfirmationSettings({
   );
 
   if (embedded) {
+    const Wrapper = embeddedWrapper;
     return (
       <>
-        <li>{row}</li>
-        <li>
+        <Wrapper>{row}</Wrapper>
+        <Wrapper>
           <DashboardHelpText>
             <p className="text-center text-[13px] font-semibold text-bakery-muted">
               {labels.orderConfirmationHint}
             </p>
           </DashboardHelpText>
-        </li>
+        </Wrapper>
         {error ? (
-          <li>
+          <Wrapper>
             <Alert variant="error">{error}</Alert>
-          </li>
+          </Wrapper>
         ) : null}
         {message ? (
-          <li>
+          <Wrapper>
             <Alert variant="success">{message}</Alert>
-          </li>
+          </Wrapper>
         ) : null}
         {confirmSheet}
       </>

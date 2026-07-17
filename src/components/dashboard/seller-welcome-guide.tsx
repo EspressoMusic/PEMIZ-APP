@@ -2,7 +2,9 @@
 
 import {
   Suspense,
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -28,6 +30,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { requestDashboardHubTab } from "@/components/dashboard/dashboard-hub-context";
 import { isScheduleLikeBusinessType } from "@/lib/types";
 import type { DashboardLabels } from "@/lib/dashboard-messages";
 
@@ -35,6 +38,23 @@ const STORAGE_PREFIX = "linky_seller_guide_done:";
 
 function storageKey(businessId: string) {
   return `${STORAGE_PREFIX}${businessId}`;
+}
+
+/** The id of the guide step currently on screen, so a spotlighted element
+ * buried inside a closed panel (e.g. a settings sheet) can open itself. */
+const SellerGuideActiveStepContext = createContext<string | null>(null);
+
+export function useSellerGuideActiveStep() {
+  return useContext(SellerGuideActiveStepContext);
+}
+
+/** Maps a step's route to the hub's CSS-only tab, if it is one — lets the
+ * routing effect ask the hub to switch instantly instead of falling back to a
+ * real Next.js navigation between /dashboard and /dashboard/actions. */
+function hubTabForRoute(route: string, basePath: string): "home" | "actions" | null {
+  if (route === basePath) return "home";
+  if (route === `${basePath}/actions`) return "actions";
+  return null;
 }
 
 type GuideListItem = {
@@ -196,11 +216,11 @@ function buildSteps(
           {
             id: "order-confirmation",
             displayStep: 6,
-            // Explains the concept rather than pointing at the toggle, so it stays
-            // on the actions screen instead of routing to the misc settings page.
+            // The toggle lives inside the Style & Language sheet, which is closed
+            // by default — DashboardStoreStylePicker opens itself when this step
+            // becomes active (see useSellerGuideActiveStep).
             route: `${basePath}/actions`,
-            targetSelector: null,
-            icon: Check,
+            targetSelector: '[data-tour-id="tour-order-confirmation"]',
             title: labels.sellerGuideWelcomeTipOrderConfirmationTitle,
             body: labels.sellerGuideWelcomeTipOrderConfirmationBody,
           },
@@ -453,7 +473,7 @@ function GuideSpotlight({
           <button
             type="button"
             onClick={onNext}
-            className="bakery-cta-3d bakery-cta-3d--primary !w-auto min-h-[30px] rounded-full !px-3 !py-1.5 text-[12px] font-extrabold !shadow-none"
+            className="bakery-cta-3d bakery-cta-3d--primary !w-auto min-h-[30px] !rounded-[14px] !px-3 !py-1.5 text-[12px] font-extrabold !shadow-none"
           >
             {step.isIntro
               ? labels.sellerGuideIntroStart
@@ -501,10 +521,15 @@ function SellerWelcomeGuideInner({
   const finish = useCallback(() => {
     localStorage.setItem(storageKey(businessId), "1");
     setStepIndex(null);
-    if (welcome) {
+    // The hub (real dashboard) switches tabs instantly via pushState and
+    // already lands the URL on basePath — only fall back to a real
+    // navigation when nothing handled the request (e.g. the /dev/guide
+    // preview, which has no DashboardHubShell).
+    const handled = requestDashboardHubTab("home");
+    if (!handled && (welcome || pathname !== basePath)) {
       router.replace(basePath);
     }
-  }, [businessId, welcome, basePath, router]);
+  }, [businessId, welcome, basePath, pathname, router]);
 
   const next = useCallback(() => {
     setStepIndex((current) => {
@@ -568,19 +593,23 @@ function SellerWelcomeGuideInner({
     stepIndex,
   ]);
 
-  // Navigate to the step's route only as a fallback — if the target is already
-  // visible on the current page (e.g. a flat preview that renders every panel
-  // at once, or the hub's own tab already showing it), stay put. In the real
-  // dashboard the hub keeps both the home and actions panels mounted and just
-  // CSS-hides the inactive one, so a hidden target reports a zero-size rect;
-  // only then do we push the route to reveal it.
+  // Reach the step's route without a real Next.js navigation when possible —
+  // if it's just the hub's home/actions tab, ask it to switch instantly via
+  // the same pushState swap the bottom nav uses (see requestDashboardHubTab).
+  // Only fall back to router.push (a real navigation, with its network round
+  // trip and flash) if nothing handled that request and the target is still
+  // not visible after a beat — e.g. the /dev/guide preview, which renders
+  // only one panel at a time and has no DashboardHubShell to intercept it.
   useEffect(() => {
     if (stepIndex == null) return;
     const step = steps[stepIndex];
     if (!step || pathname === step.route) return;
 
+    const hubTab = hubTabForRoute(step.route, basePath);
+    const handled = hubTab != null && requestDashboardHubTab(hubTab);
+
     if (!step.targetSelector) {
-      router.push(step.route);
+      if (!handled) router.push(step.route);
       return;
     }
     const targetSelector = step.targetSelector;
@@ -601,13 +630,15 @@ function SellerWelcomeGuideInner({
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [stepIndex, steps, pathname, router]);
+  }, [stepIndex, steps, pathname, router, basePath]);
 
   const activeStep = stepIndex != null ? steps[stepIndex] : null;
 
   return (
     <>
-      {children}
+      <SellerGuideActiveStepContext.Provider value={activeStep?.id ?? null}>
+        {children}
+      </SellerGuideActiveStepContext.Provider>
       {activeStep ? (
         <GuideSpotlight
           key={activeStep.id}

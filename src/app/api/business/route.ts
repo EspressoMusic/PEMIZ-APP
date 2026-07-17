@@ -47,6 +47,7 @@ export async function POST(req: Request) {
     ...(parsed.data.reviews !== undefined ? { reviews: parsed.data.reviews } : {}),
     ...(parsed.data.coupons !== undefined ? { coupons: parsed.data.coupons } : {}),
     ...(parsed.data.deals !== undefined ? { deals: parsed.data.deals } : {}),
+    ...(parsed.data.chat !== undefined ? { chat: parsed.data.chat } : {}),
   });
 
   const business = await prisma.business.create({

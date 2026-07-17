@@ -77,6 +77,7 @@ export const businessCreateSchema = z.object({
   reviews: z.boolean().optional(),
   coupons: z.boolean().optional(),
   deals: z.boolean().optional(),
+  chat: z.boolean().optional(),
   orderConfirmationRequired: z.boolean().optional(),
 });
 

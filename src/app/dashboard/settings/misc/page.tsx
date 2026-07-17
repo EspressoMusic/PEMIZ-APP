@@ -17,7 +17,6 @@ export default async function SettingsMiscPage() {
     <div className="space-y-4">
       <DashboardSettingsBackLink />
       <DashboardMiscExtras
-        initialOrderConfirmationRequired={user.business.orderConfirmationRequired ?? true}
         alertsVisible={panels.sellerAlerts}
         installAppVisible={panels.sellerInstallApp}
       />

@@ -35,5 +35,11 @@ export default async function SettingsPage() {
     );
   }
 
-  return <DashboardActionsHub businessType={b.type} initialOpenPanel="store" />;
+  return (
+    <DashboardActionsHub
+      businessType={b.type}
+      initialOpenPanel="store"
+      initialOrderConfirmationRequired={b.orderConfirmationRequired ?? true}
+    />
+  );
 }

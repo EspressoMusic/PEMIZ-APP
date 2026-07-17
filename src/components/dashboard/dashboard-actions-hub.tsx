@@ -24,6 +24,7 @@ export function DashboardActionsHub({
   initialWorkingDays,
   /** Open a panel immediately — e.g. landing on /dashboard/customers directly, so the actions grid still shows behind it. */
   initialOpenPanel,
+  initialOrderConfirmationRequired = true,
 }: {
   businessType: string;
   basePath?: string;
@@ -37,6 +38,7 @@ export function DashboardActionsHub({
     initialScheduleJson: string | null;
   };
   initialOpenPanel?: "customers" | "store";
+  initialOrderConfirmationRequired?: boolean;
 }) {
   const { labels } = useAppLocale();
   const [customersOpen, setCustomersOpen] = useState(
@@ -82,6 +84,7 @@ export function DashboardActionsHub({
               previewOnly={previewOnly}
               businessType={businessType}
               initialStoreTerms={initialStoreTerms}
+              initialOrderConfirmationRequired={initialOrderConfirmationRequired}
             />
           </ul>
         </div>

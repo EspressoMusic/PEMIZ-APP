@@ -9,10 +9,12 @@ export function DashboardAccountSettingsGroup({
   basePath = "/dashboard",
   previewOnly = false,
   businessType = "STORE",
+  initialOrderConfirmationRequired = true,
 }: {
   basePath?: string;
   previewOnly?: boolean;
   businessType?: string;
+  initialOrderConfirmationRequired?: boolean;
 }) {
   const { labels } = useAppLocale();
 
@@ -22,6 +24,7 @@ export function DashboardAccountSettingsGroup({
         previewOnly={previewOnly}
         businessType={businessType}
         basePath={basePath}
+        initialOrderConfirmationRequired={initialOrderConfirmationRequired}
       />
       <DashboardActionRow
         href={`${basePath}/settings/account`}

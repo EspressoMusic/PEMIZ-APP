@@ -9,17 +9,24 @@ import { useMarketingLocale } from "@/components/marketing/marketing-locale-prov
 
 function OnboardFeatureToggleRow({
   label,
+  hint,
   enabled,
   onChange,
 }: {
   label: string;
+  hint: string;
   enabled: boolean;
   onChange: (next: boolean) => void;
 }) {
   return (
-    <div className="flex w-full items-center justify-between gap-3 rounded-2xl border-2 border-bakery-border bg-bakery-card px-3 py-3">
-      <span className="text-[14px] font-bold text-bakery-ink">{label}</span>
-      <Toggle enabled={enabled} onChange={onChange} ariaLabel={label} variant="auth" />
+    <div className="w-full rounded-2xl border-2 border-bakery-border bg-bakery-card px-3 py-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0 flex-1 text-[14px] font-bold text-bakery-ink">{label}</span>
+        <Toggle enabled={enabled} onChange={onChange} ariaLabel={label} variant="auth" />
+      </div>
+      <span className="mt-1 block text-[12px] font-medium leading-snug text-bakery-muted">
+        {hint}
+      </span>
     </div>
   );
 }
@@ -31,7 +38,8 @@ export default function OnboardingPage() {
   const [reviews, setReviews] = useState(false);
   const [coupons, setCoupons] = useState(false);
   const [deals, setDeals] = useState(false);
-  const [orderConfirmationRequired, setOrderConfirmationRequired] = useState(true);
+  const [whatsapp, setWhatsapp] = useState(false);
+  const [orderConfirmationRequired, setOrderConfirmationRequired] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,7 +62,7 @@ export default function OnboardingPage() {
         type,
         acceptTerms,
         ...(type === "STORE"
-          ? { reviews, coupons, deals, orderConfirmationRequired }
+          ? { reviews, coupons, deals, chat: whatsapp, orderConfirmationRequired }
           : {}),
       }),
     });
@@ -113,28 +121,43 @@ export default function OnboardingPage() {
             </div>
 
             {type === "STORE" ? (
-              <div>
-                <span className="text-[14px] font-bold text-bakery-ink">
-                  {copy.onboardFeaturesTitle}
-                </span>
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <OnboardFeatureToggleRow
-                    label={copy.onboardFeatureReviews}
-                    enabled={reviews}
-                    onChange={setReviews}
-                  />
-                  <OnboardFeatureToggleRow
-                    label={copy.onboardFeatureCoupons}
-                    enabled={coupons}
-                    onChange={setCoupons}
-                  />
-                  <OnboardFeatureToggleRow
-                    label={copy.onboardFeatureDeals}
-                    enabled={deals}
-                    onChange={setDeals}
-                  />
+              <div className="space-y-3">
+                <div>
+                  <span className="text-[14px] font-bold text-bakery-ink">
+                    {copy.onboardFeaturesTitle}
+                  </span>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <OnboardFeatureToggleRow
+                      label={copy.onboardFeatureReviews}
+                      hint={copy.onboardFeatureReviewsHint}
+                      enabled={reviews}
+                      onChange={setReviews}
+                    />
+                    <OnboardFeatureToggleRow
+                      label={copy.onboardFeatureDeals}
+                      hint={copy.onboardFeatureDealsHint}
+                      enabled={deals}
+                      onChange={setDeals}
+                    />
+                    <OnboardFeatureToggleRow
+                      label={copy.onboardFeatureCoupons}
+                      hint={copy.onboardFeatureCouponsHint}
+                      enabled={coupons}
+                      onChange={setCoupons}
+                    />
+                    <OnboardFeatureToggleRow
+                      label={copy.onboardFeatureWhatsapp}
+                      hint={copy.onboardFeatureWhatsappHint}
+                      enabled={whatsapp}
+                      onChange={setWhatsapp}
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <OnboardFeatureToggleRow
                     label={copy.onboardFeatureOrderConfirmation}
+                    hint={copy.onboardFeatureOrderConfirmationHint}
                     enabled={orderConfirmationRequired}
                     onChange={setOrderConfirmationRequired}
                   />

@@ -18,11 +18,13 @@ export function DashboardActionsSettingsGroup({
   previewOnly = false,
   businessType = "STORE",
   initialStoreTerms = null,
+  initialOrderConfirmationRequired = true,
 }: {
   basePath?: string;
   previewOnly?: boolean;
   businessType?: string;
   initialStoreTerms?: string | null;
+  initialOrderConfirmationRequired?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
@@ -95,6 +97,7 @@ export function DashboardActionsSettingsGroup({
                   basePath={basePath}
                   previewOnly={previewOnly}
                   businessType={businessType}
+                  initialOrderConfirmationRequired={initialOrderConfirmationRequired}
                 />
               )}
             </ul>

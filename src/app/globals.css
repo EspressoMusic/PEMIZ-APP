@@ -2936,17 +2936,6 @@ html:not([data-store-theme="dark"])
     0 2px 10px rgba(58, 47, 38, 0.08);
 }
 
-html:not([data-store-theme="dark"]) .dashboard-store-style-sheet .dashboard-style-guide-btn {
-  border: none;
-  background: #6d4c41 !important;
-  color: #faf4e6 !important;
-  box-shadow: 0 4px 14px rgba(58, 47, 38, 0.28);
-}
-
-html:not([data-store-theme="dark"]) .dashboard-store-style-sheet .dashboard-style-guide-btn:hover {
-  background: #524038 !important;
-}
-
 html:not([data-store-theme="dark"]) .dashboard-broadcast-compose .dashboard-broadcast-field {
   border: 1.5px solid rgba(78, 52, 46, 0.18);
   border-radius: 12px;
@@ -4323,7 +4312,6 @@ html[data-store-theme="dark"] .dashboard-inquiry-cta:hover:not(:disabled) {
 }
 
 html[data-store-theme="dark"] .dashboard-form-submit-btn,
-html[data-store-theme="dark"] .dashboard-store-style-sheet .dashboard-style-guide-btn,
 html[data-store-theme="dark"] .dashboard-broadcast-send-btn {
   background: #da7756 !important;
   color: var(--bakery-on-primary) !important;
@@ -4331,7 +4319,6 @@ html[data-store-theme="dark"] .dashboard-broadcast-send-btn {
 }
 
 html[data-store-theme="dark"] .dashboard-form-submit-btn:hover:not(:disabled),
-html[data-store-theme="dark"] .dashboard-store-style-sheet .dashboard-style-guide-btn:hover,
 html[data-store-theme="dark"] .dashboard-broadcast-send-btn:hover:not(:disabled) {
   background: #e6906f !important;
   box-shadow: 0 4px 12px rgba(218, 119, 86, 0.28);
@@ -4516,7 +4503,6 @@ html[data-store-theme="light"]
 }
 
 html[data-store-theme="light"] .dashboard-form-submit-btn,
-html[data-store-theme="light"] .dashboard-store-style-sheet .dashboard-style-guide-btn,
 html[data-store-theme="light"] .dashboard-broadcast-send-btn {
   background: #2a2a2a !important;
   color: #ffffff !important;
@@ -4524,7 +4510,6 @@ html[data-store-theme="light"] .dashboard-broadcast-send-btn {
 }
 
 html[data-store-theme="light"] .dashboard-form-submit-btn:hover:not(:disabled),
-html[data-store-theme="light"] .dashboard-store-style-sheet .dashboard-style-guide-btn:hover,
 html[data-store-theme="light"] .dashboard-broadcast-send-btn:hover:not(:disabled) {
   background: #333333 !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
@@ -5813,7 +5798,6 @@ html[data-store-theme="turquoise"] .dashboard-notification-bar__type {
 
 html[data-store-theme="turquoise"] .dashboard-broadcast-send-btn,
 html[data-store-theme="turquoise"] .dashboard-form-submit-btn,
-html[data-store-theme="turquoise"] .dashboard-store-style-sheet .dashboard-style-guide-btn,
 html[data-store-theme="turquoise"] .appointment-slot-book-btn {
   background: #0f766e !important;
   color: #f8fffe !important;
@@ -5822,7 +5806,6 @@ html[data-store-theme="turquoise"] .appointment-slot-book-btn {
 
 html[data-store-theme="turquoise"] .dashboard-broadcast-send-btn:hover:not(:disabled),
 html[data-store-theme="turquoise"] .dashboard-form-submit-btn:hover:not(:disabled),
-html[data-store-theme="turquoise"] .dashboard-store-style-sheet .dashboard-style-guide-btn:hover,
 html[data-store-theme="turquoise"] .appointment-slot-book-btn:hover {
   background: #0f766e !important;
   box-shadow: none;

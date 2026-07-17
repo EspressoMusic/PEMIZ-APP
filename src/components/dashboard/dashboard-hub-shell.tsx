@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import {
+  DASHBOARD_HUB_SET_TAB_EVENT,
   DashboardHubProvider,
   type DashboardHubTab,
 } from "@/components/dashboard/dashboard-hub-context";
@@ -51,6 +52,18 @@ export function DashboardHubShell({
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, [basePath]);
+
+  useEffect(() => {
+    function onRequestTab(event: Event) {
+      const detail = (event as CustomEvent<DashboardHubTab>).detail;
+      if (detail !== "home" && detail !== "actions") return;
+      event.preventDefault();
+      setTab(detail);
+    }
+    window.addEventListener(DASHBOARD_HUB_SET_TAB_EVENT, onRequestTab);
+    return () =>
+      window.removeEventListener(DASHBOARD_HUB_SET_TAB_EVENT, onRequestTab);
+  }, [setTab]);
 
   return (
     <DashboardHubProvider value={{ tab, setTab, basePath }}>

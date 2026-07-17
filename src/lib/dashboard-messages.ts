@@ -502,8 +502,6 @@ export type DashboardLabels = {
   sellerGuideWelcomeStepPanelsBody: string;
   sellerGuideWelcomeTipOrderConfirmationTitle: string;
   sellerGuideWelcomeTipOrderConfirmationBody: string;
-  sellerGuideReplayTitle: string;
-  sellerGuideReplayBody: string;
   sellerGuideReplayAction: string;
   liveTourIntroTitle: string;
   liveTourIntroBody: string;
@@ -1145,9 +1143,7 @@ const HE: DashboardLabels = {
     "כאן תוכל להסיר ולהוסיף פאנלים מהחנות שלך — כמו דילים, ביקורות וקופונים.",
   sellerGuideWelcomeTipOrderConfirmationTitle: "אישור הזמנה",
   sellerGuideWelcomeTipOrderConfirmationBody:
-    "כשאישור הזמנה **פעיל**, כל הזמנה חדשה ממתינה לך — אתה בוחר לאשר או לדחות, והלקוח מקבל עדכון. כשהוא **כבוי**, ההזמנות נכנסות לטיפול אוטומטית. אפשר לשנות את זה מתי שתרצה בהגדרות.",
-  sellerGuideReplayTitle: "מדריך התחלה",
-  sellerGuideReplayBody: "רוצה לעבור שוב על השלבים הראשונים ב-Peymiz?",
+    "כשאישור הזמנה **פעיל**, כל הזמנה חדשה ממתינה לך — אתה בוחר לאשר או לדחות, והלקוח מקבל עדכון. כשהוא **כבוי**, ההזמנות נכנסות לטיפול אוטומטית. את ההגדרה הזו תמצא תמיד בפאנל **סגנון ושפה**.",
   sellerGuideReplayAction: "הפעל מדריך שוב",
   liveTourIntroTitle: "בואו נוסיף את המוצר הראשון",
   liveTourIntroBody:
@@ -1919,9 +1915,7 @@ const EN: DashboardLabels = {
     "Add or remove panels from your store here — like deals, reviews and coupons.",
   sellerGuideWelcomeTipOrderConfirmationTitle: "Order confirmation",
   sellerGuideWelcomeTipOrderConfirmationBody:
-    "When order confirmation is **on**, every new order waits for you — you approve it or reject it, and the customer gets an update. When it's **off**, orders go straight into handling. You can switch it any time in settings.",
-  sellerGuideReplayTitle: "Getting started guide",
-  sellerGuideReplayBody: "Want to walk through the first steps in Peymiz again?",
+    "When order confirmation is **on**, every new order waits for you — you approve it or reject it, and the customer gets an update. When it's **off**, orders go straight into handling. You'll always find this setting in the **Style & language** panel.",
   sellerGuideReplayAction: "Show guide again",
   liveTourIntroTitle: "Let's add your first product",
   liveTourIntroBody:

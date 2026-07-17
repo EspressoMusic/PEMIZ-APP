@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, Palette } from "lucide-react";
 import { DASHBOARD_ACTION_ROW_CLASS } from "@/components/dashboard/dashboard-action-row";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useStoreTheme } from "@/components/dashboard/store-theme-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
+import { DashboardOrderConfirmationSettings } from "@/components/dashboard/dashboard-order-confirmation-settings";
+import { useSellerGuideActiveStep } from "@/components/dashboard/seller-welcome-guide";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import {
   STORE_THEMES,
@@ -24,12 +26,14 @@ export function DashboardStoreStylePicker({
   embeddedInPanel = false,
   businessType = "STORE",
   basePath = "/dashboard",
+  initialOrderConfirmationRequired = true,
 }: {
   previewOnly?: boolean;
   /** Inside shared «חשבון וחנות» panel in settings. */
   embeddedInPanel?: boolean;
   businessType?: string;
   basePath?: string;
+  initialOrderConfirmationRequired?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -38,6 +42,14 @@ export function DashboardStoreStylePicker({
   const { locale, labels, setLocale: setAppLocale } = useAppLocale();
   const { theme, setTheme: setAppTheme, setDecoration: setAppDecoration } =
     useStoreTheme();
+  const activeGuideStep = useSellerGuideActiveStep();
+  const guideWantsOrderConfirmation = activeGuideStep === "order-confirmation";
+
+  // The order-confirmation toggle lives in this sheet — open it so the guide
+  // can spotlight the real toggle instead of a floating explainer card.
+  useEffect(() => {
+    if (guideWantsOrderConfirmation) setOpen(true);
+  }, [guideWantsOrderConfirmation]);
 
   async function saveAppearance(patch: {
     storeTheme?: StoreThemeId;
@@ -128,6 +140,7 @@ export function DashboardStoreStylePicker({
         compact
         fitContent
         warmPanel
+        elevated={guideWantsOrderConfirmation}
         panelClassName="dashboard-store-style-sheet"
       >
         <div className="space-y-4">
@@ -192,29 +205,28 @@ export function DashboardStoreStylePicker({
             })}
           </div>
 
+          {businessType === "STORE" ? (
+            <DashboardOrderConfirmationSettings
+              embedded
+              embeddedWrapper="div"
+              initialRequired={initialOrderConfirmationRequired}
+              previewOnly={previewOnly}
+            />
+          ) : null}
+
           {SELLER_WELCOME_GUIDE_ENABLED ? (
-            <div className="bakery-float-tile space-y-3 rounded-[18px] p-4 text-start">
-              <div className="flex items-start gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-bakery-border/20 bg-bakery-card">
-                  <BookOpen className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[15px] font-extrabold text-bakery-ink">
-                    {labels.sellerGuideReplayTitle}
-                  </p>
-                  <p className="mt-1 text-[12px] font-semibold leading-snug text-bakery-muted">
-                    {labels.sellerGuideReplayBody}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={restartSellerGuide}
-                className="dashboard-style-guide-btn w-full rounded-full px-4 py-2.5 text-[14px] font-extrabold transition"
-              >
+            <button
+              type="button"
+              onClick={restartSellerGuide}
+              className={DASHBOARD_ACTION_ROW_CLASS}
+            >
+              <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
+                <BookOpen className="h-6 w-6" strokeWidth={1.75} />
+              </span>
+              <span className="min-w-0 flex-1 text-[16px] font-extrabold leading-tight text-bakery-ink">
                 {labels.sellerGuideReplayAction}
-              </button>
-            </div>
+              </span>
+            </button>
           ) : null}
 
           {message && (

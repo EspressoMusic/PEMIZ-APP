@@ -15,6 +15,7 @@ export default async function DashboardCustomersPage() {
     <DashboardActionsHub
       businessType={business.type}
       initialOpenPanel="customers"
+      initialOrderConfirmationRequired={business.orderConfirmationRequired ?? true}
       initialStoreTerms={scheduleLike ? business.storeTerms ?? null : null}
       initialCalendarConfig={
         scheduleLike ? calendarConfigFromBusiness(business) : undefined

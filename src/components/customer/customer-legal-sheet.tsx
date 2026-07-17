@@ -25,16 +25,23 @@ function MenuTile({
   icon: Icon,
   title,
   onClick,
+  framed = false,
 }: {
   icon: LucideIcon;
   title: string;
   onClick: () => void;
+  /** Dark themed border, matching the WhatsApp contact row, instead of the plain shadow tile. */
+  framed?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-[22px] bg-bakery-square px-3 py-3.5 text-start shadow-[0_3px_10px_rgba(58,47,38,0.12)] transition active:scale-[0.99]"
+      className={`flex w-full items-center gap-3 rounded-[22px] px-3 py-3.5 text-start transition active:scale-[0.99] ${
+        framed
+          ? "customer-settings-menu-shell"
+          : "bg-bakery-square shadow-[0_3px_10px_rgba(58,47,38,0.12)]"
+      }`}
     >
       <span className="bakery-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]">
         <Icon className="h-6 w-6 text-bakery-ink" strokeWidth={1.75} />
@@ -148,6 +155,7 @@ export function CustomerLegalSection({
   whatsappUnavailableLabel?: string;
 }) {
   const [activeDocId, setActiveDocId] = useState<PlatformLegalDocId | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<
     "accessibility" | "legal" | null
   >(null);
@@ -157,6 +165,7 @@ export function CustomerLegalSection({
       ? {
           accessibility: "נגישות",
           legal: "משפטי",
+          accessibilityAndLegal: "נגישות ומשפטי",
           privacy: "מדיניות פרטיות",
           terms: "תנאי שימוש",
           protection: "הגנה משפטית",
@@ -172,6 +181,7 @@ export function CustomerLegalSection({
       : {
           accessibility: "Accessibility",
           legal: "Legal",
+          accessibilityAndLegal: "Accessibility & Legal",
           privacy: "Privacy Policy",
           terms: "Terms of Service",
           protection: "Legal protection",
@@ -219,16 +229,10 @@ export function CustomerLegalSection({
       <ul className="space-y-3">
         <li>
           <MenuTile
-            icon={Accessibility}
-            title={t.accessibility}
-            onClick={() => setActiveSection("accessibility")}
-          />
-        </li>
-        <li>
-          <MenuTile
             icon={Scale}
-            title={t.legal}
-            onClick={() => setActiveSection("legal")}
+            title={t.accessibilityAndLegal}
+            onClick={() => setPickerOpen(true)}
+            framed
           />
         </li>
         {whatsappHref ? (
@@ -241,6 +245,39 @@ export function CustomerLegalSection({
           </li>
         ) : null}
       </ul>
+
+      <CustomerCenterModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        locale={locale}
+        storeTheme={storeTheme}
+        title={t.accessibilityAndLegal}
+      >
+        <div className="px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <ul className="space-y-3">
+            <li>
+              <MenuTile
+                icon={Accessibility}
+                title={t.accessibility}
+                onClick={() => {
+                  setPickerOpen(false);
+                  setActiveSection("accessibility");
+                }}
+              />
+            </li>
+            <li>
+              <MenuTile
+                icon={Scale}
+                title={t.legal}
+                onClick={() => {
+                  setPickerOpen(false);
+                  setActiveSection("legal");
+                }}
+              />
+            </li>
+          </ul>
+        </div>
+      </CustomerCenterModal>
 
       <CustomerCenterModal
         open={activeSection === "accessibility"}

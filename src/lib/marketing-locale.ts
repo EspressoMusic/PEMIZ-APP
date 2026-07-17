@@ -117,9 +117,15 @@ export type MarketingCopy = {
   onboardTermsError: string;
   onboardFeaturesTitle: string;
   onboardFeatureReviews: string;
+  onboardFeatureReviewsHint: string;
   onboardFeatureCoupons: string;
+  onboardFeatureCouponsHint: string;
   onboardFeatureDeals: string;
+  onboardFeatureDealsHint: string;
+  onboardFeatureWhatsapp: string;
+  onboardFeatureWhatsappHint: string;
   onboardFeatureOrderConfirmation: string;
+  onboardFeatureOrderConfirmationHint: string;
 };
 
 export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
@@ -322,9 +328,16 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardTermsError: "Please accept the Terms of Service and Privacy Policy",
     onboardFeaturesTitle: "Which features would you like to turn on?",
     onboardFeatureReviews: "Reviews",
+    onboardFeatureReviewsHint: "Customers can leave and view reviews about your store.",
     onboardFeatureCoupons: "Coupons",
+    onboardFeatureCouponsHint: "Customers can enter a coupon code for a discount at checkout.",
     onboardFeatureDeals: "Deals",
+    onboardFeatureDealsHint: "You can showcase special deals and discounts on products in your store.",
+    onboardFeatureWhatsapp: "WhatsApp contact",
+    onboardFeatureWhatsappHint: "Customers can reach you directly on WhatsApp from the store.",
     onboardFeatureOrderConfirmation: "Order confirmation",
+    onboardFeatureOrderConfirmationHint:
+      "When enabled, new orders wait for your approval before moving into processing. When disabled, orders are confirmed automatically as soon as they're placed.",
   },
   he: {
     loading: "טוען את Peymiz...",
@@ -525,9 +538,16 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardTermsError: "יש לאשר את תנאי השימוש ומדיניות הפרטיות",
     onboardFeaturesTitle: "אילו תכונות להפעיל בחנות?",
     onboardFeatureReviews: "ביקורות",
+    onboardFeatureReviewsHint: "לקוחות יוכלו להשאיר ולראות ביקורות על החנות שלך.",
     onboardFeatureCoupons: "קופונים",
+    onboardFeatureCouponsHint: "לקוחות יוכלו להזין קוד קופון ולקבל הנחה בעת התשלום.",
     onboardFeatureDeals: "מבצעים",
+    onboardFeatureDealsHint: "תוכל להציג בחנות מבצעים והנחות מיוחדות על מוצרים.",
+    onboardFeatureWhatsapp: "פנייה בוואטסאפ",
+    onboardFeatureWhatsappHint: "לקוחות יוכלו לפנות אליך ישירות בוואטסאפ מתוך החנות.",
     onboardFeatureOrderConfirmation: "אישור הזמנה",
+    onboardFeatureOrderConfirmationHint:
+      "כשהאפשרות פעילה, כל הזמנה חדשה תמתין לאישור שלך לפני שהיא נכנסת לטיפול. כשהיא כבויה, הזמנות מאושרות אוטומטית מיד עם ביצוען.",
   },
 };
 

@@ -2679,21 +2679,21 @@ export function CustomerStoreApp({
               lines={historyDetailOrder.lines}
               locale={locale}
             />
-            <div className="space-y-2">
-              <Button
-                type="button"
-                className="w-full font-extrabold"
-                onClick={() => setHistoryDetailOrder(null)}
-              >
-                {labels.close}
-              </Button>
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="mx-auto flex min-h-8 items-center justify-center rounded-[12px] border border-bakery-primary bg-transparent px-4 py-1.5 text-[12px] font-extrabold leading-tight text-bakery-ink transition hover:bg-bakery-cream-light/80 active:scale-[0.98]"
+                className="flex min-h-11 shrink-0 items-center justify-center rounded-[12px] border border-bakery-primary bg-transparent px-4 py-1.5 text-[12px] font-extrabold leading-tight text-bakery-ink transition hover:bg-bakery-cream-light/80 active:scale-[0.98]"
                 onClick={() => reorderFromHistory(historyDetailOrder)}
               >
                 {labels.orderAgain}
               </button>
+              <Button
+                type="button"
+                className="flex-1 font-extrabold"
+                onClick={() => setHistoryDetailOrder(null)}
+              >
+                {labels.close}
+              </Button>
             </div>
           </div>
         ) : null}

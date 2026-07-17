@@ -18,7 +18,6 @@ export default function DevSellerSettingsMiscPage() {
             <DashboardMiscExtras
               basePath="/dev/seller"
               previewOnly
-              initialOrderConfirmationRequired
               previewOrders={DEV_PREVIEW_ORDERS}
             />
           </div>
