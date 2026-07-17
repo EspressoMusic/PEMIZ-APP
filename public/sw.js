@@ -1,4 +1,4 @@
-/* Linky/Peymiz push handler — v2 notification icons */
+/* Linky/Peymiz push handler — v3 single-logo notifications */
 self.addEventListener("push", (event) => {
   let payload = {};
   try {
@@ -7,10 +7,12 @@ self.addEventListener("push", (event) => {
     payload = { body: event.data?.text() ?? "" };
   }
 
-  const title = payload.title || "Linky";
+  const title = payload.title || "Peymiz";
+  // Intentionally no large `icon`: Android always shows the small app icon
+  // (from `badge`) on every notification, so attaching a large icon too
+  // renders the logo twice. Keep only the mandatory small app icon.
   const options = {
     body: payload.body || "",
-    icon: payload.icon || "/icons/notification-icon.png",
     badge: payload.badge || "/icons/notification-badge.png",
     tag: payload.tag || "linky-alert",
     data: { url: payload.url || "/dashboard" },

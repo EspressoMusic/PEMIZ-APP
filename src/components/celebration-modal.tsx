@@ -86,6 +86,7 @@ export function CelebrationModal({
   locale,
   tone = "default",
   icon,
+  celebrate = true,
   children,
 }: {
   open: boolean;
@@ -100,9 +101,12 @@ export function CelebrationModal({
   tone?: "default" | "calendar";
   /** Replaces the default checkmark badge with a custom icon (e.g. "sent" instead of "done"). */
   icon?: ReactNode;
+  /** Set false for non-celebratory outcomes (e.g. a declined order) to skip the confetti. */
+  celebrate?: boolean;
   children?: ReactNode;
 }) {
   const pieces = useMemo<Piece[]>(() => {
+    if (!celebrate) return [];
     const colors = ["#e6d4b8", "#6d4c41", "#43a047", "#b94040", "#7eb8ff", "#f4f0e8"];
     return Array.from({ length: 56 }, (_, id) => ({
       id,
@@ -112,7 +116,7 @@ export function CelebrationModal({
       color: colors[id % colors.length]!,
       size: 6 + Math.floor(Math.random() * 8),
     }));
-  }, [open]);
+  }, [open, celebrate]);
 
   const panelRef = useDialogA11y<HTMLDivElement>(open, onClose);
 
@@ -182,22 +186,24 @@ export function CelebrationModal({
         aria-label={closeAriaLabel}
       />
 
-      <div className="confetti-layer pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        {pieces.map((p) => (
-          <span
-            key={p.id}
-            className="confetti-piece"
-            style={{
-              left: `${p.left}%`,
-              width: p.size,
-              height: p.size * 1.4,
-              backgroundColor: p.color,
-              animationDelay: `${p.delay}s`,
-              animationDuration: `${p.duration}s`,
-            }}
-          />
-        ))}
-      </div>
+      {celebrate ? (
+        <div className="confetti-layer pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          {pieces.map((p) => (
+            <span
+              key={p.id}
+              className="confetti-piece"
+              style={{
+                left: `${p.left}%`,
+                width: p.size,
+                height: p.size * 1.4,
+                backgroundColor: p.color,
+                animationDelay: `${p.delay}s`,
+                animationDuration: `${p.duration}s`,
+              }}
+            />
+          ))}
+        </div>
+      ) : null}
 
       <div
         ref={panelRef}

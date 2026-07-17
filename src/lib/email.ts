@@ -5,11 +5,11 @@ export async function sendVerificationEmail(
   verifyUrl: string,
   ownerName: string
 ): Promise<SendResult> {
-  const subject = "אימות אימייל — פתיחת החנות שלך ב-Linky";
+  const subject = "אימות אימייל — פתיחת החנות שלך ב-Peymiz";
   const html = `
     <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
       <p>שלום ${ownerName},</p>
-      <p>פתחת חנות ב-Linky. לאימות האימייל ולהפעלת החנות והדשבורד, לחץ על הקישור:</p>
+      <p>פתחת חנות ב-Peymiz. לאימות האימייל ולהפעלת החנות והדשבורד, לחץ על הקישור:</p>
       <p><a href="${verifyUrl}">${verifyUrl}</a></p>
       <p>הקישור תקף ל-24 שעות.</p>
       <p>אם לא ביקשת זאת, אפשר להתעלם מהודעה זו.</p>
@@ -49,7 +49,7 @@ export async function sendPasswordResetEmail(
   resetUrl: string,
   ownerName: string
 ): Promise<SendResult> {
-  const subject = "איפוס סיסמה — Linky";
+  const subject = "איפוס סיסמה — Peymiz";
   const html = `
     <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
       <p>שלום ${ownerName},</p>
@@ -102,12 +102,12 @@ export async function sendPlatformMessageToOwner(
   storeName: string,
   message: string
 ): Promise<SendResult> {
-  const subject = `הודעה מצוות Linky — ${storeName}`;
+  const subject = `הודעה מצוות Peymiz — ${storeName}`;
   const bodyHtml = escapeHtml(message.trim()).replace(/\n/g, "<br />");
   const html = `
     <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
       <p>שלום ${escapeHtml(ownerName)},</p>
-      <p>קיבלת הודעה מצוות Linky בנוגע לחנות <strong>${escapeHtml(storeName)}</strong>:</p>
+      <p>קיבלת הודעה מצוות Peymiz בנוגע לחנות <strong>${escapeHtml(storeName)}</strong>:</p>
       <p style="margin:16px 0;padding:12px 14px;border-radius:12px;background:#f5efe6">${bodyHtml}</p>
       <p style="color:#6b5c52;font-size:14px">אפשר להשיב למייל זה אם יש שאלות.</p>
     </div>

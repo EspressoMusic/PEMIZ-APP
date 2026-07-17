@@ -258,6 +258,10 @@ function SettingsMenuRowBody({
 const orderCardShell =
   "rounded-[18px] border-[2px] border-bakery-primary bg-bakery-square px-3 py-3";
 
+/** Line items inside the order-detail popup — same stroke, lighter fill so the card stands out less. */
+const orderCardShellLight =
+  "rounded-[18px] border-[2px] border-bakery-primary bg-bakery-card px-3 py-3";
+
 /** Settings / orders — single row tile (matches seller dashboard-action-row). */
 export function SettingsCollapsibleSection({
   title,
@@ -683,7 +687,7 @@ export function OrderPreviewCard({
   return (
     <div className="space-y-2">
       {lines.map((line, index) => (
-        <div key={`${line.name}-${index}`} className={orderCardShell}>
+        <div key={`${line.name}-${index}`} className={orderCardShellLight}>
           <CartLineRow
             name={line.name}
             imageUrl={line.imageUrl}

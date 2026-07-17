@@ -23,6 +23,7 @@ import {
   Inbox,
   Megaphone,
   Package,
+  Sparkles,
   Ticket,
   type LucideIcon,
 } from "lucide-react";
@@ -46,8 +47,12 @@ type GuideStep = {
   id: string;
   /** 1-based step shown to the user — several steps can share a number (e.g. the home screen covers two highlights). */
   displayStep: number;
+  /** The opening screen: no spotlight, no step counter — just an invitation to start. */
+  isIntro?: boolean;
   route: string;
   targetSelector: string | null;
+  /** Shown above the title on steps that explain a concept rather than spotlight an element. */
+  icon?: LucideIcon;
   title: string;
   body: string;
   /** Renders as a mini checklist (icon + label per row, checkmarks revealed one after another) instead of a plain body paragraph. */
@@ -84,6 +89,16 @@ function buildSteps(
       };
 
   return [
+    {
+      id: "intro",
+      displayStep: 1,
+      isIntro: true,
+      route: basePath,
+      targetSelector: null,
+      icon: Sparkles,
+      title: labels.sellerGuideIntroTitle,
+      body: labels.sellerGuideIntroBody,
+    },
     homeStep,
     {
       id: "home-notifications",
@@ -181,8 +196,11 @@ function buildSteps(
           {
             id: "order-confirmation",
             displayStep: 6,
-            route: `${basePath}/settings/misc`,
-            targetSelector: '[data-tour-id="tour-order-confirmation"]',
+            // Explains the concept rather than pointing at the toggle, so it stays
+            // on the actions screen instead of routing to the misc settings page.
+            route: `${basePath}/actions`,
+            targetSelector: null,
+            icon: Check,
             title: labels.sellerGuideWelcomeTipOrderConfirmationTitle,
             body: labels.sellerGuideWelcomeTipOrderConfirmationBody,
           },
@@ -404,7 +422,16 @@ function GuideSpotlight({
         }`}
         style={tooltipStyle}
       >
-        <p className="text-center text-[13px] font-bold text-bakery-muted">{counter}</p>
+        {step.isIntro ? null : (
+          <p className="text-center text-[13px] font-bold text-bakery-muted">
+            {counter}
+          </p>
+        )}
+        {step.icon ? (
+          <span className="mx-auto mt-1 flex h-12 w-12 items-center justify-center rounded-full border-2 border-bakery-primary/40 bg-white/50">
+            <step.icon className="h-6 w-6 text-bakery-primary" strokeWidth={2} />
+          </span>
+        ) : null}
         <h2
           id="seller-welcome-guide-title"
           className="mt-1 text-center text-[19px] font-extrabold text-bakery-ink"
@@ -428,7 +455,11 @@ function GuideSpotlight({
             onClick={onNext}
             className="bakery-cta-3d bakery-cta-3d--primary !w-auto min-h-[30px] rounded-full !px-3 !py-1.5 text-[12px] font-extrabold !shadow-none"
           >
-            {isLast ? labels.sellerGuideFinish : labels.sellerGuideNext}
+            {step.isIntro
+              ? labels.sellerGuideIntroStart
+              : isLast
+                ? labels.sellerGuideFinish
+                : labels.sellerGuideNext}
           </button>
         </div>
       </div>

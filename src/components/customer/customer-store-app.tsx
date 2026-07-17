@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import {
-  Accessibility,
   ArrowRight,
   HelpCircle,
   MessagesSquare,
@@ -14,6 +13,7 @@ import {
   Smartphone,
   Star,
   Send,
+  X,
 } from "lucide-react";
 import { Button, Input, Textarea } from "@/components/ui";
 import {
@@ -103,10 +103,7 @@ import {
 import { customerOrderStatusToneClass } from "@/lib/order-status-label";
 import { CustomerSellerNoticeBanner } from "./customer-seller-notice-banner";
 import { CustomerSellerPreviewBack } from "./customer-seller-preview-back";
-import {
-  buildSellerWhatsAppHref,
-  CustomerWhatsAppContactRow,
-} from "./customer-whatsapp-contact-row";
+import { buildSellerWhatsAppHref } from "./customer-whatsapp-contact-row";
 import {
   DEFAULT_STORE_PANELS_VISIBLE,
   isSellerWhatsAppVisible,
@@ -439,6 +436,9 @@ export function CustomerStoreApp({
   const [orderCheckoutOpen, setOrderCheckoutOpen] = useState(false);
   const [orderSuccessOpen, setOrderSuccessOpen] = useState(false);
   const [lastOrderIds, setLastOrderIds] = useState<string[]>([]);
+  const [resolvedOrderNotice, setResolvedOrderNotice] = useState<
+    "CONFIRMED" | "REJECTED" | null
+  >(null);
   const [activeOrdersOpen, setActiveOrdersOpen] = useState(false);
   const [localOrderHistory, setLocalOrderHistory] = useState<
     CustomerOrderHistoryEntry[]
@@ -688,9 +688,10 @@ export function CustomerStoreApp({
   );
 
   const refreshLocalOrderStatuses = useCallback(async () => {
-    const orderIds = localOrderHistory
-      .filter((order) => order.status === "PENDING")
-      .flatMap((order) => order.orderIds ?? []);
+    const pendingEntries = localOrderHistory.filter(
+      (order) => order.status === "PENDING"
+    );
+    const orderIds = pendingEntries.flatMap((order) => order.orderIds ?? []);
     if (orderIds.length === 0) return;
     try {
       const res = await fetch(`/api/public/${business.slug}/orders/status`, {
@@ -702,9 +703,23 @@ export function CustomerStoreApp({
         statuses?: Record<string, string>;
       };
       if (res.ok && data.statuses) {
-        setLocalOrderHistory(
-          updateCustomerOrderHistoryStatuses(business.slug, data.statuses, locale)
+        const updated = updateCustomerOrderHistoryStatuses(
+          business.slug,
+          data.statuses,
+          locale
         );
+        setLocalOrderHistory(updated);
+
+        // Surface an in-app notice the moment a pending order gets resolved,
+        // instead of relying on the customer having opted in to push.
+        const resolved = pendingEntries
+          .map((prev) => updated.find((next) => next.id === prev.id))
+          .find(
+            (next) => next?.status === "CONFIRMED" || next?.status === "REJECTED"
+          );
+        if (resolved) {
+          setResolvedOrderNotice(resolved.status as "CONFIRMED" | "REJECTED");
+        }
       }
     } catch {
       // stay on the last known local status; try again next interval
@@ -1852,14 +1867,33 @@ export function CustomerStoreApp({
     setContactView("menu");
   }
 
-  function renderMyOrderHistorySection() {
+  function renderMyOrderHistoryRow() {
     return (
-      <SettingsCollapsibleSection
-        title={labels.orderHistory}
+      <SettingsMenuRow
         icon={Receipt}
-        expanded={orderHistoryOpen}
-        onToggle={() => setOrderHistoryOpen((open) => !open)}
+        title={labels.orderHistory}
+        onClick={() => setOrderHistoryOpen(true)}
+      />
+    );
+  }
+
+  function renderMyOrderHistoryModal() {
+    return (
+      <CustomerCenterModal
+        open={orderHistoryOpen}
+        onClose={() => setOrderHistoryOpen(false)}
+        locale={locale}
+        storeTheme={displayTheme}
+        ariaLabel={labels.orderHistory}
+        header={
+          <CustomerModalHeaderBar
+            title={labels.orderHistory}
+            onClose={() => setOrderHistoryOpen(false)}
+            closeLabel={labels.back}
+          />
+        }
       >
+        <div className="px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         {!customerGoogleEmail ? (
           <div className="space-y-3">
             {localOrderHistory.length > 0 ? (
@@ -1961,7 +1995,8 @@ export function CustomerStoreApp({
             {labels.historySuspended}
           </p>
         ) : null}
-      </SettingsCollapsibleSection>
+        </div>
+      </CustomerCenterModal>
     );
   }
 
@@ -2085,7 +2120,7 @@ export function CustomerStoreApp({
               />
             ) : null}
             <div className="bakery-float-panel space-y-2 rounded-[24px] p-3">
-              {isScheduleLike ? renderMyAppointmentsSection() : renderMyOrderHistorySection()}
+              {isScheduleLike ? renderMyAppointmentsSection() : renderMyOrderHistoryRow()}
               {panels.reviews ? (
                 <SettingsMenuRow
                   icon={Star}
@@ -2107,13 +2142,6 @@ export function CustomerStoreApp({
                   onClick={openInquiryModal}
                 />
               ) : null}
-              {showWhatsAppContact && sellerWhatsAppHref ? (
-                <CustomerWhatsAppContactRow
-                  title={labels.contactOptionWhatsApp}
-                  href={sellerWhatsAppHref}
-                  unavailableLabel={labels.contactOptionWhatsAppUnavailable}
-                />
-              ) : null}
               {panels.installApp ? (
                 <SettingsMenuRow
                   icon={Smartphone}
@@ -2122,8 +2150,8 @@ export function CustomerStoreApp({
                 />
               ) : null}
               <SettingsMenuRow
-                icon={Accessibility}
-                title={labels.accessibility}
+                icon={SlidersHorizontal}
+                title={labels.settings}
                 onClick={() => setLegalOpen(true)}
               />
             </div>
@@ -2240,6 +2268,8 @@ export function CustomerStoreApp({
         storeBody
       )}
 
+      {!isScheduleLike ? renderMyOrderHistoryModal() : null}
+
       <CustomerFaqSheet
         open={faqOpen}
         onClose={() => setFaqOpen(false)}
@@ -2256,10 +2286,10 @@ export function CustomerStoreApp({
         onClose={() => setLegalOpen(false)}
         locale={locale}
         storeTheme={displayTheme}
-        ariaLabel={labels.legal}
+        ariaLabel={labels.settings}
         header={
           <CustomerModalHeaderBar
-            title={labels.legal}
+            title={labels.settings}
             onClose={() => setLegalOpen(false)}
             closeLabel={labels.back}
             leading={
@@ -2282,6 +2312,9 @@ export function CustomerStoreApp({
             onTextScaleChange={(s) => updatePreferences({ textScale: s })}
             storeTheme={displayTheme}
             platformLegalDocs={platformLegalDocs}
+            whatsappTitle={labels.contactOptionWhatsApp}
+            whatsappHref={showWhatsAppContact ? sellerWhatsAppHref : null}
+            whatsappUnavailableLabel={labels.contactOptionWhatsAppUnavailable}
           />
         </div>
       </CustomerCenterModal>
@@ -2465,6 +2498,32 @@ export function CustomerStoreApp({
       </CelebrationModal>
       )}
 
+      {resolvedOrderNotice && !orderSuccessOpen && (
+      <CelebrationModal
+        open
+        onClose={() => setResolvedOrderNotice(null)}
+        title={
+          resolvedOrderNotice === "CONFIRMED"
+            ? labels.orderApprovedTitle
+            : labels.orderRejectedTitle
+        }
+        detail={
+          resolvedOrderNotice === "CONFIRMED"
+            ? labels.orderApprovedDetail
+            : labels.orderRejectedDetail
+        }
+        buttonLabel={labels.great}
+        closeAriaLabel={labels.close}
+        locale={locale}
+        celebrate={resolvedOrderNotice === "CONFIRMED"}
+        icon={
+          resolvedOrderNotice === "REJECTED" ? (
+            <X className="h-7 w-7" strokeWidth={2} />
+          ) : undefined
+        }
+      />
+      )}
+
       <CustomerReviewPromptModal
         open={reviewPromptOpen}
         onClose={() => setReviewPromptOpen(false)}
@@ -2616,13 +2675,22 @@ export function CustomerStoreApp({
               lines={historyDetailOrder.lines}
               locale={locale}
             />
-            <Button
-              type="button"
-              className="w-full font-extrabold"
-              onClick={() => reorderFromHistory(historyDetailOrder)}
-            >
-              {labels.orderAgain}
-            </Button>
+            <div className="space-y-2">
+              <Button
+                type="button"
+                className="w-full font-extrabold"
+                onClick={() => setHistoryDetailOrder(null)}
+              >
+                {labels.close}
+              </Button>
+              <button
+                type="button"
+                className="mx-auto flex min-h-8 items-center justify-center rounded-[12px] border border-bakery-primary bg-transparent px-4 py-1.5 text-[12px] font-extrabold leading-tight text-bakery-ink transition hover:bg-bakery-cream-light/80 active:scale-[0.98]"
+                onClick={() => reorderFromHistory(historyDetailOrder)}
+              >
+                {labels.orderAgain}
+              </button>
+            </div>
           </div>
         ) : null}
       </CustomerCenterModal>

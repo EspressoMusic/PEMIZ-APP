@@ -451,6 +451,9 @@ export type DashboardLabels = {
   sellerGuideAddService: string;
   sellerGuideAddCalendar: string;
   sellerGuideStepCounter: string;
+  sellerGuideIntroTitle: string;
+  sellerGuideIntroBody: string;
+  sellerGuideIntroStart: string;
   appointmentStoreSetupTitle: string;
   appointmentStoreSetupIntro: string;
   appointmentStoreSetupNeedService: string;
@@ -1077,8 +1080,12 @@ const HE: DashboardLabels = {
   appointmentStoreSetupIntro:
     "לפני שמתחילים — הוסיפו לפחות שירות אחד, ובחרו באילו ימים ושעות לקוחות יוכלו לקבוע תור.",
   appointmentStoreSetupNeedService: "יש להוסיף לפחות שירות אחד לפני שממשיכים.",
-  appointmentStoreSetupContinue: "המשך לסיור בלינקי",
+  appointmentStoreSetupContinue: "המשך לסיור ב-Peymiz",
   sellerGuideStepCounter: "שלב {current} מתוך {total}",
+  sellerGuideIntroTitle: "ברוכים הבאים ל-Peymiz!",
+  sellerGuideIntroBody:
+    "לפני שמתחילים — נעבור יחד על **סיור קצר וקל** שיראה לך את כל מה שחשוב לדעת. זה ייקח פחות מדקה.",
+  sellerGuideIntroStart: "יאללה, מתחילים",
   sellerGuideWelcomeTipAddProductTitle: "הוספת מוצר",
   sellerGuideWelcomeTipAddProductBody:
     "פעולות → חנות → מוצרים → הוסף. שם, מחיר ותמונה — שומרים.",
@@ -1138,9 +1145,9 @@ const HE: DashboardLabels = {
     "כאן תוכל להסיר ולהוסיף פאנלים מהחנות שלך — כמו דילים, ביקורות וקופונים.",
   sellerGuideWelcomeTipOrderConfirmationTitle: "אישור הזמנה",
   sellerGuideWelcomeTipOrderConfirmationBody:
-    "כאן קובעים אם הזמנות חדשות ממתינות לאישורך לפני שהן נכנסות, או נכנסות אוטומטית לחנות.",
+    "כשאישור הזמנה **פעיל**, כל הזמנה חדשה ממתינה לך — אתה בוחר לאשר או לדחות, והלקוח מקבל עדכון. כשהוא **כבוי**, ההזמנות נכנסות לטיפול אוטומטית. אפשר לשנות את זה מתי שתרצה בהגדרות.",
   sellerGuideReplayTitle: "מדריך התחלה",
-  sellerGuideReplayBody: "רוצה לעבור שוב על השלבים הראשונים בלינקי?",
+  sellerGuideReplayBody: "רוצה לעבור שוב על השלבים הראשונים ב-Peymiz?",
   sellerGuideReplayAction: "הפעל מדריך שוב",
   liveTourIntroTitle: "בואו נוסיף את המוצר הראשון",
   liveTourIntroBody:
@@ -1331,11 +1338,11 @@ const HE: DashboardLabels = {
   copied: "הועתק!",
   alerts: "התראות",
   installApp: "הורדת אפליקציה",
-  installAppTitle: "התקינו את Linky במכשיר",
+  installAppTitle: "התקינו את Peymiz במכשיר",
   installAppSubtitle:
     "אותן פונקציות כמו באתר — ניהול חנות, הזמנות, לקוחות ופניות — ישירות מהמסך הראשי.",
   installAppInstalledTitle: "האפליקציה מותקנת",
-  installAppInstalledHint: "אפשר לפתוח את Linky מהמסך הראשי בכל עת.",
+  installAppInstalledHint: "אפשר לפתוח את Peymiz מהמסך הראשי בכל עת.",
   installAppButton: "התקנת אפליקציה",
   installAppIosStep1: "לחצו על כפתור השיתוף בתחתית Safari",
   installAppIosStep2: "גללו ובחרו «הוספה למסך הבית»",
@@ -1344,11 +1351,11 @@ const HE: DashboardLabels = {
     "ב-Chrome: תפריט (⋮) → «התקן אפליקציה» או «הוסף למסך הבית». אם מופיע כפתור למעלה — לחצו עליו.",
   installAppDesktopHint:
     "במחשב: Chrome/Edge → אייקון ההתקנה בשורת הכתובת. בחנויות: Android/iOS דרך תיקיית mobile בפרויקט.",
-  installAppBannerTitle: "התקינו את Linky",
+  installAppBannerTitle: "התקינו את Peymiz",
   installAppBannerHint: "גישה מהירה לדשבורד מהמסך הראשי",
   installAppBannerInstall: "התקנה",
   installAppBannerDismiss: "סגירה",
-  platformOwnerMessageTitle: "הודעה מצוות Linky",
+  platformOwnerMessageTitle: "הודעה מצוות Peymiz",
   platformOwnerMessageGotIt: "הבנתי",
   pushEnableTitle: "התראות דחיפה במכשיר",
   pushEnableHint:
@@ -1846,8 +1853,12 @@ const EN: DashboardLabels = {
   appointmentStoreSetupIntro:
     "Before you start — add at least one service, then choose which days and hours customers can book.",
   appointmentStoreSetupNeedService: "Add at least one service before continuing.",
-  appointmentStoreSetupContinue: "Continue to the Linky tour",
+  appointmentStoreSetupContinue: "Continue to the Peymiz tour",
   sellerGuideStepCounter: "Step {current} of {total}",
+  sellerGuideIntroTitle: "Welcome to Peymiz!",
+  sellerGuideIntroBody:
+    "Before you dive in — here's a **short and easy tour** of everything worth knowing. It takes less than a minute.",
+  sellerGuideIntroStart: "Let's go",
   sellerGuideWelcomeTipAddProductTitle: "Add a product",
   sellerGuideWelcomeTipAddProductBody:
     "Actions → Store → Products → Add. Name, price, photo — save.",
@@ -1908,9 +1919,9 @@ const EN: DashboardLabels = {
     "Add or remove panels from your store here — like deals, reviews and coupons.",
   sellerGuideWelcomeTipOrderConfirmationTitle: "Order confirmation",
   sellerGuideWelcomeTipOrderConfirmationBody:
-    "This is where you decide whether new orders wait for your approval before coming in, or go through automatically.",
+    "When order confirmation is **on**, every new order waits for you — you approve it or reject it, and the customer gets an update. When it's **off**, orders go straight into handling. You can switch it any time in settings.",
   sellerGuideReplayTitle: "Getting started guide",
-  sellerGuideReplayBody: "Want to walk through the first steps in Linky again?",
+  sellerGuideReplayBody: "Want to walk through the first steps in Peymiz again?",
   sellerGuideReplayAction: "Show guide again",
   liveTourIntroTitle: "Let's add your first product",
   liveTourIntroBody:
@@ -2101,24 +2112,24 @@ const EN: DashboardLabels = {
   copied: "Copied!",
   alerts: "Alerts",
   installApp: "Install app",
-  installAppTitle: "Install Linky on your device",
+  installAppTitle: "Install Peymiz on your device",
   installAppSubtitle:
     "Same features as the website — store management, orders, customers, and inquiries — from your home screen.",
   installAppInstalledTitle: "App installed",
-  installAppInstalledHint: "Open Linky anytime from your home screen.",
+  installAppInstalledHint: "Open Peymiz anytime from your home screen.",
   installAppButton: "Install app",
   installAppIosStep1: "Tap the Share button at the bottom of Safari",
   installAppIosStep2: "Scroll and choose “Add to Home Screen”",
-  installAppIosStep3: "Confirm — Linky will appear on your home screen",
+  installAppIosStep3: "Confirm — Peymiz will appear on your home screen",
   installAppAndroidHint:
     "In Chrome: menu (⋮) → “Install app” or “Add to Home screen”. Use the install button if it appears.",
   installAppDesktopHint:
     "On desktop: Chrome/Edge → install icon in the address bar. For app stores, use the mobile/ folder in the project.",
-  installAppBannerTitle: "Install Linky",
+  installAppBannerTitle: "Install Peymiz",
   installAppBannerHint: "Quick access to your dashboard from the home screen",
   installAppBannerInstall: "Install",
   installAppBannerDismiss: "Dismiss",
-  platformOwnerMessageTitle: "Message from Linky",
+  platformOwnerMessageTitle: "Message from Peymiz",
   platformOwnerMessageGotIt: "Got it",
   pushEnableTitle: "Push notifications on this device",
   pushEnableHint:

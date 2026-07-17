@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import {
+  Accessibility,
+  Scale,
   Shield,
   FileText,
   Gavel,
@@ -17,6 +19,7 @@ import type {
 } from "@/lib/legal/platform-legal";
 import { LegalDocumentBody } from "@/components/legal/legal-document-body";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
+import { CustomerWhatsAppContactRow } from "@/components/customer/customer-whatsapp-contact-row";
 
 function MenuTile({
   icon: Icon,
@@ -119,9 +122,10 @@ function MoreDocsTile({
 }
 
 /**
- * Accessibility + legal content shown inline inside the settings tab's
- * collapsible "Settings" row. Reading a full document opens its own modal;
- * closing it returns to this inline panel (which stays expanded).
+ * Consolidated "Settings" menu opened from the bottom-nav settings tab:
+ * a tile selector for Accessibility, Legal, and (if configured) WhatsApp
+ * contact. Each tile opens its own nested modal; reading a legal document
+ * opens a further modal on top, closing back to the Legal list.
  */
 export function CustomerLegalSection({
   locale,
@@ -129,14 +133,24 @@ export function CustomerLegalSection({
   onTextScaleChange,
   storeTheme = "turquoise",
   platformLegalDocs = [],
+  whatsappTitle,
+  whatsappHref = null,
+  whatsappUnavailableLabel,
 }: {
   locale: CustomerLocale;
   textScale: CustomerTextScale;
   onTextScaleChange: (scale: CustomerTextScale) => void;
   storeTheme?: StoreThemeId;
   platformLegalDocs?: PlatformLegalDocPayload[];
+  /** Only rendered as a tile when whatsappHref is non-null; title/unavailableLabel are required together with it. */
+  whatsappTitle?: string;
+  whatsappHref?: string | null;
+  whatsappUnavailableLabel?: string;
 }) {
   const [activeDocId, setActiveDocId] = useState<PlatformLegalDocId | null>(null);
+  const [activeSection, setActiveSection] = useState<
+    "accessibility" | "legal" | null
+  >(null);
 
   const t =
     locale === "he"
@@ -149,7 +163,7 @@ export function CustomerLegalSection({
           a11yStatement: "הצהרת נגישות",
           moreDocs: "מסמכים נוספים",
           draftNotice:
-            "טיוטה משפטית — יש לעיין בעורך דין לפני הסתמכות. Linky מספקת כלי בלבד; בעל החנות אחראי למוצרים ולתוכן.",
+            "טיוטה משפטית — יש לעיין בעורך דין לפני הסתמכות. Peymiz מספקת כלי בלבד; בעל החנות אחראי למוצרים ולתוכן.",
           a11yHint: "בחרו גודל טקסט לעמוד החנות",
           scaleDefault: "רגיל",
           scaleLarge: "גדול",
@@ -164,7 +178,7 @@ export function CustomerLegalSection({
           a11yStatement: "Accessibility Statement",
           moreDocs: "More documents",
           draftNotice:
-            "Legal draft — consult a qualified lawyer. Linky provides the platform only; the store owner is responsible for products and content.",
+            "Legal draft — consult a qualified lawyer. Peymiz provides the platform only; the store owner is responsible for products and content.",
           a11yHint: "Choose text size for this store page",
           scaleDefault: "Default",
           scaleLarge: "Large",
@@ -202,11 +216,40 @@ export function CustomerLegalSection({
 
   return (
     <>
-      <section>
-        <h2 className="mb-3 text-center text-[17px] font-extrabold text-bakery-ink">
-          {t.accessibility}
-        </h2>
-        <div className="rounded-[22px] bg-bakery-square px-4 py-4 shadow-[0_3px_10px_rgba(58,47,38,0.12)]">
+      <ul className="space-y-3">
+        <li>
+          <MenuTile
+            icon={Accessibility}
+            title={t.accessibility}
+            onClick={() => setActiveSection("accessibility")}
+          />
+        </li>
+        <li>
+          <MenuTile
+            icon={Scale}
+            title={t.legal}
+            onClick={() => setActiveSection("legal")}
+          />
+        </li>
+        {whatsappHref ? (
+          <li>
+            <CustomerWhatsAppContactRow
+              title={whatsappTitle ?? ""}
+              href={whatsappHref}
+              unavailableLabel={whatsappUnavailableLabel ?? ""}
+            />
+          </li>
+        ) : null}
+      </ul>
+
+      <CustomerCenterModal
+        open={activeSection === "accessibility"}
+        onClose={() => setActiveSection(null)}
+        locale={locale}
+        storeTheme={storeTheme}
+        title={t.accessibility}
+      >
+        <div className="px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <p className="mb-3 text-center text-[14px] text-bakery-muted">
             {t.a11yHint}
           </p>
@@ -228,54 +271,59 @@ export function CustomerLegalSection({
             ))}
           </ul>
         </div>
-      </section>
+      </CustomerCenterModal>
 
-      <section className="mt-5">
-        <h2 className="mb-3 text-center text-[17px] font-extrabold text-bakery-ink">
-          {t.legal}
-        </h2>
-        <ul className="space-y-3">
-          <li>
-            <MenuTile
-              icon={Shield}
-              title={t.privacy}
-              onClick={() => setActiveDocId("privacy-policy")}
-            />
-          </li>
-          <li>
-            <MenuTile
-              icon={FileText}
-              title={t.terms}
-              onClick={() => setActiveDocId("terms-of-service")}
-            />
-          </li>
-          <li>
-            <MenuTile
-              icon={Gavel}
-              title={t.protection}
-              onClick={() => setActiveDocId("disclaimer-liability")}
-            />
-          </li>
-          <li>
-            <MenuTile
-              icon={ClipboardCheck}
-              title={t.a11yStatement}
-              onClick={() => setActiveDocId("accessibility-statement")}
-            />
-          </li>
-          <li>
-            <MoreDocsTile
-              title={t.moreDocs}
-              docIds={extraDocIds}
-              docMap={docMap}
-              locale={locale}
-              draftNotice={t.draftNotice}
-              storeTheme={storeTheme}
-              onOpenDoc={(id) => setActiveDocId(id)}
-            />
-          </li>
-        </ul>
-      </section>
+      <CustomerCenterModal
+        open={activeSection === "legal"}
+        onClose={() => setActiveSection(null)}
+        locale={locale}
+        storeTheme={storeTheme}
+        title={t.legal}
+      >
+        <div className="px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <ul className="space-y-3">
+            <li>
+              <MenuTile
+                icon={Shield}
+                title={t.privacy}
+                onClick={() => setActiveDocId("privacy-policy")}
+              />
+            </li>
+            <li>
+              <MenuTile
+                icon={FileText}
+                title={t.terms}
+                onClick={() => setActiveDocId("terms-of-service")}
+              />
+            </li>
+            <li>
+              <MenuTile
+                icon={Gavel}
+                title={t.protection}
+                onClick={() => setActiveDocId("disclaimer-liability")}
+              />
+            </li>
+            <li>
+              <MenuTile
+                icon={ClipboardCheck}
+                title={t.a11yStatement}
+                onClick={() => setActiveDocId("accessibility-statement")}
+              />
+            </li>
+            <li>
+              <MoreDocsTile
+                title={t.moreDocs}
+                docIds={extraDocIds}
+                docMap={docMap}
+                locale={locale}
+                draftNotice={t.draftNotice}
+                storeTheme={storeTheme}
+                onOpenDoc={(id) => setActiveDocId(id)}
+              />
+            </li>
+          </ul>
+        </div>
+      </CustomerCenterModal>
 
       <CustomerCenterModal
         open={activeDoc != null}

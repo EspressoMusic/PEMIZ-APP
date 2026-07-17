@@ -14,7 +14,7 @@ const DEVELOPER_WHATSAPP = "0586122187";
 
 const whatsappHref = buildWhatsAppChatUrl(
   DEVELOPER_WHATSAPP,
-  "Hi, I requested a password reset on Linky"
+  "Hi, I requested a password reset on Peymiz"
 );
 
 export default function ForgotPasswordPage() {
