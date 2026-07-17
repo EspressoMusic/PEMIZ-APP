@@ -26,7 +26,7 @@ export type StorePanelsVisible = {
 export const DEFAULT_STORE_PANELS_VISIBLE: StorePanelsVisible = {
   deals: false,
   broadcast: true,
-  chat: false,
+  chat: true,
   inquiries: true,
   faq: true,
   orderLimits: true,

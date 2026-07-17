@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { BellRing, Check } from "lucide-react";
 import { Alert, Button } from "@/components/ui";
-import { isPushSupported, requestAndSubscribePush } from "@/lib/push-client";
+import {
+  getActivePushSubscription,
+  isPushSupported,
+  requestAndSubscribePush,
+} from "@/lib/push-client";
 
 type OrderNotifyLabels = {
   orderNotifyMeButton: string;
@@ -48,6 +52,35 @@ export function OrderNotifyOptIn({
       cancelled = true;
     };
   }, [slug, orderIds.length]);
+
+  useEffect(() => {
+    if (visibility !== "visible") return;
+    let cancelled = false;
+    setState("loading");
+    (async () => {
+      const existing = await getActivePushSubscription().catch(() => null);
+      if (cancelled) return;
+      const json = existing?.toJSON();
+      if (!json?.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
+        setState("idle");
+        return;
+      }
+      const res = await fetch(`/api/public/${slug}/orders/push/subscribe`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderIds,
+          endpoint: json.endpoint,
+          keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+        }),
+      }).catch(() => null);
+      if (!cancelled) setState(res?.ok ? "subscribed" : "idle");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [visibility, slug, orderIds]);
 
   if (visibility !== "visible") return null;
 

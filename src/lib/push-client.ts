@@ -100,6 +100,13 @@ export function isPushSupported(): boolean {
   );
 }
 
+export async function getActivePushSubscription(): Promise<PushSubscription | null> {
+  if (!isPushSupported() || Notification.permission !== "granted") return null;
+  const registration = await navigator.serviceWorker.getRegistration("/");
+  if (!registration) return null;
+  return registration.pushManager.getSubscription();
+}
+
 export type PushEnableOutcome =
   | { status: "subscribed"; endpoint: string }
   | { status: "denied" }

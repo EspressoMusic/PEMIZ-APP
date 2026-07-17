@@ -2512,7 +2512,11 @@ export function CustomerStoreApp({
             ? labels.orderApprovedDetail
             : labels.orderRejectedDetail
         }
-        buttonLabel={labels.great}
+        buttonLabel={
+          resolvedOrderNotice === "CONFIRMED"
+            ? labels.great
+            : labels.orderRejectedButton
+        }
         closeAriaLabel={labels.close}
         locale={locale}
         celebrate={resolvedOrderNotice === "CONFIRMED"}

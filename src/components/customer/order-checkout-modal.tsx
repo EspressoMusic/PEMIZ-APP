@@ -80,6 +80,7 @@ export function OrderCheckoutModal({
           couponToggle: "קופון",
           couponCode: "קוד קופון",
           address: "כתובת מגורים",
+          addressRequired: "יש למלא כתובת",
         }
       : {
           title: "Complete your order",
@@ -93,6 +94,7 @@ export function OrderCheckoutModal({
           couponToggle: "Coupon",
           couponCode: "Coupon code",
           address: "Home address",
+          addressRequired: "Please enter your address",
         };
 
   const displayError = error || localError;
@@ -207,8 +209,12 @@ export function OrderCheckoutModal({
                 setLocalError(t.invalidPhone);
                 return;
               }
-              setLocalError("");
               const trimmedAddress = address.trim();
+              if (showAddress && !trimmedAddress) {
+                setLocalError(t.addressRequired);
+                return;
+              }
+              setLocalError("");
               onSubmit(
                 trimmedName,
                 trimmedPhone,
