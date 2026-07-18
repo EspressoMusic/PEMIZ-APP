@@ -83,6 +83,7 @@ export type DashboardLabels = {
   subscriptionContactUs: string;
   subscriptionComingSoon: string;
   subscriptionPreviewOnly: string;
+  subscriptionActivationUnavailable: string;
   subscriptionPremiumFeature1: string;
   subscriptionPremiumFeature2: string;
   subscriptionPremiumFeature3: string;
@@ -241,6 +242,8 @@ export type DashboardLabels = {
   noOrderSearchResults: string;
   filterOrdersByDate: string;
   clearDateFilter: string;
+  filterOrdersByStatus: string;
+  orderStatusFilterAll: string;
   unit: string;
   units: string;
   customer: string;
@@ -848,6 +851,8 @@ const HE: DashboardLabels = {
   noOrderSearchResults: "לא נמצאו הזמנות לחיפוש",
   filterOrdersByDate: "סינון לפי תאריך",
   clearDateFilter: "נקה סינון תאריך",
+  filterOrdersByStatus: "סינון לפי סטטוס",
+  orderStatusFilterAll: "הכל",
   unit: "יחידה",
   units: "יחידות",
   customer: "לקוח",
@@ -1393,6 +1398,7 @@ const HE: DashboardLabels = {
   subscriptionContactUs: "צור קשר",
   subscriptionComingSoon: "תשלום מנוי יתווסף בהמשך — החנות נשארת פעילה בינתיים",
   subscriptionPreviewOnly: "בתצוגת דמו — בחירת חבילה ללא תשלום",
+  subscriptionActivationUnavailable: "הפעלת מנוי בינתיים לא זמינה",
   subscriptionPremiumFeature1: "עד 1,000 הזמנות בחודש",
   subscriptionPremiumFeature2: "חנות דיגיטלית מלאה למוצרים ותורים",
   subscriptionPremiumFeature3: "ניהול מבצעים, הנחות וקודי קופון",
@@ -1618,6 +1624,8 @@ const EN: DashboardLabels = {
   noOrderSearchResults: "No orders match your search",
   filterOrdersByDate: "Filter by date",
   clearDateFilter: "Clear date filter",
+  filterOrdersByStatus: "Filter by status",
+  orderStatusFilterAll: "All",
   unit: "unit",
   units: "units",
   customer: "customer",
@@ -2164,6 +2172,7 @@ const EN: DashboardLabels = {
   subscriptionContactUs: "Contact us",
   subscriptionComingSoon: "Subscription checkout coming later — your store stays active for now",
   subscriptionPreviewOnly: "Preview mode — plan selection without payment",
+  subscriptionActivationUnavailable: "Subscription activation isn't available yet",
   subscriptionPremiumFeature1: "Up to 1,000 orders per month",
   subscriptionPremiumFeature2: "Full digital store for products & appointments",
   subscriptionPremiumFeature3: "Deals, discounts & coupon codes",

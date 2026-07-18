@@ -18,15 +18,20 @@ export function DashboardSubscriptionPlanPicker({
   labels,
   payingPlan,
   previewOnly = false,
+  activationUnavailable = false,
   chooseLabel,
   onChoosePlan,
+  onActivationUnavailable,
 }: {
   locale: AppLocale;
   labels: DashboardLabels;
   payingPlan: SubscriptionPlanId | null;
   previewOnly?: boolean;
+  /** Activation is temporarily turned off for real users; card renders faded and taps show a message instead of starting checkout. */
+  activationUnavailable?: boolean;
   chooseLabel?: string;
   onChoosePlan: (planId: SubscriptionPlanId) => void;
+  onActivationUnavailable?: () => void;
 }) {
   const ctaLabel =
     chooseLabel ??
@@ -44,7 +49,9 @@ export function DashboardSubscriptionPlanPicker({
         return (
           <div
             key={plan.id}
-            className={`${planCardClass} dashboard-subscription-premium-strip`}
+            className={`${planCardClass} dashboard-subscription-premium-strip ${
+              activationUnavailable ? "opacity-50 saturate-50" : ""
+            }`}
           >
             <span className="text-[18px] font-extrabold tracking-wide text-bakery-primary">
               {labels.subscriptionPremium}
@@ -71,8 +78,17 @@ export function DashboardSubscriptionPlanPicker({
             <button
               type="button"
               disabled={loading || previewOnly}
-              className="bakery-cta-3d bakery-cta-3d--primary mt-4 w-full !rounded-full !py-3.5 text-[16px] font-extrabold disabled:opacity-60"
-              onClick={() => onChoosePlan(plan.id)}
+              aria-disabled={activationUnavailable}
+              className={`bakery-cta-3d bakery-cta-3d--primary mt-4 w-full !rounded-full !py-3.5 text-[16px] font-extrabold disabled:opacity-60 ${
+                activationUnavailable ? "cursor-not-allowed opacity-60" : ""
+              }`}
+              onClick={() => {
+                if (activationUnavailable) {
+                  onActivationUnavailable?.();
+                  return;
+                }
+                onChoosePlan(plan.id);
+              }}
             >
               {loading ? labels.saving : ctaLabel}
             </button>

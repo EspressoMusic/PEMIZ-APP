@@ -142,6 +142,67 @@ function filterOrdersBySearch(
   return result;
 }
 
+type OrderStatusFilter = "ALL" | "PENDING" | "CONFIRMED" | "REJECTED" | "COMPLETED";
+
+function matchesOrderStatusFilter(
+  order: DashboardOrderView,
+  filter: OrderStatusFilter
+): boolean {
+  if (filter === "ALL") return true;
+  return order.status === filter;
+}
+
+function OrderStatusFilterChips({
+  orders,
+  value,
+  onChange,
+}: {
+  orders: DashboardOrderView[];
+  value: OrderStatusFilter;
+  onChange: (next: OrderStatusFilter) => void;
+}) {
+  const { labels } = useAppLocale();
+  const options: { key: OrderStatusFilter; label: string }[] = [
+    { key: "ALL", label: labels.orderStatusFilterAll },
+    { key: "PENDING", label: labels.pending },
+    { key: "CONFIRMED", label: labels.confirmed },
+    { key: "REJECTED", label: labels.rejected },
+    { key: "COMPLETED", label: labels.completed },
+  ];
+
+  return (
+    <div
+      className="mb-2 flex flex-wrap items-center gap-1.5 px-0.5"
+      role="group"
+      aria-label={labels.filterOrdersByStatus}
+    >
+      {options.map((opt) => {
+        const count =
+          opt.key === "ALL"
+            ? orders.length
+            : orders.filter((o) => o.status === opt.key).length;
+        const active = value === opt.key;
+        return (
+          <button
+            key={opt.key}
+            type="button"
+            onClick={() => onChange(opt.key)}
+            aria-pressed={active}
+            className={`rounded-full border px-3 py-1.5 text-[13px] font-extrabold transition ${
+              active
+                ? "border-bakery-primary bg-bakery-primary text-bakery-on-primary"
+                : "border-bakery-border/40 bg-bakery-card text-bakery-ink hover:bg-bakery-cream-light/80"
+            }`}
+          >
+            {opt.label}
+            {count > 0 ? ` (${count})` : ""}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function normalizeCustomerPhone(phone: string) {
   return phone.replace(/\s/g, "");
 }
@@ -961,9 +1022,16 @@ function OrdersActiveSheet({
   const { labels } = useAppLocale();
   const { headerEndAction, searchField, searchQuery, searchDate, hasSearchQuery } =
     useOrdersSheetSearch(open);
+  const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>("ALL");
+  useEffect(() => {
+    if (!open) setStatusFilter("ALL");
+  }, [open]);
   const filteredOrders = useMemo(
-    () => filterOrdersBySearch(activeOrders, searchQuery, searchDate),
-    [activeOrders, searchQuery, searchDate]
+    () =>
+      filterOrdersBySearch(activeOrders, searchQuery, searchDate).filter((o) =>
+        matchesOrderStatusFilter(o, statusFilter)
+      ),
+    [activeOrders, searchQuery, searchDate, statusFilter]
   );
 
   return (
@@ -996,6 +1064,11 @@ function OrdersActiveSheet({
       {previewOnly ? <OrdersPreviewBanner /> : null}
       <div className={ordersModalListClassName}>
         {searchField}
+        <OrderStatusFilterChips
+          orders={activeOrders}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
         <DashboardOrdersList
           orders={filteredOrders}
           onCustomerClick={onCustomerClick}
@@ -1004,7 +1077,9 @@ function OrdersActiveSheet({
           onToggleComplete={onToggleComplete}
           onHideOrders={onHideOrders}
           emptyMessage={
-            hasSearchQuery ? labels.noOrderSearchResults : labels.noActiveOrders
+            hasSearchQuery || statusFilter !== "ALL"
+              ? labels.noOrderSearchResults
+              : labels.noActiveOrders
           }
           emptyCompact
         />

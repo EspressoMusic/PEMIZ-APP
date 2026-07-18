@@ -41,6 +41,9 @@ type SubscriptionStatusResponse = {
   billingPortalAvailable: boolean;
 };
 
+/** Subscription activation is paused for now; flip to true once checkout is ready for real users. */
+const SUBSCRIPTION_ACTIVATION_ENABLED = false;
+
 function planTitle(labels: DashboardLabels, planId: SubscriptionPlanId): string {
   return planId === "premium"
     ? labels.subscriptionPremium
@@ -172,7 +175,7 @@ export function DashboardSubscriptionSection({
   }, [open, previewOnly]);
 
   function choosePlan(planId: SubscriptionPlanId) {
-    if (previewOnly) return;
+    if (previewOnly || !SUBSCRIPTION_ACTIVATION_ENABLED) return;
     void startCheckout(planId, labels.subscriptionComingSoon);
   }
 
@@ -258,7 +261,11 @@ export function DashboardSubscriptionSection({
                 labels={labels}
                 payingPlan={payingPlan}
                 previewOnly={previewOnly}
+                activationUnavailable={!previewOnly && !SUBSCRIPTION_ACTIVATION_ENABLED}
                 onChoosePlan={choosePlan}
+                onActivationUnavailable={() =>
+                  setMessage(labels.subscriptionActivationUnavailable)
+                }
               />
           ) : null}
 

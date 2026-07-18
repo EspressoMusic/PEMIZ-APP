@@ -2,6 +2,7 @@ export type StoreCustomerSummary = {
   phoneKey: string;
   customerPhone: string;
   customerName: string;
+  customerAddress: string | null;
   orderCount: number;
   firstOrderAt: string;
   lastOrderAt: string;
@@ -10,6 +11,7 @@ export type StoreCustomerSummary = {
 export type CustomerProfile = {
   customerName: string;
   customerPhone: string;
+  customerAddress: string | null;
   firstOrderAt: string | null;
   lastOrderAt: string | null;
   orderCount: number | null;
@@ -19,12 +21,14 @@ export function resolveCustomerProfile(
   orders: {
     customerName: string;
     customerPhone: string;
+    customerAddress?: string | null;
     createdAt?: string;
     status: string;
   }[],
   input: {
     customerName: string;
     customerPhone: string;
+    customerAddress?: string | null;
     fallbackDate?: string;
   },
   anonymousLabel: string
@@ -41,6 +45,7 @@ export function resolveCustomerProfile(
     return {
       customerName: match.customerName,
       customerPhone: match.customerPhone,
+      customerAddress: match.customerAddress ?? input.customerAddress ?? null,
       firstOrderAt: match.firstOrderAt,
       lastOrderAt: match.lastOrderAt,
       orderCount: match.orderCount,
@@ -51,6 +56,7 @@ export function resolveCustomerProfile(
   return {
     customerName: getCustomerDisplayName(input.customerName, anonymousLabel),
     customerPhone: phone,
+    customerAddress: input.customerAddress ?? null,
     firstOrderAt: fallback,
     lastOrderAt: fallback,
     orderCount: null,
@@ -73,6 +79,7 @@ export function aggregateStoreCustomers(
   orders: {
     customerName: string;
     customerPhone: string;
+    customerAddress?: string | null;
     createdAt?: string;
     status: string;
   }[],
@@ -94,6 +101,7 @@ export function aggregateStoreCustomers(
         phoneKey,
         customerPhone: order.customerPhone,
         customerName: getCustomerDisplayName(order.customerName, anonymousLabel),
+        customerAddress: order.customerAddress?.trim() || null,
         orderCount: 1,
         firstOrderAt: createdAt,
         lastOrderAt: createdAt,
@@ -114,11 +122,16 @@ export function aggregateStoreCustomers(
       if (name !== anonymousLabel) {
         existing.customerName = name;
       }
+      if (order.customerAddress?.trim()) {
+        existing.customerAddress = order.customerAddress.trim();
+      }
     } else if (
       existing.customerName === anonymousLabel &&
       order.customerName.trim()
     ) {
       existing.customerName = order.customerName.trim();
+    } else if (!existing.customerAddress && order.customerAddress?.trim()) {
+      existing.customerAddress = order.customerAddress.trim();
     }
   }
 

@@ -2,11 +2,12 @@
 
 import { useState, type ReactNode } from "react";
 import { Check, Package, MapPin, X } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   customerProfileInitial,
+  WazeIcon,
   type CustomerProfileInput,
 } from "@/components/dashboard/dashboard-customer-profile";
 import {
@@ -38,15 +39,6 @@ export type DashboardOrderView = {
   items: DashboardOrderItemView[];
 };
 
-function googleMapsUrl(order: DashboardOrderView): string {
-  if (order.customerAddressLat != null && order.customerAddressLng != null) {
-    return `https://www.google.com/maps/search/?api=1&query=${order.customerAddressLat},${order.customerAddressLng}`;
-  }
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    order.customerAddress ?? ""
-  )}`;
-}
-
 function wazeUrl(order: DashboardOrderView): string {
   if (order.customerAddressLat != null && order.customerAddressLng != null) {
     return `https://waze.com/ul?ll=${order.customerAddressLat},${order.customerAddressLng}&navigate=yes`;
@@ -54,6 +46,22 @@ function wazeUrl(order: DashboardOrderView): string {
   return `https://waze.com/ul?q=${encodeURIComponent(
     order.customerAddress ?? ""
   )}&navigate=yes`;
+}
+
+function orderStatusBadgeTone(
+  status: string
+): "default" | "success" | "warning" | "danger" {
+  switch (status) {
+    case "PENDING":
+      return "warning";
+    case "CONFIRMED":
+      return "success";
+    case "REJECTED":
+    case "CANCELLED":
+      return "danger";
+    default:
+      return "default";
+  }
 }
 
 function OrderProductThumb({
@@ -125,31 +133,20 @@ export function DashboardOrderDetails({
       </div>
 
       {order.customerAddress ? (
-        <div className="space-y-2 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-3 py-2.5 text-start">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 shrink-0 text-bakery-primary" strokeWidth={2} />
-            <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-bakery-ink">
-              {order.customerAddress}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <a
-              href={wazeUrl(order)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 rounded-full border border-bakery-border/40 bg-bakery-on-primary py-1.5 text-center text-[12px] font-extrabold text-bakery-ink transition hover:opacity-90"
-            >
-              {labels.openInWaze}
-            </a>
-            <a
-              href={googleMapsUrl(order)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 rounded-full border border-bakery-border/40 bg-bakery-on-primary py-1.5 text-center text-[12px] font-extrabold text-bakery-ink transition hover:opacity-90"
-            >
-              {labels.openInMaps}
-            </a>
-          </div>
+        <div className="flex items-center gap-2 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-3 py-2.5 text-start">
+          <MapPin className="h-4 w-4 shrink-0 text-bakery-primary" strokeWidth={2} />
+          <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-bakery-ink">
+            {order.customerAddress}
+          </span>
+          <a
+            href={wazeUrl(order)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={labels.openInWaze}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-bakery-primary transition hover:bg-bakery-card/40 active:scale-95"
+          >
+            <WazeIcon className="h-5 w-5" />
+          </a>
         </div>
       ) : null}
 
@@ -354,6 +351,7 @@ export function DashboardOrderCard({
             onCustomerClick?.({
               customerName: order.customerName,
               customerPhone: order.customerPhone,
+              customerAddress: order.customerAddress,
               fallbackDate: order.customerJoinedAt ?? order.createdAt,
             });
           }}
@@ -369,6 +367,13 @@ export function DashboardOrderCard({
         <span className="min-w-0 flex-1 truncate text-[16px] font-extrabold leading-tight text-bakery-ink">
           {order.customerName}
         </span>
+        {!selectionMode ? (
+          <span className="shrink-0">
+            <Badge tone={orderStatusBadgeTone(order.status)}>
+              {order.statusLabel}
+            </Badge>
+          </span>
+        ) : null}
         {selectionMode ? (
           <span
             aria-hidden
