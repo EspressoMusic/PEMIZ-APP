@@ -80,7 +80,7 @@ export function DevGuidePreview({
               href="/dev"
               className="text-[13px] font-bold text-bakery-primary hover:underline"
             >
-              חזרה ל-dev
+              חזרה
             </Link>
             <Link
               href={other.href}

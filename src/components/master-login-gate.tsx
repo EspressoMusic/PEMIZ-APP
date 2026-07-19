@@ -69,7 +69,7 @@ export function MasterLoginGate() {
         </div>
         <p className="mt-6 text-center">
           <Link href="/" className="text-sm font-bold text-bakery-primary hover:underline">
-            חזרה לדף הבית
+            חזרה
           </Link>
         </p>
       </div>

@@ -479,7 +479,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     toggleLocale: "החלפת שפה",
     localeEn: "EN",
     localeHe: "עב",
-    backToHome: "חזרה לדף הבית",
+    backToHome: "חזרה",
     storeTitle: "החנות שלך",
     storeSub: "פתחו חנות חדשה או התחברו לניהול חנות קיימת.",
     signupsClosed: "הרשמות לחנויות חדשות סגורות כרגע.",

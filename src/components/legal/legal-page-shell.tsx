@@ -17,7 +17,7 @@ export function LegalPageShell({ documentId }: { documentId: PlatformLegalDocId 
           className="mb-4 inline-flex min-h-[40px] items-center gap-1 text-[15px] font-extrabold text-bakery-ink transition active:opacity-80"
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" strokeWidth={2.5} />
-          חזרה לדף הבית
+          חזרה
         </Link>
         <Panel className="max-w-none space-y-4">
           <LegalDocumentBody markdown={doc.markdown} />
