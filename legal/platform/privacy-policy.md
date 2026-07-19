@@ -82,6 +82,7 @@ We use trusted third-party providers to help operate the Service, including:
 - **Supabase** — database and file/image storage
 - **Stripe and/or Paddle** — subscription billing. Depending on which processor bills your account, that processor may act as the merchant of record for your subscription (see Terms of Service, Payment section)
 - **Firebase (Google)** — account sign-in and identity verification
+- **Meta (WhatsApp Business Platform)** — optional order, appointment, and account notifications sent to you or your customers via WhatsApp, when you or they enable this feature
 - **Web push infrastructure** (via your browser vendor) — optional dashboard notifications for business owners who enable them
 - Email delivery services
 
@@ -103,6 +104,8 @@ We do **not** share your business operational data with other businesses on the 
 We implement administrative, technical, and organizational measures designed to protect information, including encryption in transit, access controls, and secure infrastructure practices.
 
 No method of transmission or storage is 100% secure. You are responsible for securing your account credentials.
+
+**Security incident notification.** If we become aware of a security incident that compromises your personal information, we will notify affected account holders without undue delay and in accordance with applicable law, and will take reasonable steps to investigate and mitigate the incident.
 
 **Support access.** Authorized Peymiz personnel may temporarily access or sign in to your account to diagnose issues or provide support you request. This access is limited to what is necessary, is not used for any other purpose, and does not transfer ownership or control of your data.
 

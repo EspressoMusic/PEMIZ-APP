@@ -52,7 +52,7 @@ If you do not accept the risks of using a pilot or beta service, you should not 
 
 ## 5. Account Registration and Security
 
-You must provide accurate account and business information. You are responsible for:
+You must be at least 18 years old and have the legal capacity to enter into a binding contract to create an account or use the Service. You must provide accurate account and business information. You are responsible for:
 
 - Maintaining the confidentiality of your login credentials
 - All activity under your account
@@ -182,15 +182,49 @@ Some jurisdictions do not allow certain limitations; in those cases, our liabili
 
 You agree to indemnify and hold harmless Peymiz from claims, damages, losses, and expenses (including reasonable legal fees) arising from your use of the Service, your business operations, your products or services (including any defect, safety issue, or resulting injury, illness, or property damage), your content, your customers, or your violation of these Terms or applicable law.
 
-## 20. Changes to the Service and Terms
+## 20. Relationship of the Parties
+
+Peymiz and you are independent contractors. Nothing in these Terms creates a partnership, joint venture, employment, franchise, or agency relationship between Peymiz and you. Neither party has authority to bind the other, and your business is not an agent, representative, or franchisee of Peymiz.
+
+## 21. No Third-Party Beneficiaries
+
+These Terms are between Peymiz and the business user only. Your customers, end users, and any other third party are **not** parties to these Terms, are not intended beneficiaries of these Terms, and have no right to enforce these Terms or bring any claim against Peymiz arising from them. Any dispute a customer has regarding an order, appointment, product, service, or communication must be directed to the business, not to Peymiz.
+
+## 22. Force Majeure
+
+Peymiz will not be liable for any failure or delay in performance resulting from causes beyond its reasonable control, including acts of God, war, terrorism, civil unrest, strikes or labor disputes, internet or telecommunications failures, power outages, pandemic, governmental action or regulation, or failures of third-party infrastructure or service providers.
+
+## 23. Time Limitation on Claims
+
+To the extent permitted by applicable law, any claim or cause of action arising out of or relating to these Terms or the Service must be filed within one (1) year after the claim or cause of action arose, or it is permanently barred.
+
+## 24. Waiver
+
+No failure or delay by Peymiz in exercising any right under these Terms shall operate as a waiver of that right, and a waiver of any breach shall not be deemed a waiver of any subsequent breach.
+
+## 25. Severability
+
+If any provision of these Terms is found invalid, illegal, or unenforceable by a court of competent jurisdiction, the remaining provisions shall continue in full force and effect, and the invalid provision shall be modified to the minimum extent necessary to preserve its intent while making it enforceable.
+
+## 26. Assignment
+
+You may not assign or transfer these Terms or your account without Peymiz's prior written consent. Peymiz may assign or transfer these Terms, in whole or in part, without restriction, including in connection with a merger, acquisition, reorganization, or sale of assets. These Terms bind and benefit the parties' permitted successors and assigns.
+
+## 27. Entire Agreement; Notices
+
+These Terms, together with the Privacy Policy, Refund Policy, and any other policy referenced herein, constitute the entire agreement between you and Peymiz regarding the Service and supersede any prior agreements or representations, whether oral or written. Legal notices to Peymiz must be sent to shilohdhd1@gmail.com. Peymiz may send notices to you at the email address on your account; such notices are deemed received when sent.
+
+## 28. Changes to the Service and Terms
 
 We may update the Service and these Terms from time to time. Material changes will be posted on the Platform or notified by email where appropriate. Continued use after changes become effective constitutes acceptance. If you do not agree, you must stop using the Service and cancel your subscription.
 
-## 21. Governing Law and Jurisdiction
+## 29. Governing Law and Jurisdiction
 
 These Terms are governed by the laws of the **State of Israel**, without regard to conflict-of-law principles. Courts in Israel shall have exclusive jurisdiction over disputes arising from these Terms or the Service, subject to mandatory consumer protections that may apply to you under local law.
 
-## 22. Contact
+Before filing any claim, you agree to first contact us at shilohdhd1@gmail.com and attempt in good faith to resolve the dispute informally. To the extent permitted by applicable law, claims must be brought in an individual capacity, and not as a plaintiff or class member in any purported class, consolidated, or representative action.
+
+## 30. Contact
 
 Questions about these Terms:
 
