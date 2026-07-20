@@ -273,6 +273,7 @@ export function DashboardOrderCard({
   selected = false,
   onToggleSelect,
   onLongPress,
+  orderConfirmationRequired = true,
 }: {
   order: DashboardOrderView;
   open: boolean;
@@ -287,6 +288,10 @@ export function DashboardOrderCard({
   selected?: boolean;
   onToggleSelect?: () => void;
   onLongPress?: () => void;
+  /** When the store doesn't require manual order confirmation, every order lands as
+   * "CONFIRMED" with no real approval step behind it — showing that badge would just
+   * be noise, so it's suppressed in that mode. */
+  orderConfirmationRequired?: boolean;
 }) {
   const { labels, formatDateTime } = useAppLocale();
   const total = order.items.reduce((s, it) => s + it.lineTotal, 0);
@@ -367,7 +372,7 @@ export function DashboardOrderCard({
         <span className="min-w-0 flex-1 truncate text-[16px] font-extrabold leading-tight text-bakery-ink">
           {order.customerName}
         </span>
-        {!selectionMode ? (
+        {!selectionMode && (orderConfirmationRequired || order.status !== "CONFIRMED") ? (
           <span className="shrink-0">
             <Badge tone={orderStatusBadgeTone(order.status)}>
               {order.statusLabel}
@@ -449,6 +454,7 @@ export function DashboardOrdersSection({
   onHideOrders,
   customerModal,
   emptyMessage,
+  orderConfirmationRequired = true,
 }: {
   title: string;
   orders: DashboardOrderView[];
@@ -459,6 +465,7 @@ export function DashboardOrdersSection({
   onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   customerModal?: ReactNode;
   emptyMessage?: string;
+  orderConfirmationRequired?: boolean;
 }) {
   const { labels } = useAppLocale();
   return (
@@ -476,6 +483,7 @@ export function DashboardOrdersSection({
         customerModal={customerModal}
         emptyMessage={emptyMessage ?? labels.noOrders}
         emptyCompact
+        orderConfirmationRequired={orderConfirmationRequired}
       />
     </section>
   );
@@ -492,6 +500,7 @@ export function DashboardOrdersList({
   emptyCompact = false,
   showPrices = false,
   customerModal,
+  orderConfirmationRequired = true,
 }: {
   orders: DashboardOrderView[];
   onCustomerClick?: (input: CustomerProfileInput) => void;
@@ -504,6 +513,7 @@ export function DashboardOrdersList({
   emptyCompact?: boolean;
   showPrices?: boolean;
   customerModal?: ReactNode;
+  orderConfirmationRequired?: boolean;
 }) {
   const { labels } = useAppLocale();
   const [openOrderId, setOpenOrderId] = useState<string | null>(null);
@@ -564,6 +574,7 @@ export function DashboardOrdersList({
               selected={selectedIds.has(o.id)}
               onToggleSelect={() => toggleSelect(o.id)}
               onLongPress={onHideOrders ? () => setSelectedIds(new Set([o.id])) : undefined}
+              orderConfirmationRequired={orderConfirmationRequired}
             />
           </li>
         ))}

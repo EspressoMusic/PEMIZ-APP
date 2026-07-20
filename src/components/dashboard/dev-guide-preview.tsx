@@ -97,7 +97,13 @@ export function DevGuidePreview({
           </div>
         </div>
 
-        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
+        <div
+          className={`no-scrollbar min-h-0 flex-1 overscroll-contain ${
+            isSettingsAccountRoute
+              ? "overflow-y-auto"
+              : "flex flex-col overflow-hidden"
+          }`}
+        >
           {isSettingsAccountRoute ? (
             <div className="px-3 py-3">
               <DashboardSettingsView

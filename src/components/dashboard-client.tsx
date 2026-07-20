@@ -812,6 +812,7 @@ function useOrdersManager({
   previewOrders?: DashboardOrderView[];
 }) {
   const [orders, setOrders] = useState<DashboardOrderView[]>(previewOrders ?? []);
+  const [orderConfirmationRequired, setOrderConfirmationRequired] = useState(true);
   const { labels, locale } = useAppLocale();
 
   async function load() {
@@ -821,6 +822,9 @@ function useOrdersManager({
     if (!res.ok) return;
     const mapped = mapOrdersFromApi(locale, data.orders ?? []);
     setOrders(mapped);
+    if (typeof data.orderConfirmationRequired === "boolean") {
+      setOrderConfirmationRequired(data.orderConfirmationRequired);
+    }
   }
 
   useEffect(() => {
@@ -947,6 +951,7 @@ function useOrdersManager({
     toggleOrderCompletion,
     hideOrders,
     previewOnly,
+    orderConfirmationRequired,
   };
 }
 
@@ -959,6 +964,7 @@ function OrdersPanels({
   onToggleComplete,
   onHideOrders,
   customerModal,
+  orderConfirmationRequired = true,
 }: {
   activeOrders: DashboardOrderView[];
   historyOrders: DashboardOrderView[];
@@ -970,6 +976,7 @@ function OrdersPanels({
   onToggleComplete?: (orderId: string) => void;
   onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   customerModal?: React.ReactNode;
+  orderConfirmationRequired?: boolean;
 }) {
   const { labels } = useAppLocale();
 
@@ -985,12 +992,14 @@ function OrdersPanels({
         onHideOrders={onHideOrders}
         customerModal={customerModal}
         emptyMessage={labels.noActiveOrders}
+        orderConfirmationRequired={orderConfirmationRequired}
       />
       <DashboardOrdersSection
         title={labels.orderHistory}
         orders={historyOrders}
         onCustomerClick={onCustomerClick}
         emptyMessage={labels.noOrderHistory}
+        orderConfirmationRequired={orderConfirmationRequired}
       />
     </div>
   );
@@ -1007,6 +1016,7 @@ function OrdersActiveSheet({
   onHideOrders,
   previewOnly,
   allOrdersForExport,
+  orderConfirmationRequired = true,
 }: {
   open: boolean;
   onClose: () => void;
@@ -1018,6 +1028,7 @@ function OrdersActiveSheet({
   onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   previewOnly?: boolean;
   allOrdersForExport?: DashboardOrderView[];
+  orderConfirmationRequired?: boolean;
 }) {
   const { labels } = useAppLocale();
   const { headerEndAction, searchField, searchQuery, searchDate, hasSearchQuery } =
@@ -1082,6 +1093,7 @@ function OrdersActiveSheet({
               : labels.noActiveOrders
           }
           emptyCompact
+          orderConfirmationRequired={orderConfirmationRequired}
         />
       </div>
     </DashboardActionSheet>
@@ -1095,6 +1107,7 @@ function OrdersHistorySheet({
   onCustomerClick,
   previewOnly,
   allOrdersForExport,
+  orderConfirmationRequired = true,
 }: {
   open: boolean;
   onClose: () => void;
@@ -1102,6 +1115,7 @@ function OrdersHistorySheet({
   onCustomerClick: ReturnType<typeof useDashboardCustomerProfile>["openCustomer"];
   previewOnly?: boolean;
   allOrdersForExport?: DashboardOrderView[];
+  orderConfirmationRequired?: boolean;
 }) {
   const { labels } = useAppLocale();
   const { headerEndAction, searchField, searchQuery, searchDate, hasSearchQuery } =
@@ -1146,6 +1160,7 @@ function OrdersHistorySheet({
           }
           emptyCompact
           showPrices
+          orderConfirmationRequired={orderConfirmationRequired}
         />
       </div>
     </DashboardActionSheet>
@@ -1173,6 +1188,7 @@ export function DashboardOrdersEntry({
     toggleOrderCompletion,
     hideOrders,
     previewOnly: isPreview,
+    orderConfirmationRequired,
   } = useOrdersManager({ previewOnly, previewOrders });
 
   const title =
@@ -1198,6 +1214,7 @@ export function DashboardOrdersEntry({
         onHideOrders={hideOrders}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
+        orderConfirmationRequired={orderConfirmationRequired}
       />
       {customerModal}
     </>
@@ -1231,6 +1248,7 @@ export function OrdersManager({
     toggleOrderCompletion,
     hideOrders,
     previewOnly: isPreview,
+    orderConfirmationRequired,
   } = useOrdersManager({ previewOnly, previewOrders });
 
   const panels = (
@@ -1243,6 +1261,7 @@ export function OrdersManager({
       onToggleComplete={toggleOrderCompletion}
       onHideOrders={hideOrders}
       customerModal={customerModal}
+      orderConfirmationRequired={orderConfirmationRequired}
     />
   );
 
@@ -1315,6 +1334,7 @@ export function OrdersManager({
         onHideOrders={hideOrders}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
+        orderConfirmationRequired={orderConfirmationRequired}
       />
 
       <OrdersHistorySheet
@@ -1324,6 +1344,7 @@ export function OrdersManager({
         onCustomerClick={openCustomer}
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
+        orderConfirmationRequired={orderConfirmationRequired}
       />
 
       {customerModal}

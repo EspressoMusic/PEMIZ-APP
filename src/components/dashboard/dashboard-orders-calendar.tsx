@@ -66,6 +66,7 @@ export function DashboardOrdersCalendarCard({
 }) {
   const { labels, locale } = useAppLocale();
   const [orders, setOrders] = useState<DashboardOrderView[]>(previewOrders ?? []);
+  const [orderConfirmationRequired, setOrderConfirmationRequired] = useState(true);
   const [view, setView] = useState<CalendarView>("month");
   const [month, setMonth] = useState(() => appointmentStartOfMonth(new Date()));
   const [weekStart, setWeekStart] = useState(() => startOfWeekKey(todayKey()));
@@ -87,6 +88,9 @@ export function DashboardOrdersCalendarCard({
       const data = await res.json().catch(() => ({}));
       if (!res.ok || cancelled) return;
       setOrders(mapOrdersFromApi(locale, data.orders ?? []));
+      if (typeof data.orderConfirmationRequired === "boolean") {
+        setOrderConfirmationRequired(data.orderConfirmationRequired);
+      }
     }
     void load();
     return () => {
@@ -134,7 +138,7 @@ export function DashboardOrdersCalendarCard({
           selected
             ? "border-bakery-primary bg-bakery-primary/15 text-bakery-primary"
             : isToday
-              ? "border-bakery-primary/45 bg-bakery-primary/5 text-bakery-ink"
+              ? "border-bakery-primary bg-bakery-primary/8 text-bakery-primary"
               : "border-bakery-border/25 bg-bakery-cream-light/60 text-bakery-ink"
         }`}
       >
@@ -244,8 +248,8 @@ export function DashboardOrdersCalendarCard({
                     onClick={() => pickDay(dateKey)}
                     className={`flex flex-col items-center gap-1 rounded-[12px] border-2 py-2 text-[13px] font-extrabold transition ${
                       isToday
-                        ? "border-bakery-primary/45 bg-bakery-primary/5"
-                        : "border-bakery-border/25 bg-bakery-cream-light/60"
+                        ? "border-bakery-primary bg-bakery-primary/8 text-bakery-primary"
+                        : "border-bakery-border/25 bg-bakery-cream-light/60 text-bakery-ink"
                     }`}
                   >
                     <span className="text-[11px] font-bold text-bakery-muted">
@@ -294,7 +298,12 @@ export function DashboardOrdersCalendarCard({
                 {labels.ordersCalendarNoOrdersDay}
               </p>
             ) : (
-              <DashboardOrdersList orders={dayOrders} onCustomerClick={openCustomer} showPrices />
+              <DashboardOrdersList
+                orders={dayOrders}
+                onCustomerClick={openCustomer}
+                showPrices
+                orderConfirmationRequired={orderConfirmationRequired}
+              />
             )}
           </div>
         ) : null}

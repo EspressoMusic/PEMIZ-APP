@@ -39,7 +39,7 @@ export default function OnboardingPage() {
   const [coupons, setCoupons] = useState(false);
   const [deals, setDeals] = useState(false);
   const [whatsapp, setWhatsapp] = useState(false);
-  const [orderConfirmationRequired, setOrderConfirmationRequired] = useState(false);
+  const [orderConfirmationRequired, setOrderConfirmationRequired] = useState(true);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

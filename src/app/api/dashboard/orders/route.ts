@@ -12,7 +12,10 @@ export async function GET() {
     include: { items: { include: { product: true } } },
     orderBy: { createdAt: "desc" },
   });
-  return jsonOk({ orders });
+  return jsonOk({
+    orders,
+    orderConfirmationRequired: ctx.user.business.orderConfirmationRequired ?? true,
+  });
 }
 
 const statusSchema = z.object({
