@@ -252,12 +252,15 @@ export function DashboardPrepSummary({
       setProducts(prepData.products as PrepProductSummary[]);
     }
     if (ordersRes.ok && ordersData.orders) {
-      const mapped = mapPendingOrdersFromRecords(
-        ordersData.orders.filter(
-          (o: { status: string }) => o.status === "PENDING"
-        ),
-        locale
+      const confirmationRequired: boolean =
+        ordersData.orderConfirmationRequired ?? true;
+      const relevant = ordersData.orders.filter(
+        (o: { status: string; sellerHiddenAt?: string | null }) =>
+          confirmationRequired
+            ? o.status === "PENDING"
+            : o.status === "CONFIRMED" && !o.sellerHiddenAt
       );
+      const mapped = mapPendingOrdersFromRecords(relevant, locale);
       setOrders(mapped);
     }
   }, [locale]);

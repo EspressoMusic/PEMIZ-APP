@@ -21,7 +21,8 @@ function sortNotifications(items: DashboardNotification[]) {
 export async function fetchDashboardNotifications(
   businessId: string,
   labels: DashboardLabels,
-  businessType: BusinessType = "STORE"
+  businessType: BusinessType = "STORE",
+  orderConfirmationRequired = true
 ): Promise<DashboardNotification[]> {
   const isScheduleLike = isScheduleLikeBusinessType(businessType);
   const since = new Date(Date.now() - 72 * 60 * 60 * 1000);
@@ -41,7 +42,9 @@ export async function fetchDashboardNotifications(
       isScheduleLike
         ? Promise.resolve([])
         : prisma.order.findMany({
-            where: { businessId, status: "PENDING" },
+            where: orderConfirmationRequired
+              ? { businessId, status: "PENDING" }
+              : { businessId, status: "CONFIRMED", sellerHiddenAt: null },
             include: { items: { include: { product: true } } },
             orderBy: { createdAt: "desc" },
             take: 20,

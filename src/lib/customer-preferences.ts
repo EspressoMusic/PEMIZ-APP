@@ -15,12 +15,14 @@ export type CustomerPreferences = {
   /** null = customer never explicitly picked a theme; follow the store's current theme. */
   theme: CustomerDisplayTheme | null;
   textScale: CustomerTextScale;
+  soundEnabled: boolean;
 };
 
 const DEFAULTS: CustomerPreferences = {
   locale: SITE_LOCALE,
   theme: null,
   textScale: "100",
+  soundEnabled: true,
 };
 
 function storageKey(slug: string) {
@@ -57,6 +59,8 @@ export function loadCustomerPreferences(
         parsed.textScale === "110" || parsed.textScale === "125"
           ? parsed.textScale
           : "100",
+      soundEnabled:
+        typeof parsed.soundEnabled === "boolean" ? parsed.soundEnabled : true,
     };
   } catch {
     return { ...DEFAULTS, locale: ownerLocale };

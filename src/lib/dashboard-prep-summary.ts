@@ -67,8 +67,6 @@ export function groupPrepLinesByCustomer(
   return [...map.values()].sort((a, b) => b.totalQuantity - a.totalQuantity);
 }
 
-const PREP_STATUSES = ["PENDING"] as const;
-
 export type PendingOrderRecord = {
   id: string;
   orderNumber: number;
@@ -86,14 +84,18 @@ export type PendingOrderRecord = {
   }[];
 };
 
+/** Stores that require manual confirmation surface orders here while they're
+ * still PENDING (awaiting that approval). Stores without that step create
+ * orders already CONFIRMED, so there's no PENDING moment to catch — instead
+ * this surfaces CONFIRMED orders the seller hasn't dismissed yet. */
 export async function getPendingOrdersForBusiness(
-  businessId: string
+  businessId: string,
+  orderConfirmationRequired = true
 ): Promise<PendingOrderRecord[]> {
   return prisma.order.findMany({
-    where: {
-      businessId,
-      status: { in: [...PREP_STATUSES] },
-    },
+    where: orderConfirmationRequired
+      ? { businessId, status: "PENDING" }
+      : { businessId, status: "CONFIRMED", sellerHiddenAt: null },
     include: {
       items: { include: { product: true } },
     },
@@ -145,9 +147,13 @@ export function buildPrepSummaryFromOrders(
 }
 
 export async function getPrepSummaryForBusiness(
-  businessId: string
+  businessId: string,
+  orderConfirmationRequired = true
 ): Promise<PrepProductSummary[]> {
-  const orders = await getPendingOrdersForBusiness(businessId);
+  const orders = await getPendingOrdersForBusiness(
+    businessId,
+    orderConfirmationRequired
+  );
   return buildPrepSummaryFromOrders(orders);
 }
 

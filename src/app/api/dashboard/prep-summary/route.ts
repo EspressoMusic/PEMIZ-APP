@@ -5,6 +5,9 @@ import { requireBusinessOwner } from "@/lib/dashboard-auth";
 export async function GET() {
   const ctx = await requireBusinessOwner();
   if (!ctx.ok) return ctx.response;
-  const products = await getPrepSummaryForBusiness(ctx.user.business.id);
+  const products = await getPrepSummaryForBusiness(
+    ctx.user.business.id,
+    ctx.user.business.orderConfirmationRequired ?? true
+  );
   return jsonOk({ products });
 }

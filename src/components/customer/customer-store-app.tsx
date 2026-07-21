@@ -294,6 +294,7 @@ function resolveInitialDisplayPreferences(
   return {
     locale: prefs.locale,
     textScale: prefs.textScale,
+    soundEnabled: prefs.soundEnabled,
     // The "Language & display" row that lets a customer pick their own theme
     // has been disabled ("coming soon") since the 2026-06-11 redesign — there
     // is currently no live path that writes an explicit theme choice. Always
@@ -514,6 +515,7 @@ export function CustomerStoreApp({
   const [displayTheme, setDisplayTheme] =
     useState<CustomerDisplayTheme>(ownerTheme);
   const [textScale, setTextScale] = useState<CustomerTextScale>("100");
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
   const searchParams = useSearchParams();
   const sellerPreviewReturnHref = useMemo(
@@ -614,6 +616,7 @@ export function CustomerStoreApp({
     );
     setLocale(prefs.locale);
     setTextScale(prefs.textScale);
+    setSoundEnabled(prefs.soundEnabled);
     setDisplayTheme(prefs.theme);
 
     const savedPhone =
@@ -937,16 +940,19 @@ export function CustomerStoreApp({
       locale: CustomerLocale;
       theme: CustomerDisplayTheme;
       textScale: CustomerTextScale;
+      soundEnabled: boolean;
     }>
   ) {
     const next = {
       locale: patch.locale ?? locale,
       theme: patch.theme ?? displayTheme,
       textScale: patch.textScale ?? textScale,
+      soundEnabled: patch.soundEnabled ?? soundEnabled,
     };
     setLocale(next.locale);
     setDisplayTheme(next.theme);
     setTextScale(next.textScale);
+    setSoundEnabled(next.soundEnabled);
     saveCustomerPreferences(business.slug, next);
   }
 
@@ -1300,7 +1306,7 @@ export function CustomerStoreApp({
     setCartDeals([]);
     setOrderCheckoutOpen(false);
     setOrderSuccessOpen(true);
-    playOrderCompletedSound();
+    if (soundEnabled) playOrderCompletedSound();
     const nextHistory = appendCustomerOrderHistory(business.slug, orderSnapshot);
     setLocalOrderHistory(nextHistory);
     if (customerGoogleEmail) void loadServerOrderHistory();
@@ -1759,8 +1765,8 @@ export function CustomerStoreApp({
       incremented = true;
       return { ...c, [productId]: current + 1 };
     });
-    if (incremented) playProductAddedSound();
-  }, []);
+    if (incremented && soundEnabled) playProductAddedSound();
+  }, [soundEnabled]);
 
   const productCartHandlers = useMemo(() => {
     const map: Record<
@@ -2310,6 +2316,8 @@ export function CustomerStoreApp({
             locale={locale}
             textScale={textScale}
             onTextScaleChange={(s) => updatePreferences({ textScale: s })}
+            soundEnabled={soundEnabled}
+            onSoundEnabledChange={(v) => updatePreferences({ soundEnabled: v })}
             storeTheme={displayTheme}
             platformLegalDocs={platformLegalDocs}
             whatsappTitle={labels.contactOptionWhatsApp}

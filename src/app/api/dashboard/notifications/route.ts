@@ -13,7 +13,8 @@ export async function GET() {
   const notifications = await fetchDashboardNotifications(
     ctx.user.business.id,
     DASHBOARD_LABELS[locale],
-    parseBusinessType(ctx.user.business.type)
+    parseBusinessType(ctx.user.business.type),
+    ctx.user.business.orderConfirmationRequired ?? true
   );
 
   return jsonOk({ notifications });

@@ -9,6 +9,7 @@ import {
   Gavel,
   Files,
   ClipboardCheck,
+  Volume2,
   type LucideIcon,
 } from "lucide-react";
 import type { CustomerLocale, CustomerTextScale } from "@/lib/customer-preferences";
@@ -20,6 +21,8 @@ import type {
 import { LegalDocumentBody } from "@/components/legal/legal-document-body";
 import { CustomerCenterModal } from "@/components/customer/customer-center-modal";
 import { CustomerWhatsAppContactRow } from "@/components/customer/customer-whatsapp-contact-row";
+import { SettingsMenuRow } from "@/components/customer/customer-ui";
+import { Toggle } from "@/components/ui";
 
 function MenuTile({
   icon: Icon,
@@ -138,6 +141,8 @@ export function CustomerLegalSection({
   locale,
   textScale,
   onTextScaleChange,
+  soundEnabled,
+  onSoundEnabledChange,
   storeTheme = "turquoise",
   platformLegalDocs = [],
   whatsappTitle,
@@ -147,6 +152,8 @@ export function CustomerLegalSection({
   locale: CustomerLocale;
   textScale: CustomerTextScale;
   onTextScaleChange: (scale: CustomerTextScale) => void;
+  soundEnabled: boolean;
+  onSoundEnabledChange: (enabled: boolean) => void;
   storeTheme?: StoreThemeId;
   platformLegalDocs?: PlatformLegalDocPayload[];
   /** Only rendered as a tile when whatsappHref is non-null; title/unavailableLabel are required together with it. */
@@ -166,6 +173,7 @@ export function CustomerLegalSection({
           accessibility: "נגישות",
           legal: "משפטי",
           accessibilityAndLegal: "נגישות ומשפטי",
+          systemSounds: "צלילי מערכת",
           privacy: "מדיניות פרטיות",
           terms: "תנאי שימוש",
           protection: "הגנה משפטית",
@@ -182,6 +190,7 @@ export function CustomerLegalSection({
           accessibility: "Accessibility",
           legal: "Legal",
           accessibilityAndLegal: "Accessibility & Legal",
+          systemSounds: "System sounds",
           privacy: "Privacy Policy",
           terms: "Terms of Service",
           protection: "Legal protection",
@@ -233,6 +242,19 @@ export function CustomerLegalSection({
             title={t.accessibilityAndLegal}
             onClick={() => setPickerOpen(true)}
             framed
+          />
+        </li>
+        <li>
+          <SettingsMenuRow
+            icon={Volume2}
+            title={t.systemSounds}
+            trailing={
+              <Toggle
+                enabled={soundEnabled}
+                onChange={onSoundEnabledChange}
+                ariaLabel={t.systemSounds}
+              />
+            }
           />
         </li>
         {whatsappHref ? (

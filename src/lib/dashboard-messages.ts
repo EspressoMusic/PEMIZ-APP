@@ -35,6 +35,9 @@ export type DashboardLabels = {
   workingDays: string;
   settings: string;
   alerts: string;
+  supportHelp: string;
+  supportHelpWhatsApp: string;
+  supportHelpEmail: string;
   installApp: string;
   installAppTitle: string;
   installAppSubtitle: string;
@@ -1338,6 +1341,9 @@ const HE: DashboardLabels = {
   copyLink: "העתק קישור",
   copied: "הועתק!",
   alerts: "התראות",
+  supportHelp: "תמיכה ועזרה",
+  supportHelpWhatsApp: "וואטסאפ",
+  supportHelpEmail: "אימייל",
   installApp: "הורדת אפליקציה",
   installAppTitle: "התקינו את Peymiz במכשיר",
   installAppSubtitle:
@@ -2113,6 +2119,9 @@ const EN: DashboardLabels = {
   copyLink: "Copy link",
   copied: "Copied!",
   alerts: "Alerts",
+  supportHelp: "Support & Help",
+  supportHelpWhatsApp: "WhatsApp",
+  supportHelpEmail: "Email",
   installApp: "Install app",
   installAppTitle: "Install Peymiz on your device",
   installAppSubtitle:

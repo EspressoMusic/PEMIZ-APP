@@ -28,7 +28,10 @@ export default async function DashboardHubLayout({
   if (business.type === "STORE") {
     try {
       pendingOrders = await withDbTimeout(
-        getPendingOrdersForBusiness(business.id)
+        getPendingOrdersForBusiness(
+          business.id,
+          business.orderConfirmationRequired ?? true
+        )
       );
     } catch {
       pendingOrders = [];
