@@ -41,8 +41,8 @@ type SubscriptionStatusResponse = {
   billingPortalAvailable: boolean;
 };
 
-/** Subscription activation is paused for now; flip to true once checkout is ready for real users. */
-const SUBSCRIPTION_ACTIVATION_ENABLED = false;
+/** Subscription activation is live; requires Paddle env vars + SUBSCRIPTION_PAYMENTS_ENABLED=true on the server. */
+const SUBSCRIPTION_ACTIVATION_ENABLED = true;
 
 function planTitle(labels: DashboardLabels, planId: SubscriptionPlanId): string {
   return planId === "premium"
