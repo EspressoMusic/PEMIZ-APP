@@ -2,9 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BellRing } from "lucide-react";
-import { Alert } from "@/components/ui";
+import { Alert, Button } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import { isPushSupported, requestAndSubscribePush } from "@/lib/push-client";
+import {
+  getActivePushSubscription,
+  isPushSupported,
+  requestAndSubscribePush,
+} from "@/lib/push-client";
 
 function pushSubscribeErrorMessage(
   error: unknown,
@@ -78,7 +82,16 @@ export function DashboardSellerPushRegistration({
         configured?: boolean;
         publicKey?: string | null;
       };
-      setState(res.ok && data.configured && data.publicKey ? "idle" : "unconfigured");
+      if (!res.ok || !data.configured || !data.publicKey) {
+        setState("unconfigured");
+        return;
+      }
+      if (typeof Notification !== "undefined" && Notification.permission === "denied") {
+        setState("denied");
+        return;
+      }
+      const activeSubscription = await getActivePushSubscription().catch(() => null);
+      setState(activeSubscription ? "subscribed" : "idle");
     } catch {
       setState("unconfigured");
     }
@@ -167,7 +180,16 @@ export function DashboardSellerPushRegistration({
         <p className="text-center text-[13px] font-semibold text-bakery-muted">
           {labels.chatLoading}
         </p>
-      ) : null}
+      ) : (
+        <Button
+          type="button"
+          variant="secondary"
+          className="w-full"
+          onClick={() => void subscribe()}
+        >
+          {labels.pushSubscribeButton}
+        </Button>
+      )}
 
       {error ? <Alert variant="error">{error}</Alert> : null}
     </div>
