@@ -1,7 +1,8 @@
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
 import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
-import { notificationIconForTheme } from "@/lib/store-themes";
+
+const PEYMIZ_BRAND_ICON = "/icons/notification-icon.png";
 
 export { LOW_STOCK_THRESHOLD };
 
@@ -65,12 +66,11 @@ export function configureWebPush() {
 async function ownerForPush(
   businessId: string,
   kind: SellerPushKind
-): Promise<{ ownerId: string; storeTheme: string } | null> {
+): Promise<{ ownerId: string } | null> {
   const business = await prisma.business.findUnique({
     where: { id: businessId },
     select: {
       ownerId: true,
-      storeTheme: true,
       sellerAlertsEnabled: true,
       sellerAlertOnInquiry: true,
       sellerAlertOnChat: true,
@@ -89,9 +89,7 @@ async function ownerForPush(
           ? business.sellerAlertOnChat
           : business.sellerAlertOnLowStock;
 
-  return enabled
-    ? { ownerId: business.ownerId, storeTheme: business.storeTheme }
-    : null;
+  return enabled ? { ownerId: business.ownerId } : null;
 }
 
 export async function dispatchSellerPush(
@@ -110,7 +108,7 @@ export async function dispatchSellerPush(
       console.warn("[seller-push] skipped: alerts disabled", { businessId, kind });
       return;
     }
-    const { ownerId, storeTheme } = owner;
+    const { ownerId } = owner;
 
     const subs = await prisma.sellerPushSubscription.findMany({
       where: { userId: ownerId },
@@ -123,7 +121,7 @@ export async function dispatchSellerPush(
     configureWebPush();
     const payload = JSON.stringify({
       ...notification,
-      icon: notification.icon ?? notificationIconForTheme(storeTheme),
+      icon: notification.icon ?? PEYMIZ_BRAND_ICON,
     });
 
     await Promise.allSettled(
@@ -173,7 +171,10 @@ export async function dispatchOwnerPush(
     if (subs.length === 0) return;
 
     configureWebPush();
-    const payload = JSON.stringify(notification);
+    const payload = JSON.stringify({
+      ...notification,
+      icon: notification.icon ?? PEYMIZ_BRAND_ICON,
+    });
 
     await Promise.allSettled(
       subs.map(async (sub) => {

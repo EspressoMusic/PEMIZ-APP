@@ -1,4 +1,4 @@
-/* Linky/Peymiz push handler — v3 single-logo notifications */
+/* Linky/Peymiz push handler — v4 branded large icon */
 self.addEventListener("push", (event) => {
   let payload = {};
   try {
@@ -8,11 +8,13 @@ self.addEventListener("push", (event) => {
   }
 
   const title = payload.title || "Peymiz";
-  // Intentionally no large `icon`: Android always shows the small app icon
-  // (from `badge`) on every notification, so attaching a large icon too
-  // renders the logo twice. Keep only the mandatory small app icon.
+  // `icon` shows the full-color Peymiz logo (teal bg) inside the notification
+  // card. `badge` is the tiny mandatory status-bar dot — Android always
+  // renders it as a single-color silhouette tinted by the OS/phone theme, so
+  // its color can't be set from here no matter what image is used.
   const options = {
     body: payload.body || "",
+    icon: payload.icon || "/icons/notification-icon.png",
     badge: payload.badge || "/icons/notification-badge.png",
     tag: payload.tag || "linky-alert",
     data: { url: payload.url || "/dashboard" },
