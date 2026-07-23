@@ -45,6 +45,19 @@ export default function HomePage() {
     })),
   };
 
+  const howToJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "How to start selling or taking bookings with Peymiz",
+    description: SITE_DESCRIPTION,
+    step: MARKETING_COPY.en.usageSteps.map((item, index) => ({
+      "@type": "HowToStep",
+      position: index + 1,
+      name: item.title,
+      text: item.body,
+    })),
+  };
+
   return (
     <>
       <script
@@ -66,6 +79,12 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(howToJsonLd).replace(/</g, "\\u003c"),
         }}
       />
       <MarketingSite />

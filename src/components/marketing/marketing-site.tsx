@@ -19,6 +19,7 @@ import { MarketingPlanPrice } from "./marketing-plan-price";
 import { MarketingContactPhoneCard } from "./marketing-contact-phone-card";
 import { MarketingWhatsAppCta } from "./marketing-whatsapp-cta";
 import { MarketingUsageFlow } from "./marketing-usage-flow";
+import { MarketingUsageDemo } from "./marketing-usage-demo";
 
 export function MarketingSite() {
   return (
@@ -307,6 +308,7 @@ function MarketingSiteContent() {
           </div>
 
           <MarketingUsageFlow steps={copy.usageSteps} />
+          <MarketingUsageDemo />
         </div>
       </section>
 

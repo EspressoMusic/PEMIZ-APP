@@ -55,6 +55,7 @@ export function DashboardSettingsView({
             <DashboardSubscriptionSection
               embedded
               previewOnly={previewOnly}
+              tourId="tour-subscription"
             />
 
             {businessType === "STORE" ||

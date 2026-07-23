@@ -66,6 +66,7 @@ export function DashboardActionRow({
   title,
   subtitle,
   embeddedInPanel = false,
+  tourId,
 }: {
   href: string;
   icon: LucideIcon;
@@ -73,6 +74,7 @@ export function DashboardActionRow({
   subtitle?: string;
   /** Inside a shared «חשבון וחנות» panel — no outer tile border. */
   embeddedInPanel?: boolean;
+  tourId?: string;
 }) {
   const content = (
     <>
@@ -86,6 +88,7 @@ export function DashboardActionRow({
       <Link
         href={href}
         className="dashboard-account-settings-panel__row"
+        data-tour-id={tourId}
         {...getDashboardPressProps<HTMLAnchorElement>()}
       >
         {content}
@@ -98,6 +101,7 @@ export function DashboardActionRow({
       <Link
         href={href}
         className={DASHBOARD_ACTION_ROW_CLASS}
+        data-tour-id={tourId}
         {...getDashboardPressProps<HTMLAnchorElement>()}
       >
         {content}

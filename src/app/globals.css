@@ -342,23 +342,28 @@ html[data-customer-chrome-theme="turquoise"] body {
 .app-loading-splash-tagline {
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-weight: 700;
-  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  font-size: clamp(1.4rem, 5vw, 2rem);
   letter-spacing: -0.01em;
   color: #ffffff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  opacity: 0;
-  animation: app-loading-tagline-in 0.6s ease-out 0.35s forwards;
 }
 
 .app-loading-splash-tagline-brand {
-  color: var(--bakery-ink, #134e4a);
+  color: #0d9488;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.25);
 }
 
-@keyframes app-loading-tagline-in {
+.app-loading-splash-tagline-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: app-loading-tagline-char-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes app-loading-tagline-char-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -368,7 +373,7 @@ html[data-customer-chrome-theme="turquoise"] body {
 
 @media (prefers-reduced-motion: reduce) {
   .app-loading-splash-logo,
-  .app-loading-splash-tagline {
+  .app-loading-splash-tagline-char {
     animation: none;
     opacity: 1;
     transform: none;

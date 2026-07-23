@@ -25,11 +25,13 @@ export function DashboardCustomersHubGrid({
         href={`${basePath}/customers/inquiries`}
         icon={Inbox}
         title={labels.customerInquiries}
+        tourId="tour-inquiries-row"
       />
       <DashboardActionRow
         href={`${basePath}/faq`}
         icon={HelpCircle}
         title={labels.faq}
+        tourId="tour-faq-row"
       />
     </ul>
   );

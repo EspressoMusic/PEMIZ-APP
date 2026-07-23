@@ -122,6 +122,7 @@ export function DashboardBroadcastEntry({
         onClick={() => setOpen(true)}
         icon={Megaphone}
         title={labels.customerMessage}
+        tourId="tour-broadcast-row"
       />
       <DashboardActionSheet
         open={open}

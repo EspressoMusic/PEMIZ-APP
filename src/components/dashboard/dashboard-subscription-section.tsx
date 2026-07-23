@@ -139,10 +139,12 @@ function SubscriptionStatusPanel({
 export function DashboardSubscriptionSection({
   previewOnly = false,
   embedded = false,
+  tourId,
 }: {
   previewOnly?: boolean;
   /** Inside the shared settings panel — same row style as customers / alerts. */
   embedded?: boolean;
+  tourId?: string;
 }) {
   const { labels, locale } = useAppLocale();
   const [open, setOpen] = useState(false);
@@ -203,6 +205,7 @@ export function DashboardSubscriptionSection({
           onClick={openSubscriptionSheet}
           icon={Crown}
           title={labels.subscription}
+          tourId={tourId}
         />
       ) : (
         <DashboardSettingsTile>

@@ -55,6 +55,7 @@ export function DashboardStoreSettingsHubGrid({
         href={`${basePath}/settings/deals-and-limits`}
         icon={Gift}
         title={labels.dealsAndLimits}
+        tourId="tour-deals-limits-row"
       />
     </ul>
   );

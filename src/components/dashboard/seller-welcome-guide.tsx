@@ -83,15 +83,22 @@ type GuideStep = {
   avoidSelector?: string;
 };
 
+/** Draft step shape used while building the list — steps sharing a
+ * `displayGroup` are numbered together (e.g. the home screen's 3 highlights
+ * all show as step 1); `buildSteps` converts groups to 1-based `displayStep`
+ * numbers in order of first appearance, so the total automatically grows or
+ * shrinks as steps are added, removed, or gated by business type. */
+type GuideStepDraft = Omit<GuideStep, "displayStep"> & { displayGroup: string };
+
 function buildSteps(
   basePath: string,
   isAppointments: boolean,
   labels: DashboardLabels
 ): GuideStep[] {
-  const homeStep: GuideStep = isAppointments
+  const homeStep: GuideStepDraft = isAppointments
     ? {
         id: "home-calendar",
-        displayStep: 1,
+        displayGroup: "home",
         route: basePath,
         targetSelector: '[data-tour-id="tour-home-calendar"]',
         title: labels.sellerGuideWelcomeTipCalendarTitle,
@@ -100,7 +107,7 @@ function buildSteps(
       }
     : {
         id: "home-orders",
-        displayStep: 1,
+        displayGroup: "home",
         route: basePath,
         targetSelector: '[data-tour-id="tour-home-orders"]',
         title: labels.sellerGuideWelcomeTipOrdersTitle,
@@ -108,10 +115,10 @@ function buildSteps(
         avoidSelector: '[data-tour-id="tour-share-link"]',
       };
 
-  return [
+  const draft: GuideStepDraft[] = [
     {
       id: "intro",
-      displayStep: 1,
+      displayGroup: "home",
       isIntro: true,
       route: basePath,
       targetSelector: null,
@@ -122,7 +129,7 @@ function buildSteps(
     homeStep,
     {
       id: "home-notifications",
-      displayStep: 1,
+      displayGroup: "home",
       route: basePath,
       targetSelector: '[data-tour-id="tour-home-notifications"]',
       title: labels.sellerGuideWelcomeHomeNotificationsTitle,
@@ -130,7 +137,7 @@ function buildSteps(
     },
     {
       id: "share-link",
-      displayStep: 2,
+      displayGroup: "share-link",
       route: basePath,
       targetSelector: '[data-tour-id="tour-share-link"]',
       title: labels.sellerGuideWelcomeStepLinkTitle,
@@ -138,7 +145,7 @@ function buildSteps(
     },
     {
       id: "store-panel",
-      displayStep: 3,
+      displayGroup: "store-panel",
       route: `${basePath}/actions`,
       targetSelector: '[data-tour-id="tour-store-square"]',
       title: labels.sellerGuideWelcomeStepStorePanelTitle,
@@ -177,9 +184,24 @@ function buildSteps(
             },
           ],
     },
+    ...(isAppointments
+      ? []
+      : [
+          {
+            id: "store-deals-limits",
+            displayGroup: "store-deals-limits",
+            // The row lives inside the Store sheet, which is closed by
+            // default — DashboardActionsHub opens it when this step becomes
+            // active (see useSellerGuideActiveStep).
+            route: `${basePath}/actions`,
+            targetSelector: '[data-tour-id="tour-deals-limits-row"]',
+            title: labels.sellerGuideWelcomeStepDealsLimitsTitle,
+            body: labels.sellerGuideWelcomeStepDealsLimitsBody,
+          },
+        ]),
     {
       id: "customers-panel",
-      displayStep: 4,
+      displayGroup: "customers-panel",
       route: `${basePath}/actions`,
       targetSelector: '[data-tour-id="tour-customers-square"]',
       title: labels.sellerGuideWelcomeStepCustomersPanelTitle,
@@ -203,19 +225,66 @@ function buildSteps(
       ],
     },
     {
+      id: "customers-broadcast",
+      displayGroup: "customers-broadcast",
+      // The row lives inside the Customers sheet, which is closed by
+      // default — DashboardActionsHub opens it when this step becomes
+      // active (see useSellerGuideActiveStep).
+      route: `${basePath}/actions`,
+      targetSelector: '[data-tour-id="tour-broadcast-row"]',
+      title: labels.sellerGuideWelcomeStepBroadcastDetailTitle,
+      body: labels.sellerGuideWelcomeStepBroadcastDetailBody,
+    },
+    {
+      id: "customers-inquiries",
+      displayGroup: "customers-inquiries",
+      route: `${basePath}/actions`,
+      targetSelector: '[data-tour-id="tour-inquiries-row"]',
+      title: labels.sellerGuideWelcomeStepInquiriesDetailTitle,
+      body: labels.sellerGuideWelcomeStepInquiriesDetailBody,
+    },
+    {
+      id: "customers-faq",
+      displayGroup: "customers-faq",
+      route: `${basePath}/actions`,
+      targetSelector: '[data-tour-id="tour-faq-row"]',
+      title: labels.sellerGuideWelcomeStepFaqDetailTitle,
+      body: labels.sellerGuideWelcomeStepFaqDetailBody,
+    },
+    {
       id: "settings-row",
-      displayStep: 5,
+      displayGroup: "settings-row",
       route: `${basePath}/actions`,
       targetSelector: '[data-tour-id="tour-settings-row"]',
       title: labels.sellerGuideWelcomeStepSettingsTitle,
       body: labels.sellerGuideWelcomeStepSettingsBody,
+    },
+    {
+      id: "subscription",
+      displayGroup: "subscription",
+      route: `${basePath}/settings/account`,
+      targetSelector: '[data-tour-id="tour-subscription"]',
+      title: labels.sellerGuideWelcomeStepSubscriptionTitle,
+      body: labels.sellerGuideWelcomeStepSubscriptionBody,
+    },
+    {
+      id: "store-panels",
+      displayGroup: "store-panels",
+      // Same settings/account screen as "subscription" — the toggle group
+      // that lets the seller show/hide what customers see in their store
+      // (deals, reviews, coupons, etc.). Already wired with tourId
+      // "tour-store-panels" in DashboardStorePanelsSettingsGroup.
+      route: `${basePath}/settings/account`,
+      targetSelector: '[data-tour-id="tour-store-panels"]',
+      title: labels.sellerGuideWelcomeStepPanelsTitle,
+      body: labels.sellerGuideWelcomeStepPanelsBody,
     },
     ...(isAppointments
       ? []
       : [
           {
             id: "order-confirmation",
-            displayStep: 6,
+            displayGroup: "order-confirmation",
             // The toggle lives inside the Style & Language sheet, which is closed
             // by default — DashboardStoreStylePicker opens itself when this step
             // becomes active (see useSellerGuideActiveStep).
@@ -226,6 +295,14 @@ function buildSteps(
           },
         ]),
   ];
+
+  const groupNumbers = new Map<string, number>();
+  return draft.map(({ displayGroup, ...step }) => {
+    if (!groupNumbers.has(displayGroup)) {
+      groupNumbers.set(displayGroup, groupNumbers.size + 1);
+    }
+    return { ...step, displayStep: groupNumbers.get(displayGroup)! };
+  });
 }
 
 /** Renders `**word**` segments in guide copy as bold text instead of a literal marker. */

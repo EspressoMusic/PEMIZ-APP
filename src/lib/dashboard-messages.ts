@@ -489,6 +489,8 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipLimitsBody: string;
   sellerGuideWelcomeStepStorePanelTitle: string;
   sellerGuideWelcomeStepStorePanelBody: string;
+  sellerGuideWelcomeStepDealsLimitsTitle: string;
+  sellerGuideWelcomeStepDealsLimitsBody: string;
   sellerGuideWelcomeStepCustomersPanelTitle: string;
   sellerGuideWelcomeStepCustomersPanelBody: string;
   sellerGuideChecklistOrdersSublabel: string;
@@ -502,8 +504,16 @@ export type DashboardLabels = {
   sellerGuideChecklistBroadcastSublabel: string;
   sellerGuideChecklistInquiriesSublabel: string;
   sellerGuideChecklistFaqSublabel: string;
+  sellerGuideWelcomeStepBroadcastDetailTitle: string;
+  sellerGuideWelcomeStepBroadcastDetailBody: string;
+  sellerGuideWelcomeStepInquiriesDetailTitle: string;
+  sellerGuideWelcomeStepInquiriesDetailBody: string;
+  sellerGuideWelcomeStepFaqDetailTitle: string;
+  sellerGuideWelcomeStepFaqDetailBody: string;
   sellerGuideWelcomeStepSettingsTitle: string;
   sellerGuideWelcomeStepSettingsBody: string;
+  sellerGuideWelcomeStepSubscriptionTitle: string;
+  sellerGuideWelcomeStepSubscriptionBody: string;
   sellerGuideWelcomeStepPanelsTitle: string;
   sellerGuideWelcomeStepPanelsBody: string;
   sellerGuideWelcomeTipOrderConfirmationTitle: string;
@@ -1129,6 +1139,9 @@ const HE: DashboardLabels = {
     "פעולות → חנות → דילים והגבלות → הגבלות. ימים ושעות.",
   sellerGuideWelcomeStepStorePanelTitle: "חנות",
   sellerGuideWelcomeStepStorePanelBody: "כל מה שתוכל ליצור במסך **חנות**:",
+  sellerGuideWelcomeStepDealsLimitsTitle: "דילים והגבלות",
+  sellerGuideWelcomeStepDealsLimitsBody:
+    "כאן יוצרים **מבצעים והנחות**, ומגבילים מתי ואיך מתקבלות הזמנות.",
   sellerGuideWelcomeStepCustomersPanelTitle: "לקוחות",
   sellerGuideWelcomeStepCustomersPanelBody:
     "כל מה שקשור ללקוחות שלך, במסך **לקוחות**:",
@@ -1143,9 +1156,21 @@ const HE: DashboardLabels = {
   sellerGuideChecklistBroadcastSublabel: "שליחת הודעה לכל הלקוחות שלך",
   sellerGuideChecklistInquiriesSublabel: "מענה לשאלות שהתקבלו מלקוחות",
   sellerGuideChecklistFaqSublabel: "שאלות ותשובות שלקוחות יראו בחנות",
+  sellerGuideWelcomeStepBroadcastDetailTitle: "הודעה ללקוחות",
+  sellerGuideWelcomeStepBroadcastDetailBody:
+    "שולחים **הודעה אחת** לכל הלקוחות שלכם בבת אחת — מבצע, עדכון או בשורה.",
+  sellerGuideWelcomeStepInquiriesDetailTitle: "פניות",
+  sellerGuideWelcomeStepInquiriesDetailBody:
+    "כאן עונים על **שאלות שלקוחות שולחים** ישירות אליכם.",
+  sellerGuideWelcomeStepFaqDetailTitle: "שאלות ותשובות",
+  sellerGuideWelcomeStepFaqDetailBody:
+    "בונים **שו״ת** שיופיע בחנות, כדי לחסוך זמן במענה לשאלות חוזרות.",
   sellerGuideWelcomeStepSettingsTitle: "הגדרות",
   sellerGuideWelcomeStepSettingsBody:
     "כאן תמצא את כל הגדרות החשבון והחנות שלך — מנוי, עיצוב ועוד.",
+  sellerGuideWelcomeStepSubscriptionTitle: "מנוי",
+  sellerGuideWelcomeStepSubscriptionBody:
+    "כאן רואים את **מצב המנוי** שלכם ומנהלים את התשלום.",
   sellerGuideWelcomeStepPanelsTitle: "עיצוב מסך החנות",
   sellerGuideWelcomeStepPanelsBody:
     "כאן תוכל להסיר ולהוסיף פאנלים מהחנות שלך — כמו דילים, ביקורות וקופונים.",
@@ -1907,6 +1932,9 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeStepStorePanelTitle: "Store",
   sellerGuideWelcomeStepStorePanelBody:
     "Everything you can create in the **Store** screen:",
+  sellerGuideWelcomeStepDealsLimitsTitle: "Deals & limits",
+  sellerGuideWelcomeStepDealsLimitsBody:
+    "Create **promotions and discounts**, and set limits on when and how orders come in.",
   sellerGuideWelcomeStepCustomersPanelTitle: "Customers",
   sellerGuideWelcomeStepCustomersPanelBody:
     "Everything related to your customers, in the **Customers** screen:",
@@ -1921,9 +1949,21 @@ const EN: DashboardLabels = {
   sellerGuideChecklistBroadcastSublabel: "Send a message to all of your customers",
   sellerGuideChecklistInquiriesSublabel: "Answer questions customers send you",
   sellerGuideChecklistFaqSublabel: "Questions and answers customers will see in your store",
+  sellerGuideWelcomeStepBroadcastDetailTitle: "Message customers",
+  sellerGuideWelcomeStepBroadcastDetailBody:
+    "Send **one message** to all of your customers at once — a promo, an update, or news.",
+  sellerGuideWelcomeStepInquiriesDetailTitle: "Inquiries",
+  sellerGuideWelcomeStepInquiriesDetailBody:
+    "Answer **questions customers send** you directly.",
+  sellerGuideWelcomeStepFaqDetailTitle: "FAQ",
+  sellerGuideWelcomeStepFaqDetailBody:
+    "Build a **Q&A** that shows up in your store, so you spend less time answering the same questions.",
   sellerGuideWelcomeStepSettingsTitle: "Settings",
   sellerGuideWelcomeStepSettingsBody:
     "Find all your account and store settings here — subscription, styling and more.",
+  sellerGuideWelcomeStepSubscriptionTitle: "Subscription",
+  sellerGuideWelcomeStepSubscriptionBody:
+    "See your **subscription status** and manage billing here.",
   sellerGuideWelcomeStepPanelsTitle: "Store layout",
   sellerGuideWelcomeStepPanelsBody:
     "Add or remove panels from your store here — like deals, reviews and coupons.",
