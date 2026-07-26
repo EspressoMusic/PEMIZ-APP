@@ -128,14 +128,6 @@ function buildSteps(
     },
     homeStep,
     {
-      id: "home-notifications",
-      displayGroup: "home",
-      route: basePath,
-      targetSelector: '[data-tour-id="tour-home-notifications"]',
-      title: labels.sellerGuideWelcomeHomeNotificationsTitle,
-      body: labels.sellerGuideWelcomeHomeNotificationsBody,
-    },
-    {
       id: "share-link",
       displayGroup: "share-link",
       route: basePath,
@@ -184,21 +176,6 @@ function buildSteps(
             },
           ],
     },
-    ...(isAppointments
-      ? []
-      : [
-          {
-            id: "store-deals-limits",
-            displayGroup: "store-deals-limits",
-            // The row lives inside the Store sheet, which is closed by
-            // default — DashboardActionsHub opens it when this step becomes
-            // active (see useSellerGuideActiveStep).
-            route: `${basePath}/actions`,
-            targetSelector: '[data-tour-id="tour-deals-limits-row"]',
-            title: labels.sellerGuideWelcomeStepDealsLimitsTitle,
-            body: labels.sellerGuideWelcomeStepDealsLimitsBody,
-          },
-        ]),
     {
       id: "customers-panel",
       displayGroup: "customers-panel",
@@ -225,59 +202,12 @@ function buildSteps(
       ],
     },
     {
-      id: "customers-broadcast",
-      displayGroup: "customers-broadcast",
-      // The row lives inside the Customers sheet, which is closed by
-      // default — DashboardActionsHub opens it when this step becomes
-      // active (see useSellerGuideActiveStep).
-      route: `${basePath}/actions`,
-      targetSelector: '[data-tour-id="tour-broadcast-row"]',
-      title: labels.sellerGuideWelcomeStepBroadcastDetailTitle,
-      body: labels.sellerGuideWelcomeStepBroadcastDetailBody,
-    },
-    {
-      id: "customers-inquiries",
-      displayGroup: "customers-inquiries",
-      route: `${basePath}/actions`,
-      targetSelector: '[data-tour-id="tour-inquiries-row"]',
-      title: labels.sellerGuideWelcomeStepInquiriesDetailTitle,
-      body: labels.sellerGuideWelcomeStepInquiriesDetailBody,
-    },
-    {
-      id: "customers-faq",
-      displayGroup: "customers-faq",
-      route: `${basePath}/actions`,
-      targetSelector: '[data-tour-id="tour-faq-row"]',
-      title: labels.sellerGuideWelcomeStepFaqDetailTitle,
-      body: labels.sellerGuideWelcomeStepFaqDetailBody,
-    },
-    {
       id: "settings-row",
       displayGroup: "settings-row",
       route: `${basePath}/actions`,
       targetSelector: '[data-tour-id="tour-settings-row"]',
       title: labels.sellerGuideWelcomeStepSettingsTitle,
       body: labels.sellerGuideWelcomeStepSettingsBody,
-    },
-    {
-      id: "subscription",
-      displayGroup: "subscription",
-      route: `${basePath}/settings/account`,
-      targetSelector: '[data-tour-id="tour-subscription"]',
-      title: labels.sellerGuideWelcomeStepSubscriptionTitle,
-      body: labels.sellerGuideWelcomeStepSubscriptionBody,
-    },
-    {
-      id: "store-panels",
-      displayGroup: "store-panels",
-      // Same settings/account screen as "subscription" — the toggle group
-      // that lets the seller show/hide what customers see in their store
-      // (deals, reviews, coupons, etc.). Already wired with tourId
-      // "tour-store-panels" in DashboardStorePanelsSettingsGroup.
-      route: `${basePath}/settings/account`,
-      targetSelector: '[data-tour-id="tour-store-panels"]',
-      title: labels.sellerGuideWelcomeStepPanelsTitle,
-      body: labels.sellerGuideWelcomeStepPanelsBody,
     },
     ...(isAppointments
       ? []
@@ -378,25 +308,25 @@ function GuideChecklist({ items }: { items: GuideListItem[] }) {
       {items.map(({ icon: Icon, label, sublabel }, index) => (
         <div
           key={label}
-          className="flex items-center justify-between gap-3 rounded-[14px] border-2 border-black/20 bg-white/40 px-3 py-2"
+          className="flex items-start justify-between gap-3 rounded-[14px] border-2 border-black/20 bg-white/40 px-3 py-2"
         >
-          <span className="flex min-w-0 items-center gap-2">
+          <span className="flex min-w-0 items-start gap-2">
             <Icon
               className="h-5 w-5 shrink-0 text-bakery-primary"
               strokeWidth={1.75}
             />
             <span className="min-w-0 text-start">
-              <span className="block truncate text-[14px] font-extrabold text-bakery-ink">
+              <span className="block text-[14px] font-extrabold text-bakery-ink">
                 {label}
               </span>
               {sublabel ? (
-                <span className="block truncate text-[11px] font-semibold text-bakery-muted">
+                <span className="block text-[11px] font-semibold text-bakery-muted">
                   {sublabel}
                 </span>
               ) : null}
             </span>
           </span>
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] border-2 border-bakery-primary/40">
+          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] border-2 border-bakery-primary/40">
             <Check
               className="guide-checklist-tick h-4 w-4 text-bakery-primary"
               strokeWidth={3}

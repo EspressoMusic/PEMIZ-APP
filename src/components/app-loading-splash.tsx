@@ -5,6 +5,8 @@ import { APP_LOADING_LOGO_SRC, APP_SPLASH_BG } from "@/lib/app-branding";
 
 const TAGLINE_BRAND = "Peymiz";
 const TAGLINE_REST = " orders made simple";
+const TAGLINE_BRAND_HE = "פיימיז";
+const TAGLINE_REST_HE = " הזמנות נעשות בקלות";
 const TAGLINE_CHAR_DELAY = 0.035;
 const TAGLINE_START_DELAY = 0.35;
 const NBSP = " ";
@@ -25,7 +27,11 @@ function AnimatedTaglineChars({ text, startIndex }: { text: string; startIndex: 
   );
 }
 
-export function AppLoadingSplash() {
+export function AppLoadingSplash({
+  locale = "en",
+}: {
+  locale?: "en" | "he";
+}) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -54,12 +60,25 @@ export function AppLoadingSplash() {
         height={512}
         className="app-loading-splash-logo h-[min(72vw,18rem)] w-[min(72vw,18rem)] object-contain sm:h-72 sm:w-72"
       />
-      <p className="app-loading-splash-tagline">
-        <span className="app-loading-splash-tagline-brand">
-          <AnimatedTaglineChars text={TAGLINE_BRAND} startIndex={0} />
-        </span>
-        <AnimatedTaglineChars text={TAGLINE_REST} startIndex={TAGLINE_BRAND.length} />
-      </p>
+      {locale === "he" ? (
+        <p
+          className="app-loading-splash-tagline app-loading-splash-tagline-he"
+          dir="rtl"
+          lang="he"
+        >
+          <span className="app-loading-splash-tagline-brand">
+            <AnimatedTaglineChars text={TAGLINE_BRAND_HE} startIndex={0} />
+          </span>
+          <AnimatedTaglineChars text={TAGLINE_REST_HE} startIndex={TAGLINE_BRAND_HE.length} />
+        </p>
+      ) : (
+        <p className="app-loading-splash-tagline" dir="ltr" lang="en">
+          <span className="app-loading-splash-tagline-brand">
+            <AnimatedTaglineChars text={TAGLINE_BRAND} startIndex={0} />
+          </span>
+          <AnimatedTaglineChars text={TAGLINE_REST} startIndex={TAGLINE_BRAND.length} />
+        </p>
+      )}
     </div>
   );
 }

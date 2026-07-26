@@ -490,6 +490,8 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipLimitsBody: string;
   sellerGuideWelcomeStepStorePanelTitle: string;
   sellerGuideWelcomeStepStorePanelBody: string;
+  sellerGuideStepAddProductTitle: string;
+  sellerGuideStepAddProductBody: string;
   sellerGuideWelcomeStepDealsLimitsTitle: string;
   sellerGuideWelcomeStepDealsLimitsBody: string;
   sellerGuideWelcomeStepCustomersPanelTitle: string;
@@ -1142,6 +1144,9 @@ const HE: DashboardLabels = {
     "פעולות → חנות → דילים והגבלות → הגבלות. ימים ושעות.",
   sellerGuideWelcomeStepStorePanelTitle: "חנות",
   sellerGuideWelcomeStepStorePanelBody: "כל מה שתוכל ליצור במסך **חנות**:",
+  sellerGuideStepAddProductTitle: "הוספת מוצר",
+  sellerGuideStepAddProductBody:
+    "לחצו כאן כדי להוסיף **מוצר חדש** לחנות — שם, מחיר ותמונה, ושומרים.",
   sellerGuideWelcomeStepDealsLimitsTitle: "דילים והגבלות",
   sellerGuideWelcomeStepDealsLimitsBody:
     "כאן יוצרים **מבצעים והנחות**, ומגבילים מתי ואיך מתקבלות הזמנות.",
@@ -1937,6 +1942,9 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeStepStorePanelTitle: "Store",
   sellerGuideWelcomeStepStorePanelBody:
     "Everything you can create in the **Store** screen:",
+  sellerGuideStepAddProductTitle: "Add a product",
+  sellerGuideStepAddProductBody:
+    "Tap here to add a **new product** to your store — name, price, and photo, then save.",
   sellerGuideWelcomeStepDealsLimitsTitle: "Deals & limits",
   sellerGuideWelcomeStepDealsLimitsBody:
     "Create **promotions and discounts**, and set limits on when and how orders come in.",

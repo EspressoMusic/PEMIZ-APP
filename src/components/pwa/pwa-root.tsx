@@ -7,14 +7,20 @@ import { SiteCookieConsent } from "@/components/site-cookie-consent";
 import { NativeAppEntryRedirect } from "@/components/native-app-entry-redirect";
 import { initNativeSafeArea } from "@/lib/native-safe-area";
 
-export function PwaRoot({ children }: { children: ReactNode }) {
+export function PwaRoot({
+  children,
+  locale = "en",
+}: {
+  children: ReactNode;
+  locale?: "en" | "he";
+}) {
   useEffect(() => {
     void initNativeSafeArea();
   }, []);
 
   return (
     <PwaProvider>
-      <AppLoadingSplash />
+      <AppLoadingSplash locale={locale} />
       <NativeAppEntryRedirect />
       {children}
       <SiteCookieConsent />

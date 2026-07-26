@@ -14,16 +14,16 @@ import { DEFAULT_STORE_THEME } from "@/lib/store-themes";
 export const DEV_PREVIEW_SELLER_THREADS: SellerChatThread[] = [
   {
     customerPhone: "0501234567",
-    customerName: "Yael Cohen",
-    lastMessage: "Hi, do you have gluten-free cake?",
-    lastAt: "2026-06-03T09:15:00.000Z",
+    customerName: "מאיה ברק",
+    lastMessage: "כל האורחים במסיבה שאלו מאיפה הזמנו, שלחתי לכולם את הקישור לחנות!",
+    lastAt: "2026-07-26T09:15:00.000Z",
     unreadFromCustomer: true,
   },
   {
     customerPhone: "0529876543",
-    customerName: "Danny Levy",
-    lastMessage: "Thanks for the delivery!",
-    lastAt: "2026-06-02T18:40:00.000Z",
+    customerName: "דני לוי",
+    lastMessage: "המשלוח הגיע מושלם, תודה רבה!",
+    lastAt: "2026-07-25T18:40:00.000Z",
     unreadFromCustomer: false,
   },
 ];
@@ -34,28 +34,28 @@ export const DEV_PREVIEW_SELLER_CHAT: StoreChatMessageDto[] = [
     id: "demo-seller-1",
     channel: "SELLER",
     customerPhone: "0501234567",
-    customerName: "Yael Cohen",
+    customerName: "מאיה ברק",
     authorRole: "CUSTOMER",
-    body: "Hi, do you have gluten-free cake?",
-    createdAt: "2026-06-03T09:10:00.000Z",
+    body: "היי! רק רציתי להגיד שהעוגות שהזמנו אתמול היו הכי טעימות שאכלנו בחיים 😍",
+    createdAt: "2026-07-26T09:10:00.000Z",
   },
   {
     id: "demo-seller-2",
     channel: "SELLER",
     customerPhone: "0501234567",
-    customerName: "My Bakery (Preview)",
-    authorRole: "SELLER",
-    body: "Yes! We have chocolate cake and croissants — best to order a day ahead.",
-    createdAt: "2026-06-03T09:12:00.000Z",
+    customerName: "מאיה ברק",
+    authorRole: "CUSTOMER",
+    body: "כל האורחים במסיבה שאלו מאיפה הזמנו, שלחתי לכולם את הקישור לחנות!",
+    createdAt: "2026-07-26T09:15:00.000Z",
   },
   {
     id: "demo-seller-3",
     channel: "SELLER",
     customerPhone: "0529876543",
-    customerName: "Danny Levy",
+    customerName: "דני לוי",
     authorRole: "CUSTOMER",
-    body: "Thanks for the delivery!",
-    createdAt: "2026-06-02T18:35:00.000Z",
+    body: "המשלוח הגיע מושלם, תודה רבה!",
+    createdAt: "2026-07-25T18:40:00.000Z",
   },
 ];
 
@@ -122,132 +122,7 @@ export const DEV_PREVIEW_INQUIRIES = [
   },
 ];
 
-export const DEV_PREVIEW_ORDERS = [
-  {
-    id: "ord-demo-1",
-    orderNumber: 1042,
-    customerName: "Barbosa",
-    customerPhone: "0586122187",
-    customerJoinedAt: "2025-11-12T10:00:00.000Z",
-    status: "PENDING",
-    statusLabel: "Pending",
-    createdAt: "2026-06-04T17:20:00.000Z",
-    customerAddress: "רוטשילד 1, תל אביב",
-    customerAddressLat: 32.0663,
-    customerAddressLng: 34.7748,
-    items: [
-      {
-        name: "Yummy",
-        quantity: 1,
-        lineTotal: 100,
-        imageUrl: null as string | null,
-      },
-      {
-        name: "Demo Item",
-        quantity: 1,
-        lineTotal: 345,
-        imageUrl: null as string | null,
-      },
-    ],
-  },
-  {
-    id: "ord-demo-2",
-    orderNumber: 1041,
-    customerName: "Shila",
-    customerPhone: "0527654321",
-    status: "PENDING",
-    statusLabel: "Pending",
-    createdAt: "2026-06-03T09:47:00.000Z",
-    items: [
-      {
-        name: "Demo Item",
-        quantity: 1,
-        lineTotal: 345,
-        imageUrl: null as string | null,
-      },
-      {
-        name: "Demo Item",
-        quantity: 1,
-        lineTotal: 345,
-        imageUrl: null as string | null,
-      },
-    ],
-  },
-  {
-    id: "ord-demo-3",
-    orderNumber: 1038,
-    customerName: "Yael Cohen",
-    customerPhone: "050-1234567",
-    status: "CONFIRMED",
-    statusLabel: "Confirmed",
-    createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
-    items: [
-      {
-        name: "Chocolate Cake",
-        quantity: 1,
-        lineTotal: 99,
-        imageUrl: null as string | null,
-      },
-      {
-        name: "Croissant",
-        quantity: 2,
-        lineTotal: 36,
-        imageUrl: null as string | null,
-      },
-    ],
-  },
-  {
-    id: "ord-demo-4",
-    orderNumber: 1031,
-    customerName: "Michal Abraham",
-    customerPhone: "054-1112233",
-    status: "COMPLETED",
-    statusLabel: "Completed",
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    items: [
-      {
-        name: "Croissant",
-        quantity: 3,
-        lineTotal: 54,
-        imageUrl: null as string | null,
-      },
-    ],
-  },
-  {
-    id: "ord-demo-anon",
-    orderNumber: 1028,
-    customerName: "",
-    customerPhone: "053-4445566",
-    status: "COMPLETED",
-    statusLabel: "Completed",
-    createdAt: "2026-05-28T14:15:00.000Z",
-    items: [
-      {
-        name: "Cheesecake",
-        quantity: 1,
-        lineTotal: 85,
-        imageUrl: null as string | null,
-      },
-    ],
-  },
-  {
-    id: "ord-demo-5",
-    orderNumber: 1015,
-    customerName: "Danny Levy",
-    customerPhone: "052-9876543",
-    status: "CANCELLED",
-    statusLabel: "Cancelled",
-    createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-    items: [
-      {
-        name: "Sourdough Bread",
-        quantity: 1,
-        lineTotal: 28,
-        imageUrl: null as string | null,
-      },
-    ],
-  },
-];
+export const DEV_PREVIEW_ORDERS = [];
 
 export const DEV_STORE_OWNER_NAME = "Yael";
 

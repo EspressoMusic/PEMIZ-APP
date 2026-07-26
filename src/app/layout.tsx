@@ -119,7 +119,7 @@ export default async function RootLayout({
         >
           {locale === "he" ? "דלג לתוכן הראשי" : "Skip to main content"}
         </a>
-        <PwaRoot>
+        <PwaRoot locale={locale}>
           <main id="main-content" className="flex-1">
             {children}
           </main>

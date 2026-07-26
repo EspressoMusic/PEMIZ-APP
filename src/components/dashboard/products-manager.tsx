@@ -1499,6 +1499,7 @@ export function DashboardProductsEntry({
         onClick={() => setOpen(true)}
         icon={Package}
         title={title}
+        tourId={mode === "products" ? "tour-products-row" : undefined}
       />
       {open ? (
         <ProductsManager

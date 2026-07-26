@@ -18,7 +18,7 @@ const GUIDE_CUSTOMERS_SHEET_STEPS = new Set([
   "customers-inquiries",
   "customers-faq",
 ]);
-const GUIDE_STORE_SHEET_STEPS = new Set(["store-deals-limits"]);
+const GUIDE_STORE_SHEET_STEPS = new Set(["store-products", "store-deals-limits"]);
 import type { AppointmentCalendarConfig } from "@/lib/appointment-slot-generator";
 
 export function DashboardActionsHub({
