@@ -101,6 +101,7 @@ export function DashboardOrderDetails({
   onClose,
   onConfirm,
   onReject,
+  onRemove,
 }: {
   order: DashboardOrderView;
   total: number;
@@ -108,6 +109,10 @@ export function DashboardOrderDetails({
   onClose: () => void;
   onConfirm?: () => void;
   onReject?: () => void;
+  /** Lets the seller pull this order off the dashboard home widget without
+   * touching its status — it stays visible in the full Orders panel. Only
+   * relevant once the order is past the pending-confirmation step. */
+  onRemove?: () => void;
 }) {
   const { labels, formatMoney } = useAppLocale();
   const [confirmingReject, setConfirmingReject] = useState(false);
@@ -246,6 +251,27 @@ export function DashboardOrderDetails({
               </Button>
             </div>
           )
+        ) : onRemove ? (
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              className="flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[15px] font-extrabold"
+              onClick={() => {
+                onRemove();
+                onClose();
+              }}
+            >
+              <X className="h-4 w-4" strokeWidth={2.5} />
+              {labels.removeOrderButton}
+            </Button>
+            <Button
+              variant="primary"
+              className="min-h-[38px] flex-1 rounded-full px-3 py-2 text-[16px] font-extrabold"
+              onClick={onClose}
+            >
+              {labels.ok}
+            </Button>
+          </div>
         ) : (
           <Button
             variant="primary"
@@ -268,6 +294,7 @@ export function DashboardOrderCard({
   onConfirmOrder,
   onRejectOrder,
   onToggleComplete,
+  onHideOrders,
   showPrices = false,
   selectionMode = false,
   selected = false,
@@ -282,6 +309,9 @@ export function DashboardOrderCard({
   onConfirmOrder?: (orderId: string) => void;
   onRejectOrder?: (orderId: string) => void;
   onToggleComplete?: (orderId: string) => void;
+  /** Also powers the order-details modal's "Remove" button for orders that
+   * aren't awaiting confirmation (see orderConfirmationRequired below). */
+  onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   showPrices?: boolean;
   /** Multi-select mode is active for the whole list (entered via long-press). */
   selectionMode?: boolean;
@@ -438,6 +468,11 @@ export function DashboardOrderCard({
               ? () => onRejectOrder(order.id)
               : undefined
           }
+          onRemove={
+            onHideOrders && !orderConfirmationRequired && order.status !== "PENDING"
+              ? () => onHideOrders([order.id])
+              : undefined
+          }
         />
       </DashboardActionSheet>
     </div>
@@ -569,6 +604,7 @@ export function DashboardOrdersList({
               onConfirmOrder={onConfirmOrder}
               onRejectOrder={onRejectOrder}
               onToggleComplete={onToggleComplete}
+              onHideOrders={onHideOrders}
               showPrices={showPrices}
               selectionMode={selectionMode}
               selected={selectedIds.has(o.id)}

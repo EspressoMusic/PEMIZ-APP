@@ -61,6 +61,7 @@ export default async function DashboardHubLayout({
             showPrepSummary={business.type === "STORE"}
             prepProducts={prepProducts}
             initialPendingOrders={pendingOrders}
+            initialOrderConfirmationRequired={business.orderConfirmationRequired ?? true}
           />
         </>
       }

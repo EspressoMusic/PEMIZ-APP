@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Copy, ExternalLink, Share2, X } from "lucide-react";
+import QRCode from "qrcode";
+import { Check, Copy, ExternalLink, QrCode, Share2, X } from "lucide-react";
 import {
   DashboardSettingsTile,
   DashboardSettingsTileRow,
@@ -20,6 +21,12 @@ function toAbsoluteUrl(url: string): string {
   if (typeof window === "undefined") return url;
   const path = url.startsWith("/") ? url : `/${url}`;
   return `${window.location.origin}${path}`;
+}
+
+function slugFromPath(path: string): string {
+  const trimmed = path.replace(/^\/+|\/+$/g, "");
+  const last = trimmed.split("/").pop() || "store";
+  return last.replace(/[^a-zA-Z0-9-]+/g, "-") || "store";
 }
 
 function displayPath(url: string): string {
@@ -96,6 +103,21 @@ export function DashboardCustomerLinkCard({
     window.open(whatsappShare, "_blank", "noopener,noreferrer");
   }
 
+  async function downloadQrCode() {
+    const link = toAbsoluteUrl(url);
+    try {
+      const dataUrl = await QRCode.toDataURL(link, { width: 512, margin: 2 });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `qr-${slugFromPath(pathLabel)}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch {
+      /* ignore */
+    }
+  }
+
   function closeSheet() {
     setOpen(false);
   }
@@ -148,6 +170,15 @@ export function DashboardCustomerLinkCard({
           >
             <Share2 className="h-5 w-5" strokeWidth={2} />
             {labels.shareStoreLink}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => void downloadQrCode()}
+            className="dashboard-share-tile flex w-full min-h-[52px] items-center justify-center gap-2 rounded-[9999px] px-4 py-3 text-[15px] font-extrabold text-bakery-ink transition active:scale-[0.99]"
+          >
+            <QrCode className="h-5 w-5" strokeWidth={2} />
+            {labels.downloadQrCode}
           </button>
 
           {customerStoreHref ? (

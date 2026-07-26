@@ -30,6 +30,7 @@ export function DashboardHomeView({
   prepProducts,
   initialPendingOrders,
   initialOrders,
+  initialOrderConfirmationRequired = true,
   showPrepSummary,
   prepRefreshFromApi = false,
   businessSlug,
@@ -45,6 +46,7 @@ export function DashboardHomeView({
   prepProducts?: PrepProductSummary[];
   initialPendingOrders?: PendingOrderRecord[];
   initialOrders?: import("@/components/dashboard/dashboard-order-card").DashboardOrderView[];
+  initialOrderConfirmationRequired?: boolean;
   showPrepSummary?: boolean;
   prepRefreshFromApi?: boolean;
   businessSlug: string;
@@ -137,6 +139,7 @@ export function DashboardHomeView({
               initialProducts={prepProducts}
               initialOrders={initialOrders}
               initialPendingOrders={initialPendingOrders}
+              initialOrderConfirmationRequired={initialOrderConfirmationRequired}
               loadFromApi={prepRefreshFromApi}
               previewOnly={inquiryBellPreview}
             />

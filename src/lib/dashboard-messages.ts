@@ -237,6 +237,7 @@ export type DashboardLabels = {
   rejected: string;
   confirmOrderButton: string;
   rejectOrderButton: string;
+  removeOrderButton: string;
   rejectOrderConfirmBody: string;
   order: string;
   orderNumber: string;
@@ -696,6 +697,7 @@ export type DashboardLabels = {
   storeLinkBarLabel: string;
   copyLink: string;
   copied: string;
+  downloadQrCode: string;
   customerPreview: string;
   viewCustomerSide: string;
   broadcastMessage: string;
@@ -856,6 +858,7 @@ const HE: DashboardLabels = {
   rejected: "נדחתה",
   confirmOrderButton: "אישור הזמנה",
   rejectOrderButton: "דחיית הזמנה",
+  removeOrderButton: "הסר",
   rejectOrderConfirmBody: "לדחות את ההזמנה? הלקוח יקבל עדכון שההזמנה נדחתה.",
   order: "הזמנה",
   orderNumber: "מספר הזמנה",
@@ -1365,6 +1368,7 @@ const HE: DashboardLabels = {
   storeLinkBarLabel: "קישור החנות",
   copyLink: "העתק קישור",
   copied: "הועתק!",
+  downloadQrCode: "הורדת ברקוד",
   alerts: "התראות",
   supportHelp: "תמיכה ועזרה",
   supportHelpWhatsApp: "וואטסאפ",
@@ -1647,6 +1651,7 @@ const EN: DashboardLabels = {
   rejected: "Rejected",
   confirmOrderButton: "Confirm order",
   rejectOrderButton: "Reject order",
+  removeOrderButton: "Remove",
   rejectOrderConfirmBody: "Reject this order? The customer will be notified it was declined.",
   order: "Order",
   orderNumber: "Order number",
@@ -2158,6 +2163,7 @@ const EN: DashboardLabels = {
   storeLinkBarLabel: "Store link",
   copyLink: "Copy link",
   copied: "Copied!",
+  downloadQrCode: "Download QR code",
   alerts: "Alerts",
   supportHelp: "Support & Help",
   supportHelpWhatsApp: "WhatsApp",

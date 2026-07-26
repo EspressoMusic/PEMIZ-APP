@@ -198,6 +198,7 @@ export function DashboardPrepSummary({
   initialProducts,
   initialOrders,
   initialPendingOrders,
+  initialOrderConfirmationRequired = true,
   loadFromApi = false,
   previewOnly = false,
   inquiryBell,
@@ -205,6 +206,7 @@ export function DashboardPrepSummary({
   initialProducts: PrepProductSummary[];
   initialOrders?: DashboardOrderView[];
   initialPendingOrders?: PendingOrderRecord[];
+  initialOrderConfirmationRequired?: boolean;
   loadFromApi?: boolean;
   previewOnly?: boolean;
   inquiryBell?: ReactNode;
@@ -222,6 +224,9 @@ export function DashboardPrepSummary({
     }
     return [];
   });
+  const [orderConfirmationRequired, setOrderConfirmationRequired] = useState(
+    initialOrderConfirmationRequired
+  );
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PrepProductSummary | null>(
     null
@@ -254,6 +259,7 @@ export function DashboardPrepSummary({
     if (ordersRes.ok && ordersData.orders) {
       const confirmationRequired: boolean =
         ordersData.orderConfirmationRequired ?? true;
+      setOrderConfirmationRequired(confirmationRequired);
       const relevant = ordersData.orders.filter(
         (o: { status: string; sellerHiddenAt?: string | null }) =>
           confirmationRequired
@@ -296,6 +302,19 @@ export function DashboardPrepSummary({
     [previewOnly]
   );
 
+  const hideOrders = useCallback(
+    (orderIds: string[]) => {
+      setOrders((prev) => prev.filter((o) => !orderIds.includes(o.id)));
+      if (previewOnly) return;
+      void fetch("/api/dashboard/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderIds, hide: true }),
+      });
+    },
+    [previewOnly]
+  );
+
   const grandTotal = products.reduce((s, p) => s + p.totalQuantity, 0);
 
   return (
@@ -329,7 +348,9 @@ export function DashboardPrepSummary({
               onCustomerClick={openCustomer}
               onConfirmOrder={confirmOrder}
               onRejectOrder={rejectOrder}
+              onHideOrders={hideOrders}
               showPrices
+              orderConfirmationRequired={orderConfirmationRequired}
             />
           </div>
         )}
