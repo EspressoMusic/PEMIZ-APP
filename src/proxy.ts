@@ -101,9 +101,7 @@ export async function proxy(request: NextRequest) {
     const gateOpen = await hasStudioGate(request);
     if (
       !gateOpen &&
-      (pathname === "/dev" ||
-        pathname.startsWith("/dev/") ||
-        pathname === "/master")
+      (pathname === "/dev" || pathname.startsWith("/dev/"))
     ) {
       return finish(
         request,
