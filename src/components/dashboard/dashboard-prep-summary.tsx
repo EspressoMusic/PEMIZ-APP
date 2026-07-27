@@ -202,6 +202,7 @@ export function DashboardPrepSummary({
   loadFromApi = false,
   previewOnly = false,
   inquiryBell,
+  basePath = "/dashboard",
 }: {
   initialProducts: PrepProductSummary[];
   initialOrders?: DashboardOrderView[];
@@ -210,6 +211,7 @@ export function DashboardPrepSummary({
   loadFromApi?: boolean;
   previewOnly?: boolean;
   inquiryBell?: ReactNode;
+  basePath?: string;
 }) {
   const { labels, locale } = useAppLocale();
   const { openCustomer, modal: customerModal } = useDashboardCustomerProfile({
@@ -351,6 +353,7 @@ export function DashboardPrepSummary({
               onHideOrders={hideOrders}
               showPrices
               orderConfirmationRequired={orderConfirmationRequired}
+              transferToOrdersHref={`${basePath}/settings/orders`}
             />
           </div>
         )}

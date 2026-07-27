@@ -122,7 +122,28 @@ export const DEV_PREVIEW_INQUIRIES = [
   },
 ];
 
-export const DEV_PREVIEW_ORDERS = [];
+type DevPreviewOrder = {
+  id: string;
+  orderNumber: number;
+  customerName: string;
+  customerPhone: string;
+  customerAddress?: string;
+  customerAddressLat?: number;
+  customerAddressLng?: number;
+  customerAddressPlaceId?: string | null;
+  customerJoinedAt?: string;
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  statusLabel: string;
+  createdAt: string;
+  items: {
+    name: string;
+    quantity: number;
+    lineTotal: number;
+    imageUrl: string | null;
+  }[];
+};
+
+export const DEV_PREVIEW_ORDERS: DevPreviewOrder[] = [];
 
 export const DEV_STORE_OWNER_NAME = "Yael";
 

@@ -198,6 +198,7 @@ export type DashboardLabels = {
   english: string;
   back: string;
   close: string;
+  productsPreviewBanner: string;
   ok: string;
   save: string;
   cancel: string;
@@ -238,6 +239,7 @@ export type DashboardLabels = {
   confirmOrderButton: string;
   rejectOrderButton: string;
   removeOrderButton: string;
+  transferToOrdersButton: string;
   rejectOrderConfirmBody: string;
   order: string;
   orderNumber: string;
@@ -492,6 +494,8 @@ export type DashboardLabels = {
   sellerGuideWelcomeStepStorePanelBody: string;
   sellerGuideStepAddProductTitle: string;
   sellerGuideStepAddProductBody: string;
+  sellerGuideVideoTitle: string;
+  sellerGuideVideoBody: string;
   sellerGuideWelcomeStepDealsLimitsTitle: string;
   sellerGuideWelcomeStepDealsLimitsBody: string;
   sellerGuideWelcomeStepCustomersPanelTitle: string;
@@ -820,6 +824,7 @@ const HE: DashboardLabels = {
   english: "English",
   back: "חזרה",
   close: "סגור",
+  productsPreviewBanner: "תצוגה מקדימה — השינויים לא נשמרים ולא מועלים לשרת",
   ok: "אוקיי",
   save: "שמור",
   cancel: "ביטול",
@@ -861,6 +866,7 @@ const HE: DashboardLabels = {
   confirmOrderButton: "אישור הזמנה",
   rejectOrderButton: "דחיית הזמנה",
   removeOrderButton: "הסר",
+  transferToOrdersButton: "העבר להזמנות",
   rejectOrderConfirmBody: "לדחות את ההזמנה? הלקוח יקבל עדכון שההזמנה נדחתה.",
   order: "הזמנה",
   orderNumber: "מספר הזמנה",
@@ -1147,6 +1153,9 @@ const HE: DashboardLabels = {
   sellerGuideStepAddProductTitle: "הוספת מוצר",
   sellerGuideStepAddProductBody:
     "לחצו כאן כדי להוסיף **מוצר חדש** לחנות — שם, מחיר ותמונה, ושומרים.",
+  sellerGuideVideoTitle: "רוצים לראות איך זה עובד?",
+  sellerGuideVideoBody:
+    "צפו בהדגמה קצרה: מוסיפים מוצר לחנות, ורואים איך לקוח מזמין אותו ואיך ההזמנה מופיעה אצלכם.",
   sellerGuideWelcomeStepDealsLimitsTitle: "דילים והגבלות",
   sellerGuideWelcomeStepDealsLimitsBody:
     "כאן יוצרים **מבצעים והנחות**, ומגבילים מתי ואיך מתקבלות הזמנות.",
@@ -1616,6 +1625,7 @@ const EN: DashboardLabels = {
   english: "English",
   back: "Back",
   close: "Close",
+  productsPreviewBanner: "Preview — changes aren't saved or sent to the server",
   ok: "OK",
   save: "Save",
   cancel: "Cancel",
@@ -1657,6 +1667,7 @@ const EN: DashboardLabels = {
   confirmOrderButton: "Confirm order",
   rejectOrderButton: "Reject order",
   removeOrderButton: "Remove",
+  transferToOrdersButton: "Move to Orders",
   rejectOrderConfirmBody: "Reject this order? The customer will be notified it was declined.",
   order: "Order",
   orderNumber: "Order number",
@@ -1945,6 +1956,9 @@ const EN: DashboardLabels = {
   sellerGuideStepAddProductTitle: "Add a product",
   sellerGuideStepAddProductBody:
     "Tap here to add a **new product** to your store — name, price, and photo, then save.",
+  sellerGuideVideoTitle: "Want to see it in action?",
+  sellerGuideVideoBody:
+    "Watch a short demo: add a product to your store, see a customer order it, and see the order land on your side.",
   sellerGuideWelcomeStepDealsLimitsTitle: "Deals & limits",
   sellerGuideWelcomeStepDealsLimitsBody:
     "Create **promotions and discounts**, and set limits on when and how orders come in.",

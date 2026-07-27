@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Package, MapPin, X } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
@@ -102,6 +103,7 @@ export function DashboardOrderDetails({
   onConfirm,
   onReject,
   onRemove,
+  transferToOrdersHref,
 }: {
   order: DashboardOrderView;
   total: number;
@@ -113,8 +115,13 @@ export function DashboardOrderDetails({
    * touching its status — it stays visible in the full Orders panel. Only
    * relevant once the order is past the pending-confirmation step. */
   onRemove?: () => void;
+  /** When set, the remove button reads as "Transfer to Orders" and navigates
+   * here afterward instead of just closing — used on the dashboard home
+   * widget so the seller can see where the order went. */
+  transferToOrdersHref?: string;
 }) {
   const { labels, formatMoney } = useAppLocale();
+  const router = useRouter();
   const [confirmingReject, setConfirmingReject] = useState(false);
   const isPending = order.status === "PENDING";
 
@@ -259,10 +266,11 @@ export function DashboardOrderDetails({
               onClick={() => {
                 onRemove();
                 onClose();
+                if (transferToOrdersHref) router.push(transferToOrdersHref);
               }}
             >
               <X className="h-4 w-4" strokeWidth={2.5} />
-              {labels.removeOrderButton}
+              {transferToOrdersHref ? labels.transferToOrdersButton : labels.removeOrderButton}
             </Button>
             <Button
               variant="primary"
@@ -301,6 +309,7 @@ export function DashboardOrderCard({
   onToggleSelect,
   onLongPress,
   orderConfirmationRequired = true,
+  transferToOrdersHref,
 }: {
   order: DashboardOrderView;
   open: boolean;
@@ -322,6 +331,8 @@ export function DashboardOrderCard({
    * "CONFIRMED" with no real approval step behind it — showing that badge would just
    * be noise, so it's suppressed in that mode. */
   orderConfirmationRequired?: boolean;
+  /** See DashboardOrderDetails — set only on the dashboard home widget. */
+  transferToOrdersHref?: string;
 }) {
   const { labels, formatDateTime } = useAppLocale();
   const total = order.items.reduce((s, it) => s + it.lineTotal, 0);
@@ -473,6 +484,7 @@ export function DashboardOrderCard({
               ? () => onHideOrders([order.id])
               : undefined
           }
+          transferToOrdersHref={transferToOrdersHref}
         />
       </DashboardActionSheet>
     </div>
@@ -536,6 +548,7 @@ export function DashboardOrdersList({
   showPrices = false,
   customerModal,
   orderConfirmationRequired = true,
+  transferToOrdersHref,
 }: {
   orders: DashboardOrderView[];
   onCustomerClick?: (input: CustomerProfileInput) => void;
@@ -549,6 +562,8 @@ export function DashboardOrdersList({
   showPrices?: boolean;
   customerModal?: ReactNode;
   orderConfirmationRequired?: boolean;
+  /** See DashboardOrderDetails — set only on the dashboard home widget. */
+  transferToOrdersHref?: string;
 }) {
   const { labels } = useAppLocale();
   const [openOrderId, setOpenOrderId] = useState<string | null>(null);
@@ -611,6 +626,7 @@ export function DashboardOrdersList({
               onToggleSelect={() => toggleSelect(o.id)}
               onLongPress={onHideOrders ? () => setSelectedIds(new Set([o.id])) : undefined}
               orderConfirmationRequired={orderConfirmationRequired}
+              transferToOrdersHref={transferToOrdersHref}
             />
           </li>
         ))}

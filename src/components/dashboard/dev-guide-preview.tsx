@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Suspense } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardHomeView } from "@/components/dashboard/dashboard-home-view";
@@ -18,11 +19,9 @@ import {
 } from "@/lib/dev-preview-data";
 import { demoPrepSummary } from "@/lib/dashboard-prep-summary";
 import { DEFAULT_STORE_PANELS_VISIBLE } from "@/lib/store-panels-visible";
+import { writeDashboardLocaleSession } from "@/lib/dashboard-appearance-session";
 
-/** Shared layout body for /dev/guide and /dev/guide/appointments — each is its
- * own real route (plus a matching /actions sub-route) so only one screen is
- * ever visible at a time, exactly like the real dashboard's home/actions tabs. */
-export function DevGuidePreview({
+function DevGuidePreviewInner({
   businessType,
   title,
   basePath,
@@ -36,6 +35,19 @@ export function DevGuidePreview({
   children?: ReactNode;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // Dev-only override — e.g. ?locale=en — to preview this guide in a
+  // language other than the fixture's default without a real toggle.
+  const localeParam = searchParams.get("locale");
+  const localeOverride =
+    localeParam === "en" || localeParam === "he" ? localeParam : null;
+  // Written synchronously during render (not an effect) so it lands before
+  // AppLocaleProvider's own layout-effect hydration reads session storage —
+  // otherwise a stale session value from an earlier visit in this tab would
+  // win and the page would flash from the override to the stale locale.
+  if (typeof window !== "undefined" && localeOverride) {
+    writeDashboardLocaleSession(localeOverride);
+  }
   const isActionsRoute =
     pathname === `${basePath}/actions` || pathname === `${basePath}/actions/`;
   const isSettingsAccountRoute =
@@ -63,7 +75,7 @@ export function DevGuidePreview({
       businessType={businessType}
       businessId={storageId}
       basePath={basePath}
-      storeLocale={storeMeta.storeLocale}
+      storeLocale={localeOverride ?? storeMeta.storeLocale}
       storeTheme={storeMeta.storeTheme}
       orderScheduleEnabled={orderScheduleEnabled}
       orderSchedule={orderSchedule}
@@ -166,5 +178,18 @@ export function DevGuidePreview({
       </div>
       {children}
     </DashboardShell>
+  );
+}
+
+/** Shared layout body for /dev/guide and /dev/guide/appointments — each is its
+ * own real route (plus a matching /actions sub-route) so only one screen is
+ * ever visible at a time, exactly like the real dashboard's home/actions tabs. */
+export function DevGuidePreview(
+  props: Parameters<typeof DevGuidePreviewInner>[0]
+) {
+  return (
+    <Suspense fallback={null}>
+      <DevGuidePreviewInner {...props} />
+    </Suspense>
   );
 }

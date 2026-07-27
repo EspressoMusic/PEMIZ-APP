@@ -658,10 +658,10 @@ const AddProductCard = memo(function AddProductCard({
   );
 });
 
-function ProductsPreviewBanner() {
+function ProductsPreviewBanner({ text }: { text: string }) {
   return (
     <p className="shrink-0 rounded-[14px] border border-amber-300/50 bg-amber-50/90 px-3 py-2 text-center text-[13px] font-bold text-amber-950">
-      תצוגה מקדימה — השינויים לא נשמרים ולא מועלים לשרת
+      {text}
     </p>
   );
 }
@@ -1329,7 +1329,9 @@ export function ProductsManager({
       showBackButton
       warmPanel
     >
-      {previewOnly ? <ProductsPreviewBanner /> : null}
+      {previewOnly ? (
+        <ProductsPreviewBanner text={labels.productsPreviewBanner} />
+      ) : null}
       {productsGrid}
       {products.length === 0 ? (
         <p className="py-4 text-center text-[14px] text-bakery-muted">
@@ -1414,7 +1416,9 @@ export function ProductsManager({
 
   return (
     <div className={`${DASHBOARD_PAGE_ROOT} gap-2`}>
-      {previewOnly && !autoOpenList ? <ProductsPreviewBanner /> : null}
+      {previewOnly && !autoOpenList ? (
+        <ProductsPreviewBanner text={labels.productsPreviewBanner} />
+      ) : null}
       {error && (
         <div className="shrink-0">
           <Alert variant="error">{error}</Alert>

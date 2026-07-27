@@ -142,6 +142,7 @@ export function DashboardHomeView({
               initialOrderConfirmationRequired={initialOrderConfirmationRequired}
               loadFromApi={prepRefreshFromApi}
               previewOnly={inquiryBellPreview}
+              basePath={basePath}
             />
           </div>
         ) : (

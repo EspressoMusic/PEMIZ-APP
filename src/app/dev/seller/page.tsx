@@ -7,12 +7,24 @@ import {
   DEV_STORE_OWNER_NAME,
 } from "@/lib/dev-preview-data";
 
-export default function DevSellerPreviewPage() {
+export default async function DevSellerPreviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { locale: localeParam } = await searchParams;
+  // Dev-only override — e.g. ?locale=en — to preview this page in a
+  // language other than the fixture's default.
+  const storeLocale =
+    localeParam === "en" || localeParam === "he"
+      ? localeParam
+      : DEV_STORE_BUSINESS.storeLocale;
+
   return (
     <DashboardShell
       businessType="STORE"
       basePath="/dev/seller"
-      storeLocale={DEV_STORE_BUSINESS.storeLocale}
+      storeLocale={storeLocale}
       storeTheme={DEV_STORE_BUSINESS.storeTheme}
     >
           <DashboardHomeView

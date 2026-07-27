@@ -25,8 +25,10 @@ import {
   Inbox,
   Megaphone,
   Package,
+  PlayCircle,
   Sparkles,
   Ticket,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -77,6 +79,9 @@ type GuideStep = {
   body: string;
   /** Renders as a mini checklist (icon + label per row, checkmarks revealed one after another) instead of a plain body paragraph. */
   listItems?: GuideListItem[];
+  /** Closing step: no spotlight, shows a button that opens `videoSrc` in a lightbox instead of a plain body paragraph. */
+  isVideo?: boolean;
+  videoSrc?: string;
   /** Selector of a neighboring element the ring must never bleed into — e.g. the
    * home screen's order/calendar card sits in a flex row that stretches to fill
    * remaining height, landing just a few px above the share-link card below it. */
@@ -93,7 +98,8 @@ type GuideStepDraft = Omit<GuideStep, "displayStep"> & { displayGroup: string };
 function buildSteps(
   basePath: string,
   isAppointments: boolean,
-  labels: DashboardLabels
+  labels: DashboardLabels,
+  locale: "en" | "he"
 ): GuideStep[] {
   const homeStep: GuideStepDraft = isAppointments
     ? {
@@ -201,6 +207,18 @@ function buildSteps(
         },
       ],
     },
+    ...(isAppointments
+      ? []
+      : [
+          {
+            id: "store-products",
+            displayGroup: "store-products",
+            route: `${basePath}/actions`,
+            targetSelector: '[data-tour-id="tour-products-row"]',
+            title: labels.sellerGuideStepAddProductTitle,
+            body: labels.sellerGuideStepAddProductBody,
+          },
+        ]),
     {
       id: "settings-row",
       displayGroup: "settings-row",
@@ -222,6 +240,20 @@ function buildSteps(
             targetSelector: '[data-tour-id="tour-order-confirmation"]',
             title: labels.sellerGuideWelcomeTipOrderConfirmationTitle,
             body: labels.sellerGuideWelcomeTipOrderConfirmationBody,
+          },
+          {
+            id: "add-product-video",
+            displayGroup: "add-product-video",
+            route: `${basePath}/actions`,
+            targetSelector: null,
+            icon: PlayCircle,
+            title: labels.sellerGuideVideoTitle,
+            body: labels.sellerGuideVideoBody,
+            isVideo: true,
+            videoSrc:
+              locale === "en"
+                ? "/guide/add-product-demo-en.mp4"
+                : "/guide/add-product-demo.mp4",
           },
         ]),
   ];
@@ -355,6 +387,7 @@ function GuideSpotlight({
   labels: DashboardLabels;
 }) {
   const [mounted, setMounted] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   const rect = useTargetRect(step.targetSelector);
   const avoidRect = useTargetRect(step.avoidSelector ?? null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -418,79 +451,115 @@ function GuideSpotlight({
     .replace("{total}", String(totalDisplaySteps));
 
   return createPortal(
-    <div
-      className={`fixed inset-0 z-[150] ${
-        spotlightBox ? "" : "flex items-center justify-center"
-      }`}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="seller-welcome-guide-title"
-    >
-      {spotlightBox ? (
-        <div
-          className="absolute rounded-[16px] ring-2 ring-bakery-primary transition-all duration-200"
-          style={{
-            top: spotlightBox.top,
-            left: spotlightBox.left,
-            width: spotlightBox.width,
-            height: spotlightBox.height,
-            boxShadow: "0 0 0 9999px rgba(20,16,14,0.6)",
-            pointerEvents: "none",
-          }}
-        />
-      ) : (
-        <div className="absolute inset-0 bg-[rgba(20,16,14,0.6)]" />
-      )}
-
+    <>
       <div
-        ref={tooltipRef}
-        className={`mx-4 w-[300px] max-w-[calc(100vw-32px)] rounded-[20px] border border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-4 shadow-[var(--shadow-bakery-panel)] ${
-          spotlightBox ? "absolute" : "relative"
+        className={`fixed inset-0 z-[150] ${
+          spotlightBox ? "" : "flex items-center justify-center"
         }`}
-        style={tooltipStyle}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="seller-welcome-guide-title"
       >
-        {step.isIntro ? null : (
-          <p className="text-center text-[13px] font-bold text-bakery-muted">
-            {counter}
-          </p>
+        {spotlightBox ? (
+          <div
+            className="absolute rounded-[16px] ring-2 ring-bakery-primary transition-all duration-200"
+            style={{
+              top: spotlightBox.top,
+              left: spotlightBox.left,
+              width: spotlightBox.width,
+              height: spotlightBox.height,
+              boxShadow: "0 0 0 9999px rgba(20,16,14,0.6)",
+              pointerEvents: "none",
+            }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[rgba(20,16,14,0.6)]" />
         )}
-        {step.icon ? (
-          <span className="mx-auto mt-1 flex h-12 w-12 items-center justify-center rounded-full border-2 border-bakery-primary/40 bg-white/50">
-            <step.icon className="h-6 w-6 text-bakery-primary" strokeWidth={2} />
-          </span>
-        ) : null}
-        <h2
-          id="seller-welcome-guide-title"
-          className="mt-1 text-center text-[19px] font-extrabold text-bakery-ink"
+
+        <div
+          ref={tooltipRef}
+          className={`mx-4 w-[300px] max-w-[calc(100vw-32px)] rounded-[20px] border border-bakery-border/40 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-4 shadow-[var(--shadow-bakery-panel)] ${
+            spotlightBox ? "absolute" : "relative"
+          }`}
+          style={tooltipStyle}
         >
-          {step.title}
-        </h2>
-        <p className="mt-1.5 text-center text-[16px] font-semibold leading-[1.5] text-bakery-muted">
-          {renderEmphasized(step.body)}
-        </p>
-        {step.listItems ? <GuideChecklist items={step.listItems} /> : null}
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={onSkip}
-            className="text-[13px] font-bold text-bakery-muted transition hover:text-bakery-ink"
+          {step.isIntro ? null : (
+            <p className="text-center text-[13px] font-bold text-bakery-muted">
+              {counter}
+            </p>
+          )}
+          {step.icon ? (
+            <span className="mx-auto mt-1 flex h-12 w-12 items-center justify-center rounded-full border-2 border-bakery-primary/40 bg-white/50">
+              <step.icon className="h-6 w-6 text-bakery-primary" strokeWidth={2} />
+            </span>
+          ) : null}
+          <h2
+            id="seller-welcome-guide-title"
+            className="mt-1 text-center text-[19px] font-extrabold text-bakery-ink"
           >
-            {labels.sellerGuideSkip}
-          </button>
-          <button
-            type="button"
-            onClick={onNext}
-            className="bakery-cta-3d bakery-cta-3d--primary !w-auto min-h-[30px] !rounded-[14px] !px-3 !py-1.5 text-[12px] font-extrabold !shadow-none"
-          >
-            {step.isIntro
-              ? labels.sellerGuideIntroStart
-              : isLast
-                ? labels.sellerGuideFinish
-                : labels.sellerGuideNext}
-          </button>
+            {step.title}
+          </h2>
+          <p className="mt-1.5 text-center text-[16px] font-semibold leading-[1.5] text-bakery-muted">
+            {renderEmphasized(step.body)}
+          </p>
+          {step.listItems ? <GuideChecklist items={step.listItems} /> : null}
+          {step.isVideo ? (
+            <button
+              type="button"
+              onClick={() => setVideoOpen(true)}
+              className="bakery-cta-3d bakery-cta-3d--primary mx-auto mt-3 flex min-h-[24px] !w-fit items-center justify-center gap-1 !rounded-[10px] !px-2 !py-0.5 text-[11px] font-extrabold !shadow-none"
+            >
+              <PlayCircle className="h-3 w-3" strokeWidth={2} />
+              {labels.sellerGuideShowMeButton}
+            </button>
+          ) : null}
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={onSkip}
+              className="text-[13px] font-bold text-bakery-muted transition hover:text-bakery-ink"
+            >
+              {labels.sellerGuideSkip}
+            </button>
+            <button
+              type="button"
+              onClick={onNext}
+              className="bakery-cta-3d bakery-cta-3d--primary !w-auto min-h-[30px] !rounded-[14px] !px-3 !py-1.5 text-[12px] font-extrabold !shadow-none"
+            >
+              {step.isIntro
+                ? labels.sellerGuideIntroStart
+                : isLast
+                  ? labels.sellerGuideFinish
+                  : labels.sellerGuideNext}
+            </button>
+          </div>
         </div>
       </div>
-    </div>,
+      {videoOpen && step.videoSrc ? (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-[rgba(10,8,6,0.85)] p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <button
+            type="button"
+            onClick={() => setVideoOpen(false)}
+            aria-label={labels.close}
+            className="absolute end-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+          >
+            <X className="h-5 w-5" strokeWidth={2.5} />
+          </button>
+          <video
+            src={step.videoSrc}
+            controls
+            autoPlay
+            loop
+            playsInline
+            className="max-h-[80vh] w-auto max-w-full rounded-[20px] shadow-2xl"
+          />
+        </div>
+      ) : null}
+    </>,
     document.body
   );
 }
@@ -513,15 +582,16 @@ function SellerWelcomeGuideInner({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { labels } = useAppLocale();
+  const { labels, locale } = useAppLocale();
   const welcome = searchParams.get("welcome") === "1";
   const resetRequested = searchParams.get("reset") === "1";
+  const stepParam = searchParams.get("step");
   const isAppointments = isScheduleLikeBusinessType(businessType);
   const [stepIndex, setStepIndex] = useState<number | null>(null);
 
   const steps = useMemo(
-    () => buildSteps(basePath, isAppointments, labels),
-    [basePath, isAppointments, labels]
+    () => buildSteps(basePath, isAppointments, labels, locale),
+    [basePath, isAppointments, labels, locale]
   );
   const totalDisplaySteps = steps[steps.length - 1]?.displayStep ?? 1;
 
@@ -579,6 +649,18 @@ function SellerWelcomeGuideInner({
 
     decidedRef.current = true;
 
+    // Deep-link straight to one step by id (e.g. ?step=add-product-video) —
+    // handy for previewing/sharing a single step without clicking through
+    // every step before it (each of which may cost a real navigation/flash
+    // in this dev-preview context — see the route-sync effect below).
+    if (stepParam) {
+      const targetIndex = steps.findIndex((step) => step.id === stepParam);
+      if (targetIndex !== -1) {
+        setStepIndex(targetIndex);
+        return;
+      }
+    }
+
     if (forceStart) {
       setStepIndex(0);
       return;
@@ -593,6 +675,8 @@ function SellerWelcomeGuideInner({
     isAppointments,
     welcome,
     resetRequested,
+    stepParam,
+    steps,
     forceStart,
     appointmentScheduleConfigured,
     router,
