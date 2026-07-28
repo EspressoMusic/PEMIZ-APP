@@ -28,7 +28,12 @@ const hideSchema = z.object({
   hide: z.literal(true),
 });
 
-const patchSchema = z.union([statusSchema, hideSchema]);
+const hidePrepSchema = z.object({
+  orderIds: z.array(z.string()).min(1).max(100),
+  hidePrep: z.literal(true),
+});
+
+const patchSchema = z.union([statusSchema, hideSchema, hidePrepSchema]);
 
 export async function PATCH(req: Request) {
   const ctx = await requireBusinessOwner();
@@ -36,6 +41,17 @@ export async function PATCH(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("נתונים לא תקינים");
+
+  if ("hidePrep" in parsed.data) {
+    // Dismisses orders from the dashboard home prep-summary widget only —
+    // unlike `hide` below, this must NOT affect the Orders panel's
+    // active/history split, so the order stays fully active there.
+    await prisma.order.updateMany({
+      where: { id: { in: parsed.data.orderIds }, businessId: ctx.user.business.id },
+      data: { prepHiddenAt: new Date() },
+    });
+    return jsonOk({ ok: true });
+  }
 
   if ("hide" in parsed.data) {
     // Removes orders from the seller's active Orders window without ever

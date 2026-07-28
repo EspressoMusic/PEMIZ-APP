@@ -1,17 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { Alert, Panel, PageTitle } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import type { DashboardLabels } from "@/lib/app-locale";
 import { useSubscriptionCheckout } from "@/components/dashboard/use-subscription-checkout";
 import type { SubscriptionPlanId } from "@/lib/subscription-plans";
 import { DashboardSubscriptionPlanPicker } from "@/components/dashboard/dashboard-subscription-plan-picker";
+import { DashboardDeleteStoreSection } from "@/components/dashboard/dashboard-delete-store-section";
 
 export function DashboardTrialPaywall({
   trialEndsAt,
+  businessName,
+  previewOnly = false,
 }: {
   trialEndsAt: string;
+  businessName?: string;
+  previewOnly?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
   const { payingPlan, message, startCheckout } = useSubscriptionCheckout();
@@ -54,6 +57,22 @@ export function DashboardTrialPaywall({
           {message}
         </p>
       ) : null}
+
+      <div className="my-5 flex items-center gap-3">
+        <span className="h-px flex-1 bg-bakery-border/60" />
+        <span className="text-[12px] font-bold uppercase text-bakery-muted">
+          {labels.trialExpiredOrDivider}
+        </span>
+        <span className="h-px flex-1 bg-bakery-border/60" />
+      </div>
+
+      <p className="mb-3 text-center text-[13px] font-semibold text-bakery-muted">
+        {labels.trialExpiredCloseStoreHint}
+      </p>
+      <DashboardDeleteStoreSection
+        businessName={businessName}
+        previewOnly={previewOnly}
+      />
     </Panel>
   );
 }

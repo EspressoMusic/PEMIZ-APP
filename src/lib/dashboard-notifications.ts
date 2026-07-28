@@ -44,7 +44,7 @@ export async function fetchDashboardNotifications(
         : prisma.order.findMany({
             where: orderConfirmationRequired
               ? { businessId, status: "PENDING" }
-              : { businessId, status: "CONFIRMED", sellerHiddenAt: null },
+              : { businessId, status: "CONFIRMED", prepHiddenAt: null },
             include: { items: { include: { product: true } } },
             orderBy: { createdAt: "desc" },
             take: 20,

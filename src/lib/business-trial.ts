@@ -1,9 +1,9 @@
 import { isBusinessTrialBypassed } from "@/lib/trial-dev";
 
-export const BUSINESS_TRIAL_DAYS = 14;
+export const BUSINESS_TRIAL_DAYS = 30;
 
 export function trialWarningScheduleLabelHe() {
-  return "התראות אוטומטיות לפני סגירה: שבוע, 3 ימים ויום אחרון (מייל + דחיפה)";
+  return "התראות אוטומטיות: שבוע, 3 ימים ויום אחרון לפני הסגירה, ועוד התראה בסיום התקופה לבחירת מנוי או סגירת החנות (מייל + דחיפה)";
 }
 
 export type BusinessTrialFields = {

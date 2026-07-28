@@ -67,6 +67,11 @@ export type DashboardLabels = {
   pushIosNeedsInstall: string;
   pushInvalidVapidKey: string;
   pushServiceWorkerFailed: string;
+  pushTestButton: string;
+  pushTestSending: string;
+  pushTestDelivered: string;
+  pushTestFailed: string;
+  pushTestNoSubscriptions: string;
   pushPreviewOnly: string;
   sellerNotifyPromptTitle: string;
   sellerNotifyPromptBody: string;
@@ -103,6 +108,12 @@ export type DashboardLabels = {
   trialExpiredTitle: string;
   trialExpiredHint: string;
   trialExpiredEndedOn: string;
+  trialExpiredOrDivider: string;
+  trialExpiredCloseStoreHint: string;
+  trialExpiredGoToSubscription: string;
+  trialExpiredCloseModal: string;
+  trialExpiredRecentOrdersTitle: string;
+  trialExpiredRecentOrdersHint: string;
   subscriptionPayMonthly: string;
   subscriptionStatusTitle: string;
   subscriptionActivePlan: string;
@@ -1426,6 +1437,12 @@ const HE: DashboardLabels = {
     "מפתח VAPID בשרת לא תקין. ב-Vercel — ודאו ש-VAPID_PUBLIC_KEY ו-VAPID_PRIVATE_KEY הועתקו בלי גרשיים מיותרים, ואז Redeploy.",
   pushServiceWorkerFailed:
     "לא הצלחנו לטעון את האפליקציה ברקע. סגרו את האפליקציה, פתחו מחדש מהמסך הראשי, ונסו שוב.",
+  pushTestButton: "שליחת התראת בדיקה",
+  pushTestSending: "שולח...",
+  pushTestDelivered: "ההתראה נשלחה בהצלחה — הגיעה למכשיר?",
+  pushTestFailed:
+    "המנוי הזה לא עובד יותר (המכשיר/הדפדפן ביטלו אותו). לחצו על \"הפעלת התראות במכשיר\" למעלה כדי להירשם מחדש.",
+  pushTestNoSubscriptions: "אין מכשיר רשום — לחצו על \"הפעלת התראות במכשיר\" למעלה.",
   pushPreviewOnly: "בתצוגת דמו אין חיבור להתראות אמיתיות.",
   sellerNotifyPromptTitle: "לקבל התראות?",
   sellerNotifyPromptBody:
@@ -1434,7 +1451,7 @@ const HE: DashboardLabels = {
   sellerNotifyPromptNo: "לא עכשיו",
   subscription: "מנוי",
   subscriptionPlansTitle: "חבילות מנוי",
-  subscriptionPlansHint: "14 ימי ניסיון חינם, ואז בחרו מנוי חודשי",
+  subscriptionPlansHint: "30 ימי ניסיון חינם, ואז בחרו מנוי חודשי",
   subscriptionPlansHintNoTrial: "בחרו מנוי חודשי",
   subscriptionPremium: "פרימיום",
   subscriptionUltimate: "מתקדם",
@@ -1463,8 +1480,14 @@ const HE: DashboardLabels = {
   subscriptionUltimateFeature3: "תמיכה מועדפת",
   trialExpiredTitle: "נגמרה תקופת הניסיון",
   trialExpiredHint:
-    "אחרי 14 ימי ניסיון חינם יש לבחור מנוי חודשי כדי להשאיר את החנות פעילה.",
+    "אחרי 30 ימי ניסיון חינם יש לבחור מנוי חודשי כדי להשאיר את החנות פעילה.",
   trialExpiredEndedOn: "תקופת הניסיון הסתיימה ב־",
+  trialExpiredOrDivider: "או",
+  trialExpiredCloseStoreHint: "לא רוצים להמשיך? אפשר גם לסגור את החנות לצמיתות.",
+  trialExpiredGoToSubscription: "מעבר למנוי",
+  trialExpiredCloseModal: "סגירה",
+  trialExpiredRecentOrdersTitle: "ההזמנות האחרונות שהתקבלו",
+  trialExpiredRecentOrdersHint: "תצוגה בלבד — כדי להמשיך לנהל את החנות יש לבחור מנוי חודשי.",
   subscriptionPayMonthly: "שלם מנוי חודשי",
   subscriptionStatusTitle: "סטטוס מנוי",
   subscriptionActivePlan: "חבילה פעילה",
@@ -2228,6 +2251,12 @@ const EN: DashboardLabels = {
     "The server VAPID public key is invalid. In Vercel, paste VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY without extra quotes, then redeploy.",
   pushServiceWorkerFailed:
     "Could not load the background worker. Close the app, reopen it from your home screen, and try again.",
+  pushTestButton: "Send test notification",
+  pushTestSending: "Sending...",
+  pushTestDelivered: "Test sent — did it arrive on your device?",
+  pushTestFailed:
+    "This subscription no longer works (revoked by the device/browser). Tap \"Enable push on this device\" above to re-register.",
+  pushTestNoSubscriptions: "No device registered — tap \"Enable push on this device\" above.",
   pushPreviewOnly: "Push is not available in preview mode.",
   sellerNotifyPromptTitle: "Get notified?",
   sellerNotifyPromptBody:
@@ -2236,7 +2265,7 @@ const EN: DashboardLabels = {
   sellerNotifyPromptNo: "Not now",
   subscription: "Subscription",
   subscriptionPlansTitle: "Subscription plans",
-  subscriptionPlansHint: "14-day free trial, then choose a monthly plan",
+  subscriptionPlansHint: "30-day free trial, then choose a monthly plan",
   subscriptionPlansHintNoTrial: "Choose a monthly plan",
   subscriptionPremium: "Premium",
   subscriptionUltimate: "Pro",
@@ -2265,8 +2294,14 @@ const EN: DashboardLabels = {
   subscriptionUltimateFeature3: "Priority support",
   trialExpiredTitle: "Trial period ended",
   trialExpiredHint:
-    "After your 14-day free trial, choose a monthly plan to keep your store active.",
+    "After your 30-day free trial, choose a monthly plan to keep your store active.",
   trialExpiredEndedOn: "Trial ended on ",
+  trialExpiredOrDivider: "or",
+  trialExpiredCloseStoreHint: "Don't want to continue? You can close your store permanently.",
+  trialExpiredGoToSubscription: "Go to subscription",
+  trialExpiredCloseModal: "Close",
+  trialExpiredRecentOrdersTitle: "Recently received orders",
+  trialExpiredRecentOrdersHint: "View only — choose a monthly plan to keep managing your store.",
   subscriptionPayMonthly: "Pay monthly subscription",
   subscriptionStatusTitle: "Subscription status",
   subscriptionActivePlan: "Active plan",

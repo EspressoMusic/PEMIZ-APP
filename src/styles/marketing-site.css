@@ -2582,13 +2582,13 @@ html, body { margin: 0; padding: 0; }
     border: 1px solid var(--card-border); text-align: center; font-size: 13.5px; font-weight: 600; color: var(--text);
     min-height: 20px;
   }
-}
 
-@media (max-width: 640px) {
-  .usage-demo-phones { flex-direction: column; }
-  .usage-demo-connector { width: 100%; height: 38px; }
-  .usage-demo-connector-line { width: 2px; height: 100%; margin: 0 auto; }
-  .usage-demo-connector-label { top: 50%; inset-inline-start: 50%; transform: translate(-50%, -50%); }
-  .usage-demo-connector-dot.is-to-seller, .usage-demo-connector-dot.is-to-customer { animation: none; top: 50%; inset-inline-start: 50%; }
+  @media (max-width: 640px) {
+    .usage-demo-phones { zoom: 0.6; flex-wrap: nowrap; gap: 8px; }
+  }
+
+  @media (max-width: 380px) {
+    .usage-demo-phones { zoom: 0.52; }
+  }
 }
 

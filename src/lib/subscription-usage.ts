@@ -120,15 +120,18 @@ export const SUBSCRIPTION_ORDER_LIMIT_MESSAGE_EN =
 export const SUBSCRIPTION_ORDER_LIMIT_MESSAGE_HE =
   "החנות הגיעה למכסת ההזמנות החודשית. נסו שוב מאוחר יותר או פנו למוכר.";
 
+export const STORE_INACTIVE_MESSAGE_EN = "This store is not active right now.";
+export const STORE_INACTIVE_MESSAGE_HE = "החנות אינה פעילה כעת.";
+
 export async function assertCanAcceptCustomerBooking(
   business: BusinessSubscriptionFields,
   locale: "he" | "en" = "en"
 ): Promise<{ ok: true } | { ok: false; message: string }> {
+  const inactiveMessage =
+    locale === "he" ? STORE_INACTIVE_MESSAGE_HE : STORE_INACTIVE_MESSAGE_EN;
+
   if (!business.isActive) {
-    return {
-      ok: false,
-      message: "This business is currently unavailable.",
-    };
+    return { ok: false, message: inactiveMessage };
   }
 
   if (
@@ -136,10 +139,7 @@ export async function assertCanAcceptCustomerBooking(
     !business.subscriptionActiveAt &&
     isBusinessTrialExpired(business)
   ) {
-    return {
-      ok: false,
-      message: "This business is currently unavailable.",
-    };
+    return { ok: false, message: inactiveMessage };
   }
 
   if (!isSubscriptionPaymentsEnabled() || !business.subscriptionActiveAt) {

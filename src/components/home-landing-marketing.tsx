@@ -78,7 +78,7 @@ export function HomeLandingMarketing() {
           </p>
           <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-bakery-border/40 bg-bakery-card/80 px-4 py-2 text-[13px] font-bold text-bakery-ink">
             <Sparkles className="h-4 w-4 text-bakery-primary" strokeWidth={2} />
-            14-day free trial · No card required to start
+            30-day free trial · No card required to start
           </p>
         </div>
       </section>

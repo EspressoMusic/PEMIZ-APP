@@ -103,6 +103,7 @@ export type MarketingCopy = {
   authGoogleTermsMiddle: string;
   authGoogleTermsSuffix: string;
   onboardTitle: string;
+  onboardTrialNote: (days: number) => string;
   onboardBusinessName: string;
   onboardDescription: string;
   onboardStoreType: string;
@@ -194,7 +195,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     pricingTitleEm: "Scale later.",
     premiumBadge: "Monthly Plan",
     premiumPeriod: "/ month",
-    premiumTrial: "14-day free trial",
+    premiumTrial: "30-day free trial",
     premiumFeatures: [
       "Full Peymiz access",
       "Business page + shareable link",
@@ -232,7 +233,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
       {
         question: "Is there a free trial?",
         answer:
-          "Yes — every new business gets a 14-day free trial of the full Peymiz dashboard before any charge.",
+          "Yes — every new business gets a 30-day free trial of the full Peymiz dashboard before any charge.",
       },
       {
         question: "Is Peymiz a marketplace?",
@@ -314,6 +315,8 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     authGoogleTermsMiddle: "and",
     authGoogleTermsSuffix: ".",
     onboardTitle: "Open your business",
+    onboardTrialNote: (days) =>
+      `Your first ${days} days are a free trial — no card required.`,
     onboardBusinessName: "Business name",
     onboardDescription: "Short description",
     onboardStoreType: "Store type",
@@ -404,7 +407,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     pricingTitleEm: "גדלים בהמשך.",
     premiumBadge: "תוכנית חודשית",
     premiumPeriod: "/ חודש",
-    premiumTrial: "14 יום ניסיון חינם",
+    premiumTrial: "30 יום ניסיון חינם",
     premiumFeatures: [
       "גישה מלאה ל-Peymiz",
       "דף עסק + קישור לשיתוף",
@@ -442,7 +445,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
       {
         question: "יש ניסיון חינם?",
         answer:
-          "כן — כל עסק חדש מקבל 14 יום ניסיון חינם לגישה המלאה ללוח הבקרה של Peymiz, לפני כל חיוב.",
+          "כן — כל עסק חדש מקבל 30 יום ניסיון חינם לגישה המלאה ללוח הבקרה של Peymiz, לפני כל חיוב.",
       },
       {
         question: "צריך אתר או ידע טכני כדי להשתמש ב-Peymiz?",
@@ -519,6 +522,8 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     authGoogleTermsMiddle: " ו",
     authGoogleTermsSuffix: ".",
     onboardTitle: "פתיחת העסק שלך",
+    onboardTrialNote: (days) =>
+      `${days} הימים הראשונים הם ניסיון חינם — בלי צורך בכרטיס אשראי.`,
     onboardBusinessName: "שם העסק",
     onboardDescription: "תיאור קצר",
     onboardStoreType: "סוג חנות",

@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/prisma";
 import { type BusinessTrialFields } from "@/lib/business-trial";
 import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 
@@ -7,23 +6,17 @@ export type BusinessTrialState = BusinessTrialFields & {
   isActive: boolean;
 };
 
+/**
+ * `isActive` means "admin approved / not disabled" — trial expiry must never
+ * write to it. Locking the dashboard and blocking new orders both key off
+ * `locked` (and `assertCanAcceptCustomerBooking`'s own trial check) instead,
+ * so an expired trial no longer also hides the storefront from browsing.
+ */
 export async function syncBusinessTrialLock(
   business: BusinessTrialState
 ): Promise<{ locked: boolean; isActive: boolean }> {
-  if (!(await isTrialEnforcedAndExpired(business))) {
-    return { locked: false, isActive: business.isActive };
-  }
-
-  if (!business.isActive) {
-    return { locked: true, isActive: false };
-  }
-
-  await prisma.business.update({
-    where: { id: business.id },
-    data: { isActive: false },
-  });
-
-  return { locked: true, isActive: false };
+  const locked = await isTrialEnforcedAndExpired(business);
+  return { locked, isActive: business.isActive };
 }
 
 export function trialExpiredErrorMessage(): string {

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button, Input, Textarea, Alert, Panel, PageTitle, Toggle } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 import { useMarketingLocale } from "@/components/marketing/marketing-locale-provider";
+import { BUSINESS_TRIAL_DAYS } from "@/lib/business-trial";
 
 function OnboardFeatureToggleRow({
   label,
@@ -80,7 +81,9 @@ export default function OnboardingPage() {
     <WebShell lockViewport>
       <div className="auth-surface mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-10">
         <Panel className="dashboard-card sm:p-8">
-          <PageTitle>{copy.onboardTitle}</PageTitle>
+          <PageTitle subtitle={copy.onboardTrialNote(BUSINESS_TRIAL_DAYS)}>
+            {copy.onboardTitle}
+          </PageTitle>
           {error && (
             <div className="mb-4">
               <Alert variant="error">{error}</Alert>

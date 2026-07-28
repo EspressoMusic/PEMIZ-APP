@@ -42,7 +42,7 @@ export default function PricingPage() {
         price: premium.priceUsd,
         priceCurrency: "USD",
         url: `${base}/pricing`,
-        description: "Monthly subscription with a 14-day free trial",
+        description: "Monthly subscription with a 30-day free trial",
       },
       {
         "@type": "Offer",

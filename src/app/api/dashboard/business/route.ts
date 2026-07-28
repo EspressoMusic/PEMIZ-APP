@@ -3,7 +3,7 @@ import { requireBusinessOwner } from "@/lib/dashboard-auth";
 import { deleteBusinessById } from "@/lib/delete-business";
 
 export async function DELETE() {
-  const ctx = await requireBusinessOwner();
+  const ctx = await requireBusinessOwner({ allowTrialExpired: true });
   if (!ctx.ok) return ctx.response;
   try {
     await deleteBusinessById(ctx.user.business.id);

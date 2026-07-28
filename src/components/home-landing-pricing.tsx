@@ -7,7 +7,7 @@ export function HomeLandingPricing() {
       <section className="app-safe-x px-4 pb-4 pt-[max(1.5rem,env(safe-area-inset-top))] text-center sm:pt-10">
         <p className="inline-flex items-center gap-2 rounded-full border border-bakery-border/40 bg-bakery-card/80 px-4 py-2 text-[13px] font-bold text-bakery-ink">
           <Sparkles className="h-4 w-4 text-bakery-primary" strokeWidth={2} />
-          14-day free trial · No card required to start
+          30-day free trial · No card required to start
         </p>
         <h1 className="mt-5 text-[30px] font-extrabold leading-tight text-bakery-ink sm:text-[34px]">
           Simple pricing

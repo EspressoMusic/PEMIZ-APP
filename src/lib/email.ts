@@ -145,7 +145,7 @@ export async function sendPlatformMessageToOwner(
 
 export type TrialWarningDaysLeft = 7 | 3 | 1;
 
-function trialWarningCopy(daysLeft: TrialWarningDaysLeft, storeName: string, endsAt: Date) {
+export function trialWarningCopy(daysLeft: TrialWarningDaysLeft, storeName: string, endsAt: Date) {
   const endsLabel = endsAt.toLocaleDateString("he-IL", {
     day: "numeric",
     month: "long",
@@ -207,6 +207,55 @@ export async function sendTrialEndingWarningEmail(
   }
 
   console.log(`[Linky Email] No RESEND_API_KEY — trial warning to ${to}`);
+  return { sent: false };
+}
+
+export function trialEndedCopy(storeName: string) {
+  const subject = `תקופת הניסיון הסתיימה — ${storeName}`;
+  const html = `
+    <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
+      <p>שלום,</p>
+      <p>תקופת הניסיון של החנות <strong>${escapeHtml(storeName)}</strong> הסתיימה.</p>
+      <p>כדי להשאיר את החנות פעילה ללקוחות יש לבחור מנוי חודשי. אפשר גם לסגור את החנות מהדשבורד אם אינך מעוניין להמשיך.</p>
+      <p>היכנס/י לדשבורד כדי לבחור באחת מהאפשרויות.</p>
+    </div>
+  `;
+  return { subject, html };
+}
+
+export async function sendTrialEndedEmail(
+  to: string,
+  storeName: string
+): Promise<SendResult> {
+  const { subject, html } = trialEndedCopy(storeName);
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      `[Linky Email] Trial ended notice to ${to}\nSubject: ${subject}`
+    );
+    return { sent: false };
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+
+  if (apiKey) {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ from, to: [to], subject, html }),
+    });
+    if (!res.ok) {
+      console.error("[Linky Email] Resend failed", await res.text());
+      return { sent: false };
+    }
+    return { sent: true };
+  }
+
+  console.log(`[Linky Email] No RESEND_API_KEY — trial ended notice to ${to}`);
   return { sent: false };
 }
 

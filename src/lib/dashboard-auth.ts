@@ -17,7 +17,10 @@ export type DashboardAuthResult =
   | { ok: true; user: UserWithBusiness }
   | { ok: false; response: NextResponse };
 
-export async function requireBusinessOwner(): Promise<DashboardAuthResult> {
+export async function requireBusinessOwner(options?: {
+  /** Let the owner act (e.g. close their store) even once the trial has locked the dashboard. */
+  allowTrialExpired?: boolean;
+}): Promise<DashboardAuthResult> {
   const user = await getCurrentUser();
   if (!user) {
     return { ok: false, response: jsonError("לא מחובר", 401) };
@@ -40,12 +43,12 @@ export async function requireBusinessOwner(): Promise<DashboardAuthResult> {
 
   if (!adminSupport) {
     const trialLock = await syncBusinessTrialLock(user.business);
-    if (!trialLock.isActive) {
+    if (!trialLock.isActive && !options?.allowTrialExpired) {
       return { ok: false, response: jsonError("החנות אינה פעילה", 403) };
     }
     if (
-      trialLock.locked ||
-      (await isTrialEnforcedAndExpired(user.business))
+      !options?.allowTrialExpired &&
+      (trialLock.locked || (await isTrialEnforcedAndExpired(user.business)))
     ) {
       return {
         ok: false,

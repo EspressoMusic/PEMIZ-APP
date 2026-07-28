@@ -68,6 +68,9 @@ export function DashboardSellerPushRegistration({
   const [state, setState] = useState<PushState>("idle");
   const [error, setError] = useState("");
   const lastTriggeredRef = useRef(0);
+  const [testStatus, setTestStatus] = useState<
+    "idle" | "sending" | "delivered" | "failed" | "none"
+  >("idle");
 
   const refreshConfig = useCallback(async () => {
     if (previewOnly || !isPushSupported()) {
@@ -142,6 +145,29 @@ export function DashboardSellerPushRegistration({
     }
   }, [requestSignal, subscribe]);
 
+  const sendTest = useCallback(async () => {
+    setTestStatus("sending");
+    try {
+      const res = await fetch("/api/dashboard/push/test", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        delivered?: number;
+        totalSubscriptions?: number;
+      };
+      if (!res.ok || !data.totalSubscriptions) {
+        setTestStatus("none");
+      } else if ((data.delivered ?? 0) > 0) {
+        setTestStatus("delivered");
+      } else {
+        setTestStatus("failed");
+      }
+    } catch {
+      setTestStatus("failed");
+    }
+  }, []);
+
   if (!alertsEnabled) return null;
 
   if (state === "unsupported") {
@@ -173,7 +199,25 @@ export function DashboardSellerPushRegistration({
       </div>
 
       {state === "subscribed" ? (
-        <Alert variant="success">{labels.pushSubscribed}</Alert>
+        <div className="space-y-2">
+          <Alert variant="success">{labels.pushSubscribed}</Alert>
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full"
+            disabled={testStatus === "sending"}
+            onClick={() => void sendTest()}
+          >
+            {testStatus === "sending" ? labels.pushTestSending : labels.pushTestButton}
+          </Button>
+          {testStatus === "delivered" ? (
+            <Alert variant="success">{labels.pushTestDelivered}</Alert>
+          ) : testStatus === "failed" ? (
+            <Alert variant="error">{labels.pushTestFailed}</Alert>
+          ) : testStatus === "none" ? (
+            <Alert variant="error">{labels.pushTestNoSubscriptions}</Alert>
+          ) : null}
+        </div>
       ) : state === "denied" ? (
         <Alert variant="error">{labels.pushPermissionDenied}</Alert>
       ) : state === "loading" ? (

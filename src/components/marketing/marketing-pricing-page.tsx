@@ -34,7 +34,7 @@ function pricingCopy(locale: MarketingLocale) {
         "כלי תוכנה בלבד — אתם מנהלים את העסק",
       ],
       subscribe: "להרשמה",
-      trial: "14 יום ניסיון חינם",
+      trial: "30 יום ניסיון חינם",
       note: "המנוי מתחדש מדי חודש עד לביטול. ייתכנו מסים נוספים. המחירים עשויים להשתנות בעתיד בהודעה מראש.",
       enterpriseName: "עסקים גדולים",
       enterpriseDescription:
@@ -57,7 +57,7 @@ function pricingCopy(locale: MarketingLocale) {
       "Software tools only — you run your business",
     ],
     subscribe: "Subscribe",
-    trial: "14-day free trial",
+    trial: "30-day free trial",
     note: "Subscription renews monthly until cancelled. Taxes may apply. Prices may change in the future with notice.",
     enterpriseName: "Enterprise",
     enterpriseDescription:

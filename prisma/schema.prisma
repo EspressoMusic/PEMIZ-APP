@@ -145,6 +145,7 @@ model Business {
   trialWarned7dAt        DateTime?
   trialWarned3dAt        DateTime?
   trialWarned1dAt        DateTime?
+  trialEndedNotifiedAt   DateTime?
   ownerId         String   @unique
   owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   termsAcceptedAt DateTime?
@@ -321,6 +322,7 @@ model Order {
   couponCode     String?
   discountAmount Float       @default(0)
   sellerHiddenAt DateTime?
+  prepHiddenAt   DateTime?
   createdAt      DateTime    @default(now())
   items          OrderItem[]
   pushSubscriptions OrderPushSubscription[]

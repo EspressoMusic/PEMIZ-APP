@@ -263,10 +263,10 @@ export function DashboardPrepSummary({
         ordersData.orderConfirmationRequired ?? true;
       setOrderConfirmationRequired(confirmationRequired);
       const relevant = ordersData.orders.filter(
-        (o: { status: string; sellerHiddenAt?: string | null }) =>
+        (o: { status: string; prepHiddenAt?: string | null }) =>
           confirmationRequired
             ? o.status === "PENDING"
-            : o.status === "CONFIRMED" && !o.sellerHiddenAt
+            : o.status === "CONFIRMED" && !o.prepHiddenAt
       );
       const mapped = mapPendingOrdersFromRecords(relevant, locale);
       setOrders(mapped);
@@ -311,7 +311,7 @@ export function DashboardPrepSummary({
       void fetch("/api/dashboard/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderIds, hide: true }),
+        body: JSON.stringify({ orderIds, hidePrep: true }),
       });
     },
     [previewOnly]

@@ -140,6 +140,13 @@ export async function dispatchSellerPush(
             await prisma.sellerPushSubscription
               .delete({ where: { id: sub.id } })
               .catch(() => undefined);
+          } else {
+            console.error("[seller-push] send failed", {
+              kind,
+              subscriptionId: sub.id,
+              status,
+              message: (e as { message?: string })?.message,
+            });
           }
         }
       })
@@ -192,6 +199,12 @@ export async function dispatchOwnerPush(
             await prisma.sellerPushSubscription
               .delete({ where: { id: sub.id } })
               .catch(() => undefined);
+          } else {
+            console.error("[seller-push] owner send failed", {
+              subscriptionId: sub.id,
+              status,
+              message: (e as { message?: string })?.message,
+            });
           }
         }
       })
@@ -199,6 +212,75 @@ export async function dispatchOwnerPush(
   } catch (e) {
     console.error("[seller-push] owner", e);
   }
+}
+
+export type SellerPushTestResult = {
+  totalSubscriptions: number;
+  delivered: number;
+  expiredRemoved: number;
+  failed: number;
+};
+
+/** Sends a real push to every device registered for this owner and reports what actually happened, so a seller can self-diagnose a broken subscription instead of just trusting the enabled toggle. */
+export async function sendTestPushToOwner(
+  ownerId: string
+): Promise<SellerPushTestResult> {
+  const subs = await prisma.sellerPushSubscription.findMany({
+    where: { userId: ownerId },
+  });
+
+  if (subs.length === 0 || !isPushConfigured()) {
+    return {
+      totalSubscriptions: subs.length,
+      delivered: 0,
+      expiredRemoved: 0,
+      failed: 0,
+    };
+  }
+
+  configureWebPush();
+  const payload = JSON.stringify({
+    title: "בדיקת התראות",
+    body: "אם קיבלת את זה — ההתראות עובדות!",
+    url: "/dashboard",
+    icon: PEYMIZ_BRAND_ICON,
+  });
+
+  let delivered = 0;
+  let expiredRemoved = 0;
+  let failed = 0;
+
+  await Promise.allSettled(
+    subs.map(async (sub) => {
+      try {
+        await webpush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
+          payload
+        );
+        delivered += 1;
+      } catch (e: unknown) {
+        const status = (e as { statusCode?: number })?.statusCode;
+        if (status === 404 || status === 410) {
+          await prisma.sellerPushSubscription
+            .delete({ where: { id: sub.id } })
+            .catch(() => undefined);
+          expiredRemoved += 1;
+        } else {
+          failed += 1;
+          console.error("[seller-push] test send failed", {
+            subscriptionId: sub.id,
+            status,
+            message: (e as { message?: string })?.message,
+          });
+        }
+      }
+    })
+  );
+
+  return { totalSubscriptions: subs.length, delivered, expiredRemoved, failed };
 }
 
 export async function notifySellerNewOrder(

@@ -16,12 +16,12 @@ const SITE_COPY = {
   en: {
     title: "Peymiz — Online Store & Appointment Booking for Small Businesses",
     description:
-      "Peymiz gives small businesses one shareable link for their online store, orders, and appointment booking, plus a simple seller dashboard. Start a free 14-day trial.",
+      "Peymiz gives small businesses one shareable link for their online store, orders, and appointment booking, plus a simple seller dashboard. Start a free 30-day trial.",
   },
   he: {
     title: "Peymiz — קישור אחד לניהול הזמנות ותורים לעסק שלך",
     description:
-      "Peymiz היא מערכת לעסקים קטנים: עמוד עסקי, קישור אחד לשיתוף, ניהול הזמנות ותורים, ולוח בקרה פשוט לבעל העסק. 14 יום ניסיון חינם.",
+      "Peymiz היא מערכת לעסקים קטנים: עמוד עסקי, קישור אחד לשיתוף, ניהול הזמנות ותורים, ולוח בקרה פשוט לבעל העסק. 30 יום ניסיון חינם.",
   },
 } as const;
 
