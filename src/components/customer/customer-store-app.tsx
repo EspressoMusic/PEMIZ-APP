@@ -566,6 +566,20 @@ export function CustomerStoreApp({
     };
   }, []);
 
+  useEffect(() => {
+    // Safari's back-forward cache restores this page from an in-memory
+    // snapshot on revisit (e.g. reopening a saved store link), bypassing the
+    // network entirely — the customer keeps seeing whatever storeTheme/
+    // products/etc. were current at the time they first opened the link,
+    // even though the response itself is already sent as no-store. Force a
+    // real reload so a restored page always re-fetches current store data.
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) window.location.reload();
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
   const refreshDealRedemptionCounts = useCallback(
     async (phone?: string) => {
       const local = loadLocalDealRedemptionCounts(business.slug);
