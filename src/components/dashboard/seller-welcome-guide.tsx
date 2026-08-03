@@ -141,6 +141,18 @@ function buildSteps(
       title: labels.sellerGuideWelcomeStepLinkTitle,
       body: labels.sellerGuideWelcomeStepLinkBody,
     },
+    ...(isAppointments
+      ? []
+      : [
+          {
+            id: "mode-switch",
+            displayGroup: "mode-switch",
+            route: `${basePath}/actions`,
+            targetSelector: '[data-tour-id="tour-mode-switch"]',
+            title: labels.sellerGuideWelcomeStepModeTitle,
+            body: labels.sellerGuideWelcomeStepModeBody,
+          },
+        ]),
     {
       id: "store-panel",
       displayGroup: "store-panel",

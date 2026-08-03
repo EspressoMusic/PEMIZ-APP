@@ -129,6 +129,9 @@ model Business {
   sellerAlertOnLowStock  Boolean  @default(true)
   // JSON: which customer-store panels are visible (see store-panels-visible.ts).
   storePanelsVisible     String?
+  // If true, the Actions page shows a simplified Products/Orders-only layout
+  // (no broadcast, deals, coupons, inquiries, FAQ). Toggle lives on the Actions page.
+  dashboardSimpleMode    Boolean  @default(false)
   isActive               Boolean  @default(false)
   approvedAt      DateTime?
   subscriptionActiveAt   DateTime?

@@ -40,6 +40,7 @@ export default async function SettingsPage() {
       businessType={b.type}
       initialOpenPanel="store"
       initialOrderConfirmationRequired={b.orderConfirmationRequired ?? true}
+      initialSimpleMode={b.dashboardSimpleMode ?? false}
     />
   );
 }

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Store, Users } from "lucide-react";
+import { ClipboardList, Package, Store, Users } from "lucide-react";
 import { DashboardActionsSettingsGroup } from "@/components/dashboard/dashboard-actions-settings-group";
 import { DashboardActionSquare } from "@/components/dashboard/dashboard-action-square";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardCustomersHubGrid } from "@/components/dashboard/dashboard-customers-hub";
 import { DashboardStoreSettingsHubPanel } from "@/components/dashboard/dashboard-store-settings-hub";
+import { DashboardModeToggle } from "@/components/dashboard/dashboard-mode-toggle";
 import { DashboardAppointmentsSettingsHubPanel } from "@/components/dashboard/dashboard-appointments-settings-hub";
 import type { DashboardAppointmentView } from "@/components/dashboard/dashboard-appointment-card";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
@@ -33,6 +34,7 @@ export function DashboardActionsHub({
   /** Open a panel immediately — e.g. landing on /dashboard/customers directly, so the actions grid still shows behind it. */
   initialOpenPanel,
   initialOrderConfirmationRequired = true,
+  initialSimpleMode = false,
 }: {
   businessType: string;
   basePath?: string;
@@ -47,14 +49,21 @@ export function DashboardActionsHub({
   };
   initialOpenPanel?: "customers" | "store";
   initialOrderConfirmationRequired?: boolean;
+  initialSimpleMode?: boolean;
 }) {
   const { labels } = useAppLocale();
-  const [customersOpen, setCustomersOpen] = useState(
-    initialOpenPanel === "customers"
-  );
-  const [storeOpen, setStoreOpen] = useState(initialOpenPanel === "store");
   const showStoreHub = businessType === "STORE";
   const showAppointmentsHub = isScheduleLikeBusinessType(businessType);
+  const [simpleMode, setSimpleMode] = useState(initialSimpleMode);
+  const simplified = simpleMode && showStoreHub;
+  // Simple mode routes the squares straight to /settings/products and
+  // /settings/orders — there's no hub sheet left to force open.
+  const [customersOpen, setCustomersOpen] = useState(
+    initialOpenPanel === "customers" && !simplified
+  );
+  const [storeOpen, setStoreOpen] = useState(
+    initialOpenPanel === "store" && !simplified
+  );
 
   const activeGuideStep = useSellerGuideActiveStep();
 
@@ -73,17 +82,33 @@ export function DashboardActionsHub({
   }, [activeGuideStep]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col justify-start overflow-hidden px-3 py-3 text-center sm:py-4">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden px-3 py-3 text-center sm:py-4">
       <div className="flex shrink-0 flex-col gap-3">
         <div className="dashboard-card bakery-float-panel shrink-0 rounded-[32px] p-3">
           <div className="grid grid-cols-2 gap-2 [&>*]:min-w-0">
-            <DashboardActionSquare
-              onClick={() => setCustomersOpen(true)}
-              icon={Users}
-              label={labels.customers}
-              tourId="tour-customers-square"
-            />
-            {showStoreHub || showAppointmentsHub ? (
+            {simplified ? (
+              <DashboardActionSquare
+                href={`${basePath}/settings/orders`}
+                icon={ClipboardList}
+                label={labels.orders}
+                tourId="tour-customers-square"
+              />
+            ) : (
+              <DashboardActionSquare
+                onClick={() => setCustomersOpen(true)}
+                icon={Users}
+                label={labels.customers}
+                tourId="tour-customers-square"
+              />
+            )}
+            {simplified ? (
+              <DashboardActionSquare
+                href={`${basePath}/settings/products`}
+                icon={Package}
+                label={labels.products}
+                tourId="tour-store-square"
+              />
+            ) : showStoreHub || showAppointmentsHub ? (
               <DashboardActionSquare
                 onClick={() => setStoreOpen(true)}
                 icon={Store}
@@ -113,6 +138,16 @@ export function DashboardActionsHub({
           </ul>
         </div>
       </div>
+
+      {showStoreHub ? (
+        <div className="mt-auto shrink-0 pt-3">
+          <DashboardModeToggle
+            enabled={simpleMode}
+            onChange={setSimpleMode}
+            previewOnly={previewOnly}
+          />
+        </div>
+      ) : null}
 
       <DashboardActionSheet
         open={customersOpen}

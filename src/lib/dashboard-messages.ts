@@ -198,6 +198,10 @@ export type DashboardLabels = {
   replyingTo: string;
   cancelReply: string;
   store: string;
+  simpleModeTitle: string;
+  advancedModeTitle: string;
+  simpleModeHint: string;
+  advancedModeHint: string;
   faq: string;
   salesAndProfit: string;
   orderStatsTitle: string;
@@ -501,6 +505,8 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipDealsBody: string;
   sellerGuideWelcomeTipLimitsTitle: string;
   sellerGuideWelcomeTipLimitsBody: string;
+  sellerGuideWelcomeStepModeTitle: string;
+  sellerGuideWelcomeStepModeBody: string;
   sellerGuideWelcomeStepStorePanelTitle: string;
   sellerGuideWelcomeStepStorePanelBody: string;
   sellerGuideStepAddProductTitle: string;
@@ -824,6 +830,10 @@ const HE: DashboardLabels = {
   replyingTo: "משיב ל־",
   cancelReply: "ביטול",
   store: "החנות",
+  simpleModeTitle: "מצב פשוט",
+  advancedModeTitle: "מצב מתקדם",
+  simpleModeHint: "רק מוצרים והזמנות — בלי הודעות, מבצעים וקופונים",
+  advancedModeHint: "כל הכלים זמינים לך",
   faq: "שאלות ותשובות",
   salesAndProfit: "מכירות ורווחים",
   orderStatsTitle: "סטטיסטיקת הזמנות",
@@ -1159,6 +1169,9 @@ const HE: DashboardLabels = {
   sellerGuideWelcomeTipLimitsTitle: "הגבלות הזמנה",
   sellerGuideWelcomeTipLimitsBody:
     "פעולות → חנות → דילים והגבלות → הגבלות. ימים ושעות.",
+  sellerGuideWelcomeStepModeTitle: "מצב פשוט או מתקדם",
+  sellerGuideWelcomeStepModeBody:
+    "בתחתית עמוד **פעולות** יש מתג שקובע כמה כלים רואים. **מצב פשוט** מציג רק מוצרים והזמנות — בלי הודעות, מבצעים וקופונים. **מצב מתקדם** מציג את כל הפיצ'רים. אפשר להחליף ביניהם בכל רגע.",
   sellerGuideWelcomeStepStorePanelTitle: "חנות",
   sellerGuideWelcomeStepStorePanelBody: "כל מה שתוכל ליצור במסך **חנות**:",
   sellerGuideStepAddProductTitle: "הוספת מוצר",
@@ -1637,6 +1650,10 @@ const EN: DashboardLabels = {
   replyingTo: "Replying to",
   cancelReply: "Cancel",
   store: "Store",
+  simpleModeTitle: "Simple mode",
+  advancedModeTitle: "Advanced mode",
+  simpleModeHint: "Products and orders only — no messages, deals, or coupons",
+  advancedModeHint: "All tools are available to you",
   faq: "FAQ",
   salesAndProfit: "Sales & profit",
   orderStatsTitle: "Order statistics",
@@ -1973,6 +1990,9 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeTipLimitsTitle: "Order limits",
   sellerGuideWelcomeTipLimitsBody:
     "Actions → Store → Deals & limits → Limits. Days and hours.",
+  sellerGuideWelcomeStepModeTitle: "Simple or advanced mode",
+  sellerGuideWelcomeStepModeBody:
+    "At the bottom of the **Actions** page there's a switch that decides how many tools you see. **Simple mode** shows only products and orders — no messages, deals, or coupons. **Advanced mode** shows every feature. You can switch between them anytime.",
   sellerGuideWelcomeStepStorePanelTitle: "Store",
   sellerGuideWelcomeStepStorePanelBody:
     "Everything you can create in the **Store** screen:",

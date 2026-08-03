@@ -69,6 +69,7 @@ export default async function DashboardHubLayout({
         <DashboardActionsHub
           businessType={business.type}
           initialOrderConfirmationRequired={business.orderConfirmationRequired ?? true}
+          initialSimpleMode={business.dashboardSimpleMode ?? false}
           initialStoreTerms={
             scheduleLike ? business.storeTerms ?? null : null
           }
