@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Check, X } from "lucide-react";
+import { Badge, Button } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   customerProfileInitial,
@@ -77,14 +77,20 @@ function DashboardAppointmentDetailModal({
   onClose,
   appointment,
   onHide,
+  onConfirm,
+  onReject,
 }: {
   open: boolean;
   onClose: () => void;
   appointment: DashboardAppointmentView;
   onHide?: () => void;
+  onConfirm?: () => void;
+  onReject?: () => void;
 }) {
   const { labels, locale, formatDateTime } = useAppLocale();
+  const [confirmingReject, setConfirmingReject] = useState(false);
   const sellerBooking = isSellerSelfBooking(appointment);
+  const isPending = appointment.status === "PENDING";
   const displayName = sellerBooking
     ? labels.sellerSelfBooking
     : appointment.customerName;
@@ -101,6 +107,7 @@ function DashboardAppointmentDetailModal({
 
   useEffect(() => {
     if (!open) return;
+    setConfirmingReject(false);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -142,6 +149,14 @@ function DashboardAppointmentDetailModal({
               {displayName}
             </h2>
           </div>
+
+          {isPending || appointment.status === "CANCELLED" ? (
+            <div className="flex justify-center">
+              <Badge tone={isPending ? "warning" : "danger"}>
+                {isPending ? labels.appointmentPending : labels.appointmentCancelled}
+              </Badge>
+            </div>
+          ) : null}
 
           <div className="space-y-3 rounded-[18px] border border-bakery-border/35 bg-bakery-card px-4 py-4 text-center">
             {sellerBooking ? (
@@ -206,15 +221,62 @@ function DashboardAppointmentDetailModal({
                 </p>
               </div>
             ) : null}
-
-            {appointment.status === "CANCELLED" ? (
-              <p className="text-[15px] font-bold text-bakery-muted">
-                {labels.appointmentCancelled}
-              </p>
-            ) : null}
           </div>
 
-          {onHide ? (
+          {isPending && (onConfirm || onReject) ? (
+            confirmingReject ? (
+              <div className="space-y-2">
+                <p className="text-center text-[13px] font-semibold text-bakery-ink">
+                  {labels.rejectAppointmentConfirmBody}
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="min-h-[44px] flex-1 rounded-full font-extrabold"
+                    onClick={() => setConfirmingReject(false)}
+                  >
+                    {labels.cancel}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    className="min-h-[44px] flex-1 rounded-full font-extrabold"
+                    onClick={() => {
+                      onReject?.();
+                      onClose();
+                    }}
+                  >
+                    {labels.rejectAppointmentButton}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="danger"
+                  className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full font-extrabold"
+                  onClick={() => setConfirmingReject(true)}
+                >
+                  <X className="h-4 w-4" strokeWidth={2.5} />
+                  {labels.rejectAppointmentButton}
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full font-extrabold"
+                  onClick={() => {
+                    onConfirm?.();
+                    onClose();
+                  }}
+                >
+                  <Check className="h-4 w-4" strokeWidth={2.5} />
+                  {labels.confirmAppointmentButton}
+                </Button>
+              </div>
+            )
+          ) : onHide ? (
             <Button
               type="button"
               className="w-full min-h-[44px] rounded-full border-[2px] border-bakery-primary bg-bakery-primary font-extrabold text-bakery-on-primary shadow-none hover:opacity-95 active:scale-[0.98]"
@@ -236,6 +298,8 @@ function DashboardAppointmentDetailModal({
 export function DashboardAppointmentCard({
   appointment,
   onHide,
+  onConfirm,
+  onReject,
   onCustomerClick,
   outlined = false,
   highlightAsNext = false,
@@ -245,6 +309,10 @@ export function DashboardAppointmentCard({
 }: {
   appointment: DashboardAppointmentView;
   onHide?: () => void;
+  /** Only called while the appointment is still PENDING. */
+  onConfirm?: () => void;
+  /** Only called while the appointment is still PENDING. */
+  onReject?: () => void;
   onCustomerClick?: (input: CustomerProfileInput) => void;
   bookingByDay?: boolean;
   rentalMode?: boolean;
@@ -325,7 +393,9 @@ export function DashboardAppointmentCard({
             ? DASHBOARD_NEXT_APPOINTMENT_FRAME
             : outlined
               ? `!border-[3px] !border-bakery-primary/18 ${DASHBOARD_DAY_PANEL_HALO}`
-              : ""
+              : appointment.status === "PENDING"
+                ? "!border-[2px] !border-bakery-sale/70"
+                : ""
         }`}
       >
         <button
@@ -406,6 +476,12 @@ export function DashboardAppointmentCard({
         onClose={() => setDetailOpen(false)}
         appointment={appointment}
         onHide={onHide}
+        onConfirm={
+          onConfirm && appointment.status === "PENDING" ? onConfirm : undefined
+        }
+        onReject={
+          onReject && appointment.status === "PENDING" ? onReject : undefined
+        }
       />
     </>
   );

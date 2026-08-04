@@ -13,6 +13,7 @@ import { verifyGoogleIdToken } from "@/lib/firebase/verify-google-id-token";
 import { isFirebaseAuthConfigured } from "@/lib/firebase/config";
 import { studioConsolePath } from "@/lib/studio-access";
 import { resolveOwnerBusiness } from "@/lib/owner-login";
+import { notifyMasterNewSignup } from "@/lib/master-push";
 import { z } from "zod";
 
 const schema = z.object({
@@ -83,6 +84,7 @@ export async function POST(req: Request) {
         select: safeUserSelect,
       });
       isNewUser = true;
+      void notifyMasterNewSignup(user);
     }
 
     const business = await resolveOwnerBusiness(user);

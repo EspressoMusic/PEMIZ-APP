@@ -8,6 +8,7 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import { useStoreTheme } from "@/components/dashboard/store-theme-provider";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { DashboardOrderConfirmationSettings } from "@/components/dashboard/dashboard-order-confirmation-settings";
+import { DashboardAppointmentConfirmationSettings } from "@/components/dashboard/dashboard-appointment-confirmation-settings";
 import { useSellerGuideActiveStep } from "@/components/dashboard/seller-welcome-guide";
 import type { CustomerLocale } from "@/lib/customer-preferences";
 import {
@@ -27,6 +28,7 @@ export function DashboardStoreStylePicker({
   businessType = "STORE",
   basePath = "/dashboard",
   initialOrderConfirmationRequired = true,
+  initialAppointmentConfirmationRequired = true,
 }: {
   previewOnly?: boolean;
   /** Inside shared «חשבון וחנות» panel in settings. */
@@ -34,6 +36,7 @@ export function DashboardStoreStylePicker({
   businessType?: string;
   basePath?: string;
   initialOrderConfirmationRequired?: boolean;
+  initialAppointmentConfirmationRequired?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -210,6 +213,15 @@ export function DashboardStoreStylePicker({
               embedded
               embeddedWrapper="div"
               initialRequired={initialOrderConfirmationRequired}
+              previewOnly={previewOnly}
+            />
+          ) : null}
+
+          {isScheduleLikeBusinessType(businessType) ? (
+            <DashboardAppointmentConfirmationSettings
+              embedded
+              embeddedWrapper="div"
+              initialRequired={initialAppointmentConfirmationRequired}
               previewOnly={previewOnly}
             />
           ) : null}

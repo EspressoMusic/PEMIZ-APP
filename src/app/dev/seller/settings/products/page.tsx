@@ -22,6 +22,7 @@ export default function DevSellerSettingsProductsPage() {
             autoOpenList
             previewOnly
             initialProducts={DEV_PREVIEW_PRODUCTS}
+            basePath="/dev/seller"
           />
         </div>
       </div>

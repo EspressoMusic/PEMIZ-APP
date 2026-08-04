@@ -8,6 +8,7 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import { useRouter } from "next/navigation";
 import {
   Button,
   Input,
@@ -677,6 +678,7 @@ export function ProductsManager({
   onStandaloneClose,
   onProductsChange,
   saveHandleRef,
+  basePath = "/dashboard",
 }: {
   previewOnly?: boolean;
   initialProducts?: Parameters<typeof toPreviewProducts>[0];
@@ -692,7 +694,9 @@ export function ProductsManager({
   onStandaloneClose?: () => void;
   onProductsChange?: (products: Product[]) => void;
   saveHandleRef?: MutableRefObject<(() => Promise<boolean>) | null>;
+  basePath?: string;
 } = {}) {
+  const router = useRouter();
   const { labels, formatMoney, locale } = useAppLocale();
   const isServices = mode === "services";
   const addLabel = isServices ? labels.addService : labels.addProduct;
@@ -1319,10 +1323,14 @@ export function ProductsManager({
   const productsListSheet = (
     <DashboardActionSheet
       open={productsListOpen}
-      onClose={() => {
-        setProductsListOpen(false);
-        if (standaloneList) onStandaloneClose?.();
-      }}
+      onClose={
+        autoOpenList
+          ? () => router.push(`${basePath}/actions`)
+          : () => {
+              setProductsListOpen(false);
+              if (standaloneList) onStandaloneClose?.();
+            }
+      }
       title={productsListTitle}
       ariaLabel={listLabel}
       placement="center"

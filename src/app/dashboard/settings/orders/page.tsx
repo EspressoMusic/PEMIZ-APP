@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { OrdersManager } from "@/components/dashboard-client";
-import { DashboardSettingsBackLink } from "@/components/dashboard/dashboard-back-links";
+import { DashboardActionsBackLink } from "@/components/dashboard/dashboard-back-links";
 export default async function SettingsOrdersPage() {
   const user = await getCurrentUser();
   if (!user?.business) redirect("/login");
@@ -9,7 +9,7 @@ export default async function SettingsOrdersPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-      <DashboardSettingsBackLink />
+      <DashboardActionsBackLink />
       <div className="min-h-0 flex-1 overflow-hidden" data-tour-id="tour-orders">
         <OrdersManager autoOpenActive />
       </div>

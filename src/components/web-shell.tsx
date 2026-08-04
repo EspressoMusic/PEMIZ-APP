@@ -16,7 +16,7 @@ export function WebShell({
     <div
       className={`bakery-frame-bg ${
         lockViewport
-          ? "flex h-full min-h-0 flex-col overflow-hidden py-0"
+          ? "warm-auth-scope flex h-full min-h-0 flex-col overflow-hidden py-0"
           : "py-0 sm:py-4 md:py-6"
       }`}
     >

@@ -150,6 +150,9 @@ export async function POST(
   const extra = parsed.data.notes?.trim();
   if (extra) noteParts.push(extra);
 
+  const appointmentStatus =
+    business.appointmentConfirmationRequired === false ? "CONFIRMED" : "PENDING";
+
   const appointment = await prisma.appointment.create({
     data: {
       businessId: business.id,
@@ -157,7 +160,7 @@ export async function POST(
       customerName: parsed.data.customerName,
       customerPhone: parseIsraeliMobilePhone(parsed.data.customerPhone)!,
       notes: noteParts.join("\n"),
-      status: "CONFIRMED",
+      status: appointmentStatus,
     },
     include: { slot: true },
   });

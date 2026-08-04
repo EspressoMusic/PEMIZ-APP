@@ -62,6 +62,17 @@ model SellerPushSubscription {
   @@index([userId])
 }
 
+/// Push devices for the platform owner's own phone — not tied to a User row, since the master/studio console is gated by MASTER_KEY, not a normal session.
+model MasterPushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model CustomerPushSubscription {
   id         String   @id @default(cuid())
   businessId String
@@ -117,6 +128,8 @@ model Business {
   // If true (default), new orders start PENDING and need the seller to confirm them.
   // If false, new orders are created already CONFIRMED (no manual approval step).
   orderConfirmationRequired Boolean @default(true)
+  // Same idea as orderConfirmationRequired, but for appointment bookings.
+  appointmentConfirmationRequired Boolean @default(true)
   appointmentSlotGapMinutes      Int    @default(0)
   appointmentSlotDurationMinutes Int    @default(60)
   appointmentBookingStart        String  @default("09:00")

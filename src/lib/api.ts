@@ -14,16 +14,17 @@ export function jsonOk<T>(data: T, status = 200) {
 export function jsonServerError(
   error: unknown,
   context: string,
-  options?: { status?: number }
+  options?: { status?: number; publicMessage?: string }
 ) {
   const detail = formatServerError(error);
+  const publicMessage = options?.publicMessage ?? detail.publicMessage;
   recordSystemIncident({
     context,
-    publicMessage: detail.publicMessage,
+    publicMessage,
     developerMessage: detail.developerMessage,
     error,
   });
-  return jsonError(detail.publicMessage, options?.status ?? detail.status);
+  return jsonError(publicMessage, options?.status ?? detail.status);
 }
 
 /** Record infrastructure misconfiguration without exposing setup hints to users. */

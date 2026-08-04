@@ -7,6 +7,7 @@ import {
 } from "@/lib/business-subscription";
 import { isTrialEnforcedAndExpired } from "@/lib/trial-enforcement";
 import { enforceKeyRateLimit } from "@/lib/security/rate-limit";
+import { isScheduleLikeBusinessType } from "@/lib/types";
 
 type AuthUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 type UserWithBusiness = AuthUser & {
@@ -65,6 +66,17 @@ export async function requireStoreOwner(): Promise<DashboardAuthResult> {
   if (!ctx.ok) return ctx;
   if (ctx.user.business.type !== "STORE") {
     return { ok: false, response: jsonError("עסק לא במצב חנות", 400) };
+  }
+  return ctx;
+}
+
+/** Store, appointments, and rental businesses can all switch between the simple and advanced dashboard layout. */
+export async function requireDashboardModeOwner(): Promise<DashboardAuthResult> {
+  const ctx = await requireBusinessOwner();
+  if (!ctx.ok) return ctx;
+  const type = ctx.user.business.type;
+  if (type !== "STORE" && !isScheduleLikeBusinessType(type)) {
+    return { ok: false, response: jsonError("סוג עסק זה לא תומך במצב תצוגה", 400) };
   }
   return ctx;
 }

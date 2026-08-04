@@ -34,6 +34,7 @@ export function DashboardActionsHub({
   /** Open a panel immediately — e.g. landing on /dashboard/customers directly, so the actions grid still shows behind it. */
   initialOpenPanel,
   initialOrderConfirmationRequired = true,
+  initialAppointmentConfirmationRequired = true,
   initialSimpleMode = false,
 }: {
   businessType: string;
@@ -49,15 +50,17 @@ export function DashboardActionsHub({
   };
   initialOpenPanel?: "customers" | "store";
   initialOrderConfirmationRequired?: boolean;
+  initialAppointmentConfirmationRequired?: boolean;
   initialSimpleMode?: boolean;
 }) {
   const { labels } = useAppLocale();
   const showStoreHub = businessType === "STORE";
   const showAppointmentsHub = isScheduleLikeBusinessType(businessType);
   const [simpleMode, setSimpleMode] = useState(initialSimpleMode);
-  const simplified = simpleMode && showStoreHub;
-  // Simple mode routes the squares straight to /settings/products and
-  // /settings/orders — there's no hub sheet left to force open.
+  const simplified = simpleMode && (showStoreHub || showAppointmentsHub);
+  // Simple mode routes the squares straight to /settings/products (or
+  // /settings/appointments for schedule-like businesses) and /settings/orders
+  // — there's no hub sheet left to force open.
   const [customersOpen, setCustomersOpen] = useState(
     initialOpenPanel === "customers" && !simplified
   );
@@ -88,9 +91,13 @@ export function DashboardActionsHub({
           <div className="grid grid-cols-2 gap-2 [&>*]:min-w-0">
             {simplified ? (
               <DashboardActionSquare
-                href={`${basePath}/settings/orders`}
+                href={
+                  showAppointmentsHub
+                    ? `${basePath}/settings/appointments`
+                    : `${basePath}/settings/orders`
+                }
                 icon={ClipboardList}
-                label={labels.orders}
+                label={showAppointmentsHub ? labels.appointments : labels.orders}
                 tourId="tour-customers-square"
               />
             ) : (
@@ -105,7 +112,7 @@ export function DashboardActionsHub({
               <DashboardActionSquare
                 href={`${basePath}/settings/products`}
                 icon={Package}
-                label={labels.products}
+                label={showAppointmentsHub ? labels.services : labels.products}
                 tourId="tour-store-square"
               />
             ) : showStoreHub || showAppointmentsHub ? (
@@ -134,12 +141,13 @@ export function DashboardActionsHub({
               businessType={businessType}
               initialStoreTerms={initialStoreTerms}
               initialOrderConfirmationRequired={initialOrderConfirmationRequired}
+              initialAppointmentConfirmationRequired={initialAppointmentConfirmationRequired}
             />
           </ul>
         </div>
       </div>
 
-      {showStoreHub ? (
+      {showStoreHub || showAppointmentsHub ? (
         <div className="mt-auto shrink-0 pt-3">
           <DashboardModeToggle
             enabled={simpleMode}

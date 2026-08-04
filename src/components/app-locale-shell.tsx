@@ -21,7 +21,7 @@ function AppLocaleShellInner({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className={`flex min-h-dvh flex-col ${homeLandingFontClass(locale)}`}
+      className={`warm-auth-scope flex min-h-dvh flex-col ${homeLandingFontClass(locale)}`}
       lang={locale === "he" ? "he" : "en"}
       dir={locale === "he" ? "rtl" : "ltr"}
     >

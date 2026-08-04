@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, PageTitle } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { WebShell } from "@/components/web-shell";
 
 export function MasterLoginGate() {
@@ -37,36 +37,30 @@ export function MasterLoginGate() {
 
   return (
     <WebShell>
-      <div className="master-surface mx-auto w-full max-w-sm px-4 py-12 sm:py-16">
-        <PageTitle subtitle="הזינו את סיסמת הגישה לפאנל">פאנל המתכנת</PageTitle>
-        <div className="master-panel-outer mt-8">
-          <form onSubmit={onSubmit} className="master-panel-inner space-y-4">
-            <label className="block">
-              <span className="mb-1.5 block text-[13px] font-bold text-bakery-muted">
-                סיסמה
-              </span>
-              <input
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                dir="ltr"
-                className="master-panel-input"
-                placeholder="••••••••"
-              />
-            </label>
-            {error && (
-              <p className="text-center text-[14px] font-semibold text-bakery-error">
-                {error}
-              </p>
-            )}
-            <Button type="submit" className="w-full" disabled={loading || !password.trim()}>
-              {loading ? "בודק..." : "כניסה"}
-            </Button>
-          </form>
-        </div>
+      <div className="master-surface master-login-surface mx-auto w-full max-w-sm px-4 py-12 sm:py-16">
+        <form onSubmit={onSubmit} className="master-panel-inner space-y-4">
+          <label className="block">
+            <input
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              dir="ltr"
+              className="master-panel-input"
+              placeholder="••••••••"
+            />
+          </label>
+          {error && (
+            <p className="text-center text-[14px] font-semibold text-bakery-error">
+              {error}
+            </p>
+          )}
+          <Button type="submit" className="w-full" disabled={loading || !password.trim()}>
+            {loading ? "בודק..." : "כניסה"}
+          </Button>
+        </form>
         <p className="mt-6 text-center">
           <Link href="/" className="text-sm font-bold text-bakery-primary hover:underline">
             חזרה

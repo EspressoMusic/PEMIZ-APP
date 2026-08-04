@@ -17,6 +17,8 @@ export default async function SettingsPage() {
         businessType={b.type}
         initialOpenPanel="store"
         initialStoreTerms={b.storeTerms ?? null}
+        initialAppointmentConfirmationRequired={b.appointmentConfirmationRequired ?? true}
+        initialSimpleMode={b.dashboardSimpleMode ?? false}
         initialCalendarConfig={calendarConfigFromBusiness(b)}
         initialWorkingDays={{
           initialEnabled: b.orderScheduleEnabled ?? false,

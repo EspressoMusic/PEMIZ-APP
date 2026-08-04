@@ -1,4 +1,4 @@
-import { jsonError, jsonOk } from "@/lib/api";
+import { jsonError, jsonInfrastructureError, jsonOk } from "@/lib/api";
 import { requireCatalogOwner } from "@/lib/dashboard-catalog-auth";
 import { storeProductImage } from "@/lib/product-image-storage";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
@@ -40,9 +40,10 @@ export async function POST(req: Request) {
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === "SUPABASE_REQUIRED") {
-      return jsonError(
-        "העלאת תמונות בפרודקשן דורשת הגדרת Supabase Storage (ראה .env.example)",
-        503
+      return jsonInfrastructureError(
+        "Supabase Storage not configured (see .env.example)",
+        "dashboard:product-image",
+        "העלאת תמונות בפרודקשן דורשת הגדרת Supabase Storage (ראה .env.example)"
       );
     }
     if (msg.startsWith("SUPABASE_UPLOAD:")) {
@@ -54,6 +55,12 @@ export async function POST(req: Request) {
       });
       return jsonError("שגיאה בהעלאה ל-Storage", 502);
     }
+    recordSystemIncident({
+      context: "dashboard:product-image",
+      publicMessage: "שגיאה בשמירת התמונה",
+      developerMessage: msg || String(e),
+      error: e,
+    });
     return jsonError("שגיאה בשמירת התמונה", 500);
   }
 }

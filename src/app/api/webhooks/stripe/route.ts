@@ -11,6 +11,8 @@ import {
   subscriptionBillingPeriod,
 } from "@/lib/billing/providers/stripe-provider";
 import type { SubscriptionPlanId } from "@/lib/subscription-plans";
+import { recordSystemIncident } from "@/lib/system-incidents";
+import { formatServerError } from "@/lib/server-errors";
 
 export const runtime = "nodejs";
 
@@ -117,7 +119,13 @@ export async function POST(req: Request) {
         break;
     }
   } catch (error) {
-    console.error("stripe webhook handler failed", error);
+    const detail = formatServerError(error);
+    recordSystemIncident({
+      context: `webhooks:stripe:${event.type}`,
+      publicMessage: "עדכון תשלום מ-Stripe נכשל",
+      developerMessage: detail.developerMessage,
+      error,
+    });
     return new Response("Webhook handler failed", { status: 500 });
   }
 

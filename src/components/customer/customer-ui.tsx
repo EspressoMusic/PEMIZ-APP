@@ -646,6 +646,10 @@ export function AppointmentPreviewCard({
         <p className="text-[12px] font-bold text-bakery-muted">
           {labels.appointmentCancelled}
         </p>
+      ) : status === "PENDING" ? (
+        <p className="text-[12px] font-bold text-bakery-sale">
+          {labels.appointmentPending}
+        </p>
       ) : null}
     </>
   );

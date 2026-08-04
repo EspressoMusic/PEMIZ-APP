@@ -419,25 +419,25 @@ button.bg-bakery-error:hover {
 
 /* ׳₪׳׳ ׳ ׳׳×׳›׳ ׳× ג€” ׳˜׳•׳¨׳§׳™׳– ׳›׳‘׳¨׳™׳¨׳× ׳׳—׳“׳, ׳›׳׳• ׳₪׳׳ ׳ ׳”׳׳•׳›׳¨ */
 .master-surface {
-  --master-panel-bg: #d4ece7;
-  --master-tile-bg: #eef8f6;
-  --master-tile-hover-bg: #e0f0ec;
-  --master-tile-active-bg: #d4ece7;
-  --master-frame-border: rgba(15, 118, 110, 0.35);
-  background: #f8fffe;
-  color: #134e4a;
+  --master-panel-bg: #d6bb8c;
+  --master-tile-bg: #d6bb8c;
+  --master-tile-hover-bg: #d0b380;
+  --master-tile-active-bg: #c4a36c;
+  --master-frame-border: rgba(78, 52, 46, 0.35);
+  background: #f1e4cd;
+  color: #3a2f26;
   min-height: 100dvh;
 }
 
 .master-surface .master-panel-outer {
-  background: linear-gradient(180deg, #f8fffe 0%, #eef8f6 100%);
-  border: 1.5px solid rgba(15, 118, 110, 0.28);
+  background: linear-gradient(180deg, #f1e4cd 0%, #ecdec2 100%);
+  border: 1.5px solid rgba(78, 52, 46, 0.28);
   border-radius: 28px;
   padding: 1rem;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 3px 0 rgba(15, 118, 110, 0.04),
-    0 12px 28px rgba(15, 118, 110, 0.1);
+    0 3px 0 rgba(78, 52, 46, 0.04),
+    0 12px 28px rgba(78, 52, 46, 0.1);
 }
 
 @media (min-width: 640px) {
@@ -461,11 +461,11 @@ button.bg-bakery-error:hover {
 }
 
 .master-surface .master-panel-inner {
-  background: #eef8f6;
-  border: 1px solid rgba(15, 118, 110, 0.2);
+  background: var(--master-tile-bg);
+  border: 1px solid rgba(78, 52, 46, 0.2);
   border-radius: 18px;
   padding: 0.75rem;
-  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.05);
+  box-shadow: 0 2px 8px rgba(78, 52, 46, 0.05);
   transition:
     background 0.14s ease,
     box-shadow 0.14s ease,
@@ -481,21 +481,21 @@ button.bg-bakery-error:hover {
 .master-surface button.master-panel-inner:hover,
 .master-surface .master-panel-row:hover {
   background: var(--master-tile-hover-bg);
-  border-color: rgba(15, 118, 110, 0.32);
-  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.08);
+  border-color: rgba(78, 52, 46, 0.32);
+  box-shadow: 0 4px 12px rgba(78, 52, 46, 0.08);
 }
 
 .master-surface button.master-panel-inner:active,
 .master-surface .master-panel-row:active {
   background: var(--master-tile-active-bg);
-  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.06);
+  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
   transform: translateY(0);
 }
 
 .master-surface .master-panel-inner--active {
   background: var(--master-tile-active-bg);
-  border-color: rgba(15, 118, 110, 0.4);
-  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.06);
+  border-color: rgba(78, 52, 46, 0.4);
+  box-shadow: 0 2px 6px rgba(78, 52, 46, 0.06);
 }
 
 .master-surface .master-panel-row {
@@ -514,8 +514,8 @@ button.bg-bakery-error:hover {
 
 .master-surface .master-panel-stat {
   border-radius: 12px;
-  border: 1px solid rgba(15, 118, 110, 0.18);
-  background: #f8fffe;
+  border: 1px solid rgba(78, 52, 46, 0.18);
+  background: #faf6f0;
   padding: 0.5rem;
   text-align: center;
 }
@@ -523,8 +523,8 @@ button.bg-bakery-error:hover {
 .master-surface .master-panel-input {
   width: 100%;
   border-radius: 14px;
-  border: 1.5px solid rgba(15, 118, 110, 0.25);
-  background: #f8fffe;
+  border: 1.5px solid rgba(78, 52, 46, 0.25);
+  background: #faf6f0;
   padding: 0.75rem 1rem;
   font-size: 15px;
   color: var(--bakery-ink);
@@ -532,28 +532,135 @@ button.bg-bakery-error:hover {
 }
 
 .master-surface .master-panel-input:focus {
-  border-color: rgba(15, 118, 110, 0.45);
-  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.2);
+  border-color: rgba(78, 52, 46, 0.45);
+  box-shadow: 0 0 0 2px rgba(78, 52, 46, 0.2);
 }
 
 .master-surface .master-panel-input::placeholder {
   color: var(--bakery-muted);
 }
 
+/* Programmer panel (login gate + the panel itself, both carry
+   .master-surface) — the shared calm (warm cream/brown) --bakery-*
+   variables are forced on via the html:root:has(.master-surface) rule
+   above (the extra :root bumps specificity past the later, same-
+   specificity html[data-store-theme="…"] blocks so this wins regardless
+   of source order), so the whole programmer panel — including the
+   WebShell's bg-bakery-scaffold wrapper outside .master-surface itself —
+   renders brown regardless of whichever store-theme cookie is active
+   site-wide. This login-gate-only rule additionally gives the password
+   field a fully white fill so it reads clearly against the card. */
+.master-surface.master-login-surface .master-panel-input {
+  background: #ffffff;
+  border-color: rgba(78, 52, 46, 0.3);
+}
+
+/* The site's dark theme hardcodes the primary button color with
+   !important via html[data-store-theme="dark"] button.inline-flex.bg-
+   bakery-primary, so the --color-bakery-primary override above can't
+   reach it. Beat it here with a more specific (4-class) selector, also
+   !important, scoped to this screen only. */
+.master-surface.master-login-surface button.inline-flex.bg-bakery-primary {
+  background: #6d4c41 !important;
+  color: #f8f4ec !important;
+  box-shadow: 0 3px 10px rgba(109, 76, 65, 0.22);
+}
+
+.master-surface.master-login-surface button.inline-flex.bg-bakery-primary:hover {
+  background: #7d5a4d !important;
+  box-shadow: 0 4px 12px rgba(109, 76, 65, 0.28);
+}
+
+/* Icon tiles (row avatars/settings icons) ג€” a shade darker/more saturated
+   than the flat cream default, so they read as distinct squares instead of
+   blending into the card background. Matches the warm-theme tile color
+   used on the seller dashboard's own settings rows.
+   !important: several store themes (turquoise, dark, ...) recolor
+   .bakery-icon-tile via html[data-store-theme="…"] .dashboard-action-row
+   .bakery-icon-tile, which out-specifies a plain .master-surface
+   descendant rule regardless of source order — the programmer panel must
+   stay warm/brown no matter which theme cookie is active site-wide. */
+.master-surface .bakery-icon-tile {
+  background: #e6d4b8 !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--bakery-ink);
+}
+
+.master-surface .bakery-icon-tile svg {
+  color: var(--bakery-ink) !important;
+}
+
+/* Business-list rows reuse the shared .dashboard-action-row /
+   .dashboard-action-square classes from the seller dashboard, which the
+   same theme-scoped selectors above also recolor (e.g. turquoise's
+   html[data-store-theme="turquoise"] .dashboard-action-row). Pin them
+   back to the warm master-panel palette for the same reason. */
+.master-surface .dashboard-action-row,
+.master-surface .dashboard-action-square {
+  background: linear-gradient(180deg, #f9f2e2 0%, #f1e6cf 100%) !important;
+  border: 1px solid rgba(78, 52, 46, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 3px 0 rgba(78, 52, 46, 0.07),
+    0 6px 14px rgba(78, 52, 46, 0.08) !important;
+  transition:
+    background 0.14s ease,
+    box-shadow 0.14s ease,
+    border-color 0.14s ease,
+    transform 0.14s ease;
+}
+
+.master-surface .dashboard-action-row:hover,
+.master-surface .dashboard-action-square:hover {
+  background: linear-gradient(180deg, #fbf6ea 0%, #f3e9d3 100%) !important;
+  border-color: rgba(78, 52, 46, 0.3) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 4px 0 rgba(78, 52, 46, 0.07),
+    0 8px 18px rgba(78, 52, 46, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.master-surface .dashboard-action-row:active,
+.master-surface .dashboard-action-square:active,
+.master-surface .dashboard-action-row.bakery-float-tile--active,
+.master-surface .dashboard-action-square--active {
+  background: linear-gradient(180deg, #f1e6cf 0%, #e9dabb 100%) !important;
+  border-color: rgba(78, 52, 46, 0.4) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 0 rgba(78, 52, 46, 0.06),
+    0 2px 6px rgba(78, 52, 46, 0.06) !important;
+  transform: translateY(1px);
+}
+
+/* Outer card wrapper (search box + business list) — same theme-recoloring
+   issue as above, this time on .bakery-float-panel (e.g. turquoise's
+   html[data-store-theme="turquoise"] .bakery-float-panel). */
+.master-surface .dashboard-card.bakery-float-panel {
+  background: linear-gradient(180deg, #f1e4cd 0%, #ecdec2 100%) !important;
+  border: 1.5px solid rgba(78, 52, 46, 0.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 3px 0 rgba(78, 52, 46, 0.04),
+    0 12px 28px rgba(78, 52, 46, 0.1) !important;
+}
+
 /* Programmer-panel sheets (stats, limits, incidentsג€¦) ג€” portaled outside
    .master-surface, so they're targeted directly instead of by descendant.
-   Turquoise fill matches the rest of the master panel instead of the
-   seller dashboard's warm theme; the stronger backdrop keeps the settings
+   Warm fill matches the rest of the master panel and the seller
+   dashboard's warm theme; the stronger backdrop keeps the settings
    list behind it from staying readable through the overlay. */
 .dashboard-card.bakery-action-sheet-panel.master-action-sheet-panel {
-  background: #d4ece7 !important;
+  background: #e6d5b8 !important;
   background-image: none !important;
-  border: 1.5px solid rgba(15, 118, 110, 0.35) !important;
-  box-shadow: 0 12px 36px rgba(15, 118, 110, 0.12) !important;
+  border: 1.5px solid rgba(78, 52, 46, 0.35) !important;
+  box-shadow: 0 12px 36px rgba(78, 52, 46, 0.12) !important;
 }
 
 .master-action-sheet-backdrop {
-  background: rgba(15, 118, 110, 0.62) !important;
+  background: rgba(78, 52, 46, 0.62) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
 }
@@ -853,7 +960,8 @@ html[data-store-theme="turquoise"],
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
 }
 
-html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
+html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm,
+html:root:has(.master-surface) {
   --bakery-scaffold: #f4f0e8;
   --bakery-classic-cream: #e6dabf;
   --bakery-classic-cream-hover: #ebe5cf;
@@ -904,6 +1012,20 @@ html[data-store-theme="calm"] , .customer-store-root.customer-theme-calm {
   --dashboard-soft-border-strong: rgba(78, 52, 46, 0.18);
   --dashboard-shadow: rgba(78, 52, 46, 0.14);
   --shadow-bakery-btn: 0 4px 12px rgba(109, 76, 65, 0.28);
+  /* The "light"/"dark"/"modern" theme blocks below hardcode these same
+     tokens under the --color-bakery-* (Tailwind @theme) names instead of
+     just the plain --bakery-* ones above, so text-bakery-ink/bg-bakery-
+     primary/etc. utilities would otherwise ignore the overrides on this
+     page. Restated here so html:root:has(.master-login-surface)'s higher
+     specificity wins for those utilities too. */
+  --color-bakery-ink: #3a2f26;
+  --color-bakery-muted: #6b5d52;
+  --color-bakery-primary: #6d4c41;
+  --color-bakery-on-primary: #f8f4ec;
+  --color-bakery-input: #f9f3e5;
+  --color-bakery-border: #c9b89a;
+  --color-bakery-square: #e6d4b8;
+  --color-bakery-card: #f6efe3;
 }
 
 /* Fast, light entrance animations for modals/sheets ג€” quick, not sluggish */
@@ -1801,6 +1923,23 @@ html[data-store-theme="dark"] .master-surface .master-panel-inner {
   color: var(--bakery-ink);
 }
 
+html[data-store-theme="dark"] .master-surface.master-login-surface {
+  background: #faf6f0;
+  color: #3a2f26;
+}
+
+html[data-store-theme="dark"] .master-surface.master-login-surface .master-panel-inner {
+  background: #f6efe3;
+  border-color: rgba(78, 52, 46, 0.2);
+  color: #3a2f26;
+}
+
+html[data-store-theme="dark"] .master-surface.master-login-surface .master-panel-input {
+  background: #ffffff;
+  border-color: rgba(78, 52, 46, 0.3);
+  color: #3a2f26;
+}
+
 html[data-store-theme="dark"] .dashboard-card.bakery-action-sheet-panel.master-action-sheet-panel {
   background: #3d3c37 !important;
   border-color: rgba(255, 255, 255, 0.16) !important;
@@ -2347,13 +2486,84 @@ html[data-store-theme="dark"] .auth-waves {
 }
 
 /* Login / signup ג€” visible fill boxes (not pill-borderless like dashboard) */
-.auth-surface {
+/* Auth pages are reached before anyone has a store, so they always use the
+   warm/brown palette ג€” regardless of a seller's saved storefront theme
+   cookie (turquoise/light/dark) lingering from a previous session.
+   The tripled class selector is a deliberate specificity bump: several
+   html[data-store-theme=X] rules elsewhere in this file re-theme
+   `:is(.dashboard-surface, .auth-surface)` at (0,2,1) specificity ג€”
+   custom properties don't reliably keep !important through the CSS
+   minifier, so this wins by out-specificity-ing them (0,3,0) instead. */
+.auth-surface.auth-surface.auth-surface,
+.warm-auth-scope.warm-auth-scope.warm-auth-scope {
+  --bakery-scaffold: #f4f0e8;
+  --bakery-cream-light: #faf4e6;
+  --bakery-cream: #f6efe3;
+  --bakery-cream-mid: #f0e8da;
+  --bakery-cream-hover: #ebe3d4;
+  --bakery-card: #f6efe3;
+  --bakery-square: #e6d4b8;
+  --bakery-ink: #3a2f26;
+  --bakery-muted: #6b5d52;
+  --bakery-primary: #6d4c41;
+  --bakery-primary-deep: #4b352b;
+  --bakery-on-primary: #f8f4ec;
+  --bakery-input: #f9f3e5;
+  --bakery-border: #c9b89a;
+  --bakery-icon-tile: #faf4e6;
+  --shadow-bakery-btn-3d-primary:
+    0 6px 0 var(--bakery-primary-deep), 0 10px 22px rgba(109, 76, 65, 0.28);
+  --shadow-bakery-btn-3d-secondary:
+    0 5px 0 rgba(109, 76, 65, 0.45), 0 8px 18px rgba(109, 76, 65, 0.18);
+  /* Tailwind's @theme aliases (text-bakery-ink, bg-bakery-card, ...) resolve
+     these ג€” not the bare --bakery-* names above ג€” so they need the same
+     forced values or utility classes would still read the inherited theme. */
+  --color-bakery-scaffold: var(--bakery-scaffold);
+  --color-bakery-cream-light: var(--bakery-cream-light);
+  --color-bakery-cream: var(--bakery-cream);
+  --color-bakery-cream-mid: var(--bakery-cream-mid);
+  --color-bakery-cream-hover: var(--bakery-cream-hover);
+  --color-bakery-card: var(--bakery-card);
+  --color-bakery-panel-top: var(--bakery-cream-light);
+  --color-bakery-square: var(--bakery-square);
+  --color-bakery-ink: var(--bakery-ink);
+  --color-bakery-muted: var(--bakery-muted);
+  --color-bakery-primary: var(--bakery-primary);
+  --color-bakery-on-primary: var(--bakery-on-primary);
+  --color-bakery-input: var(--bakery-input);
+  --color-bakery-border: var(--bakery-border);
   --auth-field-bg: var(--dashboard-field-bg, var(--bakery-input, #f9f3e5));
   --auth-field-border: var(--bakery-border, rgba(109, 76, 65, 0.22));
   --dashboard-panel-bg: #e6d5b8;
-  --dashboard-frame-border: rgba(78, 52, 46, 0.32);
-  --dashboard-frame-border-width: 1.5px;
+  --dashboard-frame-border: rgba(78, 52, 46, 0.4);
+  --dashboard-frame-border-width: 2.5px;
   --dashboard-shadow: rgba(78, 52, 46, 0.14);
+  background: var(--bakery-scaffold);
+  color: var(--bakery-ink);
+}
+
+/* The turquoise theme hardcodes a literal border color on .dashboard-card
+   (see the html[data-store-theme="turquoise"] :is(.dashboard-surface,
+   .auth-surface) rule below) instead of reading the --dashboard-frame-border
+   variable above, so it bypasses that override. Auth pages never take the
+   turquoise theme, so pin the color back here. */
+html[data-store-theme="turquoise"]
+  .auth-surface.auth-surface.auth-surface
+  .dashboard-card.dashboard-card.dashboard-card {
+  border-color: rgba(78, 52, 46, 0.4);
+}
+
+/* Thickens the panel's outer ring via an inset shadow layered just inside
+   the border, instead of the border-width property itself ג€” several
+   theme-specific rules across the file set border-width via the `border`
+   shorthand at equal specificity tiers, and border-width consistently lost
+   that fight no matter how the override was written (higher specificity,
+   !important, longhand vs shorthand). box-shadow isn't touched by any of
+   those rules, so it sidesteps the conflict entirely. */
+.auth-surface .dashboard-card {
+  box-shadow:
+    var(--shadow-bakery-panel),
+    inset 0 0 0 1px var(--dashboard-frame-border) !important;
 }
 
 html:not([data-store-theme="dark"]) .auth-surface .bakery-field {
@@ -2415,26 +2625,6 @@ html:not([data-store-theme="dark"]) .auth-surface .bakery-field:focus {
 
 .auth-surface .auth-google-btn:disabled {
   cursor: not-allowed;
-}
-
-html[data-store-theme="dark"] .auth-surface {
-  --auth-field-bg: var(--dashboard-field-bg, var(--bakery-input, #242a33));
-  --auth-field-border: var(--dashboard-soft-border-strong, rgba(255, 255, 255, 0.14));
-}
-
-html[data-store-theme="dark"] .auth-surface .bakery-field {
-  border-radius: 1rem;
-  border: 1.5px solid var(--auth-field-border);
-  background-color: var(--auth-field-bg);
-  min-height: 52px;
-  padding-inline: 1.25rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.22);
-}
-
-html[data-store-theme="dark"] .auth-surface .bakery-field:focus {
-  outline: 2px solid rgba(218, 119, 86, 0.35);
-  outline-offset: 2px;
-  border-color: rgba(218, 119, 86, 0.45);
 }
 
 html:not([data-store-theme="dark"])
@@ -4718,6 +4908,15 @@ html:not([data-store-theme="dark"]) .bakery-field {
   box-shadow:
     0 2px 0 rgba(109, 76, 65, 0.45),
     0 4px 10px rgba(58, 47, 38, 0.18);
+}
+
+/* Onboarding step-1 picker cards ג€” same 3D press feel as .bakery-cta-3d,
+   but sized to sit two-up in a grid instead of as a single full CTA. */
+.onboard-3d-option {
+  min-height: 76px;
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease;
 }
 
 @keyframes guide-checklist-tick {

@@ -7,6 +7,7 @@ import {
   SELLER_SELF_BOOKING_NOTE,
   SELLER_WALK_IN_PHONE,
 } from "@/lib/seller-appointment-booking";
+import { notifyAppointmentWaitlist } from "@/lib/customer-push";
 import { z } from "zod";
 
 const postSchema = z.object({
@@ -112,5 +113,10 @@ export async function PATCH(req: Request) {
     },
     include: { slot: true },
   });
+
+  if (parsed.data.status === "CANCELLED" && appt.status !== "CANCELLED") {
+    void notifyAppointmentWaitlist(ctx.user.business.id, ctx.user.business);
+  }
+
   return jsonOk({ appointment: updated });
 }

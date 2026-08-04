@@ -14,6 +14,8 @@ import {
   parsePaddlePlanId,
   type PaddleSubscriptionPayload,
 } from "@/lib/billing/providers/paddle-provider";
+import { recordSystemIncident } from "@/lib/system-incidents";
+import { formatServerError } from "@/lib/server-errors";
 
 export const runtime = "nodejs";
 
@@ -184,7 +186,13 @@ export async function POST(req: Request) {
         break;
     }
   } catch (error) {
-    console.error("paddle webhook handler failed", error);
+    const detail = formatServerError(error);
+    recordSystemIncident({
+      context: `webhooks:paddle:${eventType}`,
+      publicMessage: "עדכון תשלום מ-Paddle נכשל",
+      developerMessage: detail.developerMessage,
+      error,
+    });
     return new Response("Webhook handler failed", { status: 500 });
   }
 

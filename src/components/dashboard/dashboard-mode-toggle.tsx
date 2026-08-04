@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Alert } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 
@@ -13,6 +14,7 @@ export function DashboardModeToggle({
   onChange: (next: boolean) => void;
   previewOnly?: boolean;
 }) {
+  const router = useRouter();
   const { labels } = useAppLocale();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -35,6 +37,11 @@ export function DashboardModeToggle({
         const data = await res.json().catch(() => ({}));
         setError((data as { error?: string }).error ?? labels.saveError);
         onChange(!next);
+      } else {
+        // Other pages (e.g. Settings) render this same business's
+        // dashboardSimpleMode server-side; without a refresh, Next's
+        // back/forward client cache can serve their pre-toggle snapshot.
+        router.refresh();
       }
     } catch {
       setError(labels.networkError);

@@ -16,6 +16,7 @@ export default async function DashboardCustomersPage() {
       businessType={business.type}
       initialOpenPanel="customers"
       initialOrderConfirmationRequired={business.orderConfirmationRequired ?? true}
+      initialAppointmentConfirmationRequired={business.appointmentConfirmationRequired ?? true}
       initialSimpleMode={business.dashboardSimpleMode ?? false}
       initialStoreTerms={scheduleLike ? business.storeTerms ?? null : null}
       initialCalendarConfig={

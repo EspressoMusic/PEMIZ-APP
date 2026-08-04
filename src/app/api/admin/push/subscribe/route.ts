@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api";
-import { requireSellerAlertsOwner } from "@/lib/dashboard-auth";
+import { requirePlatformAdmin } from "@/lib/admin-access";
 import { isPushConfigured } from "@/lib/seller-push";
 
 const schema = z.object({
@@ -13,8 +13,8 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const ctx = await requireSellerAlertsOwner();
-  if (!ctx.ok) return ctx.response;
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
   if (!isPushConfigured()) {
     return jsonError("התראות דחיפה לא מוגדרות בשרת", 503);
   }
@@ -26,24 +26,22 @@ export async function POST(req: Request) {
   const userAgent = req.headers.get("user-agent") ?? undefined;
 
   try {
-    await prisma.sellerPushSubscription.upsert({
+    await prisma.masterPushSubscription.upsert({
       where: { endpoint: parsed.data.endpoint },
       create: {
-        userId: ctx.user.id,
         endpoint: parsed.data.endpoint,
         p256dh: parsed.data.keys.p256dh,
         auth: parsed.data.keys.auth,
         userAgent,
       },
       update: {
-        userId: ctx.user.id,
         p256dh: parsed.data.keys.p256dh,
         auth: parsed.data.keys.auth,
         userAgent,
       },
     });
   } catch (error) {
-    return jsonServerError(error, "dashboard:push-subscribe", {
+    return jsonServerError(error, "admin:push-subscribe", {
       publicMessage: "שגיאה בשמירת ההרשמה — נסו שוב",
     });
   }
@@ -52,21 +50,17 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const ctx = await requireSellerAlertsOwner();
-  if (!ctx.ok) return ctx.response;
+  const denied = await requirePlatformAdmin();
+  if (denied) return denied;
 
   const body = await req.json().catch(() => null);
   const endpoint =
     body && typeof body.endpoint === "string" ? body.endpoint : null;
 
   if (endpoint) {
-    await prisma.sellerPushSubscription.deleteMany({
-      where: { userId: ctx.user.id, endpoint },
-    });
+    await prisma.masterPushSubscription.deleteMany({ where: { endpoint } });
   } else {
-    await prisma.sellerPushSubscription.deleteMany({
-      where: { userId: ctx.user.id },
-    });
+    await prisma.masterPushSubscription.deleteMany();
   }
 
   return jsonOk({ unsubscribed: true });

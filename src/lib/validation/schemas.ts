@@ -79,6 +79,8 @@ export const businessCreateSchema = z.object({
   deals: z.boolean().optional(),
   chat: z.boolean().optional(),
   orderConfirmationRequired: z.boolean().optional(),
+  appointmentConfirmationRequired: z.boolean().optional(),
+  dashboardSimpleMode: z.boolean().optional(),
 });
 
 export const businessPatchSchema = z.object({

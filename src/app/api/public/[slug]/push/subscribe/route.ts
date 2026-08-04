@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { jsonError, jsonOk } from "@/lib/api";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api";
 import { isPushConfigured } from "@/lib/seller-push";
 import { isStorePanelEnabled } from "@/lib/store-panels-visible";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
@@ -63,8 +63,9 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error("[public/push/subscribe]", error);
-    return jsonError("שגיאה בשמירת ההרשמה — נסו שוב", 500);
+    return jsonServerError(error, "public:push-subscribe", {
+      publicMessage: "שגיאה בשמירת ההרשמה — נסו שוב",
+    });
   }
 
   return jsonOk({ subscribed: true });

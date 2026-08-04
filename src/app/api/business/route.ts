@@ -18,6 +18,7 @@ import {
   DEFAULT_STORE_PANELS_VISIBLE,
   storePanelsVisibleToJson,
 } from "@/lib/store-panels-visible";
+import { notifyMasterNewBusiness } from "@/lib/master-push";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -65,6 +66,12 @@ export async function POST(req: Request) {
       ...(parsed.data.orderConfirmationRequired !== undefined
         ? { orderConfirmationRequired: parsed.data.orderConfirmationRequired }
         : {}),
+      ...(parsed.data.appointmentConfirmationRequired !== undefined
+        ? { appointmentConfirmationRequired: parsed.data.appointmentConfirmationRequired }
+        : {}),
+      ...(parsed.data.dashboardSimpleMode !== undefined
+        ? { dashboardSimpleMode: parsed.data.dashboardSimpleMode }
+        : {}),
     },
     select: {
       id: true,
@@ -77,6 +84,8 @@ export async function POST(req: Request) {
       createdAt: true,
     },
   });
+
+  void notifyMasterNewBusiness(business, { name: user.name, email: user.email });
 
   return jsonOk({ business });
 }

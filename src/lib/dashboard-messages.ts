@@ -19,6 +19,10 @@ export type DashboardLabels = {
   orderConfirmationHint: string;
   orderConfirmationEnableConfirmTitle: string;
   orderConfirmationEnableConfirmBody: string;
+  appointmentConfirmationTitle: string;
+  appointmentConfirmationHint: string;
+  appointmentConfirmationEnableConfirmTitle: string;
+  appointmentConfirmationEnableConfirmBody: string;
   services: string;
   appointments: string;
   appointmentSlots: string;
@@ -256,6 +260,9 @@ export type DashboardLabels = {
   removeOrderButton: string;
   transferToOrdersButton: string;
   rejectOrderConfirmBody: string;
+  confirmAppointmentButton: string;
+  rejectAppointmentButton: string;
+  rejectAppointmentConfirmBody: string;
   order: string;
   orderNumber: string;
   searchOrders: string;
@@ -507,6 +514,7 @@ export type DashboardLabels = {
   sellerGuideWelcomeTipLimitsBody: string;
   sellerGuideWelcomeStepModeTitle: string;
   sellerGuideWelcomeStepModeBody: string;
+  sellerGuideWelcomeStepModeBodyAppointments: string;
   sellerGuideWelcomeStepStorePanelTitle: string;
   sellerGuideWelcomeStepStorePanelBody: string;
   sellerGuideStepAddProductTitle: string;
@@ -772,6 +780,12 @@ const HE: DashboardLabels = {
   orderConfirmationEnableConfirmTitle: "להפעיל אישור הזמנה?",
   orderConfirmationEnableConfirmBody:
     "כל לקוח שיבצע הזמנה אצלך יצטרך לחכות לאישור שלך לפני שההזמנה תאושר ותיכנס לטיפול. אפשר לכבות את זה שוב בכל רגע.",
+  appointmentConfirmationTitle: "אישור תור",
+  appointmentConfirmationHint:
+    "כשהאפשרות פעילה, תורים חדשים ממתינים לאישור שלך לפני שהם נכנסים ליומן כמאושרים. כשהיא כבויה, תורים מאושרים אוטומטית מיד עם הקביעה.",
+  appointmentConfirmationEnableConfirmTitle: "להפעיל אישור תור?",
+  appointmentConfirmationEnableConfirmBody:
+    "כל לקוח שיקבע תור אצלך יצטרך לחכות לאישור שלך לפני שהתור יאושר סופית. אפשר לכבות את זה שוב בכל רגע.",
   services: "שירותים",
   appointments: "תורים",
   appointmentSlots: "משבצות תורים",
@@ -889,6 +903,9 @@ const HE: DashboardLabels = {
   removeOrderButton: "הסר",
   transferToOrdersButton: "העבר להזמנות",
   rejectOrderConfirmBody: "לדחות את ההזמנה? הלקוח יקבל עדכון שההזמנה נדחתה.",
+  confirmAppointmentButton: "אישור תור",
+  rejectAppointmentButton: "דחיית תור",
+  rejectAppointmentConfirmBody: "לדחות את התור? הלקוח יראה שהבקשה נדחתה.",
   order: "הזמנה",
   orderNumber: "מספר הזמנה",
   searchOrders: "חיפוש הזמנה",
@@ -1172,6 +1189,8 @@ const HE: DashboardLabels = {
   sellerGuideWelcomeStepModeTitle: "מצב פשוט או מתקדם",
   sellerGuideWelcomeStepModeBody:
     "בתחתית עמוד **פעולות** יש מתג שקובע כמה כלים רואים. **מצב פשוט** מציג רק מוצרים והזמנות — בלי הודעות, מבצעים וקופונים. **מצב מתקדם** מציג את כל הפיצ'רים. אפשר להחליף ביניהם בכל רגע.",
+  sellerGuideWelcomeStepModeBodyAppointments:
+    "בתחתית עמוד **פעולות** יש מתג שקובע כמה כלים רואים. **מצב פשוט** מציג רק שירותים ותורים — בלי הודעות, שעות פעילות מתקדמות ומדיניות ביטול. **מצב מתקדם** מציג את כל הפיצ'רים. אפשר להחליף ביניהם בכל רגע.",
   sellerGuideWelcomeStepStorePanelTitle: "חנות",
   sellerGuideWelcomeStepStorePanelBody: "כל מה שתוכל ליצור במסך **חנות**:",
   sellerGuideStepAddProductTitle: "הוספת מוצר",
@@ -1592,6 +1611,12 @@ const EN: DashboardLabels = {
   orderConfirmationEnableConfirmTitle: "Turn on order confirmation?",
   orderConfirmationEnableConfirmBody:
     "Every customer who places an order will need to wait for your approval before it's confirmed and moves into processing. You can turn this off again anytime.",
+  appointmentConfirmationTitle: "Appointment confirmation",
+  appointmentConfirmationHint:
+    "When this is on, new appointment requests wait for your approval before they're confirmed on the calendar. When it's off, appointments are confirmed automatically the moment they're booked.",
+  appointmentConfirmationEnableConfirmTitle: "Turn on appointment confirmation?",
+  appointmentConfirmationEnableConfirmBody:
+    "Every customer who books an appointment with you will need to wait for your approval before it's finally confirmed. You can turn this off again anytime.",
   services: "Services",
   appointments: "Appointments",
   appointmentSlots: "Time slots",
@@ -1709,6 +1734,9 @@ const EN: DashboardLabels = {
   removeOrderButton: "Remove",
   transferToOrdersButton: "Move to Orders",
   rejectOrderConfirmBody: "Reject this order? The customer will be notified it was declined.",
+  confirmAppointmentButton: "Confirm appointment",
+  rejectAppointmentButton: "Reject appointment",
+  rejectAppointmentConfirmBody: "Reject this appointment? The customer will see it was declined.",
   order: "Order",
   orderNumber: "Order number",
   searchOrders: "Search orders",
@@ -1993,6 +2021,8 @@ const EN: DashboardLabels = {
   sellerGuideWelcomeStepModeTitle: "Simple or advanced mode",
   sellerGuideWelcomeStepModeBody:
     "At the bottom of the **Actions** page there's a switch that decides how many tools you see. **Simple mode** shows only products and orders — no messages, deals, or coupons. **Advanced mode** shows every feature. You can switch between them anytime.",
+  sellerGuideWelcomeStepModeBodyAppointments:
+    "At the bottom of the **Actions** page there's a switch that decides how many tools you see. **Simple mode** shows only services and appointments — no messages, advanced hours, or cancellation policy. **Advanced mode** shows every feature. You can switch between them anytime.",
   sellerGuideWelcomeStepStorePanelTitle: "Store",
   sellerGuideWelcomeStepStorePanelBody:
     "Everything you can create in the **Store** screen:",

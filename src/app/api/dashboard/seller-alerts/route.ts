@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { jsonError, jsonOk } from "@/lib/api";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api";
 import { requireSellerAlertsOwner } from "@/lib/dashboard-auth";
 import {
   sellerAlertsFromBusiness,
@@ -46,10 +46,8 @@ export async function PATCH(req: Request) {
     });
     return jsonOk(sellerAlertsFromBusiness(updated));
   } catch (e) {
-    console.error("seller-alerts update failed", e);
-    return jsonError(
-      "שמירה נכשלה — ודא שבסיס הנתונים מעודכן (prisma db push)",
-      500
-    );
+    return jsonServerError(e, "dashboard:seller-alerts", {
+      publicMessage: "שמירה נכשלה — ודא שבסיס הנתונים מעודכן (prisma db push)",
+    });
   }
 }

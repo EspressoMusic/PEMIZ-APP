@@ -108,7 +108,13 @@ export type MarketingCopy = {
   onboardDescription: string;
   onboardStoreType: string;
   onboardProductStore: string;
+  onboardProductStoreHint: string;
   onboardAppointments: string;
+  onboardAppointmentsHint: string;
+  onboardStepChooseTitle: string;
+  onboardStepChooseSubtitle: string;
+  onboardContinue: string;
+  onboardBack: string;
   onboardAcceptTermsPrefix: string;
   onboardAcceptTermsMiddle: string;
   onboardAcceptTermsSuffix: string;
@@ -116,17 +122,16 @@ export type MarketingCopy = {
   onboardSubmit: string;
   onboardCreating: string;
   onboardTermsError: string;
-  onboardFeaturesTitle: string;
-  onboardFeatureReviews: string;
-  onboardFeatureReviewsHint: string;
-  onboardFeatureCoupons: string;
-  onboardFeatureCouponsHint: string;
-  onboardFeatureDeals: string;
-  onboardFeatureDealsHint: string;
-  onboardFeatureWhatsapp: string;
-  onboardFeatureWhatsappHint: string;
+  onboardModeTitle: string;
+  onboardModeSimple: string;
+  onboardModeAdvanced: string;
+  onboardModeSimpleShortHint: string;
+  onboardModeAdvancedShortHint: string;
+  onboardModeChangeNote: string;
   onboardFeatureOrderConfirmation: string;
   onboardFeatureOrderConfirmationHint: string;
+  onboardFeatureAppointmentConfirmation: string;
+  onboardFeatureAppointmentConfirmationHint: string;
 };
 
 export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
@@ -321,7 +326,15 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardDescription: "Short description",
     onboardStoreType: "Store type",
     onboardProductStore: "Product store",
+    onboardProductStoreHint:
+      "Products for sale, a shopping cart, and orders. Good for businesses selling physical products, like a bakery, clothing store, or jewelry shop.",
     onboardAppointments: "Appointments",
+    onboardAppointmentsHint:
+      "Customers book a slot on your calendar — for salons, therapists, and other service businesses.",
+    onboardStepChooseTitle: "What would you like to open?",
+    onboardStepChooseSubtitle: "You can always change this later.",
+    onboardContinue: "Continue",
+    onboardBack: "Back",
     onboardAcceptTermsPrefix: "I have read and agree to the",
     onboardAcceptTermsMiddle: "and",
     onboardAcceptTermsSuffix: ".",
@@ -329,18 +342,18 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardSubmit: "Open store",
     onboardCreating: "Creating...",
     onboardTermsError: "Please accept the Terms of Service and Privacy Policy",
-    onboardFeaturesTitle: "Which features would you like to turn on?",
-    onboardFeatureReviews: "Reviews",
-    onboardFeatureReviewsHint: "Customers can leave and view reviews about your store.",
-    onboardFeatureCoupons: "Coupons",
-    onboardFeatureCouponsHint: "Customers can enter a coupon code for a discount at checkout.",
-    onboardFeatureDeals: "Deals",
-    onboardFeatureDealsHint: "You can showcase special deals and discounts on products in your store.",
-    onboardFeatureWhatsapp: "WhatsApp contact",
-    onboardFeatureWhatsappHint: "Customers can reach you directly on WhatsApp from the store.",
+    onboardModeTitle: "Store mode",
+    onboardModeSimple: "Simple",
+    onboardModeAdvanced: "Advanced",
+    onboardModeSimpleShortHint: "A clean, simple panel.",
+    onboardModeAdvancedShortHint: "Extra settings like deals, coupons, customer messages, and more.",
+    onboardModeChangeNote: "You can always change this later.",
     onboardFeatureOrderConfirmation: "Order confirmation",
     onboardFeatureOrderConfirmationHint:
       "When enabled, new orders wait for your approval before moving into processing. When disabled, orders are confirmed automatically as soon as they're placed.",
+    onboardFeatureAppointmentConfirmation: "Appointment confirmation",
+    onboardFeatureAppointmentConfirmationHint:
+      "When enabled, new appointments wait for your approval before they're confirmed on the calendar. When disabled, appointments are confirmed automatically as soon as they're booked.",
   },
   he: {
     loading: "טוען את Peymiz...",
@@ -528,7 +541,15 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardDescription: "תיאור קצר",
     onboardStoreType: "סוג חנות",
     onboardProductStore: "חנות מוצרים",
-    onboardAppointments: "תורים",
+    onboardProductStoreHint:
+      "מוצרים למכירה, סל קניות והזמנות. מתאים לעסקים שמוכרים מוצרים פיזיים, כמו מאפייה.",
+    onboardAppointments: "חנות תורים",
+    onboardAppointmentsHint:
+      "לקוחות קובעים תור ביומן שלך — למספרות, קוסמטיקאיות ועסקי שירות נוספים.",
+    onboardStepChooseTitle: "מה תרצה לפתוח?",
+    onboardStepChooseSubtitle: "אפשר תמיד לשנות את זה בהמשך.",
+    onboardContinue: "המשך",
+    onboardBack: "חזרה",
     onboardAcceptTermsPrefix: "קראתי ואני מסכים/ה ל",
     onboardAcceptTermsMiddle: "ול",
     onboardAcceptTermsSuffix: ".",
@@ -536,18 +557,18 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardSubmit: "פתיחת חנות",
     onboardCreating: "יוצר...",
     onboardTermsError: "יש לאשר את תנאי השימוש ומדיניות הפרטיות",
-    onboardFeaturesTitle: "אילו תכונות להפעיל בחנות?",
-    onboardFeatureReviews: "ביקורות",
-    onboardFeatureReviewsHint: "לקוחות יוכלו להשאיר ולראות ביקורות על החנות שלך.",
-    onboardFeatureCoupons: "קופונים",
-    onboardFeatureCouponsHint: "לקוחות יוכלו להזין קוד קופון ולקבל הנחה בעת התשלום.",
-    onboardFeatureDeals: "מבצעים",
-    onboardFeatureDealsHint: "תוכל להציג בחנות מבצעים והנחות מיוחדות על מוצרים.",
-    onboardFeatureWhatsapp: "פנייה בוואטסאפ",
-    onboardFeatureWhatsappHint: "לקוחות יוכלו לפנות אליך ישירות בוואטסאפ מתוך החנות.",
+    onboardModeTitle: "מצב החנות",
+    onboardModeSimple: "פשוט",
+    onboardModeAdvanced: "מתקדם",
+    onboardModeSimpleShortHint: "פאנל פשוט ונקי.",
+    onboardModeAdvancedShortHint: "הגדרות נוספות כמו מבצעים, קופונים, הודעה ללקוחות ועוד.",
+    onboardModeChangeNote: "אפשר תמיד לשנות את זה בהמשך.",
     onboardFeatureOrderConfirmation: "אישור הזמנה",
     onboardFeatureOrderConfirmationHint:
-      "כשהאפשרות פעילה, כל הזמנה חדשה תמתין לאישור שלך לפני שהיא נכנסת לטיפול. כשהיא כבויה, הזמנות מאושרות אוטומטית מיד עם ביצוען.",
+      "כשהאפשרות פעילה, כל הזמנה חדשה תמתין לאישור שלך לפני שהיא נכנסת לטיפול. כשהיא כבויה, הזמנות מאושרות אוטומטית מיד.",
+    onboardFeatureAppointmentConfirmation: "אישור תור",
+    onboardFeatureAppointmentConfirmationHint:
+      "כשהאפשרות פעילה, כל תור חדש ימתין לאישור שלך לפני שהוא נכנס ליומן כמאושר. כשהיא כבויה, תורים מאושרים אוטומטית מיד עם הקביעה.",
   },
 };
 

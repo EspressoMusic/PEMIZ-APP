@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Calendar, ClipboardList, Download, History, Search, Trash2, X } from "lucide-react";
 import {
   Alert,
@@ -40,12 +41,16 @@ function AppointmentsList({
   appointments,
   emptyMessage,
   onHide,
+  onConfirmAppointment,
+  onRejectAppointment,
   onCustomerClick,
   bookingByDay = false,
 }: {
   appointments: DashboardAppointmentView[];
   emptyMessage: string;
   onHide?: (appointmentId: string) => void;
+  onConfirmAppointment?: (appointmentId: string) => void;
+  onRejectAppointment?: (appointmentId: string) => void;
   onCustomerClick?: (input: CustomerProfileInput) => void;
   bookingByDay?: boolean;
 }) {
@@ -65,6 +70,16 @@ function AppointmentsList({
             appointment={appointment}
             onHide={
               onHide ? () => onHide(appointment.id) : undefined
+            }
+            onConfirm={
+              onConfirmAppointment
+                ? () => onConfirmAppointment(appointment.id)
+                : undefined
+            }
+            onReject={
+              onRejectAppointment
+                ? () => onRejectAppointment(appointment.id)
+                : undefined
             }
             onCustomerClick={onCustomerClick}
             bookingByDay={bookingByDay}
@@ -1226,6 +1241,7 @@ export function OrdersManager({
   autoOpenActive = false,
   previewOnly = false,
   previewOrders,
+  basePath = "/dashboard",
 }: {
   /** מסגרת לבנה כמו דף פעולות */
   framed?: boolean;
@@ -1233,7 +1249,9 @@ export function OrdersManager({
   autoOpenActive?: boolean;
   previewOnly?: boolean;
   previewOrders?: DashboardOrderView[];
+  basePath?: string;
 }) {
+  const router = useRouter();
   const [activeOrdersOpen, setActiveOrdersOpen] = useState(autoOpenActive);
   const [historyOrdersOpen, setHistoryOrdersOpen] = useState(false);
   const {
@@ -1325,7 +1343,11 @@ export function OrdersManager({
 
       <OrdersActiveSheet
         open={activeOrdersOpen}
-        onClose={() => setActiveOrdersOpen(false)}
+        onClose={
+          autoOpenActive
+            ? () => router.push(`${basePath}/actions`)
+            : () => setActiveOrdersOpen(false)
+        }
         activeOrders={activeOrders}
         onCustomerClick={openCustomer}
         onConfirmOrder={confirmOrder}
@@ -1574,6 +1596,60 @@ export function AppointmentsManager({
     void load();
   }
 
+  async function confirmAppointment(appointmentId: string) {
+    if (previewOnly) {
+      setItems((prev) =>
+        prev.map((appointment) =>
+          appointment.id === appointmentId
+            ? { ...appointment, status: "CONFIRMED" }
+            : appointment
+        )
+      );
+      return;
+    }
+
+    setItems((prev) =>
+      prev.map((appointment) =>
+        appointment.id === appointmentId
+          ? { ...appointment, status: "CONFIRMED" }
+          : appointment
+      )
+    );
+    await fetch("/api/dashboard/appointments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ appointmentId, status: "CONFIRMED" }),
+    });
+    void load();
+  }
+
+  async function rejectAppointment(appointmentId: string) {
+    if (previewOnly) {
+      setItems((prev) =>
+        prev.map((appointment) =>
+          appointment.id === appointmentId
+            ? { ...appointment, status: "CANCELLED" }
+            : appointment
+        )
+      );
+      return;
+    }
+
+    setItems((prev) =>
+      prev.map((appointment) =>
+        appointment.id === appointmentId
+          ? { ...appointment, status: "CANCELLED" }
+          : appointment
+      )
+    );
+    await fetch("/api/dashboard/appointments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ appointmentId, status: "CANCELLED" }),
+    });
+    void load();
+  }
+
   if (sheetHistoryOnly) {
     return (
       <>
@@ -1598,6 +1674,8 @@ export function AppointmentsManager({
             appointments={active}
             emptyMessage={labels.noActiveAppointments}
             onHide={hideAppointment}
+            onConfirmAppointment={confirmAppointment}
+            onRejectAppointment={rejectAppointment}
             onCustomerClick={openCustomer}
             bookingByDay={bookingByDay}
           />
@@ -1670,6 +1748,8 @@ export function AppointmentsManager({
               appointments={active}
               emptyMessage={labels.noActiveAppointments}
               onHide={hideAppointment}
+              onConfirmAppointment={confirmAppointment}
+              onRejectAppointment={rejectAppointment}
               onCustomerClick={openCustomer}
               bookingByDay={bookingByDay}
             />
@@ -1686,6 +1766,8 @@ export function AppointmentsManager({
         appointments={active}
         emptyMessage={labels.noActiveAppointments}
         onHide={hideAppointment}
+        onConfirmAppointment={confirmAppointment}
+        onRejectAppointment={rejectAppointment}
         onCustomerClick={openCustomer}
         bookingByDay={bookingByDay}
       />
@@ -1770,6 +1852,8 @@ export function AppointmentsManager({
             appointments={active}
             emptyMessage={labels.noActiveAppointments}
             onHide={hideAppointment}
+            onConfirmAppointment={confirmAppointment}
+            onRejectAppointment={rejectAppointment}
             onCustomerClick={openCustomer}
             bookingByDay={bookingByDay}
           />

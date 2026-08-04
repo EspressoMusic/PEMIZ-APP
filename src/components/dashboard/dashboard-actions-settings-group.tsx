@@ -19,12 +19,14 @@ export function DashboardActionsSettingsGroup({
   businessType = "STORE",
   initialStoreTerms = null,
   initialOrderConfirmationRequired = true,
+  initialAppointmentConfirmationRequired = true,
 }: {
   basePath?: string;
   previewOnly?: boolean;
   businessType?: string;
   initialStoreTerms?: string | null;
   initialOrderConfirmationRequired?: boolean;
+  initialAppointmentConfirmationRequired?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const { labels } = useAppLocale();
@@ -80,6 +82,7 @@ export function DashboardActionsSettingsGroup({
                     previewOnly={previewOnly}
                     businessType={businessType}
                     basePath={basePath}
+                    initialAppointmentConfirmationRequired={initialAppointmentConfirmationRequired}
                   />
                   <DashboardAppointmentCancelSettings
                     embedded

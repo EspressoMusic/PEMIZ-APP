@@ -17,6 +17,7 @@ export default function DevSellerAppointmentsServicesPage() {
             mode="services"
             previewOnly
             initialProducts={DEV_APPOINTMENTS_BUSINESS.products}
+            basePath={DEV_APPOINTMENTS_SELLER_BASE}
           />
         </div>
       </div>
