@@ -72,6 +72,7 @@ export function MasterPushRegistration({ previewOnly = false }: { previewOnly?: 
       return;
     }
     setError("");
+    setTestStatus("idle");
     setState("loading");
 
     const outcome = await requestAndSubscribePush("/api/admin/push/config", "/api/admin/push/subscribe");
@@ -151,7 +152,19 @@ export function MasterPushRegistration({ previewOnly = false }: { previewOnly?: 
           ) : testStatus === "failed" ? (
             <Alert variant="error">השליחה נכשלה.</Alert>
           ) : testStatus === "none" ? (
-            <Alert variant="error">אין מכשיר רשום.</Alert>
+            <div className="space-y-2">
+              <Alert variant="error">
+                המכשיר הזה לא רשום בפועל בשרת — צריך להירשם מחדש.
+              </Alert>
+              <Button
+                type="button"
+                variant="primary"
+                className="w-full"
+                onClick={() => void subscribe()}
+              >
+                הרשמה מחדש
+              </Button>
+            </div>
           ) : null}
         </div>
       ) : state === "denied" ? (

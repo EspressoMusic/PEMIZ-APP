@@ -26,7 +26,9 @@ export function Toggle({
       aria-label={ariaLabel}
       disabled={disabled}
       onClick={() => onChange(!enabled)}
-      className={`relative h-8 w-14 shrink-0 cursor-pointer rounded-full transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+      className={`relative shrink-0 cursor-pointer rounded-full transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+        isAuth ? "h-10 w-20" : "h-8 w-14"
+      } ${
         isAuth
           ? "auth-toggle"
           : enabled
@@ -36,9 +38,11 @@ export function Toggle({
       dir="ltr"
     >
       <span
-        className={`absolute top-0.5 left-0.5 h-[1.375rem] w-[1.375rem] rounded-full bg-white shadow-[0_2px_6px_rgba(58,47,38,0.22)] transition-transform duration-200 ${
+        className={`absolute top-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_2px_6px_rgba(58,47,38,0.22)] transition-transform duration-200 ${
+          isAuth ? "left-1.5 h-7 w-7" : "left-0.5 h-[1.375rem] w-[1.375rem]"
+        } ${
           enabled
-            ? "translate-x-6 border border-white/40"
+            ? `${isAuth ? "translate-x-10" : "translate-x-6"} border border-white/40`
             : "translate-x-0 border border-bakery-primary/15"
         }`}
       />

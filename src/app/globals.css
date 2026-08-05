@@ -164,6 +164,15 @@ html[data-locale="he"] body {
   background: var(--bakery-scaffold);
 }
 
+/* Under AppLocaleShell, the locale-toggle bar is a sibling that already
+   claims part of the 100dvh column — letting the frame ALSO demand a
+   full 100dvh here pushes total content past the viewport and forces a
+   page-level scroll on every page (login/signup/onboarding). Let it
+   fill exactly the space its flex ancestors allocate instead. */
+.warm-auth-scope .bakery-frame-bg {
+  min-height: 0;
+}
+
 /* Customer store ג€” safe-area / frame backdrop follows display theme */
 .bakery-frame-bg:has(.customer-store-root.customer-theme-calm),
 html[data-customer-chrome-theme="calm"] .bakery-frame-bg {

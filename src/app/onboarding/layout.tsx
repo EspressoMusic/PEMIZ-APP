@@ -5,5 +5,11 @@ export default function OnboardingLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AppLocaleShell>{children}</AppLocaleShell>;
+  return (
+    <AppLocaleShell>
+      <div className="flex h-dvh min-h-0 flex-1 flex-col overflow-hidden">
+        {children}
+      </div>
+    </AppLocaleShell>
+  );
 }

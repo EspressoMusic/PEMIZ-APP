@@ -103,7 +103,6 @@ export type MarketingCopy = {
   authGoogleTermsMiddle: string;
   authGoogleTermsSuffix: string;
   onboardTitle: string;
-  onboardTrialNote: (days: number) => string;
   onboardBusinessName: string;
   onboardDescription: string;
   onboardStoreType: string;
@@ -320,8 +319,6 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     authGoogleTermsMiddle: "and",
     authGoogleTermsSuffix: ".",
     onboardTitle: "Open your business",
-    onboardTrialNote: (days) =>
-      `Your first ${days} days are a free trial — no card required.`,
     onboardBusinessName: "Business name",
     onboardDescription: "Short description",
     onboardStoreType: "Store type",
@@ -535,8 +532,6 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     authGoogleTermsMiddle: " ו",
     authGoogleTermsSuffix: ".",
     onboardTitle: "פתיחת העסק שלך",
-    onboardTrialNote: (days) =>
-      `${days} הימים הראשונים הם ניסיון חינם — בלי צורך בכרטיס אשראי.`,
     onboardBusinessName: "שם העסק",
     onboardDescription: "תיאור קצר",
     onboardStoreType: "סוג חנות",
