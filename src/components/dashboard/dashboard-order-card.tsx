@@ -367,7 +367,7 @@ export function DashboardOrderCard({
       >
         {!selectionMode && opened && !(orderConfirmationRequired || order.status !== "CONFIRMED") ? (
           <span className="absolute top-2 end-2 z-10">
-            <Badge tone="success">{labels.orderOpenedLabel}</Badge>
+            <Badge tone="brand">{labels.orderOpenedLabel}</Badge>
           </span>
         ) : null}
         <button

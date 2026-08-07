@@ -143,7 +143,34 @@ type DevPreviewOrder = {
   }[];
 };
 
-export const DEV_PREVIEW_ORDERS: DevPreviewOrder[] = [];
+export const DEV_PREVIEW_ORDERS: DevPreviewOrder[] = [
+  {
+    id: "demo-order-1",
+    orderNumber: 501,
+    customerName: "מיכל כהן",
+    customerPhone: "0501234567",
+    customerAddress: "הרצל 12, תל אביב",
+    status: "CONFIRMED",
+    statusLabel: "אושר",
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    items: [
+      { name: "Chocolate Cake", quantity: 1, lineTotal: 99, imageUrl: null },
+      { name: "Croissant", quantity: 3, lineTotal: 54, imageUrl: null },
+    ],
+  },
+  {
+    id: "demo-order-2",
+    orderNumber: 502,
+    customerName: "דני לוי",
+    customerPhone: "0529876543",
+    status: "CONFIRMED",
+    statusLabel: "אושר",
+    createdAt: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
+    items: [
+      { name: "Sourdough Bread", quantity: 2, lineTotal: 60, imageUrl: null },
+    ],
+  },
+];
 
 export const DEV_STORE_OWNER_NAME = "Yael";
 

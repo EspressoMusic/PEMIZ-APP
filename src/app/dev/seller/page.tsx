@@ -36,35 +36,9 @@ export default async function DevSellerPreviewPage({
             showPrepSummary
             prepProducts={demoPrepSummary()}
             initialOrderConfirmationRequired={false}
-            initialOrders={[
-              {
-                id: "demo-order-1",
-                orderNumber: 501,
-                customerName: "מיכל כהן",
-                customerPhone: "0501234567",
-                status: "CONFIRMED",
-                statusLabel: "אושר",
-                createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-                customerAddress: "הרצל 12, תל אביב",
-                items: [
-                  { name: "Chocolate Cake", quantity: 1, lineTotal: 99, imageUrl: null },
-                  { name: "Croissant", quantity: 3, lineTotal: 54, imageUrl: null },
-                ],
-              },
-              {
-                id: "demo-order-2",
-                orderNumber: 502,
-                customerName: "דני לוי",
-                customerPhone: "0529876543",
-                status: "CONFIRMED",
-                statusLabel: "אושר",
-                createdAt: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
-                items: [
-                  { name: "Sourdough Bread", quantity: 2, lineTotal: 60, imageUrl: null },
-                ],
-              },
-              ...DEV_PREVIEW_ORDERS.filter((order) => order.status === "PENDING"),
-            ]}
+            initialOrders={DEV_PREVIEW_ORDERS.filter(
+              (order) => order.status === "PENDING" || order.status === "CONFIRMED"
+            )}
             prepRefreshFromApi={false}
             inquiriesHref="/dev/seller/customers/inquiries"
             inquiryBellPreview

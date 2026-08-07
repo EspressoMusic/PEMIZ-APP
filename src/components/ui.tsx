@@ -143,7 +143,7 @@ export function Badge({
   tone = "default",
 }: {
   children: ReactNode;
-  tone?: "default" | "success" | "warning" | "danger" | "sale";
+  tone?: "default" | "success" | "warning" | "danger" | "sale" | "brand";
 }) {
   const tones = {
     default: "bg-bakery-card text-bakery-muted",
@@ -151,6 +151,7 @@ export function Badge({
     warning: "bg-bakery-sale/12 text-bakery-sale",
     danger: "bg-bakery-error/12 text-bakery-error",
     sale: "bg-bakery-sale/12 text-bakery-sale text-[10px] font-extrabold tracking-wide",
+    brand: "bg-bakery-primary/15 text-bakery-primary",
   };
   return (
     <span
