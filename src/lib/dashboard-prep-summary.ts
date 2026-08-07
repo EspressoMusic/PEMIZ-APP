@@ -94,8 +94,8 @@ export async function getPendingOrdersForBusiness(
 ): Promise<PendingOrderRecord[]> {
   return prisma.order.findMany({
     where: orderConfirmationRequired
-      ? { businessId, status: "PENDING" }
-      : { businessId, status: "CONFIRMED", prepHiddenAt: null },
+      ? { businessId, status: "PENDING", sellerHiddenAt: null }
+      : { businessId, status: "CONFIRMED", prepHiddenAt: null, sellerHiddenAt: null },
     include: {
       items: { include: { product: true } },
     },
