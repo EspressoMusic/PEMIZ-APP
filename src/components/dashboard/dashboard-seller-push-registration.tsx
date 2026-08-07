@@ -68,6 +68,7 @@ export function DashboardSellerPushRegistration({
   const [state, setState] = useState<PushState>("idle");
   const [error, setError] = useState("");
   const lastTriggeredRef = useRef(0);
+  const stateRef = useRef<PushState>("idle");
   const [testStatus, setTestStatus] = useState<
     "idle" | "sending" | "delivered" | "failed" | "none"
   >("idle");
@@ -103,6 +104,10 @@ export function DashboardSellerPushRegistration({
   useEffect(() => {
     void refreshConfig();
   }, [refreshConfig]);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   const subscribe = useCallback(async () => {
     if (previewOnly) {
@@ -144,6 +149,38 @@ export function DashboardSellerPushRegistration({
       void subscribe();
     }
   }, [requestSignal, subscribe]);
+
+  // The DB toggle ("alerts enabled") and the actual browser subscription are
+  // two independent things — the browser can silently drop the subscription
+  // in the background with no error and no event this component sees, and
+  // the toggle stays "on" forever. Re-check reality whenever the seller
+  // comes back to the tab, and quietly resubscribe instead of making them
+  // notice it's broken and manually flip the toggle off/on.
+  useEffect(() => {
+    if (previewOnly) return;
+
+    function recheck() {
+      if (document.visibilityState !== "visible") return;
+      if (stateRef.current !== "subscribed") return;
+      void (async () => {
+        const active = await getActivePushSubscription().catch(() => null);
+        if (
+          !active &&
+          typeof Notification !== "undefined" &&
+          Notification.permission === "granted"
+        ) {
+          void subscribe();
+        }
+      })();
+    }
+
+    document.addEventListener("visibilitychange", recheck);
+    window.addEventListener("focus", recheck);
+    return () => {
+      document.removeEventListener("visibilitychange", recheck);
+      window.removeEventListener("focus", recheck);
+    };
+  }, [previewOnly, subscribe]);
 
   const sendTest = useCallback(async () => {
     setTestStatus("sending");

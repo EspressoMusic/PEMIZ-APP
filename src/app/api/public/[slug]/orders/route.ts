@@ -50,13 +50,15 @@ import { requireCustomerGoogleAccess } from "@/lib/customer-google-access";
 import { mapPublicOrdersToHistory } from "@/lib/public-customer-orders";
 import { customerOrderStatusLabel } from "@/lib/order-status-label";
 
-function afterOrderPlaced(
+async function afterOrderPlaced(
   businessId: string,
   order: { id: string; customerName: string },
   lines: { productId: string; quantity: number }[]
 ) {
-  void notifySellerNewOrder(businessId, order);
-  void notifyLowStockAfterOrder(businessId, lines);
+  await Promise.all([
+    notifySellerNewOrder(businessId, order),
+    notifyLowStockAfterOrder(businessId, lines),
+  ]);
 }
 const schema = z.object({
   customerName: z.string().min(2).max(80),
@@ -256,7 +258,7 @@ export async function POST(
         });
         return created;
       });
-      afterOrderPlaced(
+      await afterOrderPlaced(
         business.id,
         { id: order.id, customerName: order.customerName },
         orderItems
@@ -352,7 +354,7 @@ export async function POST(
       }
       return created;
     });
-    afterOrderPlaced(
+    await afterOrderPlaced(
       business.id,
       { id: order.id, customerName: order.customerName },
       orderItems

@@ -1,4 +1,52 @@
-/* Linky/Peymiz push handler — v4 branded large icon */
+/* Linky/Peymiz push handler — v5 self-healing subscriptions */
+const PUSH_DB_NAME = "linky-push";
+const PUSH_DB_STORE = "endpoints";
+
+function openPushDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(PUSH_DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore(PUSH_DB_STORE, { keyPath: "url" });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function rememberPushEndpoint(url, body) {
+  const db = await openPushDb();
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction(PUSH_DB_STORE, "readwrite");
+    tx.objectStore(PUSH_DB_STORE).put({ url, body: body || {} });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+  db.close();
+}
+
+async function getRememberedPushEndpoints() {
+  const db = await openPushDb();
+  const rows = await new Promise((resolve, reject) => {
+    const tx = db.transaction(PUSH_DB_STORE, "readonly");
+    const req = tx.objectStore(PUSH_DB_STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+  db.close();
+  return rows;
+}
+
+// Without this, an updated sw.js sits "waiting" until every open tab/PWA
+// instance of the old one is fully closed — for a rarely-closed installed
+// PWA that can be days. Take over immediately so this fix (and any future
+// one) is live on next launch instead of next full app restart.
+self.addEventListener("install", () => {
+  self.skipWaiting();
+});
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 self.addEventListener("push", (event) => {
   let payload = {};
   try {
@@ -44,5 +92,66 @@ self.addEventListener("notificationclick", (event) => {
       }
       if (clients.openWindow) return clients.openWindow(absolute);
     })
+  );
+});
+
+// The page tells us (via postMessage, right after a successful subscribe)
+// which server endpoint owns this subscription and what extra body fields
+// it needs, so that a later pushsubscriptionchange can re-POST on its own —
+// this is the only place that association is known, since the SW itself has
+// no idea whether it's registered as a seller/master/customer device.
+self.addEventListener("message", (event) => {
+  const data = event.data;
+  if (data && data.type === "linky-remember-push-endpoint" && typeof data.url === "string") {
+    event.waitUntil(rememberPushEndpoint(data.url, data.body));
+  }
+});
+
+// Browsers (Chrome/FCM in particular) can silently invalidate and rotate a
+// push subscription in the background — no page is open to notice, and the
+// old subscription just goes quiet forever unless something re-subscribes
+// and reports the new endpoint to every server table that referenced the
+// old one. This is that "something".
+self.addEventListener("pushsubscriptionchange", (event) => {
+  event.waitUntil(
+    (async () => {
+      const oldSubscription = event.oldSubscription;
+      const applicationServerKey =
+        event.newSubscription?.options?.applicationServerKey ||
+        oldSubscription?.options?.applicationServerKey ||
+        null;
+
+      let subscription = event.newSubscription || null;
+      if (!subscription) {
+        try {
+          subscription = await self.registration.pushManager.subscribe(
+            applicationServerKey
+              ? { userVisibleOnly: true, applicationServerKey }
+              : { userVisibleOnly: true }
+          );
+        } catch {
+          return;
+        }
+      }
+
+      const json = subscription.toJSON();
+      if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return;
+
+      const targets = await getRememberedPushEndpoints().catch(() => []);
+      await Promise.allSettled(
+        targets.map((target) =>
+          fetch(target.url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...target.body,
+              endpoint: json.endpoint,
+              keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+            }),
+          }).catch(() => undefined)
+        )
+      );
+    })()
   );
 });

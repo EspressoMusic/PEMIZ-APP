@@ -162,6 +162,21 @@ export async function requestAndSubscribePush(
       };
     }
 
+    // Let the service worker remember where this subscription came from, so
+    // it can re-POST on its own if the browser rotates the subscription in
+    // the background later (see `pushsubscriptionchange` in sw.js) — without
+    // this, a silently-rotated subscription just goes quiet forever.
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      registration.active?.postMessage({
+        type: "linky-remember-push-endpoint",
+        url: subscribeUrl,
+        body: extraBody ?? {},
+      });
+    } catch {
+      // best-effort — worst case, auto-recovery doesn't kick in later
+    }
+
     return { status: "subscribed", endpoint: json.endpoint };
   } catch (error) {
     return { status: "error", error };

@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { Check, Package, MapPin, X } from "lucide-react";
+import { Check, Package, X } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { DashboardActionSheet } from "@/components/dashboard/dashboard-action-sheet";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
 import {
   customerProfileInitial,
-  WazeIcon,
   type CustomerProfileInput,
 } from "@/components/dashboard/dashboard-customer-profile";
 import {
@@ -39,15 +37,6 @@ export type DashboardOrderView = {
   sellerHiddenAt?: string | null;
   items: DashboardOrderItemView[];
 };
-
-function wazeUrl(order: DashboardOrderView): string {
-  if (order.customerAddressLat != null && order.customerAddressLng != null) {
-    return `https://waze.com/ul?ll=${order.customerAddressLat},${order.customerAddressLng}&navigate=yes`;
-  }
-  return `https://waze.com/ul?q=${encodeURIComponent(
-    order.customerAddress ?? ""
-  )}&navigate=yes`;
-}
 
 function orderStatusBadgeTone(
   status: string
@@ -104,6 +93,7 @@ export function DashboardOrderDetails({
   onReject,
   onRemove,
   transferToOrdersHref,
+  onMarkOpened,
 }: {
   order: DashboardOrderView;
   total: number;
@@ -115,13 +105,14 @@ export function DashboardOrderDetails({
    * touching its status — it stays visible in the full Orders panel. Only
    * relevant once the order is past the pending-confirmation step. */
   onRemove?: () => void;
-  /** When set, the remove button reads as "Transfer to Orders" and navigates
-   * here afterward instead of just closing — used on the dashboard home
-   * widget so the seller can see where the order went. */
+  /** Set only on the dashboard home widget; distinguishes its "Hide" button
+   * (stays on the dashboard) from the full Orders panel's "Remove" button. */
   transferToOrdersHref?: string;
+  /** Marks the order card as opened once the seller closes this sheet with OK,
+   * so the dashboard home widget can show a "נפתח" badge in its place. */
+  onMarkOpened?: () => void;
 }) {
   const { labels, formatMoney } = useAppLocale();
-  const router = useRouter();
   const [confirmingReject, setConfirmingReject] = useState(false);
   const isPending = order.status === "PENDING";
 
@@ -143,24 +134,6 @@ export function DashboardOrderDetails({
           {order.customerName}
         </p>
       </div>
-
-      {order.customerAddress ? (
-        <div className="flex items-center gap-2 rounded-[14px] border border-bakery-border/30 bg-bakery-cream-light/90 px-3 py-2.5 text-start">
-          <MapPin className="h-4 w-4 shrink-0 text-bakery-primary" strokeWidth={2} />
-          <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-bakery-ink">
-            {order.customerAddress}
-          </span>
-          <a
-            href={wazeUrl(order)}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={labels.openInWaze}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-bakery-primary transition hover:bg-bakery-card/40 active:scale-95"
-          >
-            <WazeIcon className="h-5 w-5" />
-          </a>
-        </div>
-      ) : null}
 
       <ul className="space-y-2">
         {order.items.map((it, i) => (
@@ -266,16 +239,18 @@ export function DashboardOrderDetails({
               onClick={() => {
                 onRemove();
                 onClose();
-                if (transferToOrdersHref) router.push(transferToOrdersHref);
               }}
             >
               <X className="h-4 w-4" strokeWidth={2.5} />
-              {transferToOrdersHref ? labels.transferToOrdersButton : labels.removeOrderButton}
+              {transferToOrdersHref ? labels.hideOrderButton : labels.removeOrderButton}
             </Button>
             <Button
               variant="primary"
               className="min-h-[38px] flex-1 rounded-full px-3 py-2 text-[16px] font-extrabold"
-              onClick={onClose}
+              onClick={() => {
+                onMarkOpened?.();
+                onClose();
+              }}
             >
               {labels.ok}
             </Button>
@@ -341,6 +316,7 @@ export function DashboardOrderCard({
     : null;
   const isCompleted = order.status === "COMPLETED";
   const isRejected = order.status === "REJECTED";
+  const [opened, setOpened] = useState(false);
   const pressProps = getDashboardPressProps<HTMLDivElement>();
   const longPress = useDashboardLongPress<HTMLDivElement>(
     () => onLongPress?.(),
@@ -385,10 +361,15 @@ export function DashboardOrderCard({
           if (onLongPress) longPress.onPointerCancel();
         }}
         onPointerMove={onLongPress ? longPress.onPointerMove : undefined}
-        className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-action-square dashboard-order-row flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start ${
+        className={`${DASHBOARD_PRESSABLE_CLASS} dashboard-action-square dashboard-order-row relative flex w-full cursor-pointer items-center gap-3 rounded-[22px] px-3 py-3.5 text-start ${
           isCompleted || isRejected ? "opacity-60" : ""
         }`}
       >
+        {!selectionMode && opened && !(orderConfirmationRequired || order.status !== "CONFIRMED") ? (
+          <span className="absolute top-2 end-2 z-10">
+            <Badge tone="success">{labels.orderOpenedLabel}</Badge>
+          </span>
+        ) : null}
         <button
           type="button"
           onClick={(e) => {
@@ -485,6 +466,7 @@ export function DashboardOrderCard({
               : undefined
           }
           transferToOrdersHref={transferToOrdersHref}
+          onMarkOpened={() => setOpened(true)}
         />
       </DashboardActionSheet>
     </div>

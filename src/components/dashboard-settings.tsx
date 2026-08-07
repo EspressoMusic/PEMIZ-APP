@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, ClipboardCheck, LogOut, CircleAlert, Smartphone, Star } from "lucide-react";
+import { Bell, LogOut, CircleAlert, Smartphone, Star } from "lucide-react";
 import {
   DashboardActionRow,
   DashboardActionRowButton,
 } from "@/components/dashboard/dashboard-action-row";
 import { DashboardDeleteStoreSection } from "@/components/dashboard/dashboard-delete-store-section";
 import { DashboardStoreCustomers } from "@/components/dashboard/dashboard-store-customers";
+import { DashboardSupportHelp } from "@/components/dashboard/dashboard-support-help";
 import { DashboardStorePanelsSettingsGroup } from "@/components/dashboard/dashboard-store-panels-settings";
 import { DashboardSubscriptionSection } from "@/components/dashboard/dashboard-subscription-section";
 import type { DashboardOrderView } from "@/components/dashboard/dashboard-order-card";
@@ -86,37 +87,28 @@ export function DashboardSettingsView({
               </li>
             ) : null}
 
-            {businessType === "STORE" ? (
-              <DashboardActionRow
-                href={`${basePath}/settings/misc`}
-                icon={ClipboardCheck}
-                title={labels.miscSettings}
-              />
-            ) : null}
-
             {showStoreQuickLinks ? (
               <>
-                {businessType !== "STORE" ? (
-                  <DashboardStoreCustomers
-                    embedded
-                    previewOnly={previewOnly}
-                    previewOrders={previewCustomerOrders}
-                  />
-                ) : null}
-                {businessType !== "STORE" && panels.sellerAlerts ? (
+                <DashboardStoreCustomers
+                  embedded
+                  previewOnly={previewOnly}
+                  previewOrders={previewCustomerOrders}
+                />
+                {panels.sellerAlerts ? (
                   <DashboardActionRow
                     href={`${basePath}/settings/alerts`}
                     icon={Bell}
                     title={labels.alerts}
                   />
                 ) : null}
-                {businessType !== "STORE" && panels.sellerInstallApp && !nativeApp ? (
+                {panels.sellerInstallApp && !nativeApp ? (
                   <DashboardActionRow
                     href={`${basePath}/settings/app`}
                     icon={Smartphone}
                     title={labels.installApp}
                   />
                 ) : null}
+                <DashboardSupportHelp />
               </>
             ) : null}
 

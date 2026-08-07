@@ -14,7 +14,6 @@ export type DashboardLabels = {
   deals: string;
   limits: string;
   dealsAndLimits: string;
-  miscSettings: string;
   orderConfirmationTitle: string;
   orderConfirmationHint: string;
   orderConfirmationEnableConfirmTitle: string;
@@ -259,6 +258,8 @@ export type DashboardLabels = {
   rejectOrderButton: string;
   removeOrderButton: string;
   transferToOrdersButton: string;
+  hideOrderButton: string;
+  orderOpenedLabel: string;
   rejectOrderConfirmBody: string;
   confirmAppointmentButton: string;
   rejectAppointmentButton: string;
@@ -773,7 +774,6 @@ const HE: DashboardLabels = {
   deals: "דילים",
   limits: "הגבלות",
   dealsAndLimits: "דילים והגבלות",
-  miscSettings: "שונות",
   orderConfirmationTitle: "אישור הזמנה",
   orderConfirmationHint:
     "כשהאפשרות פעילה, הזמנות חדשות ממתינות לאישור שלך לפני שהן נכנסות לתהליך הטיפול. כשהיא כבויה, הזמנות מאושרות אוטומטית מיד עם ביצוען.",
@@ -902,6 +902,8 @@ const HE: DashboardLabels = {
   rejectOrderButton: "דחיית הזמנה",
   removeOrderButton: "הסר",
   transferToOrdersButton: "העבר להזמנות",
+  hideOrderButton: "הסתר",
+  orderOpenedLabel: "נפתח",
   rejectOrderConfirmBody: "לדחות את ההזמנה? הלקוח יקבל עדכון שההזמנה נדחתה.",
   confirmAppointmentButton: "אישור תור",
   rejectAppointmentButton: "דחיית תור",
@@ -1604,7 +1606,6 @@ const EN: DashboardLabels = {
   deals: "Deals",
   limits: "Limits",
   dealsAndLimits: "Deals & limits",
-  miscSettings: "Misc",
   orderConfirmationTitle: "Order confirmation",
   orderConfirmationHint:
     "When enabled, new orders wait for your approval before moving into processing. When disabled, orders are confirmed automatically as soon as they're placed.",
@@ -1733,6 +1734,8 @@ const EN: DashboardLabels = {
   rejectOrderButton: "Reject order",
   removeOrderButton: "Remove",
   transferToOrdersButton: "Move to Orders",
+  hideOrderButton: "Hide",
+  orderOpenedLabel: "Opened",
   rejectOrderConfirmBody: "Reject this order? The customer will be notified it was declined.",
   confirmAppointmentButton: "Confirm appointment",
   rejectAppointmentButton: "Reject appointment",
