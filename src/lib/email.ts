@@ -165,8 +165,8 @@ export function trialWarningCopy(daysLeft: TrialWarningDaysLeft, storeName: stri
     <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
       <p>שלום,</p>
       <p>תקופת הניסיון של החנות <strong>${escapeHtml(storeName)}</strong> מסתיימת ${when} (${endsLabel}).</p>
-      <p>אחרי סיום הניסיון החנות תיסגר ללקוחות עד שממשיכים מנוי.</p>
-      <p>כדאי להיכנס לדשבורד ולוודא שהכל מוכן, או לשדרג מנוי לפני הסגירה.</p>
+      <p>אחרי סיום הניסיון החנות תיסגר ללקוחות עד שמסדרים תשלום.</p>
+      <p>כדי להמשיך בלי הפרעה, אפשר ליצור קשר בוואטסאפ (058-612-2187) לפני הסגירה ולסדר תשלום.</p>
     </div>
   `;
   return { subject, html };
@@ -216,7 +216,7 @@ export function trialEndedCopy(storeName: string) {
     <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
       <p>שלום,</p>
       <p>תקופת הניסיון של החנות <strong>${escapeHtml(storeName)}</strong> הסתיימה.</p>
-      <p>כדי להשאיר את החנות פעילה ללקוחות יש לבחור מנוי חודשי. אפשר גם לסגור את החנות מהדשבורד אם אינך מעוניין להמשיך.</p>
+      <p>כדי להשאיר את החנות פעילה יש ליצור קשר בוואטסאפ (058-612-2187) ולסדר תשלום. אפשר גם לסגור את החנות מהדשבורד אם אינך מעוניין להמשיך.</p>
       <p>היכנס/י לדשבורד כדי לבחור באחת מהאפשרויות.</p>
     </div>
   `;

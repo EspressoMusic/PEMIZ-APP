@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
+import { buildWhatsAppChatUrl } from "@/lib/phone";
+
+const TRIAL_WHATSAPP_PHONE = "0586122187";
 
 /**
  * Pops up immediately (no banner step) the moment the trial-expired screen
@@ -15,24 +17,25 @@ import { useAppLocale } from "@/components/dashboard/app-locale-provider";
  */
 export function DashboardTrialEndedModal({
   message,
-  subscriptionAnchorId,
+  businessName,
 }: {
   message: string;
-  subscriptionAnchorId: string;
+  businessName?: string;
 }) {
-  const { labels } = useAppLocale();
+  const { labels, locale } = useAppLocale();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setOpen(true);
   }, []);
 
-  function goToSubscription() {
-    setOpen(false);
-    document
-      .getElementById(subscriptionAnchorId)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  const whatsAppUrl =
+    buildWhatsAppChatUrl(
+      TRIAL_WHATSAPP_PHONE,
+      locale === "he"
+        ? `שלום, תקופת הניסיון של החנות "${businessName ?? ""}" הסתיימה ואני רוצה לסדר תשלום.`
+        : `Hi, the trial for "${businessName ?? ""}" has ended and I'd like to arrange payment.`
+    ) ?? `https://wa.me/972586122187`;
 
   if (!open || typeof document === "undefined") return null;
 
@@ -58,14 +61,15 @@ export function DashboardTrialEndedModal({
           </div>
         </div>
         <div className="flex flex-col gap-2 px-5 py-4">
-          <Button
-            type="button"
-            variant="primary"
-            className="bakery-cta-3d bakery-cta-3d--primary w-full min-h-[48px] !max-w-none !rounded-full text-[15px] font-extrabold"
-            onClick={goToSubscription}
+          <a
+            href={whatsAppUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="bakery-cta-3d bakery-cta-3d--primary flex w-full min-h-[48px] items-center justify-center !max-w-none !rounded-full text-[15px] font-extrabold"
           >
-            {labels.trialExpiredGoToSubscription}
-          </Button>
+            {labels.trialExpiredContactWhatsApp}
+          </a>
           <button
             type="button"
             onClick={() => setOpen(false)}

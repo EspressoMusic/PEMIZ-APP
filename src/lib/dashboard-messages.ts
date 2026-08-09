@@ -113,7 +113,8 @@ export type DashboardLabels = {
   trialExpiredEndedOn: string;
   trialExpiredOrDivider: string;
   trialExpiredCloseStoreHint: string;
-  trialExpiredGoToSubscription: string;
+  trialExpiredContactWhatsApp: string;
+  trialExpiredWhatsAppHint: string;
   trialExpiredCloseModal: string;
   trialExpiredRecentOrdersTitle: string;
   trialExpiredRecentOrdersHint: string;
@@ -1514,14 +1515,16 @@ const HE: DashboardLabels = {
   subscriptionUltimateFeature3: "תמיכה מועדפת",
   trialExpiredTitle: "נגמרה תקופת הניסיון",
   trialExpiredHint:
-    "אחרי 30 ימי ניסיון חינם יש לבחור מנוי חודשי כדי להשאיר את החנות פעילה.",
+    "אחרי 30 ימי ניסיון חינם יש ליצור קשר בוואטסאפ ולסדר תשלום כדי להשאיר את החנות פעילה.",
   trialExpiredEndedOn: "תקופת הניסיון הסתיימה ב־",
   trialExpiredOrDivider: "או",
   trialExpiredCloseStoreHint: "לא רוצים להמשיך? אפשר גם לסגור את החנות לצמיתות.",
-  trialExpiredGoToSubscription: "מעבר למנוי",
+  trialExpiredContactWhatsApp: "יצירת קשר בוואטסאפ",
+  trialExpiredWhatsAppHint:
+    "תשלום מקוון עדיין לא זמין — נסדר ביחד תשלום בהעברה בנקאית או אמצעי אחר.",
   trialExpiredCloseModal: "סגירה",
   trialExpiredRecentOrdersTitle: "ההזמנות האחרונות שהתקבלו",
-  trialExpiredRecentOrdersHint: "תצוגה בלבד — כדי להמשיך לנהל את החנות יש לבחור מנוי חודשי.",
+  trialExpiredRecentOrdersHint: "תצוגה בלבד — כדי להמשיך לנהל את החנות צרו קשר בוואטסאפ ונסדר תשלום.",
   subscriptionPayMonthly: "שלם מנוי חודשי",
   subscriptionStatusTitle: "סטטוס מנוי",
   subscriptionActivePlan: "חבילה פעילה",
@@ -2347,14 +2350,16 @@ const EN: DashboardLabels = {
   subscriptionUltimateFeature3: "Priority support",
   trialExpiredTitle: "Trial period ended",
   trialExpiredHint:
-    "After your 30-day free trial, choose a monthly plan to keep your store active.",
+    "After your 30-day free trial, contact us on WhatsApp to arrange payment and keep your store active.",
   trialExpiredEndedOn: "Trial ended on ",
   trialExpiredOrDivider: "or",
   trialExpiredCloseStoreHint: "Don't want to continue? You can close your store permanently.",
-  trialExpiredGoToSubscription: "Go to subscription",
+  trialExpiredContactWhatsApp: "Contact us on WhatsApp",
+  trialExpiredWhatsAppHint:
+    "Online payment isn't available yet — we'll arrange a bank transfer or another option together.",
   trialExpiredCloseModal: "Close",
   trialExpiredRecentOrdersTitle: "Recently received orders",
-  trialExpiredRecentOrdersHint: "View only — choose a monthly plan to keep managing your store.",
+  trialExpiredRecentOrdersHint: "View only — contact us on WhatsApp to arrange payment and keep managing your store.",
   subscriptionPayMonthly: "Pay monthly subscription",
   subscriptionStatusTitle: "Subscription status",
   subscriptionActivePlan: "Active plan",

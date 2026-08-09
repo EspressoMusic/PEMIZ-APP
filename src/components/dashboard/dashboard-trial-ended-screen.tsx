@@ -6,8 +6,6 @@ import { DashboardOrdersList, type DashboardOrderView } from "@/components/dashb
 import { DashboardTrialEndedModal } from "@/components/dashboard/dashboard-trial-ended-modal";
 import { DashboardTrialPaywall } from "@/components/dashboard/dashboard-trial-paywall";
 
-const SUBSCRIPTION_ANCHOR_ID = "trial-expired-subscription-panel";
-
 export function DashboardTrialEndedScreen({
   trialEndsAt,
   businessName,
@@ -28,10 +26,7 @@ export function DashboardTrialEndedScreen({
 
   return (
     <div className="space-y-4">
-      <DashboardTrialEndedModal
-        message={modalMessage}
-        subscriptionAnchorId={SUBSCRIPTION_ANCHOR_ID}
-      />
+      <DashboardTrialEndedModal message={modalMessage} businessName={businessName} />
 
       {showRecentOrders ? (
         <Panel>
@@ -42,13 +37,11 @@ export function DashboardTrialEndedScreen({
         </Panel>
       ) : null}
 
-      <div id={SUBSCRIPTION_ANCHOR_ID}>
-        <DashboardTrialPaywall
-          trialEndsAt={trialEndsAt}
-          businessName={businessName}
-          previewOnly={previewOnly}
-        />
-      </div>
+      <DashboardTrialPaywall
+        trialEndsAt={trialEndsAt}
+        businessName={businessName}
+        previewOnly={previewOnly}
+      />
     </div>
   );
 }

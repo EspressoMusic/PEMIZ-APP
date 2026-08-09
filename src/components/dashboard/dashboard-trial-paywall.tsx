@@ -2,10 +2,10 @@
 
 import { Alert, Panel, PageTitle } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import { useSubscriptionCheckout } from "@/components/dashboard/use-subscription-checkout";
-import type { SubscriptionPlanId } from "@/lib/subscription-plans";
-import { DashboardSubscriptionPlanPicker } from "@/components/dashboard/dashboard-subscription-plan-picker";
+import { buildWhatsAppChatUrl } from "@/lib/phone";
 import { DashboardDeleteStoreSection } from "@/components/dashboard/dashboard-delete-store-section";
+
+const TRIAL_WHATSAPP_PHONE = "0586122187";
 
 export function DashboardTrialPaywall({
   trialEndsAt,
@@ -17,11 +17,14 @@ export function DashboardTrialPaywall({
   previewOnly?: boolean;
 }) {
   const { labels, locale } = useAppLocale();
-  const { payingPlan, message, startCheckout } = useSubscriptionCheckout();
 
-  async function payMonthly(planId: SubscriptionPlanId) {
-    await startCheckout(planId, labels.subscriptionComingSoon);
-  }
+  const whatsAppUrl =
+    buildWhatsAppChatUrl(
+      TRIAL_WHATSAPP_PHONE,
+      locale === "he"
+        ? `שלום, תקופת הניסיון של החנות "${businessName ?? ""}" הסתיימה ואני רוצה לסדר תשלום.`
+        : `Hi, the trial for "${businessName ?? ""}" has ended and I'd like to arrange payment.`
+    ) ?? `https://wa.me/972586122187`;
 
   return (
     <Panel>
@@ -44,19 +47,21 @@ export function DashboardTrialPaywall({
         </span>
       </p>
 
-      <DashboardSubscriptionPlanPicker
-        locale={locale}
-        labels={labels}
-        payingPlan={payingPlan}
-        chooseLabel={labels.subscriptionPayMonthly}
-        onChoosePlan={(planId) => void payMonthly(planId)}
-      />
-
-      {message ? (
-        <p className="mt-4 text-center text-[13px] font-semibold text-bakery-muted">
-          {message}
-        </p>
-      ) : null}
+      <a
+        href={previewOnly ? undefined : whatsAppUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-disabled={previewOnly}
+        onClick={(event) => {
+          if (previewOnly) event.preventDefault();
+        }}
+        className="bakery-cta-3d bakery-cta-3d--primary flex w-full min-h-[48px] items-center justify-center !rounded-full text-[15px] font-extrabold aria-disabled:pointer-events-none aria-disabled:opacity-50"
+      >
+        {labels.trialExpiredContactWhatsApp}
+      </a>
+      <p className="mt-3 text-center text-[13px] font-semibold text-bakery-muted">
+        {previewOnly ? labels.subscriptionPreviewOnly : labels.trialExpiredWhatsAppHint}
+      </p>
 
       <div className="my-5 flex items-center gap-3">
         <span className="h-px flex-1 bg-bakery-border/60" />

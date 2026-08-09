@@ -53,7 +53,7 @@ export function pushCopy(daysLeft: TrialWarningDaysLeft, storeName: string) {
 export function trialEndedPushCopy(storeName: string) {
   return {
     title: "תקופת הניסיון הסתיימה",
-    body: `${storeName} — בחרו מנוי או סגרו את החנות`,
+    body: `${storeName} — צרו קשר בוואטסאפ לתשלום, או סגרו את החנות`,
     url: "/dashboard",
     tag: "trial-ended",
   };
@@ -71,11 +71,11 @@ export function trialWarningPopupMessage(
   });
   const when =
     daysLeft === 7 ? "בעוד שבוע" : daysLeft === 3 ? "בעוד 3 ימים" : "מחר";
-  return `תקופת הניסיון החינמית של החנות שלכם מסתיימת ${when} (${endsLabel}). כדי להמשיך להשתמש בדשבורד בלי הפרעה, אפשר לבחור מנוי חודשי מתוך הגדרות ← מנוי.`;
+  return `תקופת הניסיון החינמית של החנות שלכם מסתיימת ${when} (${endsLabel}). כדי להמשיך להשתמש בדשבורד בלי הפרעה, צרו איתנו קשר בוואטסאפ ונסדר תשלום.`;
 }
 
 export function trialEndedPopupMessage(): string {
-  return "תקופת הניסיון החינמית של החנות שלכם הסתיימה. כדי להשאיר את החנות פעילה יש לבחור מנוי חודשי, ואפשר גם לסגור את החנות אם אינכם מעוניינים להמשיך.";
+  return "תקופת הניסיון החינמית של החנות שלכם הסתיימה. כדי להשאיר את החנות פעילה יש ליצור איתנו קשר בוואטסאפ ולסדר תשלום, ואפשר גם לסגור את החנות אם אינכם מעוניינים להמשיך.";
 }
 
 export async function processTrialWarnings(now = Date.now()) {

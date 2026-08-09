@@ -1,13 +1,17 @@
 import { getPlatformConfig } from "@/lib/platform-config";
-import { isSubscriptionPaymentsEnabled } from "@/lib/subscription-payments";
 import {
   isBusinessTrialExpired,
   type BusinessTrialFields,
 } from "@/lib/business-trial";
 import { isBusinessTrialBypassed } from "@/lib/trial-dev";
 
+/**
+ * Trial closure no longer requires a configured payment provider — there is
+ * no self-serve checkout yet (Paddle is intentionally disabled), so sellers
+ * pay manually (bank transfer etc.) after contacting support via WhatsApp.
+ * The master panel "סגירה אוטומטית" toggle remains the only kill switch.
+ */
 export async function isTrialClosureEnabled(): Promise<boolean> {
-  if (!isSubscriptionPaymentsEnabled()) return false;
   const config = await getPlatformConfig();
   return config.trialClosureEnabled !== false;
 }
