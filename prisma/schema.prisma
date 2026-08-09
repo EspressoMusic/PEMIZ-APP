@@ -339,6 +339,7 @@ model Order {
   discountAmount Float       @default(0)
   sellerHiddenAt DateTime?
   prepHiddenAt   DateTime?
+  sellerOpenedAt DateTime?
   createdAt      DateTime    @default(now())
   items          OrderItem[]
   pushSubscriptions OrderPushSubscription[]

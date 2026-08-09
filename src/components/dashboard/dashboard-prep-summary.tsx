@@ -318,6 +318,24 @@ export function DashboardPrepSummary({
     [previewOnly]
   );
 
+  const markOpened = useCallback(
+    (orderId: string) => {
+      const openedAt = new Date().toISOString();
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId ? { ...o, sellerOpenedAt: openedAt } : o
+        )
+      );
+      if (previewOnly) return;
+      void fetch("/api/dashboard/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, markOpened: true }),
+      });
+    },
+    [previewOnly]
+  );
+
   const grandTotal = products.reduce((s, p) => s + p.totalQuantity, 0);
 
   return (
@@ -355,6 +373,7 @@ export function DashboardPrepSummary({
               showPrices
               orderConfirmationRequired={orderConfirmationRequired}
               transferToOrdersHref={`${basePath}/settings/orders`}
+              onMarkOpened={markOpened}
             />
           </div>
         )}

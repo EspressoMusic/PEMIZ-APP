@@ -76,6 +76,7 @@ export type PendingOrderRecord = {
   notes: string | null;
   status: string;
   createdAt: string | Date;
+  sellerOpenedAt?: string | Date | null;
   items: {
     productId: string;
     quantity: number;
@@ -179,6 +180,10 @@ export function mapPendingOrdersFromRecords(
       typeof o.createdAt === "string"
         ? o.createdAt
         : o.createdAt.toISOString(),
+    sellerOpenedAt:
+      !o.sellerOpenedAt || typeof o.sellerOpenedAt === "string"
+        ? o.sellerOpenedAt ?? null
+        : o.sellerOpenedAt.toISOString(),
     items: o.items.map((it) => ({
       name: it.product.name,
       quantity: it.quantity,

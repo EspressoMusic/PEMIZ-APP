@@ -35,6 +35,7 @@ export type DashboardOrderView = {
   customerAddressLat?: number | null;
   customerAddressLng?: number | null;
   sellerHiddenAt?: string | null;
+  sellerOpenedAt?: string | null;
   items: DashboardOrderItemView[];
 };
 
@@ -285,6 +286,7 @@ export function DashboardOrderCard({
   onLongPress,
   orderConfirmationRequired = true,
   transferToOrdersHref,
+  onMarkOpened,
 }: {
   order: DashboardOrderView;
   open: boolean;
@@ -308,6 +310,8 @@ export function DashboardOrderCard({
   orderConfirmationRequired?: boolean;
   /** See DashboardOrderDetails — set only on the dashboard home widget. */
   transferToOrdersHref?: string;
+  /** Persists the "opened" badge server-side so it survives a reload. */
+  onMarkOpened?: (orderId: string) => void;
 }) {
   const { labels, formatDateTime } = useAppLocale();
   const total = order.items.reduce((s, it) => s + it.lineTotal, 0);
@@ -316,7 +320,7 @@ export function DashboardOrderCard({
     : null;
   const isCompleted = order.status === "COMPLETED";
   const isRejected = order.status === "REJECTED";
-  const [opened, setOpened] = useState(false);
+  const opened = order.sellerOpenedAt != null;
   const pressProps = getDashboardPressProps<HTMLDivElement>();
   const longPress = useDashboardLongPress<HTMLDivElement>(
     () => onLongPress?.(),
@@ -466,7 +470,9 @@ export function DashboardOrderCard({
               : undefined
           }
           transferToOrdersHref={transferToOrdersHref}
-          onMarkOpened={() => setOpened(true)}
+          onMarkOpened={
+            onMarkOpened && !opened ? () => onMarkOpened(order.id) : undefined
+          }
         />
       </DashboardActionSheet>
     </div>
@@ -484,6 +490,7 @@ export function DashboardOrdersSection({
   customerModal,
   emptyMessage,
   orderConfirmationRequired = true,
+  onMarkOpened,
 }: {
   title: string;
   orders: DashboardOrderView[];
@@ -495,6 +502,7 @@ export function DashboardOrdersSection({
   customerModal?: ReactNode;
   emptyMessage?: string;
   orderConfirmationRequired?: boolean;
+  onMarkOpened?: (orderId: string) => void;
 }) {
   const { labels } = useAppLocale();
   return (
@@ -513,6 +521,7 @@ export function DashboardOrdersSection({
         emptyMessage={emptyMessage ?? labels.noOrders}
         emptyCompact
         orderConfirmationRequired={orderConfirmationRequired}
+        onMarkOpened={onMarkOpened}
       />
     </section>
   );
@@ -531,6 +540,7 @@ export function DashboardOrdersList({
   customerModal,
   orderConfirmationRequired = true,
   transferToOrdersHref,
+  onMarkOpened,
 }: {
   orders: DashboardOrderView[];
   onCustomerClick?: (input: CustomerProfileInput) => void;
@@ -546,6 +556,7 @@ export function DashboardOrdersList({
   orderConfirmationRequired?: boolean;
   /** See DashboardOrderDetails — set only on the dashboard home widget. */
   transferToOrdersHref?: string;
+  onMarkOpened?: (orderId: string) => void;
 }) {
   const { labels } = useAppLocale();
   const [openOrderId, setOpenOrderId] = useState<string | null>(null);
@@ -609,6 +620,7 @@ export function DashboardOrdersList({
               onLongPress={onHideOrders ? () => setSelectedIds(new Set([o.id])) : undefined}
               orderConfirmationRequired={orderConfirmationRequired}
               transferToOrdersHref={transferToOrdersHref}
+              onMarkOpened={onMarkOpened}
             />
           </li>
         ))}

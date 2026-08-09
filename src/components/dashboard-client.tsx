@@ -259,6 +259,7 @@ export function mapOrdersFromApi(
     customerAddressLat?: number | null;
     customerAddressLng?: number | null;
     sellerHiddenAt?: string | null;
+    sellerOpenedAt?: string | null;
     items: {
       quantity: number;
       priceAtOrder: number;
@@ -279,6 +280,7 @@ export function mapOrdersFromApi(
       customerAddressLat: o.customerAddressLat,
       customerAddressLng: o.customerAddressLng,
       sellerHiddenAt: o.sellerHiddenAt,
+      sellerOpenedAt: o.sellerOpenedAt,
       items: o.items.map((it) => ({
         name: it.product.name,
         quantity: it.quantity,
@@ -954,6 +956,21 @@ function useOrdersManager({
     });
   }
 
+  async function markOpened(orderId: string) {
+    const openedAt = new Date().toISOString();
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === orderId ? { ...o, sellerOpenedAt: openedAt } : o
+      )
+    );
+    if (previewOnly) return;
+    await fetch("/api/dashboard/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, markOpened: true }),
+    });
+  }
+
   return {
     labels,
     activeOrders,
@@ -965,6 +982,7 @@ function useOrdersManager({
     rejectOrder,
     toggleOrderCompletion,
     hideOrders,
+    markOpened,
     previewOnly,
     orderConfirmationRequired,
   };
@@ -980,6 +998,7 @@ function OrdersPanels({
   onHideOrders,
   customerModal,
   orderConfirmationRequired = true,
+  onMarkOpened,
 }: {
   activeOrders: DashboardOrderView[];
   historyOrders: DashboardOrderView[];
@@ -992,6 +1011,7 @@ function OrdersPanels({
   onHideOrders?: (orderIds: string[]) => void | Promise<void>;
   customerModal?: React.ReactNode;
   orderConfirmationRequired?: boolean;
+  onMarkOpened?: (orderId: string) => void;
 }) {
   const { labels } = useAppLocale();
 
@@ -1008,6 +1028,7 @@ function OrdersPanels({
         customerModal={customerModal}
         emptyMessage={labels.noActiveOrders}
         orderConfirmationRequired={orderConfirmationRequired}
+        onMarkOpened={onMarkOpened}
       />
       <DashboardOrdersSection
         title={labels.orderHistory}
@@ -1032,6 +1053,7 @@ function OrdersActiveSheet({
   previewOnly,
   allOrdersForExport,
   orderConfirmationRequired = true,
+  onMarkOpened,
 }: {
   open: boolean;
   onClose: () => void;
@@ -1044,6 +1066,7 @@ function OrdersActiveSheet({
   previewOnly?: boolean;
   allOrdersForExport?: DashboardOrderView[];
   orderConfirmationRequired?: boolean;
+  onMarkOpened?: (orderId: string) => void;
 }) {
   const { labels } = useAppLocale();
   const { headerEndAction, searchField, searchQuery, searchDate, hasSearchQuery } =
@@ -1109,6 +1132,7 @@ function OrdersActiveSheet({
           }
           emptyCompact
           orderConfirmationRequired={orderConfirmationRequired}
+          onMarkOpened={onMarkOpened}
         />
       </div>
     </DashboardActionSheet>
@@ -1202,6 +1226,7 @@ export function DashboardOrdersEntry({
     rejectOrder,
     toggleOrderCompletion,
     hideOrders,
+    markOpened,
     previewOnly: isPreview,
     orderConfirmationRequired,
   } = useOrdersManager({ previewOnly, previewOrders });
@@ -1230,6 +1255,7 @@ export function DashboardOrdersEntry({
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
         orderConfirmationRequired={orderConfirmationRequired}
+        onMarkOpened={markOpened}
       />
       {customerModal}
     </>
@@ -1265,6 +1291,7 @@ export function OrdersManager({
     rejectOrder,
     toggleOrderCompletion,
     hideOrders,
+    markOpened,
     previewOnly: isPreview,
     orderConfirmationRequired,
   } = useOrdersManager({ previewOnly, previewOrders });
@@ -1280,6 +1307,7 @@ export function OrdersManager({
       onHideOrders={hideOrders}
       customerModal={customerModal}
       orderConfirmationRequired={orderConfirmationRequired}
+      onMarkOpened={markOpened}
     />
   );
 
@@ -1357,6 +1385,7 @@ export function OrdersManager({
         previewOnly={isPreview}
         allOrdersForExport={[...activeOrders, ...historyOrders]}
         orderConfirmationRequired={orderConfirmationRequired}
+        onMarkOpened={markOpened}
       />
 
       <OrdersHistorySheet

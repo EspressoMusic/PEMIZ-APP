@@ -33,7 +33,17 @@ const hidePrepSchema = z.object({
   hidePrep: z.literal(true),
 });
 
-const patchSchema = z.union([statusSchema, hideSchema, hidePrepSchema]);
+const markOpenedSchema = z.object({
+  orderId: z.string(),
+  markOpened: z.literal(true),
+});
+
+const patchSchema = z.union([
+  statusSchema,
+  hideSchema,
+  hidePrepSchema,
+  markOpenedSchema,
+]);
 
 export async function PATCH(req: Request) {
   const ctx = await requireBusinessOwner();
@@ -59,6 +69,16 @@ export async function PATCH(req: Request) {
     await prisma.order.updateMany({
       where: { id: { in: parsed.data.orderIds }, businessId: ctx.user.business.id },
       data: { sellerHiddenAt: new Date() },
+    });
+    return jsonOk({ ok: true });
+  }
+
+  if ("markOpened" in parsed.data) {
+    // Persists the "נפתח" badge so it survives a reload — this used to live
+    // in component state only, which reset every time the app was closed.
+    await prisma.order.updateMany({
+      where: { id: parsed.data.orderId, businessId: ctx.user.business.id },
+      data: { sellerOpenedAt: new Date() },
     });
     return jsonOk({ ok: true });
   }
