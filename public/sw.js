@@ -1,16 +1,38 @@
-/* Linky/Peymiz push handler — v5 self-healing subscriptions */
+/* Linky/Peymiz push handler — v6 pending-nav redirect for iOS PWA relaunch */
 const PUSH_DB_NAME = "linky-push";
 const PUSH_DB_STORE = "endpoints";
+const PENDING_NAV_STORE = "pendingNav";
 
 function openPushDb() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(PUSH_DB_NAME, 1);
+    const req = indexedDB.open(PUSH_DB_NAME, 2);
     req.onupgradeneeded = () => {
-      req.result.createObjectStore(PUSH_DB_STORE, { keyPath: "url" });
+      const db = req.result;
+      if (!db.objectStoreNames.contains(PUSH_DB_STORE)) {
+        db.createObjectStore(PUSH_DB_STORE, { keyPath: "url" });
+      }
+      if (!db.objectStoreNames.contains(PENDING_NAV_STORE)) {
+        db.createObjectStore(PENDING_NAV_STORE, { keyPath: "id" });
+      }
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
+}
+
+// iOS's PWA push implementation ignores the URL passed to clients.openWindow()
+// when the app isn't already running and always relaunches at the manifest
+// start_url instead (WebKit limitation) — so the destination is stashed here
+// for the freshly-loaded page to pick up and redirect to itself.
+async function rememberPendingNav(url) {
+  const db = await openPushDb();
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction(PENDING_NAV_STORE, "readwrite");
+    tx.objectStore(PENDING_NAV_STORE).put({ id: "current", url, ts: Date.now() });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+  db.close();
 }
 
 async function rememberPushEndpoint(url, body) {
@@ -79,19 +101,23 @@ self.addEventListener("notificationclick", (event) => {
   const absolute = new URL(targetUrl, self.location.origin).href;
 
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+    (async () => {
+      const list = await clients.matchAll({ type: "window", includeUncontrolled: true });
       for (const client of list) {
         if (client.url.startsWith(self.location.origin) && "focus" in client) {
-          return client.focus().then((focused) => {
-            if ("navigate" in focused) {
-              return focused.navigate(absolute);
-            }
-            return focused;
-          });
+          const focused = await client.focus();
+          if (focused && "navigate" in focused) {
+            return focused.navigate(absolute);
+          }
+          return focused;
         }
       }
+
+      if (targetUrl !== "/dashboard") {
+        await rememberPendingNav(targetUrl).catch(() => undefined);
+      }
       if (clients.openWindow) return clients.openWindow(absolute);
-    })
+    })()
   );
 });
 

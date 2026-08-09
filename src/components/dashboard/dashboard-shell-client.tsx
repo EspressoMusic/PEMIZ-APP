@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { consumePendingPushNav } from "@/lib/push-client";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { AppointmentStoreWelcomeSetup } from "@/components/dashboard/appointment-store-welcome-setup";
 import { SellerWelcomeGuide } from "@/components/dashboard/seller-welcome-guide";
@@ -95,6 +96,7 @@ export function DashboardShellClient({
   platformOwnerMessageReadAt?: string | null;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const hub = useDashboardHub();
   const inSellerApp = isSellerAppRoute(pathname, basePath);
   const isHomeRoute = isDashboardHomeRoute(pathname, basePath);
@@ -118,6 +120,17 @@ export function DashboardShellClient({
       document.body.style.overflow = prev;
     };
   }, [inSellerApp]);
+
+  useEffect(() => {
+    if (!isHomeRoute) return;
+    let cancelled = false;
+    consumePendingPushNav().then((target) => {
+      if (!cancelled && target) router.replace(target);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isHomeRoute, router]);
 
   const shellBody = (
     <div className="dashboard-surface flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">

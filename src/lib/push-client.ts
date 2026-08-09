@@ -91,6 +91,55 @@ export async function subscribeToPush(
   }
 }
 
+const PUSH_DB_NAME = "linky-push";
+const PENDING_NAV_STORE = "pendingNav";
+const PENDING_NAV_MAX_AGE_MS = 30_000;
+
+/**
+ * Reads (and clears) the navigation target the service worker stashed for
+ * iOS, whose PWA push implementation ignores the `clients.openWindow()` URL
+ * and always relaunches at the manifest start_url instead. Returns null if
+ * there's nothing pending or it's stale (e.g. a normal, non-notification
+ * app launch).
+ */
+export async function consumePendingPushNav(): Promise<string | null> {
+  if (typeof indexedDB === "undefined") return null;
+
+  const db = await new Promise<IDBDatabase | null>((resolve) => {
+    const req = indexedDB.open(PUSH_DB_NAME, 2);
+    req.onupgradeneeded = () => {
+      const idb = req.result;
+      if (!idb.objectStoreNames.contains(PENDING_NAV_STORE)) {
+        idb.createObjectStore(PENDING_NAV_STORE, { keyPath: "id" });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);
+  });
+  if (!db) return null;
+
+  if (!db.objectStoreNames.contains(PENDING_NAV_STORE)) {
+    db.close();
+    return null;
+  }
+
+  const entry = await new Promise<{ url: string; ts: number } | undefined>(
+    (resolve) => {
+      const tx = db.transaction(PENDING_NAV_STORE, "readwrite");
+      const store = tx.objectStore(PENDING_NAV_STORE);
+      const getReq = store.get("current");
+      getReq.onsuccess = () => resolve(getReq.result);
+      getReq.onerror = () => resolve(undefined);
+      store.delete("current");
+    }
+  );
+  db.close();
+
+  if (!entry) return null;
+  if (Date.now() - entry.ts > PENDING_NAV_MAX_AGE_MS) return null;
+  return entry.url;
+}
+
 export function isPushSupported(): boolean {
   return (
     typeof window !== "undefined" &&

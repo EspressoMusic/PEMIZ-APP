@@ -294,7 +294,7 @@ export async function notifySellerNewOrder(
   fireSellerPush(businessId, "new_order", {
     title: "הזמנה חדשה",
     body: `${order.customerName}${total}`,
-    url: "/dashboard/orders",
+    url: "/dashboard",
     tag: `order-${order.id}`,
   });
 }
