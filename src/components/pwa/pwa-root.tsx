@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { AppLoadingSplash } from "@/components/app-loading-splash";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import { PwaProvider } from "@/components/pwa/pwa-context";
 import { SiteCookieConsent } from "@/components/site-cookie-consent";
 import { NativeAppEntryRedirect } from "@/components/native-app-entry-redirect";
@@ -24,6 +25,7 @@ export function PwaRoot({
       <NativeAppEntryRedirect />
       {children}
       <SiteCookieConsent />
+      <GoogleAnalytics />
     </PwaProvider>
   );
 }

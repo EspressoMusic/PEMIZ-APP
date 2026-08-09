@@ -16,12 +16,15 @@ export function readCustomerCookieConsent(
   return raw === "all" || raw === "necessary" ? raw : null;
 }
 
+export const COOKIE_CONSENT_CHANGE_EVENT = "linky-cookie-consent-change";
+
 export function writeCustomerCookieConsent(
   businessSlug: string,
   level: CustomerCookieConsentLevel
 ) {
   if (typeof window === "undefined") return;
   localStorage.setItem(customerCookieConsentKey(businessSlug), level);
+  window.dispatchEvent(new Event(COOKIE_CONSENT_CHANGE_EVENT));
 }
 
 export function readPlatformCookieConsent(): CustomerCookieConsentLevel | null {
