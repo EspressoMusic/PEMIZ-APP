@@ -376,6 +376,7 @@ export function CustomerStoreApp({
     storeBroadcast?: string | null;
     storeBroadcastAt?: string | null;
     storePanelsVisible?: StorePanelsVisible;
+    dashboardSimpleMode?: boolean;
     sellerContactPhone?: string | null;
     demoOrders?: {
       active: DemoOrderPreview[];
@@ -391,7 +392,9 @@ export function CustomerStoreApp({
   const isDevAppointments = business.slug === "demo-appointments";
   const isDevRental = business.slug === "demo-rental";
   const isDevSchedule = isDevAppointments || isDevRental;
-  const panels = business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
+  const panels = business.dashboardSimpleMode
+    ? { ...(business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE), deals: false }
+    : business.storePanelsVisible ?? DEFAULT_STORE_PANELS_VISIBLE;
   const showWhatsAppContact = isSellerWhatsAppVisible(
     panels,
     business.sellerContactPhone
