@@ -21,9 +21,15 @@ const paddleFrameCsp =
 const paddleConnectCsp =
   "https://checkout-service.paddle.com https://sandbox-checkout-service.paddle.com https://api.paddle.com https://sandbox-api.paddle.com";
 
+// gtag.js (loaded by @next/third-parties GoogleAnalytics) plus the hit
+// collection requests it fires — both are required or GA silently no-ops.
+const googleAnalyticsScriptCsp = "https://www.googletagmanager.com";
+const googleAnalyticsConnectCsp =
+  "https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com";
+
 const scriptSrc = isProd
-  ? `script-src 'self' 'unsafe-inline' ${googleAuthCsp} ${paddleScriptCsp}`
-  : `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${googleAuthCsp} ${paddleScriptCsp}`;
+  ? `script-src 'self' 'unsafe-inline' ${googleAuthCsp} ${paddleScriptCsp} ${googleAnalyticsScriptCsp}`
+  : `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${googleAuthCsp} ${paddleScriptCsp} ${googleAnalyticsScriptCsp}`;
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -55,7 +61,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://cdn.paddle.com https://sandbox-cdn.paddle.com",
       "img-src 'self' data: blob: https://*.supabase.co https://*.google.com https://*.gstatic.com https://lh3.googleusercontent.com",
       "font-src 'self' data:",
-      `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${firebaseAuthConnectCsp} ${paddleConnectCsp}`,
+      `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${firebaseAuthConnectCsp} ${paddleConnectCsp} ${googleAnalyticsConnectCsp}`,
       `frame-src 'self' https://accounts.google.com https://*.firebaseapp.com https://*.google.com ${paddleFrameCsp}`,
       "worker-src 'self'",
       "frame-ancestors 'none'",
