@@ -7,7 +7,7 @@ export function HomeLandingPricing() {
       <section className="app-safe-x px-4 pb-4 pt-[max(1.5rem,env(safe-area-inset-top))] text-center sm:pt-10">
         <p className="inline-flex items-center gap-2 rounded-full border border-bakery-border/40 bg-bakery-card/80 px-4 py-2 text-[13px] font-bold text-bakery-ink">
           <Sparkles className="h-4 w-4 text-bakery-primary" strokeWidth={2} />
-          30-day free trial · No card required to start
+          14-day free trial · No card required to start
         </p>
         <h1 className="mt-5 text-[30px] font-extrabold leading-tight text-bakery-ink sm:text-[34px]">
           Simple pricing
@@ -20,6 +20,9 @@ export function HomeLandingPricing() {
 
       <section className="app-safe-x px-4 py-6 sm:py-8">
         <div className="mx-auto max-w-lg rounded-[24px] border-[1.2px] border-bakery-border/45 bg-gradient-to-b from-bakery-cream-light to-bakery-cream-mid p-5 shadow-[var(--shadow-bakery-panel)] sm:p-6">
+          <p className="mb-4 rounded-[14px] bg-bakery-primary px-4 py-2.5 text-center text-[15px] font-extrabold text-bakery-on-primary">
+            14-day free trial on every plan — no credit card required
+          </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[18px] border-[3px] border-[#6D4C41]/18 bg-bakery-card px-4 py-5 text-center">
               <p className="text-[16px] font-extrabold text-bakery-ink">Premium</p>

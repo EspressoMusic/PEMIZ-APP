@@ -71,6 +71,15 @@ export default async function DashboardLayout({
     });
   }
 
+  // Alerts can be flagged "on" in the DB while zero devices are actually
+  // registered to receive them (e.g. a browser subscribe that failed
+  // silently) — surface that mismatch instead of leaving it invisible.
+  const pushAlertsBroken =
+    user.business.sellerAlertsEnabled &&
+    (await prisma.sellerPushSubscription.count({
+      where: { userId: user.id },
+    })) === 0;
+
   return (
     <div className="dashboard-surface bakery-frame-bg h-dvh overflow-hidden">
       <div className={DASHBOARD_LAYOUT_FRAME}>
@@ -91,6 +100,7 @@ export default async function DashboardLayout({
             platformOwnerMessageReadAt={
               user.business.platformOwnerMessageReadAt?.toISOString() ?? null
             }
+            pushAlertsBroken={pushAlertsBroken}
           >
             {children}
           </DashboardShell>

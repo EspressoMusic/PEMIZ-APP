@@ -17,7 +17,7 @@ export function MarketingLegalShell({
 }) {
   return (
     <div
-      className={marketingPublicPageClassName()}
+      className={marketingPublicPageClassName(lang)}
       data-theme="light"
       lang={lang}
       dir={lang === "en" ? "ltr" : "rtl"}

@@ -32,4 +32,4 @@ Before you start, it helps to decide whether your business sells a product (like
 
 ## Start today
 
-There's no reason to wait for the "perfect" moment to start selling in an organized way. The earlier a business starts working with one link and an organized store, the fewer orders get lost along the way. You can start with a 30-day free trial and see how it works in practice — no commitment. More details are on the [pricing page](/pricing).
+There's no reason to wait for the "perfect" moment to start selling in an organized way. The earlier a business starts working with one link and an organized store, the fewer orders get lost along the way. You can start with a 14-day free trial and see how it works in practice — no commitment. More details are on the [pricing page](/pricing).

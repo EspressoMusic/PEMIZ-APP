@@ -69,6 +69,10 @@ export function DashboardSubscriptionPlanPicker({
               </span>
             </p>
 
+            <p className="mx-auto mt-2 w-fit rounded-full bg-bakery-primary px-4 py-1.5 text-[14px] font-extrabold text-bakery-on-primary">
+              {labels.subscriptionPlansHint}
+            </p>
+
             <ul className="mt-3 flex-1 space-y-2 text-[15px] font-semibold leading-snug text-bakery-ink">
               {plan.featureKeys.map((key) => (
                 <li key={key}>{featureLabel(labels, key)}</li>

@@ -18,7 +18,7 @@ const COPY: Record<
     back: "← כל המדריכים",
     ctaTitle: "מוכנים להתחיל?",
     ctaBody:
-      "פתחו את דף העסק שלכם ב-Peymiz תוך כמה דקות — קישור אחד לחנות, תורים והזמנות מסודרות. 30 יום ניסיון חינם.",
+      "פתחו את דף העסק שלכם ב-Peymiz תוך כמה דקות — קישור אחד לחנות, תורים והזמנות מסודרות. 14 יום ניסיון חינם.",
     ctaButton: "פתיחת עסק בחינם",
     related: "עוד מדריכים שיעניינו אתכם",
   },
@@ -26,7 +26,7 @@ const COPY: Record<
     back: "← All guides",
     ctaTitle: "Ready to get started?",
     ctaBody:
-      "Set up your business page on Peymiz in minutes — one link for your store, bookings, and organized orders. 30-day free trial.",
+      "Set up your business page on Peymiz in minutes — one link for your store, bookings, and organized orders. 14-day free trial.",
     ctaButton: "Start free",
     related: "More guides you might like",
   },
@@ -57,7 +57,7 @@ export function MarketingBlogPost({
 
   return (
     <div
-      className={marketingPublicPageClassName()}
+      className={marketingPublicPageClassName(locale)}
       data-theme="light"
       lang={locale}
       dir={dir}

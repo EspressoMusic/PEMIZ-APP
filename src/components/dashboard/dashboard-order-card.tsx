@@ -308,7 +308,8 @@ export function DashboardOrderCard({
    * "CONFIRMED" with no real approval step behind it — showing that badge would just
    * be noise, so it's suppressed in that mode. */
   orderConfirmationRequired?: boolean;
-  /** See DashboardOrderDetails — set only on the dashboard home widget. */
+  /** See DashboardOrderDetails — set only on the dashboard home widget.
+   * Also gates the "opened" badge below, which should only ever show there. */
   transferToOrdersHref?: string;
   /** Persists the "opened" badge server-side so it survives a reload. */
   onMarkOpened?: (orderId: string) => void;
@@ -369,7 +370,7 @@ export function DashboardOrderCard({
           isCompleted || isRejected ? "opacity-60" : ""
         }`}
       >
-        {!selectionMode && opened && !(orderConfirmationRequired || order.status !== "CONFIRMED") ? (
+        {!selectionMode && transferToOrdersHref && opened && !(orderConfirmationRequired || order.status !== "CONFIRMED") ? (
           <span className="absolute top-2 end-2 z-10">
             <Badge tone="brand">{labels.orderOpenedLabel}</Badge>
           </span>

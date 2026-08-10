@@ -4,7 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui";
 import { useAppLocale } from "@/components/dashboard/app-locale-provider";
-import { requestAndSubscribePush } from "@/lib/push-client";
+import {
+  getActivePushSubscription,
+  isPushSupported,
+  requestAndSubscribePush,
+} from "@/lib/push-client";
 import { DEFAULT_SELLER_ALERTS, type SellerAlertsSettings } from "@/lib/seller-alerts";
 
 const STORAGE_PREFIX = "linky_seller_notify_prompt_done:";
@@ -54,18 +58,26 @@ export function SellerNotifyPrompt({
       checkedRef.current = true;
 
       try {
-        const res = await fetch("/api/dashboard/seller-alerts", {
-          credentials: "same-origin",
-        });
-        const data = (await res.json().catch(() => null)) as
-          | { enabled?: boolean }
-          | null;
-        if (res.ok && data?.enabled) {
+        // The DB "alerts enabled" flag only proves someone clicked yes once —
+        // it says nothing about whether THIS device actually has a working
+        // push subscription (that click may have failed silently). Check the
+        // real device state instead of trusting the flag.
+        const active = await getActivePushSubscription().catch(() => null);
+        if (active) {
           localStorage.setItem(storageKey(businessId), "1");
           return;
         }
+        // Nothing to offer on this device — don't nag, but don't mark done
+        // either (so a future device/session with real support still asks).
+        if (!isPushSupported()) return;
+        if (
+          typeof Notification !== "undefined" &&
+          Notification.permission === "denied"
+        ) {
+          return;
+        }
       } catch {
-        // network hiccup — still ask, the seller can dismiss if not interested
+        // fall through — still ask, the seller can dismiss if not interested
       }
       // Re-check: the guide may have been replayed while this request was in
       // flight — don't surface the prompt on top of a freshly-restarted tour.
@@ -96,11 +108,19 @@ export function SellerNotifyPrompt({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(next),
       });
-      await requestAndSubscribePush();
+      const outcome = await requestAndSubscribePush();
+      if (outcome.status === "subscribed") {
+        // Only dismiss for good once there's a real, working subscription —
+        // otherwise the DB flag would say "on" forever with nothing behind
+        // it, and this prompt would never get a second chance to fix it.
+        finish();
+      } else {
+        setBusy(false);
+        setOpen(false);
+      }
     } catch {
-      // best effort — the seller can still finish setup from Settings > Alerts
-    } finally {
-      finish();
+      setBusy(false);
+      setOpen(false);
     }
   }
 

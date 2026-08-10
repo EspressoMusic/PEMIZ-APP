@@ -30,4 +30,4 @@ An organized booking system solves the coordination problem, but there's another
 - Are all appointments and messages in one place, accessible from a phone?
 - Can you get started without a long technical onboarding?
 
-If the answer is yes across the board, there's a good chance the system will fit into your daily work without friction. You can test this yourself with a 30-day free trial — details on the [pricing page](/pricing).
+If the answer is yes across the board, there's a good chance the system will fit into your daily work without friction. You can test this yourself with a 14-day free trial — details on the [pricing page](/pricing).

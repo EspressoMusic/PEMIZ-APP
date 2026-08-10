@@ -10,6 +10,7 @@ import { SellerNotifyPrompt } from "@/components/dashboard/seller-notify-prompt"
 import { SELLER_WELCOME_GUIDE_ENABLED } from "@/lib/seller-welcome-guide-enabled";
 import { isAppointmentStoreScheduleConfigured } from "@/lib/appointment-store-setup";
 import { DashboardPlatformMessageBanner } from "@/components/dashboard/dashboard-platform-message-banner";
+import { DashboardPushAlertsBrokenBanner } from "@/components/dashboard/dashboard-push-alerts-broken-banner";
 import {
   PwaInstallBanner,
   usePwaInstallBannerVisible,
@@ -80,6 +81,7 @@ export function DashboardShellClient({
   platformOwnerMessage = null,
   platformOwnerMessageAt = null,
   platformOwnerMessageReadAt = null,
+  pushAlertsBroken = false,
 }: {
   children: ReactNode;
   businessType: string;
@@ -94,6 +96,7 @@ export function DashboardShellClient({
   platformOwnerMessage?: string | null;
   platformOwnerMessageAt?: string | null;
   platformOwnerMessageReadAt?: string | null;
+  pushAlertsBroken?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -155,6 +158,12 @@ export function DashboardShellClient({
                 initialMessageAt={platformOwnerMessageAt}
                 initialReadAt={platformOwnerMessageReadAt}
                 previewOnly={businessId === "dev-preview"}
+              />
+            ) : null}
+            {inSellerApp ? (
+              <DashboardPushAlertsBrokenBanner
+                broken={pushAlertsBroken}
+                basePath={basePath}
               />
             ) : null}
             {children}

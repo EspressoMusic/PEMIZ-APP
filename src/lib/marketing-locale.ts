@@ -201,7 +201,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     pricingTitleEm: "Scale later.",
     premiumBadge: "Monthly Plan",
     premiumPeriod: "/ month",
-    premiumTrial: "30-day free trial",
+    premiumTrial: "14-day free trial",
     premiumFeatures: [
       "Full Peymiz access",
       "Business page + shareable link",
@@ -239,7 +239,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
       {
         question: "Is there a free trial?",
         answer:
-          "Yes — every new business gets a 30-day free trial of the full Peymiz dashboard before any charge.",
+          "Yes — every new business gets a 14-day free trial of the full Peymiz dashboard before any charge.",
       },
       {
         question: "Is Peymiz a marketplace?",
@@ -420,7 +420,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     pricingTitleEm: "גדלים בהמשך.",
     premiumBadge: "תוכנית חודשית",
     premiumPeriod: "/ חודש",
-    premiumTrial: "30 יום ניסיון חינם",
+    premiumTrial: "14 יום ניסיון חינם",
     premiumFeatures: [
       "גישה מלאה ל-Peymiz",
       "דף עסק + קישור לשיתוף",
@@ -458,7 +458,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
       {
         question: "יש ניסיון חינם?",
         answer:
-          "כן — כל עסק חדש מקבל 30 יום ניסיון חינם לגישה המלאה ללוח הבקרה של Peymiz, לפני כל חיוב.",
+          "כן — כל עסק חדש מקבל 14 יום ניסיון חינם לגישה המלאה ללוח הבקרה של Peymiz, לפני כל חיוב.",
       },
       {
         question: "צריך אתר או ידע טכני כדי להשתמש ב-Peymiz?",

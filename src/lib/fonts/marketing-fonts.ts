@@ -36,6 +36,9 @@ export function homeLandingFontClass(locale: "en" | "he") {
   return `${marketingPlusJakarta.className} ${marketingPlusJakarta.variable}`;
 }
 
-export function marketingPublicPageClassName() {
+export function marketingPublicPageClassName(locale: "en" | "he" = "en") {
+  if (locale === "he") {
+    return `marketing-site ${marketingRubik.className} ${marketingRubik.variable}`;
+  }
   return `marketing-site ${marketingPlusJakarta.className} ${marketingPlusJakarta.variable} ${marketingSora.variable}`;
 }

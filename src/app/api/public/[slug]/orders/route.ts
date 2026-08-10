@@ -52,11 +52,20 @@ import { customerOrderStatusLabel } from "@/lib/order-status-label";
 
 async function afterOrderPlaced(
   businessId: string,
-  order: { id: string; customerName: string },
-  lines: { productId: string; quantity: number }[]
+  order: {
+    id: string;
+    orderNumber: number;
+    customerName: string;
+    customerPhone: string;
+  },
+  lines: { productId: string; quantity: number; priceAtOrder: number }[],
+  discountAmount = 0
 ) {
+  const total =
+    lines.reduce((sum, line) => sum + line.priceAtOrder * line.quantity, 0) -
+    discountAmount;
   await Promise.all([
-    notifySellerNewOrder(businessId, order),
+    notifySellerNewOrder(businessId, { ...order, total }),
     notifyLowStockAfterOrder(businessId, lines),
   ]);
 }
@@ -260,7 +269,12 @@ export async function POST(
       });
       await afterOrderPlaced(
         business.id,
-        { id: order.id, customerName: order.customerName },
+        {
+          id: order.id,
+          orderNumber: order.orderNumber,
+          customerName: order.customerName,
+          customerPhone: order.customerPhone,
+        },
         orderItems
       );
       return jsonOk({ orderId: order.id, orderNumber: order.orderNumber, dealApplied: true });
@@ -356,8 +370,14 @@ export async function POST(
     });
     await afterOrderPlaced(
       business.id,
-      { id: order.id, customerName: order.customerName },
-      orderItems
+      {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+      },
+      orderItems,
+      discountAmount
     );
     return jsonOk({ orderId: order.id, orderNumber: order.orderNumber });
   } catch (e) {

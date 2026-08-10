@@ -76,6 +76,9 @@ export type DashboardLabels = {
   pushTestFailed: string;
   pushTestNoSubscriptions: string;
   pushPreviewOnly: string;
+  pushAlertsBrokenBannerTitle: string;
+  pushAlertsBrokenBannerHint: string;
+  pushAlertsBrokenBannerCta: string;
   sellerNotifyPromptTitle: string;
   sellerNotifyPromptBody: string;
   sellerNotifyPromptYes: string;
@@ -1479,6 +1482,10 @@ const HE: DashboardLabels = {
     "המנוי הזה לא עובד יותר (המכשיר/הדפדפן ביטלו אותו). לחצו על \"הפעלת התראות במכשיר\" למעלה כדי להירשם מחדש.",
   pushTestNoSubscriptions: "אין מכשיר רשום — לחצו על \"הפעלת התראות במכשיר\" למעלה.",
   pushPreviewOnly: "בתצוגת דמו אין חיבור להתראות אמיתיות.",
+  pushAlertsBrokenBannerTitle: "התראות בטלפון לא פעילות בפועל",
+  pushAlertsBrokenBannerHint:
+    "ההתראות מסומנות כמופעלות, אבל אין אף מכשיר רשום בפועל — הזמנות לא יגיעו כהתראה לטלפון. הזמנות חדשות עדיין נשלחות למייל שלך כגיבוי.",
+  pushAlertsBrokenBannerCta: "הפעלת התראות עכשיו",
   sellerNotifyPromptTitle: "לקבל התראות?",
   sellerNotifyPromptBody:
     "נשלח לך התראה על פניות חדשות, הזמנות, הודעות בצ'אט ומצב מלאי — גם כשהאפליקציה סגורה.",
@@ -1486,7 +1493,7 @@ const HE: DashboardLabels = {
   sellerNotifyPromptNo: "לא עכשיו",
   subscription: "מנוי",
   subscriptionPlansTitle: "חבילות מנוי",
-  subscriptionPlansHint: "30 ימי ניסיון חינם, ואז בחרו מנוי חודשי",
+  subscriptionPlansHint: "14 ימי ניסיון חינם, ואז בחרו מנוי חודשי",
   subscriptionPlansHintNoTrial: "בחרו מנוי חודשי",
   subscriptionPremium: "פרימיום",
   subscriptionUltimate: "מתקדם",
@@ -1515,7 +1522,7 @@ const HE: DashboardLabels = {
   subscriptionUltimateFeature3: "תמיכה מועדפת",
   trialExpiredTitle: "נגמרה תקופת הניסיון",
   trialExpiredHint:
-    "אחרי 30 ימי ניסיון חינם יש ליצור קשר בוואטסאפ ולסדר תשלום כדי להשאיר את החנות פעילה.",
+    "אחרי 14 ימי ניסיון חינם יש ליצור קשר בוואטסאפ ולסדר תשלום כדי להשאיר את החנות פעילה.",
   trialExpiredEndedOn: "תקופת הניסיון הסתיימה ב־",
   trialExpiredOrDivider: "או",
   trialExpiredCloseStoreHint: "לא רוצים להמשיך? אפשר גם לסגור את החנות לצמיתות.",
@@ -2314,6 +2321,10 @@ const EN: DashboardLabels = {
     "This subscription no longer works (revoked by the device/browser). Tap \"Enable push on this device\" above to re-register.",
   pushTestNoSubscriptions: "No device registered — tap \"Enable push on this device\" above.",
   pushPreviewOnly: "Push is not available in preview mode.",
+  pushAlertsBrokenBannerTitle: "Phone push notifications aren't actually active",
+  pushAlertsBrokenBannerHint:
+    "Alerts are marked as enabled, but no device is actually registered — new orders won't reach your phone as a push notification. New orders are still emailed to you as a backup.",
+  pushAlertsBrokenBannerCta: "Enable notifications now",
   sellerNotifyPromptTitle: "Get notified?",
   sellerNotifyPromptBody:
     "We'll alert you about new inquiries, orders, chat messages, and low stock — even when the app is closed.",
@@ -2321,7 +2332,7 @@ const EN: DashboardLabels = {
   sellerNotifyPromptNo: "Not now",
   subscription: "Subscription",
   subscriptionPlansTitle: "Subscription plans",
-  subscriptionPlansHint: "30-day free trial, then choose a monthly plan",
+  subscriptionPlansHint: "14-day free trial, then choose a monthly plan",
   subscriptionPlansHintNoTrial: "Choose a monthly plan",
   subscriptionPremium: "Premium",
   subscriptionUltimate: "Pro",
@@ -2350,7 +2361,7 @@ const EN: DashboardLabels = {
   subscriptionUltimateFeature3: "Priority support",
   trialExpiredTitle: "Trial period ended",
   trialExpiredHint:
-    "After your 30-day free trial, contact us on WhatsApp to arrange payment and keep your store active.",
+    "After your 14-day free trial, contact us on WhatsApp to arrange payment and keep your store active.",
   trialExpiredEndedOn: "Trial ended on ",
   trialExpiredOrDivider: "or",
   trialExpiredCloseStoreHint: "Don't want to continue? You can close your store permanently.",

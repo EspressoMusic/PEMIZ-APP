@@ -143,6 +143,61 @@ export async function sendPlatformMessageToOwner(
   return { sent: false };
 }
 
+export async function sendNewOrderOwnerEmail(input: {
+  to: string;
+  storeName: string;
+  orderNumber: number;
+  customerName: string;
+  customerPhone: string;
+  total: number | null;
+  dashboardUrl: string;
+}): Promise<SendResult> {
+  const subject = `הזמנה חדשה #${input.orderNumber} — ${input.storeName}`;
+  const totalLine =
+    input.total != null
+      ? `<p><strong>סכום:</strong> ₪${Math.round(input.total)}</p>`
+      : "";
+  const html = `
+    <div dir="rtl" style="font-family:sans-serif;line-height:1.6">
+      <p>התקבלה הזמנה חדשה בחנות <strong>${escapeHtml(input.storeName)}</strong>:</p>
+      <p><strong>לקוח:</strong> ${escapeHtml(input.customerName)}</p>
+      <p><strong>טלפון:</strong> ${escapeHtml(input.customerPhone)}</p>
+      ${totalLine}
+      <p style="margin-top:16px"><a href="${input.dashboardUrl}">לצפייה בהזמנה בדשבורד</a></p>
+      <p style="color:#6b5c52;font-size:13px;margin-top:20px">הודעה זו נשלחת אוטומטית לכל הזמנה חדשה, בנוסף להתראת הדחיפה בטלפון (אם פעילה) — כדי שלעולם לא תפספסו הזמנה.</p>
+    </div>
+  `;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      `[Linky Email] New order notify → ${input.to}\nSubject: ${subject}\n` +
+        `Order #${input.orderNumber} · ${input.customerName} · ${input.customerPhone}`
+    );
+    return { sent: false };
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+  if (!apiKey) {
+    console.log(`[Linky Email] No RESEND_API_KEY — new order notify to ${input.to}`);
+    return { sent: false };
+  }
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from, to: [input.to], subject, html }),
+  });
+  if (!res.ok) {
+    console.error("[Linky Email] Resend failed", await res.text());
+    return { sent: false };
+  }
+  return { sent: true };
+}
+
 export type TrialWarningDaysLeft = 7 | 3 | 1;
 
 export function trialWarningCopy(daysLeft: TrialWarningDaysLeft, storeName: string, endsAt: Date) {

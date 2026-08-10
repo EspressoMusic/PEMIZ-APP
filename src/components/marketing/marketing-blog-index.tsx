@@ -41,7 +41,7 @@ export function MarketingBlogIndex({
 
   return (
     <div
-      className={marketingPublicPageClassName()}
+      className={marketingPublicPageClassName(locale)}
       data-theme="light"
       lang={locale}
       dir={dir}

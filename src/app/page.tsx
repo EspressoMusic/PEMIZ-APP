@@ -31,7 +31,7 @@ export default function HomePage() {
       "@type": "Offer",
       price: plan.priceUsd,
       priceCurrency: "USD",
-      description: "Monthly subscription with a 30-day free trial",
+      description: "Monthly subscription with a 14-day free trial",
     },
   };
 

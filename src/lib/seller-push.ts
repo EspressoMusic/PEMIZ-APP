@@ -1,6 +1,8 @@
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
 import { LOW_STOCK_THRESHOLD } from "@/lib/low-stock-threshold";
+import { sendNewOrderOwnerEmail } from "@/lib/email";
+import { appUrl } from "@/lib/app-url";
 
 const PEYMIZ_BRAND_ICON = "/icons/notification-icon.png";
 
@@ -285,18 +287,71 @@ export async function sendTestPushToOwner(
 
 export async function notifySellerNewOrder(
   businessId: string,
-  order: { id: string; customerName: string; total?: number }
+  order: {
+    id: string;
+    orderNumber: number;
+    customerName: string;
+    customerPhone: string;
+    total?: number;
+  }
 ) {
-  const total =
-    order.total != null
-      ? ` · ₪${Math.round(order.total)}`
-      : "";
-  fireSellerPush(businessId, "new_order", {
+  const totalSuffix =
+    order.total != null ? ` · ₪${Math.round(order.total)}` : "";
+  // Must be awaited (like the appointment push already is) so the actual
+  // webpush.sendNotification network call finishes before this function
+  // returns — otherwise a serverless function can tear down mid-send right
+  // after the HTTP response goes out, silently dropping the notification.
+  await fireSellerPush(businessId, "new_order", {
     title: "הזמנה חדשה",
-    body: `${order.customerName}${total}`,
+    body: `${order.customerName}${totalSuffix}`,
     url: "/dashboard",
     tag: `order-${order.id}`,
   });
+
+  // Push notifications depend on a browser subscription that can silently
+  // break (permission revoked, iOS quirks, a first-time subscribe that
+  // failed) with no error visible to the seller. Email doesn't depend on any
+  // of that, so send it in parallel as a guaranteed backup — not only when
+  // push is detected as broken, since that detection itself can be wrong.
+  await sendNewOrderBackupEmail(businessId, order);
+}
+
+async function sendNewOrderBackupEmail(
+  businessId: string,
+  order: {
+    orderNumber: number;
+    customerName: string;
+    customerPhone: string;
+    total?: number;
+  }
+) {
+  try {
+    const business = await prisma.business.findUnique({
+      where: { id: businessId },
+      select: {
+        name: true,
+        sellerAlertsEnabled: true,
+        sellerAlertOnNewOrder: true,
+        owner: { select: { email: true } },
+      },
+    });
+    if (!business?.sellerAlertsEnabled || !business.sellerAlertOnNewOrder) {
+      return;
+    }
+    if (!business.owner?.email) return;
+
+    await sendNewOrderOwnerEmail({
+      to: business.owner.email,
+      storeName: business.name,
+      orderNumber: order.orderNumber,
+      customerName: order.customerName,
+      customerPhone: order.customerPhone,
+      total: order.total ?? null,
+      dashboardUrl: appUrl("/dashboard/orders"),
+    });
+  } catch (e) {
+    console.error("[seller-push] backup email failed", e);
+  }
 }
 
 export async function notifySellerNewAppointment(

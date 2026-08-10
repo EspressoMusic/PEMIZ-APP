@@ -1,5 +1,5 @@
 /**
- * Skip the 30-day trial on local dev and Vercel preview (never production).
+ * Skip the 14-day trial on local dev and Vercel preview (never production).
  */
 export function isBusinessTrialBypassed(): boolean {
   if (process.env.VERCEL_ENV === "production") return false;
