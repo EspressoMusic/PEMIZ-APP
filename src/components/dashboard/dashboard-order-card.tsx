@@ -94,7 +94,6 @@ export function DashboardOrderDetails({
   onReject,
   onRemove,
   transferToOrdersHref,
-  onMarkOpened,
 }: {
   order: DashboardOrderView;
   total: number;
@@ -109,9 +108,6 @@ export function DashboardOrderDetails({
   /** Set only on the dashboard home widget; distinguishes its "Hide" button
    * (stays on the dashboard) from the full Orders panel's "Remove" button. */
   transferToOrdersHref?: string;
-  /** Marks the order card as opened once the seller closes this sheet with OK,
-   * so the dashboard home widget can show a "נפתח" badge in its place. */
-  onMarkOpened?: () => void;
 }) {
   const { labels, formatMoney } = useAppLocale();
   const [confirmingReject, setConfirmingReject] = useState(false);
@@ -248,10 +244,7 @@ export function DashboardOrderDetails({
             <Button
               variant="primary"
               className="min-h-[38px] flex-1 rounded-full px-3 py-2 text-[16px] font-extrabold"
-              onClick={() => {
-                onMarkOpened?.();
-                onClose();
-              }}
+              onClick={onClose}
             >
               {labels.ok}
             </Button>
@@ -311,7 +304,8 @@ export function DashboardOrderCard({
   /** See DashboardOrderDetails — set only on the dashboard home widget.
    * Also gates the "opened" badge below, which should only ever show there. */
   transferToOrdersHref?: string;
-  /** Persists the "opened" badge server-side so it survives a reload. */
+  /** Persists the "opened" badge server-side the moment the order sheet is
+   * opened, so it survives a reload regardless of how the sheet is closed. */
   onMarkOpened?: (orderId: string) => void;
 }) {
   const { labels, formatDateTime } = useAppLocale();
@@ -335,6 +329,7 @@ export function DashboardOrderCard({
       return;
     }
     onOpenChange(true);
+    if (!opened) onMarkOpened?.(order.id);
   }
 
   return (
@@ -471,9 +466,6 @@ export function DashboardOrderCard({
               : undefined
           }
           transferToOrdersHref={transferToOrdersHref}
-          onMarkOpened={
-            onMarkOpened && !opened ? () => onMarkOpened(order.id) : undefined
-          }
         />
       </DashboardActionSheet>
     </div>
