@@ -11,6 +11,7 @@ export type MarketingCopy = {
   navPricing: string;
   navFaq: string;
   navContact: string;
+  navBlog: string;
   startTrial: string;
   contactUs: string;
   scroll: string;
@@ -141,6 +142,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     navPricing: "Pricing",
     navFaq: "FAQ",
     navContact: "Contact",
+    navBlog: "Blog",
     startTrial: "Free Trial",
     contactUs: "Contact Us",
     scroll: "Scroll",
@@ -359,6 +361,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     navPricing: "מחירים",
     navFaq: "שאלות נפוצות",
     navContact: "צור קשר",
+    navBlog: "בלוג",
     startTrial: "נסיון בחינם",
     contactUs: "צור קשר",
     scroll: "גלול",

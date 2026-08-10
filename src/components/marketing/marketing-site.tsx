@@ -167,6 +167,13 @@ function MarketingSiteContent() {
               </a>
             ))}
             <Link
+              href={locale === "he" ? "/blog" : "/en/blog"}
+              prefetch={false}
+              onClick={() => setNavOpen(false)}
+            >
+              {copy.navBlog}
+            </Link>
+            <Link
               href="/login"
               prefetch={false}
               className="btn btn-primary nav-cta-mobile"
