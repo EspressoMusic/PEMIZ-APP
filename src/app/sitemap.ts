@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { getAppBaseUrl } from "@/lib/app-url";
 import { DEMO_STORE_SLUGS } from "@/lib/demo-store-slugs";
+import { getBlogPosts } from "@/lib/blog/posts";
 
 /** Last time the static marketing pages' content changed. */
 const STATIC_CONTENT_UPDATED_AT = new Date("2026-07-16");
@@ -52,6 +53,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: `${base}/blog`,
+      lastModified: STATIC_CONTENT_UPDATED_AT,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${base}/en/blog`,
+      lastModified: STATIC_CONTENT_UPDATED_AT,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+  ];
+
+  const blogRoutes: MetadataRoute.Sitemap = [
+    ...getBlogPosts("he").map((post) => ({
+      url: `${base}/blog/${post.slug}`,
+      lastModified: new Date(post.date),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+    ...getBlogPosts("en").map((post) => ({
+      url: `${base}/en/blog/${post.slug}`,
+      lastModified: new Date(post.date),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
   ];
 
   const businesses = await prisma.business.findMany({
@@ -69,5 +97,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...storeRoutes];
+  return [...staticRoutes, ...blogRoutes, ...storeRoutes];
 }
