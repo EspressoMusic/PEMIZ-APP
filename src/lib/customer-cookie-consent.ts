@@ -35,10 +35,6 @@ export function writePlatformCookieConsent(level: CustomerCookieConsentLevel) {
   writeCustomerCookieConsent(PLATFORM_COOKIE_CONSENT_SCOPE, level);
 }
 
-export function platformAllowsAnalyticsCookies(): boolean {
-  return readPlatformCookieConsent() === "all";
-}
-
 export function customerAllowsAnalyticsCookies(
   businessSlug: string
 ): boolean {
