@@ -128,15 +128,6 @@ function MarketingSiteContent() {
               goToSection("home");
             }}
           >
-            <span className="logo-mark">
-              <Image
-                src="/marketing/logo-transparent.png"
-                alt="Peymiz"
-                width={40}
-                height={40}
-                className="logo-img"
-              />
-            </span>
             <span className="logo-text">Peymiz</span>
           </a>
 
@@ -303,9 +294,6 @@ function MarketingSiteContent() {
       <section className="product" id="product">
         <div className="container">
           <div className="section-head">
-            <span className="section-eyebrow" data-reveal="scale">
-              {copy.eyebrowProduct}
-            </span>
             <h2 className="section-title center" data-reveal="scale">
               {copy.productTitle} <em>{copy.productTitleEm}</em>
             </h2>
@@ -323,9 +311,6 @@ function MarketingSiteContent() {
         <div className="pricing-glow" aria-hidden="true" />
         <div className="container">
           <div className="section-head">
-            <span className="section-eyebrow" data-reveal="scale">
-              {copy.eyebrowPricing}
-            </span>
             <h2 className="section-title center" data-reveal="scale">
               {copy.pricingTitle} <em>{copy.pricingTitleEm}</em>
             </h2>
@@ -369,9 +354,6 @@ function MarketingSiteContent() {
       <section className="faq-section" id="faq">
         <div className="container">
           <div className="section-head">
-            <span className="section-eyebrow" data-reveal="scale">
-              {copy.eyebrowFaq}
-            </span>
             <h2 className="section-title center" data-reveal="scale">
               {copy.faqTitle} <em>{copy.faqTitleEm}</em>
             </h2>

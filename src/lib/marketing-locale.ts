@@ -365,7 +365,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     startTrial: "נסיון בחינם",
     contactUs: "צור קשר",
     scroll: "גלול",
-    heroTagline: "קישור אחד פשוט לעסק שלך.",
+    heroTagline: "מהיום שום הזמנה לא הולכת לי לאיבוד.",
     eyebrowProduct: "מי אנחנו",
     productTitle: "ארבעה שלבים פשוטים.",
     productTitleEm: "ואתם באוויר.",
