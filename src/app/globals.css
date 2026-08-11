@@ -3593,7 +3593,7 @@ html[data-store-theme="dark"]
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 3rem;
+  min-height: 4rem;
   padding-inline: 0.75rem;
   text-align: center;
 }

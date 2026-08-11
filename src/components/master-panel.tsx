@@ -18,6 +18,7 @@ import {
   MessageSquare,
   MoreHorizontal,
   Search,
+  ShieldCheck,
   SlidersHorizontal,
   Smartphone,
   User,
@@ -96,6 +97,14 @@ type SystemIncidentRow = {
   publicMessage: string;
   developerMessage: string;
   stack?: string;
+};
+
+type LoginAttemptRow = {
+  id: string;
+  at: string;
+  ip: string;
+  userAgent: string | null;
+  success: boolean;
 };
 
 function MasterInner({
@@ -286,6 +295,9 @@ export function MasterPanel({
   const [actionsMiscOpen, setActionsMiscOpen] = useState(false);
   const [incidents, setIncidents] = useState<SystemIncidentRow[]>([]);
   const [incidentsOpen, setIncidentsOpen] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState<LoginAttemptRow[]>([]);
+  const [loginLogOpen, setLoginLogOpen] = useState(false);
+  const [loginLogLoading, setLoginLogLoading] = useState(false);
   const [signupsSheetOpen, setSignupsSheetOpen] = useState(false);
   const [trialClosureSheetOpen, setTrialClosureSheetOpen] = useState(false);
   const [trialWarningsSheetOpen, setTrialWarningsSheetOpen] = useState(false);
@@ -352,6 +364,18 @@ export function MasterPanel({
     }
     const res = await fetch("/api/admin/incidents", { method: "DELETE" });
     if (res.ok) setIncidents([]);
+  }
+
+  async function openLoginLog() {
+    setLoginLogOpen(true);
+    if (previewOnly) return;
+    setLoginLogLoading(true);
+    const res = await fetch("/api/admin/master-login-log");
+    if (res.ok) {
+      const data = await res.json();
+      setLoginAttempts(data.attempts ?? []);
+    }
+    setLoginLogLoading(false);
   }
 
   async function loadBusinesses() {
@@ -1176,6 +1200,12 @@ export function MasterPanel({
                       onClick={() => setIncidentsOpen(true)}
                     />
                     <DashboardActionRowButton
+                      icon={ShieldCheck}
+                      title="כניסות אחרונות לפאנל"
+                      subtitle="מי נכנס, מתי, ומאיזה IP"
+                      onClick={() => void openLoginLog()}
+                    />
+                    <DashboardActionRowButton
                       icon={Smartphone}
                       title="התראות לנייד שלי"
                       subtitle="משתמש חדש נרשם · עסק חדש הושלם"
@@ -1334,6 +1364,64 @@ export function MasterPanel({
                   נקה רשימת תקלות
                 </Button>
               </>
+            )}
+          </div>
+        </DashboardActionSheet>
+
+        {/* כניסות אחרונות לפאנל */}
+        <DashboardActionSheet
+          open={loginLogOpen}
+          onClose={() => setLoginLogOpen(false)}
+          title="כניסות אחרונות לפאנל"
+          ariaLabel="כניסות אחרונות לפאנל"
+          placement="center"
+          showBackButton
+          backButtonOutside
+          compact
+          fitContent
+          panelClassName="master-action-sheet-panel"
+          backdropClassName="master-action-sheet-backdrop"
+        >
+          <div className="space-y-2 text-start">
+            <p className="text-[12px] text-bakery-muted">
+              50 הניסיונות האחרונים להיכנס עם סיסמת המנהל — כולל ניסיונות
+              שנכשלו. אם רואים IP או זמן שלא מזהים, זה הזמן להחליף סיסמה.
+            </p>
+            {loginLogLoading ? (
+              <p className="py-8 text-center text-[14px] font-semibold text-bakery-muted">
+                טוען...
+              </p>
+            ) : loginAttempts.length === 0 ? (
+              <p className="py-8 text-center text-[14px] font-semibold text-bakery-muted">
+                אין עדיין ניסיונות כניסה מתועדים
+              </p>
+            ) : (
+              loginAttempts.map((a) => (
+                <MasterInner
+                  key={a.id}
+                  className={a.success ? "" : "master-panel-inner--error"}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[13px] font-bold text-bakery-ink">
+                      {new Date(a.at).toLocaleString("he-IL")}
+                    </p>
+                    <Badge tone={a.success ? "success" : "danger"}>
+                      {a.success ? "כניסה הצליחה" : "סיסמה שגויה"}
+                    </Badge>
+                  </div>
+                  <p dir="ltr" className="mt-1 font-mono text-[13px]">
+                    {a.ip}
+                  </p>
+                  {a.userAgent ? (
+                    <p
+                      dir="ltr"
+                      className="mt-1 truncate text-[11px] text-bakery-muted"
+                    >
+                      {a.userAgent}
+                    </p>
+                  ) : null}
+                </MasterInner>
+              ))
             )}
           </div>
         </DashboardActionSheet>

@@ -104,6 +104,18 @@ model RateLimitBucket {
   resetAt DateTime
 }
 
+/// Every attempt to log into /master — success or failure — so a suspicious
+/// active-user count in analytics can be checked against a real IP + time record.
+model MasterLoginAttempt {
+  id        String   @id @default(cuid())
+  at        DateTime @default(now())
+  ip        String
+  userAgent String?
+  success   Boolean
+
+  @@index([at])
+}
+
 model Business {
   id              String   @id @default(cuid())
   slug            String   @unique

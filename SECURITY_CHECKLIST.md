@@ -44,6 +44,8 @@
 
 - [x] Admin APIs require `hasPlatformAdminAccess()` (role + optional master session).
 - [x] Production `/master` gated by secret studio path + `MASTER_KEY` password.
+- [x] Every `/master` login attempt (success and failure) is recorded in `MasterLoginAttempt` (IP + user agent + time) and viewable in-panel under מערכת → כניסות אחרונות לפאנל.
+- [ ] `MASTER_ALLOWED_IPS` is unset (allows all IPs) — set it if you have a stable IP for a stronger lock.
 
 ## Remaining risks (documented)
 
