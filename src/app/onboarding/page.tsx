@@ -19,11 +19,11 @@ function OnboardFeatureToggleRow({
   onChange: (next: boolean) => void;
 }) {
   return (
-    <div className="w-full rounded-2xl border-2 border-bakery-border bg-[var(--bakery-cream-mid)] px-[clamp(0.75rem,2.6vw,1.75rem)] py-[clamp(0.375rem,2.4dvh,1.75rem)]">
+    <div className="w-full rounded-2xl border-2 border-bakery-border bg-[var(--bakery-cream-mid)] px-[clamp(0.75rem,2.6vw,1.75rem)] py-[clamp(0.25rem,2.4dvh,1.75rem)]">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <span className="block text-[clamp(16px,2.4dvh,20px)] font-bold text-bakery-ink">{label}</span>
-          <span className="mt-1 block text-[clamp(13px,1.8dvh,17px)] font-medium leading-snug text-bakery-muted">
+          <span className="block text-[clamp(13px,2.4dvh,20px)] font-bold text-bakery-ink">{label}</span>
+          <span className="mt-1 block text-[clamp(11px,1.8dvh,17px)] font-medium leading-snug text-bakery-muted">
             {hint}
           </span>
         </div>
@@ -97,14 +97,14 @@ export default function OnboardingPage() {
             ← {copy.onboardBack}
           </button>
         )}
-        <Panel className="dashboard-card flex min-h-0 flex-col overflow-y-auto sm:p-8">
+        <PageTitle>{step === 1 ? copy.onboardStepChooseTitle : copy.onboardTitle}</PageTitle>
+        <Panel className="dashboard-card no-scrollbar flex min-h-0 flex-col overflow-y-auto !p-[clamp(0.5rem,2.4dvh,1rem)] sm:!p-[clamp(0.5rem,2.4dvh,2rem)]">
           {step === 1 ? (
             <>
-              <PageTitle>{copy.onboardStepChooseTitle}</PageTitle>
               <div className="flex flex-1 flex-col">
                 <div className="flex flex-1 flex-col justify-center gap-[clamp(0.25rem,3.2dvh,2.5rem)]">
                 <div className="text-center">
-                  <span className="text-[clamp(17px,2.6dvh,22px)] font-bold text-bakery-ink">
+                  <span className="text-[clamp(13px,2.6dvh,22px)] font-bold text-bakery-ink">
                     {copy.onboardStoreType}
                   </span>
                   <div className="mt-[clamp(0.25rem,1.8dvh,1.25rem)] grid grid-cols-2 gap-[clamp(0.5rem,1.6dvw,0.75rem)]">
@@ -115,11 +115,11 @@ export default function OnboardingPage() {
                         type === "STORE" ? "bakery-cta-3d--primary" : "bakery-cta-3d--secondary"
                       }`}
                     >
-                      <span className="text-[clamp(16px,2.6dvh,22px)] font-bold">
+                      <span className="text-[clamp(13px,2.6dvh,22px)] font-bold">
                         {copy.onboardProductStore}
                       </span>
                       <span
-                        className={`text-[clamp(12.5px,1.7dvh,17px)] font-medium leading-tight ${
+                        className={`text-[clamp(10.5px,1.7dvh,17px)] font-medium leading-tight ${
                           type === "STORE" ? "opacity-90" : "text-bakery-muted"
                         }`}
                       >
@@ -135,11 +135,11 @@ export default function OnboardingPage() {
                           : "bakery-cta-3d--secondary"
                       }`}
                     >
-                      <span className="text-[clamp(16px,2.6dvh,22px)] font-bold">
+                      <span className="text-[clamp(13px,2.6dvh,22px)] font-bold">
                         {copy.onboardAppointments}
                       </span>
                       <span
-                        className={`text-[clamp(12.5px,1.7dvh,17px)] font-medium leading-tight ${
+                        className={`text-[clamp(10.5px,1.7dvh,17px)] font-medium leading-tight ${
                           type === "APPOINTMENTS" ? "opacity-90" : "text-bakery-muted"
                         }`}
                       >
@@ -150,7 +150,7 @@ export default function OnboardingPage() {
                 </div>
 
                 <div className="text-center">
-                  <span className="text-[clamp(17px,2.6dvh,22px)] font-bold text-bakery-ink">
+                  <span className="text-[clamp(13px,2.6dvh,22px)] font-bold text-bakery-ink">
                     {copy.onboardModeTitle}
                   </span>
                   <div className="mt-[clamp(0.25rem,1.8dvh,1.25rem)] grid grid-cols-2 gap-[clamp(0.5rem,1.6dvw,0.75rem)]">
@@ -161,11 +161,11 @@ export default function OnboardingPage() {
                         simpleMode ? "bakery-cta-3d--primary" : "bakery-cta-3d--secondary"
                       }`}
                     >
-                      <span className="text-[clamp(16px,2.6dvh,22px)] font-bold">
+                      <span className="text-[clamp(13px,2.6dvh,22px)] font-bold">
                         {copy.onboardModeSimple}
                       </span>
                       <span
-                        className={`text-[clamp(12.5px,1.7dvh,17px)] font-medium leading-tight ${
+                        className={`text-[clamp(10.5px,1.7dvh,17px)] font-medium leading-tight ${
                           simpleMode ? "opacity-90" : "text-bakery-muted"
                         }`}
                       >
@@ -179,11 +179,11 @@ export default function OnboardingPage() {
                         !simpleMode ? "bakery-cta-3d--primary" : "bakery-cta-3d--secondary"
                       }`}
                     >
-                      <span className="text-[clamp(16px,2.6dvh,22px)] font-bold">
+                      <span className="text-[clamp(13px,2.6dvh,22px)] font-bold">
                         {copy.onboardModeAdvanced}
                       </span>
                       <span
-                        className={`text-[clamp(12.5px,1.7dvh,17px)] font-medium leading-tight ${
+                        className={`text-[clamp(10.5px,1.7dvh,17px)] font-medium leading-tight ${
                           !simpleMode ? "opacity-90" : "text-bakery-muted"
                         }`}
                       >
@@ -221,7 +221,6 @@ export default function OnboardingPage() {
             </>
           ) : (
             <>
-              <PageTitle>{copy.onboardTitle}</PageTitle>
               {error && (
                 <div className="mb-4">
                   <Alert variant="error">{error}</Alert>

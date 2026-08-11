@@ -325,11 +325,9 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardDescription: "Short description",
     onboardStoreType: "Store type",
     onboardProductStore: "Product store",
-    onboardProductStoreHint:
-      "Products for sale, a shopping cart, and orders. Good for businesses selling physical products, like a bakery, clothing store, or jewelry shop.",
+    onboardProductStoreHint: "A store to sell products, a shopping cart, and orders.",
     onboardAppointments: "Appointments",
-    onboardAppointmentsHint:
-      "Customers book a slot on your calendar — for salons, therapists, and other service businesses.",
+    onboardAppointmentsHint: "Customers book a slot on your calendar for a service.",
     onboardStepChooseTitle: "What would you like to open?",
     onboardStepChooseSubtitle: "You can always change this later.",
     onboardContinue: "Continue",
@@ -345,14 +343,12 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardModeSimple: "Simple",
     onboardModeAdvanced: "Advanced",
     onboardModeSimpleShortHint: "A clean, simple panel.",
-    onboardModeAdvancedShortHint: "Extra settings like deals, coupons, customer messages, and more.",
+    onboardModeAdvancedShortHint: "Extra settings: deals, coupons, and more.",
     onboardModeChangeNote: "You can always change this later.",
     onboardFeatureOrderConfirmation: "Order confirmation",
-    onboardFeatureOrderConfirmationHint:
-      "When enabled, new orders wait for your approval before moving into processing. When disabled, orders are confirmed automatically as soon as they're placed.",
+    onboardFeatureOrderConfirmationHint: "New orders wait for your approval, otherwise auto-confirmed.",
     onboardFeatureAppointmentConfirmation: "Appointment confirmation",
-    onboardFeatureAppointmentConfirmationHint:
-      "When enabled, new appointments wait for your approval before they're confirmed on the calendar. When disabled, appointments are confirmed automatically as soon as they're booked.",
+    onboardFeatureAppointmentConfirmationHint: "New appointments wait for your approval, otherwise auto-confirmed.",
   },
   he: {
     loading: "טוען את Peymiz...",
@@ -365,7 +361,7 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     startTrial: "נסיון בחינם",
     contactUs: "צור קשר",
     scroll: "גלול",
-    heroTagline: "מהיום שום הזמנה לא הולכת לי לאיבוד.",
+    heroTagline: "מהיום שום הזמנה לא הולכת לאיבוד.",
     eyebrowProduct: "מי אנחנו",
     productTitle: "ארבעה שלבים פשוטים.",
     productTitleEm: "ואתם באוויר.",
@@ -374,19 +370,19 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     usageSteps: [
       {
         title: "פתיחת חנות",
-        body: "פותחים את דף העסק ב-Peymiz תוך דקות — בלי טכנולוגיה מסובכת.",
+        body: "פותחים דף עסק ב-Peymiz תוך כמה דקות.",
       },
       {
         title: "הוספת מוצרים",
-        body: "מפרסמים מה שאתם מוכרים או השירותים שאתם מציעים — תמונות, מחירים ופרטים.",
+        body: "מוסיפים מוצרים או שירותים — תמונות, מחירים ופרטים.",
       },
       {
         title: "שליחה ללקוח",
-        body: "שולחים קישור אחד בוואטסאפ, אינסטגרם או בכל מקום שהלקוחות מוצאים אתכם.",
+        body: "שולחים קישור אחד בוואטסאפ, אינסטגרם או בכל מקום אחר.",
       },
       {
         title: "קבלת הזמנות",
-        body: "מקבלים הזמנות והודעות ישירות ללוח הבקרה — מסודר ופשוט.",
+        body: "ההזמנות וההודעות מגיעות ישירות ללוח הבקרה.",
       },
     ],
     benefits: [
@@ -539,11 +535,9 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardDescription: "תיאור קצר",
     onboardStoreType: "סוג חנות",
     onboardProductStore: "חנות מוצרים",
-    onboardProductStoreHint:
-      "מוצרים למכירה, סל קניות והזמנות. מתאים לעסקים שמוכרים מוצרים פיזיים, כמו מאפייה.",
+    onboardProductStoreHint: "חנות מוצרים למכירה, סל קניות והזמנות.",
     onboardAppointments: "חנות תורים",
-    onboardAppointmentsHint:
-      "לקוחות קובעים תור ביומן שלך — למספרות, קוסמטיקאיות ועסקי שירות נוספים.",
+    onboardAppointmentsHint: "לקבוע תור ביומן לשירות.",
     onboardStepChooseTitle: "מה תרצה לפתוח?",
     onboardStepChooseSubtitle: "אפשר תמיד לשנות את זה בהמשך.",
     onboardContinue: "המשך",
@@ -559,14 +553,12 @@ export const MARKETING_COPY: Record<MarketingLocale, MarketingCopy> = {
     onboardModeSimple: "פשוט",
     onboardModeAdvanced: "מתקדם",
     onboardModeSimpleShortHint: "פאנל פשוט ונקי.",
-    onboardModeAdvancedShortHint: "הגדרות נוספות כמו מבצעים, קופונים, הודעה ללקוחות ועוד.",
+    onboardModeAdvancedShortHint: "הגדרות נוספות: מבצעים, קופונים ועוד.",
     onboardModeChangeNote: "אפשר תמיד לשנות את זה בהמשך.",
     onboardFeatureOrderConfirmation: "אישור הזמנה",
-    onboardFeatureOrderConfirmationHint:
-      "כשהאפשרות פעילה, כל הזמנה חדשה תמתין לאישור שלך לפני שהיא נכנסת לטיפול. כשהיא כבויה, הזמנות מאושרות אוטומטית מיד.",
+    onboardFeatureOrderConfirmationHint: "הזמנה חדשה תמתין לאישורך, אחרת תאושר אוטומטית.",
     onboardFeatureAppointmentConfirmation: "אישור תור",
-    onboardFeatureAppointmentConfirmationHint:
-      "כשהאפשרות פעילה, כל תור חדש ימתין לאישור שלך לפני שהוא נכנס ליומן כמאושר. כשהיא כבויה, תורים מאושרים אוטומטית מיד עם הקביעה.",
+    onboardFeatureAppointmentConfirmationHint: "תור חדש ימתין לאישורך, אחרת יאושר אוטומטית.",
   },
 };
 

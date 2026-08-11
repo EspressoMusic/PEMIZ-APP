@@ -2573,6 +2573,9 @@ html[data-store-theme="turquoise"]
   box-shadow:
     var(--shadow-bakery-panel),
     inset 0 0 0 1px var(--dashboard-frame-border) !important;
+  /* Semi-transparent so the corner wave decoration (auth-waves-layer, behind
+     this card) still reads through instead of being clipped by a flat edge. */
+  background: rgba(230, 212, 184, 0.7) !important;
 }
 
 html:not([data-store-theme="dark"]) .auth-surface .bakery-field {
