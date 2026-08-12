@@ -36,3 +36,13 @@ export function playOrderCompletedSound() {
 
 /** UI sounds disabled for performance and quieter UX. */
 export function playUiPopupSound() {}
+
+/** Short haptic buzz when a product is added to the cart. */
+export function vibrateProductAdded() {
+  if (typeof navigator === "undefined" || !navigator.vibrate) return;
+  try {
+    navigator.vibrate(15);
+  } catch {
+    /* ignore unsupported vibration */
+  }
+}

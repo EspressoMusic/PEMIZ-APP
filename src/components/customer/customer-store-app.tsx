@@ -42,7 +42,11 @@ import { CustomerCookieConsent } from "./customer-cookie-consent";
 import { OrderCheckoutModal } from "./order-checkout-modal";
 import type { SelectedAddress } from "./address-autocomplete-input";
 import { CustomerCartCheckoutBar } from "./customer-cart-checkout-bar";
-import { playProductAddedSound, playOrderCompletedSound } from "@/lib/ui-sounds";
+import {
+  playProductAddedSound,
+  playOrderCompletedSound,
+  vibrateProductAdded,
+} from "@/lib/ui-sounds";
 import { cn } from "@/lib/utils";
 import { formatCustomerMoney } from "@/lib/customer-money";
 import { getEffectivePrice } from "@/lib/product-price";
@@ -1782,7 +1786,10 @@ export function CustomerStoreApp({
       incremented = true;
       return { ...c, [productId]: current + 1 };
     });
-    if (incremented && soundEnabled) playProductAddedSound();
+    if (incremented) {
+      if (soundEnabled) playProductAddedSound();
+      vibrateProductAdded();
+    }
   }, [soundEnabled]);
 
   const productCartHandlers = useMemo(() => {

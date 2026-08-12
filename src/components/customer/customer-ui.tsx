@@ -994,6 +994,7 @@ export const ProductGridCard = memo(function ProductGridCard({
   const onSale =
     salePrice != null && salePrice > 0 && salePrice < price;
   const display = onSale ? salePrice! : price;
+  const isSelected = qty > 0 && !outOfStock;
 
   const stepperMax = Math.min(
     QUANTITY_STEPPER_MAX,
@@ -1003,7 +1004,11 @@ export const ProductGridCard = memo(function ProductGridCard({
   return (
     <>
     <div
-      className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-[16px] border-[1.2px] border-bakery-border/45 bg-bakery-square p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.13)] ${outOfStock ? "opacity-60" : ""}`}
+      className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-[16px] border-[1.2px] bg-bakery-square p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.13)] transition-[border-color,box-shadow] duration-200 ${
+        isSelected
+          ? "border-bakery-primary ring-2 ring-bakery-primary/35"
+          : "border-bakery-border/45"
+      } ${outOfStock ? "opacity-60" : ""}`}
     >
       <div className="aspect-square w-full shrink-0 overflow-hidden rounded-[12px] bg-bakery-card">
         <ProductGallery
